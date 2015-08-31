@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Conditional Book Transfers</title>
+    <meta charset='utf-8'>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
+            async class='remove'></script>
+    <script class='remove'>
+      var respecConfig = {
+          specStatus: "CG-DRAFT",
+          shortName:  "conditional-book-transfers",
+          editors: [
+                {   name:       "Stefan Thomas",
+                    url:        "https://justmoon.net/",
+                    company:    "Ripple Labs",
+                    companyURL: "https://www.ripplelabs.com/" }
+          ],
+          wg:           "Internet of Value Community Group",
+          wgURI:        "http://www.w3.org/Payments/IG/",
+          wgPublicList: "public-webpayments-ig",
+          localBiblio: {
+            "ILP": {
+              title: "A Protocol for Assured Interledger Payments",
+              href: "#",
+              authors: [
+                "Stefan Thomas",
+                "Evan Schwartz"
+              ],
+              status: "unofficial",
+              publisher: "Ripple Labs"
+            }
+          }
+      };
+    </script>
+  </head>
+  <body>
+    <section id='abstract'>
+      <p>
+        In order to participate in Interledger Protocol [[ILP]] payments, all ledgers taking part in a given payment must support conditional escrowed transfers and enforce them in exactly the same way. This document proposes a specific scheme for conditional transfers that ledgers can adopt.
+      </p>
+    </section>
+
+    <section id='sotd'>
+      <p><!-- Add additional "Status of This Document" notes here --></p>
+    </section>
+
+    <section>
+      <h2>Introduction</h2>
+      <p>
+        Payments within one payment network or <em>ledger</em> are usually relatively safe, fast and cheap. However, payments across ledgers or <em>interledger</em> payments today are difficult, risky, slow and expensive if they are possible at all. Most of these problems stem from a lack of standardization and competition among the systems that provide such transfers.
+      </p>
+      <p>
+        Escrowed transfers enable a secure protocol [[ILP]] for interledger payments. This provides a way for connectors to provide interledger liquidity with a minimum of trust. This lowers barriers to entry and enables the creation of a standard for interledger payments. However, the escrow semantics and rules must be agreed upon and strictly enforced among ledgers participating in a payment.
+      </p>
+      <p>
+        This document outlines the functionality that ledgers would have to provide and proposes a specific set of semantics for that functionality. Section <a href="#transfer-states"></a> explains the basic escrow semantics of holding funds and releasing them to the recipient or back to the originator based on a condition. Section <a href="#condition-types"></a> provides a list of the most useful condition types that ledgers may support.
+      </p>
+      <p>
+        Note that the <em>semantic meaning</em> of conditions must be enforced equally by all ledgers, while the <em>syntax</em> for expressing these conditions does not need to be the same. Connectors can convert between different syntax variations. In section <a href='#syntax'></a> we will provide a recommended syntax based on [[JSON-LD]]. Section <a href="#syntax-example-bitcoin"></a> gives an example of how to convert it into an existing, but very different syntax.
+      </p>
+    </section>
+    <section id="transfer-states">
+      <h2>Transfer States</h2>
+      <p>
+
+      </p>
+    </section>
+
+    <section id="condition-types">
+      <h2>Condition Types</h2>
+      <section>
+        <h2>Cryptographic Conditions</h2>
+        <p>
+
+        </p>
+        <section>
+          <h2>Signatures using asymmetric cryptography</h2>
+        </section>
+        <section>
+          <h2>Hash preimage conditions</h2>
+        </section>
+      </section>
+
+      <section>
+        <h2>Boolean Conditions</h2>
+        <p>
+
+        </p>
+        <section>
+          <h2>AND</h2>
+        </section>
+        <section>
+          <h2>OR</h2>
+        </section>
+        <section>
+          <h2>Threshold gates</h2>
+        </section>
+      </section>
+
+      <section>
+        <h2>Temporal Conditions</h2>
+        <p>
+
+        </p>
+        <section>
+          <h2>Before <em>t</em></h2>
+        </section>
+        <section>
+          <h2>After <em>t</em></h2>
+        </section>
+      </section>
+    </section>
+
+    <section id="syntax">
+      <h2>Syntax</h2>
+
+      <section id="syntax-converting">
+        <h2>Converting between syntaxes</h2>
+        <section id="syntax-example-bitcoin">
+          <h2>Example: Bitcoin scripts</h2>
+        </section>
+      </section>
+    </section>
+  </body>
+</html>
