@@ -21,7 +21,7 @@
           localBiblio: {
             "ILP": {
               title: "A Protocol for Assured Interledger Payments",
-              href: "#",
+              href: "https://interledger.org/protocol.pdf",
               authors: [
                 "Stefan Thomas",
                 "Evan Schwartz"
@@ -53,21 +53,55 @@
         Escrowed transfers enable a secure protocol [[ILP]] for interledger payments. This provides a way for connectors to provide interledger liquidity with a minimum of trust. This lowers barriers to entry and enables the creation of a standard for interledger payments. However, the escrow semantics and rules must be agreed upon and strictly enforced among ledgers participating in a payment.
       </p>
       <p>
-        This document outlines the functionality that ledgers would have to provide and proposes a specific set of semantics for that functionality. Section <a href="#transfer-states"></a> explains the basic escrow semantics of holding funds and releasing them to the recipient or back to the originator based on a condition. Section <a href="#condition-types"></a> provides a list of the most useful condition types that ledgers may support.
+        This document outlines the functionality that ledgers would have to provide and proposes a specific set of semantics for that functionality. Section <a href="#transfer-states"></a> explains the basic escrow semantics of holding funds and releasing them to the recipient or back to the originator based on a condition. Section <a href="#conditions"></a> provides a list of the most useful condition types that ledgers may support.
       </p>
       <p>
-        Note that the <em>semantic meaning</em> of conditions must be enforced equally by all ledgers, while the <em>syntax</em> for expressing these conditions does not need to be the same. Connectors can convert between different syntax variations. In section <a href='#syntax'></a> we will provide a recommended syntax based on [[JSON-LD]]. Section <a href="#syntax-example-bitcoin"></a> gives an example of how to convert it into an existing, but very different syntax.
+        Note that the <em>semantic meaning</em> of conditions must be enforced equally by all ledgers, while the <em>syntax</em> for expressing these conditions does not need to be the same. Connectors can convert between different syntax variations. In section <a href='#syntax'></a> we will provide a recommended syntax based on [[!JSON-LD]]. Section <a href="#syntax-example-bitcoin"></a> gives an example of how to convert it into an existing, but very different syntax.
       </p>
     </section>
     <section id="transfer-states">
       <h2>Transfer States</h2>
       <p>
-
+        Ledgers MUST provide escrowed transfers. A escrowed transfer MUST have a state where it can either be executed or cancelled based only on an execution and a cancellation condition respectively as outlined in this document. The semantics of the conditions are discussed in detail in section <a href="#conditions"></a>.
+      </p>
+      <p>
+        The possible states of an escrowed transfer are as follows:
+      </p>
+      <dl>
+        <dt>proposed</dt>
+        <dd>The initial state of a new transfer</dd>
+        <dt>prepared</dt>
+        <dd>The state of a transfer whose funds have been placed in escrow</dd>
+        <dt>executed</dt>
+        <dd>The state of a transfer whose execution condition has been met and whose funds have been credited to the recipient</dd>
+        <dt>cancelled</dt>
+        <dd>The state of a transfer whose cancellation condition has been met and whose funds have been returned (or never been charged) to the sender</dd>
+      </dl>
+      <p>
+        A ledger MAY enforce any rules and policies for when a transfer will transition to the <em>prepared</em> state. These policies or <em>preconditions</em> may include requirements resulting out of business, legal, compliance, risk or other considerations. When a policy is not met a ledger MAY reject the transfer or wait for the policy to be met later. For example, a ledger might require information on the purpose of a transfer for compliance reasons. At a minimum, a ledger will require authorization (directly or indirectly) from the owner of the account for this transfer. Ledgers SHOULD clearly state their policies wherever possible.
+      </p>
+      <p>
+        When transitioning a transfer to the <em>prepared</em> state, a ledger MUST ensure that it can continue to guarantee that this transfer can be executed or cancelled. This includes, but is not limited to escrowing the funds, preventing accounts that are part of the transfer from being closed and counting the transfer towards any upper limit on incoming funds for the destination account.
+      </p>
+      <p>
+        Once a transfer is <em>prepared</em> it MUST transition to <em>executed</em> iff the execution condition is met and the cancellation condition is not met.
+      </p>
+      <p>
+        Once a transfer is <em>prepared</em> it MUST transition to <em>cancelled</em> iff the cancellation condition is met.
       </p>
     </section>
 
-    <section id="condition-types">
-      <h2>Condition Types</h2>
+    <section id="conditions">
+      <h2>Conditions</h2>
+      <p>
+        Ledgers MAY support a subset or a superset of the conditions described in this document. However, they MUST publicly indicate which conditions they support and if there are any limitations on these conditions. Some condition types are part of a minimal subset that compliant ledgers MUST support. See <a href="#conditions-minimal-subset"></a>. In addition, condition types that are part of the minimal subset are introduced in their respective sections using the verb "MUST", whereas optional condition types are introduced using the verb "MAY".
+      </p>
+      <p>
+        When a connector proposes a book transfer to a ledger with an execution or cancellation condition that the ledger does not support, the ledger MUST reject the transfer.
+      </p>
+      <p>
+        Interledger connectors MUST ensure that the semantics of a given payment are safe before participating in that payment. That may include comparing the conditions of the incoming and outgoing book transfer against one another and against the ledgers' supported conditions and stated limitations.
+      </p>
       <section>
         <h2>Cryptographic Conditions</h2>
         <p>
@@ -75,8 +109,18 @@
         </p>
         <section>
           <h2>Signatures using asymmetric cryptography</h2>
+          [[!HTTP-SIGNATURES]]
+          <section>
+            <h2>RSA</h2>
+          </section>
+          <section>
+            <h2>ECDSA</h2>
+          </section>
+          <section>
+            <h2>Ed25519</h2>
+          </section>
         </section>
-        <section>
+        <section id="conditions-crypto-preimage">
           <h2>Hash preimage conditions</h2>
         </section>
       </section>
@@ -84,30 +128,79 @@
       <section>
         <h2>Boolean Conditions</h2>
         <p>
-
+          It is a useful to be able to combine conditions. For example, in some cases it may be desirable to have a transfer whose execution depends not on one signature, but on two different signatures.
         </p>
         <section>
           <h2>AND</h2>
+          <p>
+            The <tt>and</tt> condition specifies an array of sub-conditions which MAY be of any of the types specified in this document. The <tt>and</tt> condition is true iff all of its sub-conditions are true.
+          </p>
         </section>
         <section>
           <h2>OR</h2>
+          <p>
+            The <tt>or</tt> condition specifies an array of sub-conditions which MAY be of any of the types specified in this document. The <tt>or</tt> condition is true iff one or more of its sub-conditions are true.
+          </p>
         </section>
         <section>
           <h2>Threshold gates</h2>
+          <p>
+            The <tt>threshold</tt> condition is a generalization of <tt>and</tt> and <tt>or</tt>. It specifies an array of <em>n</em> sub-conditions as well as a threshold <em>t</em> which MUST be less than or equal to <em>n</em>. The <tt>threshold</tt> condition is true if <em>t</em> of its subconditions are true. If <em>t = 1</em>, the <tt>threshold</tt> condition behaves the same as an <tt>or</tt> condition. If <em>t = n</em>, the threshold condition behaves the same as an <tt>and</tt> condition.
+          </p>
+        </section>
+        <section>
+          <h2>Weighted threshold gates</h2>
+          <p>
+            The <tt>weighted-threshold</tt> condition is similar to the <tt>threshold</tt> condition, except each sub-condition MAY optionally specify a weight <em>w</em>. If a sub-condition does not specify a weight, <em>w = 1</em> is assumed. The threshold <em>t</em> MUST be less than or equal to the sum of the weights. When counting the weights, each true condition counts for <em>w</em> and the <tt>weighted-threshold</tt> condition is true iff the sum of weights for true sub-conditions is greater than or equal to <em>t</em>.
+          </p>
+        </section>
+        <section>
+          <h2>NOT</h2>
+          <p>Ledgers MAY offer conditions which guarantee that a ledger has not seen a valid fulfillment of a given cryptographic condition.</p>
+          <p>A <tt>not</tt> condition specifies a single sub-condition which MUST be a cryptographic condition.</p>
+          <p>Ledgers who offer this type of condition MUST keep a record of every transfer and its conditions. In addition, the MUST record any valid fulfillment for a cryptographic condition if it fulfills a condition or subcondition of any transfer on record. Valid fulfillments for conditions that are not part of any transfer on record MAY be discarded.</p>
+          <p>A <tt>not</tt> condition is true iff the ledger has never recorded a fulfillment for the provided sub-condition.</p>
         </section>
       </section>
 
       <section>
         <h2>Temporal Conditions</h2>
         <p>
-
+          Temporal conditions are conditions that are true or false based on an objective view of time. For the purposes of this document we use Universal Coordinated Time (UTC) expressed in [[!RFC3339]] format.
         </p>
-        <section>
+        <section id="conditions-before-t">
           <h2>Before <em>t</em></h2>
+          <p>
+            The <tt>before</tt> condition is true iff the current time is less than the provided timestamp.
+          </p>
         </section>
-        <section>
+        <section id="conditions-after-t">
           <h2>After <em>t</em></h2>
+          <p>
+            The <tt>after</tt> condition is true iff the current time is greater than the provided timestamp.
+          </p>
         </section>
+      </section>
+
+      <section id="conditions-minimal-subset">
+        <h2>Minimal Subset</h2>
+        <p>
+          Ledgers MUST at least support the following conditions in the execution condition:
+        </p>
+        <ul>
+          <li>SHA-2-256 hash preimage condition as described in <a href="#conditions-crypto-preimage"></a></li>
+        </ul>
+        <p>
+          Ledgers MUST at least support the following conditions in the cancellation condition:
+        </p>
+        <ul>
+          <li>After <em>t</em> condition as described in <a href="#conditions-after-t"></a></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Other Conditions</h2>
+        <p>Many different types of conditions are possible. In order to allow a wide variety of ledgers to implement this set of conditions correctly, we chose </p>
       </section>
     </section>
 
