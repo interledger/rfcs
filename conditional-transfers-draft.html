@@ -53,7 +53,7 @@
         Escrowed transfers enable a secure protocol [[ILP]] for interledger payments. This provides a way for connectors to provide interledger liquidity with a minimum of trust. This lowers barriers to entry and enables the creation of a standard for interledger payments. However, the escrow semantics and rules must be agreed upon and strictly enforced among ledgers participating in a payment.
       </p>
       <p>
-        This document outlines the functionality that ledgers would have to provide and proposes a specific set of semantics for that functionality. Section <a href="#transfer-states"></a> explains the basic escrow semantics of holding funds and releasing them to the recipient or back to the originator based on a condition. Section <a href="#conditions"></a> provides a list of the most useful condition types that ledgers may support.
+        This document outlines the functionality that ledgers would have to provide and proposes a specific set of semantics for that functionality. Section <a href="#transfer-states"></a> explains the basic escrow semantics of holding funds and releasing them to the recipient or back to the originator based on a condition. Section <a href="#condition-types"></a> provides a list of the most useful condition types that ledgers may support.
       </p>
       <p>
         Note that the <em>semantic meaning</em> of conditions must be enforced equally by all ledgers, while the <em>syntax</em> for expressing these conditions does not need to be the same. Connectors can convert between different syntax variations. In section <a href='#syntax'></a> we will provide a recommended syntax based on [[!JSON-LD]]. Section <a href="#syntax-example-bitcoin"></a> gives an example of how to convert it into an existing, but very different syntax.
@@ -62,7 +62,7 @@
     <section id="transfer-states">
       <h2>Transfer States</h2>
       <p>
-        Ledgers MUST provide escrowed transfers. A escrowed transfer MUST have a state where it can either be executed or cancelled based only on an execution and a cancellation condition respectively as outlined in this document. The semantics of the conditions are discussed in detail in section <a href="#conditions"></a>.
+        Ledgers MUST provide escrowed transfers. A escrowed transfer MUST have a state where it can either be executed or cancelled based only on an execution and a cancellation condition respectively as outlined in this document. The semantics of the conditions are discussed in detail in section <a href="#condition-types"></a>.
       </p>
       <p>
         The possible states of an escrowed transfer are as follows:
@@ -91,10 +91,83 @@
       </p>
     </section>
 
-    <section id="conditions">
-      <h2>Conditions</h2>
+    <section id="syntax">
+      <h2>Syntax</h2>
+
       <p>
-        Ledgers MAY support a subset or a superset of the conditions described in this document. However, they MUST publicly indicate which conditions they support and if there are any limitations on these conditions. Some condition types are part of a minimal subset that compliant ledgers MUST support. See <a href="#conditions-minimal-subset"></a>. In addition, condition types that are part of the minimal subset are introduced in their respective sections using the verb "MUST", whereas optional condition types are introduced using the verb "MAY".
+        Conditions MAY be described using any syntax. This document introduces and uses a recommended syntax based on JSON.
+      </p>
+
+      <section id="syntax-converting">
+        <h2>Converting between syntaxes</h2>
+
+        <!-- TODO: Maybe should be in appendix? -->
+        <section id="syntax-example-bitcoin">
+          <h2>Example: Bitcoin scripts</h2>
+        </section>
+      </section>
+    </section>
+
+    <section id="conditions">
+      <h2>Condition</h2>
+      <p>
+        A condition is an object describing a statement which is either true or false. The fields of this object depend on the type of condition. The different types and their constituent fields are described in section <a href="#condition-types"></a>.
+      </p>
+
+      <pre class='example highlight'>
+        {
+          "type": "preimage-sha-2-256",
+          "hash": "13550350a8681c84c861aac2e5b440161c2b33a3e4f302ac680ca5b686de48de"
+        }
+      </pre>
+    </section>
+
+    <section id="fulfillment">
+      <h2>Fulfillment</h2>
+
+      <p>
+        Conditions may be fulfilled explicitly, by submitting a fulfillment object. Or they may be fulfilled implicitly depending on the condition.
+      </p>
+
+      <section id="fulfillment-explicit">
+        <h2>Explicit fulfillment</h2>
+        <p>
+          Some conditions can be fulfilled explicitly by submitting a fulfillment object to the ledger.
+        </p>
+        <p>
+          Here is an example condition and corresponding fulfillment:
+        </p>
+
+        <pre class='example highlight'>
+          // Condition
+          {
+            "@context": "https://interledger.org/schema/condition",
+            "type": "preimage-sha-2-256",
+            "hash": "13550350a8681c84c861aac2e5b440161c2b33a3e4f302ac680ca5b686de48de"
+          }
+
+          // Fulfillment
+          {
+            "@context": "https://interledger.org/schema/fulfillment",
+            "type": "preimage-sha-2-256",
+            "message": "ZXhhbXBsZQo="
+          }
+        </pre>
+      </section>
+
+      <section id="fulfillment-implicit">
+        <h2>Implicit fulfillment</h2>
+
+        <p>
+          Some conditions, such as <a href="#condition-types-temporal"></a> can only be fulfilled implicitly.
+        </p>
+      </section>
+    </section>
+
+    <section id="condition-types">
+      <h2>Condition Types</h2>
+      <p>
+        Ledgers MAY support a subset or a superset of the conditions described in this document. However, they MUST publicly indicate which conditions they support and if there are any limitations on these conditions. Some condition types are part of a minimal subset that compliant ledgers MUST support. See <a href="#condition-types-minimal-subset"></a>. In addition, condition types that are part of the minimal subset are introduced in their respective sections using the verb "MUST", whereas optional condition types are introduced using the verb "MAY".
       </p>
       <p>
         When a connector proposes a book transfer to a ledger with an execution or cancellation condition that the ledger does not support, the ledger MUST reject the transfer.
@@ -105,11 +178,14 @@
       <section>
         <h2>Cryptographic Conditions</h2>
         <p>
-
+          Generally, escrowed transfers are dependent on conditions that are external to the ledger on which the transfer is taking place. Since a ledger can't perceive these conditions directly, we will provide it with a cryptographic representation of the condition. Note that the meaning of a given condition may not be known to the ledger and does not need to be.
         </p>
         <section>
           <h2>Signatures using asymmetric cryptography</h2>
-          [[!HTTP-SIGNATURES]]
+          <p>
+            An asymmetric cryptographic condition generally specifies some algorithm, a message to be signed and a public key that it needs to be signed with. The condition is fulfilled when a valid signature matching these inputs is provided.
+            [[!HTTP-SIGNATURES]]
+          </p>
           <section>
             <h2>RSA</h2>
           </section>
@@ -163,7 +239,7 @@
         </section>
       </section>
 
-      <section>
+      <section id="condition-types-temporal">
         <h2>Temporal Conditions</h2>
         <p>
           Temporal conditions are conditions that are true or false based on an objective view of time. For the purposes of this document we use Universal Coordinated Time (UTC) expressed in [[!RFC3339]] format.
@@ -188,30 +264,19 @@
           Ledgers MUST at least support the following conditions in the execution condition:
         </p>
         <ul>
-          <li>SHA-2-256 hash preimage condition as described in <a href="#conditions-crypto-preimage"></a></li>
+          <li>SHA-2-256 hash preimage condition as described in <a href="#condition-types-crypto-preimage"></a></li>
         </ul>
         <p>
           Ledgers MUST at least support the following conditions in the cancellation condition:
         </p>
         <ul>
-          <li>After <em>t</em> condition as described in <a href="#conditions-after-t"></a></li>
+          <li>After <em>t</em> condition as described in <a href="#condition-types-after-t"></a></li>
         </ul>
       </section>
 
       <section>
         <h2>Other Conditions</h2>
         <p>Many different types of conditions are possible. In order to allow a wide variety of ledgers to implement this set of conditions correctly, we chose </p>
-      </section>
-    </section>
-
-    <section id="syntax">
-      <h2>Syntax</h2>
-
-      <section id="syntax-converting">
-        <h2>Converting between syntaxes</h2>
-        <section id="syntax-example-bitcoin">
-          <h2>Example: Bitcoin scripts</h2>
-        </section>
       </section>
     </section>
   </body>
