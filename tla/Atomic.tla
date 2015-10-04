@@ -15,7 +15,7 @@
 (*   International License https://creativecommons.org/licenses/by/4.0/    *)
 (***************************************************************************)
 
-EXTENDS Naturals, Sequences, TLC
+EXTENDS Naturals, Sequences, Bags, TLC
 
 \* The set of ledger IDs
 CONSTANTS Ledger
@@ -33,8 +33,7 @@ CONSTANTS PrepareRequest, ExecuteRequest, PrepareNotify, ExecuteNotify
 \* Global variables
 
 \* A bag of records representing requests and responses sent from one server
-\* to another. TLAPS doesn't support the Bags module, so this is a function
-\* mapping Message to Nat.
+\* to another.
 VARIABLE messages
 
 ----
@@ -70,15 +69,15 @@ WithoutMessage(m, msgs) ==
         msgs
 
 \* Add a message to the bag of messages.
-Send(m) == messages' = WithMessage(m, messages)
+Send(m) == messages' = messages (+) SetToBag({m})
 
 \* Remove a message from the bag of messages. Used when a server is done
 \* processing a message.
-Discard(m) == messages' = WithoutMessage(m, messages)
+Discard(m) == messages' = messages (-) SetToBag({m})
 
 \* Combination of Send and Discard
 Reply(response, request) ==
-    messages' = WithoutMessage(request, WithMessage(response, messages))
+    messages' = messages (-) SetToBag({request}) (+) SetToBag({response})
 
 \* Return the minimum value from a set, or undefined if the set is empty.
 Min(s) == CHOOSE x \in s : \A y \in s : x <= y
@@ -90,7 +89,7 @@ Max(s) == CHOOSE x \in s : \A y \in s : x >= y
 
 InitLedgerVars == /\ transferState = [i \in Ledger |-> Proposed]
 
-Init == /\ messages = [m \in {} |-> 0]
+Init == /\ messages = EmptyBag
         /\ InitLedgerVars
 
 ----
