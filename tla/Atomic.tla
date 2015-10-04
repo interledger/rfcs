@@ -28,13 +28,16 @@ CONSTANTS Participant
 CONSTANTS Notary
 
 \* Sender states
-CONSTANTS Ready, Waiting, Done
+CONSTANTS S_Ready, S_Waiting, S_Done
 
-\* Transfer states
-CONSTANTS Proposed, Prepared, Executed, Aborted
+\* Notary states
+CONSTANTS N_Waiting, N_Committed, N_Aborted
+
+\* Ledger states
+CONSTANTS L_Proposed, L_Prepared, L_Executed, L_Aborted
 
 \* Message types
-CONSTANTS PrepareRequest, ExecuteRequest, PrepareNotify, ExecuteNotify, SubmitReceiptRequest
+CONSTANTS PrepareRequest, ExecuteRequest, AbortRequest, PrepareNotify, ExecuteNotify, AbortNotify, SubmitReceiptRequest
 
 ----
 \* Global variables
@@ -46,7 +49,7 @@ VARIABLE messages
 ----
 \* Sender variables
 
-\* State of the sender (Ready, Waiting, Done)
+\* State of the sender (S_Ready, S_Waiting, S_Done)
 VARIABLE senderState
 
 \* All sender variables
@@ -54,37 +57,32 @@ senderVars == <<senderState>>
 ----
 \* The following variables are all per ledger (functions with domain Ledger)
 
-\* The transfer state (Proposed, Prepared, Executed or Aborted)
-VARIABLE transferState
+\* The ledger state (L_Proposed, L_Prepared, L_Executed or L_Aborted)
+VARIABLE ledgerState
 
 \* All ledger variables
-ledgerVars == <<transferState>>
+ledgerVars == <<ledgerState>>
+----
+\* Notary variables
+
+\* State of the notary (N_Waiting, N_Committed, N_Aborted)
+VARIABLE notaryState
+
+\* All notary variables
+notaryVars == <<notaryState>>
 ----
 
 \* All variables; used for stuttering (asserting state hasn't changed)
-vars == <<messages, senderVars, ledgerVars>>
+vars == <<messages, senderVars, ledgerVars, notaryVars>>
 
 ----
 \* Helpers
 
-\* Helper for Send and Reply. Given a message m and bag of messages, return a
-\* new bag of messages with one more m in it.
-WithMessage(m, msgs) ==
-    IF m \in DOMAIN msgs THEN
-        [msgs EXCEPT ![m] = msgs[m] + 1]
-    ELSE
-        msgs @@ (m :> 1)
+\* Add a set of new messages in transit 
+Broadcast(m) == messages' = messages (+) SetToBag(m)
 
-\* Helper for Discard and Reply. Given a message m and bag of messages, return
-\* a new bag of messages with one less m in it.
-WithoutMessage(m, msgs) ==
-    IF m \in DOMAIN msgs THEN
-        [msgs EXCEPT ![m] = msgs[m] - 1]
-    ELSE
-        msgs
-
-\* Add a message to the bag of messages.
-Send(m) == messages' = messages (+) SetToBag({m})
+\* Add a message to the bag of messages
+Send(m) == Broadcast({m})
 
 \* Remove a message from the bag of messages. Used when a server is done
 \* processing a message.
@@ -104,45 +102,60 @@ Min(s) == CHOOSE x \in s : \A y \in s : x <= y
 \* Return the maximum value from a set, or undefined if the set is empty.
 Max(s) == CHOOSE x \in s : \A y \in s : x >= y
 
+\* Is a final ledger state
+IsFinalLedgerState(i) == i \in {L_Executed, L_Aborted}
+
 ----
 \* Define type specification for all variables
 
 TypeOK == /\ IsABag(messages)
-          /\ senderState \in {Ready, Waiting, Done}
-          /\ transferState \in [Ledger -> {Proposed, Prepared, Executed, Aborted}]
+          /\ senderState \in {S_Ready, S_Waiting, S_Done}
+          /\ ledgerState \in [Ledger -> {L_Proposed, L_Prepared, L_Executed, L_Aborted}]
 
 ----
 \* Define initial values for all variables
 
-InitSenderVars == /\ senderState = Ready
+InitSenderVars == /\ senderState = S_Ready
 
-InitLedgerVars == /\ transferState = [i \in Ledger |-> Proposed]
+InitLedgerVars == /\ ledgerState = [i \in Ledger |-> L_Proposed]
+
+InitNotaryVars == /\ notaryState = N_Waiting
 
 Init == /\ messages = EmptyBag
         /\ InitSenderVars
         /\ InitLedgerVars
+        /\ InitNotaryVars
 
 ----
 \* Define state transitions
 
-\* A participant i asks a ledger j to prepare a transfer
-Prepare(i, j) ==
-    /\ Send([mtype   |-> PrepareRequest,
-             msource |-> i,
-             mdest   |-> j])
-
-\* Server i spontaneously requests somebody should execute the transfer - lolwat?
-Execute(i, j) ==
-    /\ Send([mtype   |-> ExecuteRequest,
-             msource |-> i,
-             mdest   |-> j])
-
 \* Participant i starts off the chain
 Start(i) ==
-    /\ senderState = Ready
-    /\ senderState' = Waiting
-    /\ Prepare(i, i+1)
-    /\ UNCHANGED <<ledgerVars>>
+    /\ senderState = S_Ready
+    /\ senderState' = S_Waiting
+    /\ Send([mtype   |-> PrepareRequest,
+             msource |-> i,
+             mdest   |-> i+1])
+    /\ UNCHANGED <<ledgerVars, notaryVars>>
+
+\* Notary times out
+NotaryTimeout ==
+    /\ notaryState = N_Waiting
+    /\ notaryState' = N_Aborted
+    /\ Broadcast(
+            {[mtype    |-> AbortRequest,
+              msource  |-> Notary,
+              mdest    |-> k] : k \in Ledger})
+    /\ UNCHANGED <<senderVars, ledgerVars>>
+
+\* Ledger spontaneously aborts
+LedgerAbort(l) ==
+    /\ ledgerState[l] = L_Proposed
+    /\ ledgerState' = [ledgerState EXCEPT ![l] = L_Aborted]
+    /\ Send([mtype   |-> AbortNotify,
+             msource |-> l,
+             mdest   |-> l-1])
+    /\ UNCHANGED <<senderVars, notaryVars>>
 
 ----
 \* Message handlers
@@ -150,31 +163,46 @@ Start(i) ==
 
 \* Server i receives a Prepare request from participant j
 HandlePrepareRequest(i, j, m) ==
-    LET valid == /\ transferState[i] = Proposed
+    LET valid == /\ ledgerState[i] = L_Proposed
                  /\ j = i - 1
     IN \/ /\ valid
-          /\ transferState' = [transferState EXCEPT ![i] = Prepared]
+          /\ ledgerState' = [ledgerState EXCEPT ![i] = L_Prepared]
           /\ Reply([mtype   |-> PrepareNotify,
                     msource |-> i,
                     mdest   |-> i+1], m)
-          /\ UNCHANGED <<senderVars>>
+          /\ UNCHANGED <<senderVars, notaryVars>>
        \/ /\ \lnot valid
           /\ Discard(m)
-          /\ UNCHANGED <<senderVars, ledgerVars>>
+          /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
 
 \* Server i receives an Execute request from server j
 HandleExecuteRequest(i, j, m) ==
-    LET valid == /\ transferState[i] = Prepared
+    LET valid == /\ ledgerState[i] = L_Prepared
                  /\ j = Notary
     IN \/ /\ valid
-          /\ transferState' = [transferState EXCEPT ![i] = Executed]
+          /\ ledgerState' = [ledgerState EXCEPT ![i] = L_Executed]
           /\ Reply([mtype   |-> ExecuteNotify,
                     msource |-> i,
                     mdest   |-> i-1], m)
-          /\ UNCHANGED <<senderVars>>
+          /\ UNCHANGED <<senderVars, notaryVars>>
        \/ /\ \lnot valid
           /\ Discard(m)
-          /\ UNCHANGED <<senderVars, ledgerVars>>
+          /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
+
+\* Server i receives an Abort request from server j
+HandleAbortRequest(i, j, m) ==
+    LET valid == /\ \/ ledgerState[i] = L_Proposed
+                    \/ ledgerState[i] = L_Prepared
+                 /\ j = Notary
+    IN \/ /\ valid
+          /\ ledgerState' = [ledgerState EXCEPT ![i] = L_Aborted]
+          /\ Reply([mtype   |-> AbortNotify,
+                    msource |-> i,
+                    mdest   |-> i-1], m)
+          /\ UNCHANGED <<senderVars, notaryVars>>
+       \/ /\ \lnot valid
+          /\ Discard(m)
+          /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
 
 \* Ledger j notifies participant i that the transfer is prepared
 HandlePrepareNotify(i, j, m) ==
@@ -183,23 +211,12 @@ HandlePrepareNotify(i, j, m) ==
           /\ Reply([mtype   |-> SubmitReceiptRequest,
                     msource |-> i,
                     mdest   |-> Notary], m)
-          /\ UNCHANGED <<senderVars, ledgerVars>>
+          /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
        \/ /\ \lnot isRecipient
           /\ Reply([mtype   |-> PrepareRequest,
                     msource |-> i,
                     mdest   |-> i+1], m)
-          /\ UNCHANGED <<senderVars, ledgerVars>>
-
-HandleSubmitReceiptRequest(i, j, m) ==
-    \/ /\ i = Notary
-       /\ ReplyBroadcast(
-            {[mtype    |-> ExecuteRequest,
-              msource  |-> i,
-              mdest    |-> k] : k \in Ledger}, m)
-       /\ UNCHANGED <<senderVars, ledgerVars>>
-    \/ /\ i # Notary
-       /\ Discard(m)
-       /\ UNCHANGED <<senderVars, ledgerVars>>
+          /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
 
 \* Ledger j notifies participant i that the transfer is executed
 HandleExecuteNotify(i, j, m) ==
@@ -208,16 +225,44 @@ HandleExecuteNotify(i, j, m) ==
           /\ Reply([mtype   |-> ExecuteRequest,
                     msource |-> i,
                     mdest   |-> i-1], m)
-          /\ UNCHANGED <<senderVars, ledgerVars>>
+          /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
        \/ /\ isSender
-          /\ senderState = Waiting
-          /\ senderState' = Done
+          /\ senderState = S_Waiting
+          /\ senderState' = S_Done
           /\ Discard(m)
-          /\ UNCHANGED <<ledgerVars>>
+          /\ UNCHANGED <<ledgerVars, notaryVars>>
        \/ /\ isSender
-          /\ senderState # Waiting
+          /\ senderState # S_Waiting
           /\ Discard(m)
-          /\ UNCHANGED <<senderVars, ledgerVars>>
+          /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
+
+\* Ledger j notifies participant i that the transfer is aborted
+HandleAbortNotify(i, j, m) ==
+    LET isSenderAndWaiting == /\ i = Min(Participant)
+                              /\ \/ senderState = S_Waiting
+                                 \/ senderState = S_Ready
+    IN \/ /\ isSenderAndWaiting
+          /\ senderState' = S_Done
+          /\ Discard(m)
+          /\ UNCHANGED <<ledgerVars, notaryVars>>
+       \/ /\ \lnot isSenderAndWaiting
+          /\ Discard(m)
+          /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
+
+\* Notary receives a signed receipt
+HandleSubmitReceiptRequest(i, j, m) ==
+    \/ /\ i = Notary
+       /\ notaryState = N_Waiting
+       /\ notaryState = N_Committed
+       /\ ReplyBroadcast(
+            {[mtype    |-> ExecuteRequest,
+              msource  |-> i,
+              mdest    |-> k] : k \in Ledger}, m)
+       /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
+    \/ /\ \/ i # Notary
+          \/ notaryState # N_Waiting
+       /\ Discard(m)
+       /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
 
 \* Receive a message.
 Receive(m) ==
@@ -227,10 +272,14 @@ Receive(m) ==
           /\ HandlePrepareRequest(i, j, m)
        \/ /\ m.mtype = ExecuteRequest
           /\ HandleExecuteRequest(i, j, m)
+       \/ /\ m.mtype = AbortRequest
+          /\ HandleAbortRequest(i, j, m)
        \/ /\ m.mtype = PrepareNotify
           /\ HandlePrepareNotify(i, j, m)
        \/ /\ m.mtype = ExecuteNotify
           /\ HandleExecuteNotify(i, j, m)
+       \/ /\ m.mtype = AbortNotify
+          /\ HandleAbortNotify(i, j, m)
        \/ /\ m.mtype = SubmitReceiptRequest
           /\ HandleSubmitReceiptRequest(i, j, m)
 
@@ -241,22 +290,28 @@ Receive(m) ==
 \* The network duplicates a message
 DuplicateMessage(m) ==
     /\ Send(m)
-    /\ UNCHANGED <<senderVars, ledgerVars>>
+    /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
 
 \* The network drops a message
 DropMessage(m) ==
     /\ Discard(m)
-    /\ UNCHANGED <<senderVars, ledgerVars>>
+    /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
 
 ----
 \* Defines how the variables may transition.
 
 Termination == 
-    /\ \A l \in Ledger : transferState[l] \in {Executed, Aborted}
-    /\ senderState = Done
-    /\ UNCHANGED vars 
+    /\ \A l \in Ledger : IsFinalLedgerState(ledgerState[l])
+    /\ senderState = S_Done
+    /\ UNCHANGED vars
+
+Consistency ==
+    \A l1, l2 \in Ledger : \lnot /\ ledgerState[l1] = L_Aborted
+                                 /\ ledgerState[l2] = L_Executed
 
 Next == \/ Start(Min(Participant))
+        \/ NotaryTimeout
+        \/ \E l \in Ledger : LedgerAbort(l)
         \/ \E m \in DOMAIN messages : Receive(m)
 \*        \/ \E m \in DOMAIN messages : DuplicateMessage(m)
 \*        \/ \E m \in DOMAIN messages : DropMessage(m)
