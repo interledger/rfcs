@@ -3,16 +3,17 @@
 (* Formal Specification in TLA^+ of the                                    *)
 (* Interledger Protocol Atomic (ILP/A)                                     *)
 (*                                                                         *)
-(* Copyright 2015 Stefan Thomas.                                           *)
-(* This work is licensed under the Creative Commons Attribution-4.0        *)
-(* International License https://creativecommons.org/licenses/by/4.0/      *)
+(*`.                                                                       *)
+(* Copyright 2015 Ripple Labs.                                             *)
+(*    This work is licensed under the Creative Commons Attribution-4.0     *)
+(*    International License https://creativecommons.org/licenses/by/4.0/   *)
 (*                                                                         *)
-(* Modeled after the excellent work by Diego Ongaro:                       *)
-(*   Raft - Formal Specification                                           *)
-(*   Available at https://github.com/ongardie/raft.tla                     *)
+(* Modeled after the excellent Raft specification by Diego Ongaro.         *)
+(*   Available at `\href{https://github.com/ongardie/raft.tla}{Test}'      *)
+(*                                                                         *)
 (*   Copyright 2014 Diego Ongaro.                                          *)
 (*   This work is licensed under the Creative Commons Attribution-4.0      *)
-(*   International License https://creativecommons.org/licenses/by/4.0/    *)
+(*   International License https://creativecommons.org/licenses/by/4.0/  .'*)
 (***************************************************************************)
 
 EXTENDS Naturals, Sequences, Bags, TLC
@@ -23,11 +24,14 @@ CONSTANTS Ledger
 \* The set of participant IDs
 CONSTANTS Participant
 
+\* The notary
+CONSTANTS Notary
+
 \* Transfer states
 CONSTANTS Proposed, Prepared, Executed, Aborted
 
 \* Message types
-CONSTANTS PrepareRequest, ExecuteRequest, PrepareNotify, ExecuteNotify
+CONSTANTS PrepareRequest, ExecuteRequest, PrepareNotify, ExecuteNotify, SubmitReceiptRequest
 
 ----
 \* Global variables
@@ -75,9 +79,14 @@ Send(m) == messages' = messages (+) SetToBag({m})
 \* processing a message.
 Discard(m) == messages' = messages (-) SetToBag({m})
 
+\* Respond to a message by sending multiple messages
+ReplyBroadcast(responses, request) ==
+    messages' = messages (-) SetToBag({request}) (+) SetToBag(responses)
+
 \* Combination of Send and Discard
 Reply(response, request) ==
-    messages' = messages (-) SetToBag({request}) (+) SetToBag({response})
+    ReplyBroadcast({response}, request)
+
 
 \* Return the minimum value from a set, or undefined if the set is empty.
 Min(s) == CHOOSE x \in s : \A y \in s : x <= y
@@ -133,6 +142,7 @@ HandlePrepareRequest(i, j, m) ==
 \* Server i receives an Execute request from server j
 HandleExecuteRequest(i, j, m) ==
     LET valid == /\ transferState[i] = Prepared
+                 /\ j = Notary
     IN \/ /\ valid
           /\ transferState' = [transferState EXCEPT ![i] = Executed]
           /\ Reply([mtype   |-> ExecuteNotify,
@@ -146,15 +156,26 @@ HandleExecuteRequest(i, j, m) ==
 HandlePrepareNotify(i, j, m) ==
     LET isRecipient == i = Max(Participant)
     IN \/ /\ isRecipient
-          /\ Reply([mtype   |-> ExecuteRequest,
+          /\ Reply([mtype   |-> SubmitReceiptRequest,
                     msource |-> i,
-                    mdest   |-> i-1], m)
+                    mdest   |-> Notary], m)
           /\ UNCHANGED <<ledgerVars>>
        \/ /\ \lnot isRecipient
           /\ Reply([mtype   |-> PrepareRequest,
                     msource |-> i,
                     mdest   |-> i+1], m)
           /\ UNCHANGED <<ledgerVars>>
+
+HandleSubmitReceiptRequest(i, j, m) ==
+    \/ /\ i = Notary
+       /\ ReplyBroadcast(
+            {[mtype    |-> ExecuteRequest,
+              msource  |-> i,
+              mdest    |-> k] : k \in Ledger}, m)
+       /\ UNCHANGED <<ledgerVars>>
+    \/ /\ i # Notary
+       /\ Discard(m)
+       /\ UNCHANGED <<ledgerVars>>
 
 \* Ledger j notifies participant i that the transfer is executed
 HandleExecuteNotify(i, j, m) ==
@@ -180,6 +201,8 @@ Receive(m) ==
           /\ HandlePrepareNotify(i, j, m)
        \/ /\ m.mtype = ExecuteNotify
           /\ HandleExecuteNotify(i, j, m)
+       \/ /\ m.mtype = SubmitReceiptRequest
+          /\ HandleSubmitReceiptRequest(i, j, m)
 
 \* End of message handlers.
 ----
