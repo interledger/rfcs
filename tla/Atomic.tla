@@ -88,10 +88,12 @@ Init == /\ messages = [m \in {} |-> 0]
 ----
 \* Define state transitions
 
-\* Server i spontaneously executes the transfer - lolwat?
-Execute(i) ==
-    /\ transferState'          = [transferState EXCEPT ![i] = Executed]
-    /\ UNCHANGED <<messages>>
+\* Server i spontaneously requests somebody should execute the transfer - lolwat?
+Execute(i, j) ==
+    /\ Send([mtype   |-> ExecuteRequest,
+             msource |-> i,
+             mdest   |-> j])
+    /\ UNCHANGED <<ledgerVars>>
 
 ----
 \* Message handlers
@@ -127,13 +129,11 @@ DropMessage(m) ==
 ----
 \* Defines how the variables may transition.
 
-Next == \E i \in Ledger : Execute(i)
+Next == \/ \E i, j \in Ledger : Execute(i, j)
+        \/ \E m \in DOMAIN messages : Receive(m)
 
 \* The specification must start with the initial state and transition according
 \* to Next.
 Spec == Init /\ [][Next]_vars
 
 =============================================================================
-\* Modification History
-\* Last modified Sat Oct 03 22:20:11 PDT 2015 by moon
-\* Created Sat Oct 03 19:18:02 PDT 2015 by moon
