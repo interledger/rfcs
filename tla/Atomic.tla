@@ -27,6 +27,9 @@ CONSTANTS Participant
 \* The notary
 CONSTANTS Notary
 
+\* Sender states
+CONSTANTS Ready, Waiting, Done
+
 \* Transfer states
 CONSTANTS Proposed, Prepared, Executed, Aborted
 
@@ -41,6 +44,14 @@ CONSTANTS PrepareRequest, ExecuteRequest, PrepareNotify, ExecuteNotify, SubmitRe
 VARIABLE messages
 
 ----
+\* Sender variables
+
+\* State of the sender (Ready, Waiting, Done)
+VARIABLE senderState
+
+\* All sender variables
+senderVars == <<senderState>>
+----
 \* The following variables are all per ledger (functions with domain Ledger)
 
 \* The transfer state (Proposed, Prepared, Executed or Aborted)
@@ -51,7 +62,7 @@ ledgerVars == <<transferState>>
 ----
 
 \* All variables; used for stuttering (asserting state hasn't changed)
-vars == <<messages, ledgerVars>>
+vars == <<messages, senderVars, ledgerVars>>
 
 ----
 \* Helpers
@@ -94,11 +105,21 @@ Min(s) == CHOOSE x \in s : \A y \in s : x <= y
 Max(s) == CHOOSE x \in s : \A y \in s : x >= y
 
 ----
+\* Define type specification for all variables
+
+TypeOK == /\ IsABag(messages)
+          /\ senderState \in {Ready, Waiting, Done}
+          /\ transferState \in [Ledger -> {Proposed, Prepared, Executed, Aborted}]
+
+----
 \* Define initial values for all variables
+
+InitSenderVars == /\ senderState = Ready
 
 InitLedgerVars == /\ transferState = [i \in Ledger |-> Proposed]
 
 Init == /\ messages = EmptyBag
+        /\ InitSenderVars
         /\ InitLedgerVars
 
 ----
@@ -109,18 +130,19 @@ Prepare(i, j) ==
     /\ Send([mtype   |-> PrepareRequest,
              msource |-> i,
              mdest   |-> j])
-    /\ UNCHANGED <<ledgerVars>>
 
 \* Server i spontaneously requests somebody should execute the transfer - lolwat?
 Execute(i, j) ==
     /\ Send([mtype   |-> ExecuteRequest,
              msource |-> i,
              mdest   |-> j])
-    /\ UNCHANGED <<ledgerVars>>
 
 \* Participant i starts off the chain
 Start(i) ==
+    /\ senderState = Ready
+    /\ senderState' = Waiting
     /\ Prepare(i, i+1)
+    /\ UNCHANGED <<ledgerVars>>
 
 ----
 \* Message handlers
@@ -135,9 +157,10 @@ HandlePrepareRequest(i, j, m) ==
           /\ Reply([mtype   |-> PrepareNotify,
                     msource |-> i,
                     mdest   |-> i+1], m)
+          /\ UNCHANGED <<senderVars>>
        \/ /\ \lnot valid
           /\ Discard(m)
-          /\ UNCHANGED <<ledgerVars>>
+          /\ UNCHANGED <<senderVars, ledgerVars>>
 
 \* Server i receives an Execute request from server j
 HandleExecuteRequest(i, j, m) ==
@@ -148,9 +171,10 @@ HandleExecuteRequest(i, j, m) ==
           /\ Reply([mtype   |-> ExecuteNotify,
                     msource |-> i,
                     mdest   |-> i-1], m)
+          /\ UNCHANGED <<senderVars>>
        \/ /\ \lnot valid
           /\ Discard(m)
-          /\ UNCHANGED <<ledgerVars>>
+          /\ UNCHANGED <<senderVars, ledgerVars>>
 
 \* Ledger j notifies participant i that the transfer is prepared
 HandlePrepareNotify(i, j, m) ==
@@ -159,12 +183,12 @@ HandlePrepareNotify(i, j, m) ==
           /\ Reply([mtype   |-> SubmitReceiptRequest,
                     msource |-> i,
                     mdest   |-> Notary], m)
-          /\ UNCHANGED <<ledgerVars>>
+          /\ UNCHANGED <<senderVars, ledgerVars>>
        \/ /\ \lnot isRecipient
           /\ Reply([mtype   |-> PrepareRequest,
                     msource |-> i,
                     mdest   |-> i+1], m)
-          /\ UNCHANGED <<ledgerVars>>
+          /\ UNCHANGED <<senderVars, ledgerVars>>
 
 HandleSubmitReceiptRequest(i, j, m) ==
     \/ /\ i = Notary
@@ -172,10 +196,10 @@ HandleSubmitReceiptRequest(i, j, m) ==
             {[mtype    |-> ExecuteRequest,
               msource  |-> i,
               mdest    |-> k] : k \in Ledger}, m)
-       /\ UNCHANGED <<ledgerVars>>
+       /\ UNCHANGED <<senderVars, ledgerVars>>
     \/ /\ i # Notary
        /\ Discard(m)
-       /\ UNCHANGED <<ledgerVars>>
+       /\ UNCHANGED <<senderVars, ledgerVars>>
 
 \* Ledger j notifies participant i that the transfer is executed
 HandleExecuteNotify(i, j, m) ==
@@ -184,10 +208,16 @@ HandleExecuteNotify(i, j, m) ==
           /\ Reply([mtype   |-> ExecuteRequest,
                     msource |-> i,
                     mdest   |-> i-1], m)
-          /\ UNCHANGED <<ledgerVars>>
+          /\ UNCHANGED <<senderVars, ledgerVars>>
        \/ /\ isSender
+          /\ senderState = Waiting
+          /\ senderState' = Done
           /\ Discard(m)
           /\ UNCHANGED <<ledgerVars>>
+       \/ /\ isSender
+          /\ senderState # Waiting
+          /\ Discard(m)
+          /\ UNCHANGED <<senderVars, ledgerVars>>
 
 \* Receive a message.
 Receive(m) ==
@@ -211,21 +241,32 @@ Receive(m) ==
 \* The network duplicates a message
 DuplicateMessage(m) ==
     /\ Send(m)
-    /\ UNCHANGED <<ledgerVars>>
+    /\ UNCHANGED <<senderVars, ledgerVars>>
 
 \* The network drops a message
 DropMessage(m) ==
     /\ Discard(m)
-    /\ UNCHANGED <<ledgerVars>>
+    /\ UNCHANGED <<senderVars, ledgerVars>>
 
 ----
 \* Defines how the variables may transition.
 
+Termination == 
+    /\ \A l \in Ledger : transferState[l] \in {Executed, Aborted}
+    /\ senderState = Done
+    /\ UNCHANGED vars 
+
 Next == \/ Start(Min(Participant))
         \/ \E m \in DOMAIN messages : Receive(m)
+\*        \/ \E m \in DOMAIN messages : DuplicateMessage(m)
+\*        \/ \E m \in DOMAIN messages : DropMessage(m)
+        \/ Termination
 
 \* The specification must start with the initial state and transition according
 \* to Next.
 Spec == Init /\ [][Next]_vars
+
+\* The spec should be type-safe
+THEOREM Spec => []TypeOK
 
 =============================================================================
