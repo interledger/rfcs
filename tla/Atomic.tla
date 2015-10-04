@@ -20,11 +20,14 @@ EXTENDS Naturals, Sequences, TLC
 \* The set of ledger IDs
 CONSTANTS Ledger
 
+\* The set of participant IDs
+CONSTANTS Participant
+
 \* Transfer states
 CONSTANTS Proposed, Prepared, Executed, Aborted
 
 \* Message types
-CONSTANTS ExecuteRequest
+CONSTANTS PrepareRequest, ExecuteRequest, PrepareNotify, ExecuteNotify
 
 ----
 \* Global variables
@@ -77,6 +80,11 @@ Discard(m) == messages' = WithoutMessage(m, messages)
 Reply(response, request) ==
     messages' = WithoutMessage(request, WithMessage(response, messages))
 
+\* Return the minimum value from a set, or undefined if the set is empty.
+Min(s) == CHOOSE x \in s : \A y \in s : x <= y
+\* Return the maximum value from a set, or undefined if the set is empty.
+Max(s) == CHOOSE x \in s : \A y \in s : x >= y
+
 ----
 \* Define initial values for all variables
 
@@ -88,6 +96,13 @@ Init == /\ messages = [m \in {} |-> 0]
 ----
 \* Define state transitions
 
+\* A participant i asks a ledger j to prepare a transfer
+Prepare(i, j) ==
+    /\ Send([mtype   |-> PrepareRequest,
+             msource |-> i,
+             mdest   |-> j])
+    /\ UNCHANGED <<ledgerVars>>
+
 \* Server i spontaneously requests somebody should execute the transfer - lolwat?
 Execute(i, j) ==
     /\ Send([mtype   |-> ExecuteRequest,
@@ -95,22 +110,77 @@ Execute(i, j) ==
              mdest   |-> j])
     /\ UNCHANGED <<ledgerVars>>
 
+\* Participant i starts off the chain
+Start(i) ==
+    /\ Prepare(i, i+1)
+
 ----
 \* Message handlers
 \* i = recipient, j = sender, m = message
 
+\* Server i receives a Prepare request from participant j
+HandlePrepareRequest(i, j, m) ==
+    LET valid == /\ transferState[i] = Proposed
+                 /\ j = i - 1
+    IN \/ /\ valid
+          /\ transferState' = [transferState EXCEPT ![i] = Prepared]
+          /\ Reply([mtype   |-> PrepareNotify,
+                    msource |-> i,
+                    mdest   |-> i+1], m)
+       \/ /\ \lnot valid
+          /\ Discard(m)
+          /\ UNCHANGED <<ledgerVars>>
+
 \* Server i receives an Execute request from server j
 HandleExecuteRequest(i, j, m) ==
-    /\ transferState[i] = Proposed
-    /\ transferState' = [transferState EXCEPT ![i] = Executed]
-    /\ UNCHANGED <<messages>>
+    LET valid == /\ transferState[i] = Prepared
+    IN \/ /\ valid
+          /\ transferState' = [transferState EXCEPT ![i] = Executed]
+          /\ Reply([mtype   |-> ExecuteNotify,
+                    msource |-> i,
+                    mdest   |-> i-1], m)
+       \/ /\ \lnot valid
+          /\ Discard(m)
+          /\ UNCHANGED <<ledgerVars>>
+
+\* Ledger j notifies participant i that the transfer is prepared
+HandlePrepareNotify(i, j, m) ==
+    LET isRecipient == i = Max(Participant)
+    IN \/ /\ isRecipient
+          /\ Reply([mtype   |-> ExecuteRequest,
+                    msource |-> i,
+                    mdest   |-> i-1], m)
+          /\ UNCHANGED <<ledgerVars>>
+       \/ /\ \lnot isRecipient
+          /\ Reply([mtype   |-> PrepareRequest,
+                    msource |-> i,
+                    mdest   |-> i+1], m)
+          /\ UNCHANGED <<ledgerVars>>
+
+\* Ledger j notifies participant i that the transfer is executed
+HandleExecuteNotify(i, j, m) ==
+    LET isSender == i = Min(Participant)
+    IN \/ /\ \lnot isSender
+          /\ Reply([mtype   |-> ExecuteRequest,
+                    msource |-> i,
+                    mdest   |-> i-1], m)
+          /\ UNCHANGED <<ledgerVars>>
+       \/ /\ isSender
+          /\ Discard(m)
+          /\ UNCHANGED <<ledgerVars>>
 
 \* Receive a message.
 Receive(m) ==
     LET i == m.mdest
         j == m.msource
-    IN \/ /\ m.mtype = ExecuteRequest
+    IN \/ /\ m.mtype = PrepareRequest
+          /\ HandlePrepareRequest(i, j, m)
+       \/ /\ m.mtype = ExecuteRequest
           /\ HandleExecuteRequest(i, j, m)
+       \/ /\ m.mtype = PrepareNotify
+          /\ HandlePrepareNotify(i, j, m)
+       \/ /\ m.mtype = ExecuteNotify
+          /\ HandleExecuteNotify(i, j, m)
 
 \* End of message handlers.
 ----
@@ -129,7 +199,7 @@ DropMessage(m) ==
 ----
 \* Defines how the variables may transition.
 
-Next == \/ \E i, j \in Ledger : Execute(i, j)
+Next == \/ Start(Min(Participant))
         \/ \E m \in DOMAIN messages : Receive(m)
 
 \* The specification must start with the initial state and transition according
