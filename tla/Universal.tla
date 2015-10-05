@@ -40,12 +40,12 @@ CONSTANTS R_ReceiptSignature
 ----
 \* Global variables
 
-\* A bag of records representing requests and responses sent from one server
-\* to another.
-VARIABLE messages
-
 \* Under synchrony we are allowed to have a global clock
 VARIABLE clock
+
+\* A bag of records representing requests and responses sent from one process
+\* to another
+VARIABLE messages
 
 ----
 \* Sender variables
@@ -91,7 +91,7 @@ Broadcast(m) == messages' = messages (+) SetToBag(m)
 \* Add a message to the bag of messages
 Send(m) == Broadcast({m})
 
-\* Remove a message from the bag of messages. Used when a server is done
+\* Remove a message from the bag of messages. Used when a process is done
 \* processing a message.
 Discard(m) == messages' = messages (-) SetToBag({m})
 
@@ -121,6 +121,14 @@ Recipient == Max(Participant)
 \* Set of connectors
 Connector == Participant \ {Sender, Recipient}
 
+\* The clock value we expect to be at after the proposal phase
+ClockAfterProposal == 2 * Cardinality(Connector) + 2
+
+\* The clock value we expect after the preparation phase
+ClockAfterPrepare == ClockAfterProposal + 2 * Cardinality(Ledger) + 1
+
+\* The clock value we expect to be at after the execution phase
+ClockAfterExecution == ClockAfterProposal + 2 * Cardinality(Ledger) + 1
 ----
 \* Define type specification for all variables
 
@@ -130,6 +138,14 @@ TypeOK == /\ clock \in Nat
           /\ senderProposalResponses \in [Connector -> BOOLEAN]
           /\ connectorState \in [Connector -> {C_Ready, C_Proposed}]
           /\ ledgerState \in [Ledger -> {L_Proposed, L_Prepared, L_Executed, L_Aborted}]
+          /\ ledgerExpiration \in [Ledger -> Nat]
+
+Consistency ==
+    \A l1, l2 \in Ledger : \lnot /\ ledgerState[l1] = L_Aborted
+                                 /\ ledgerState[l2] = L_Executed
+
+Inv == /\ TypeOK
+       /\ Consistency 
 
 ----
 \* Define initial values for all variables
@@ -140,7 +156,7 @@ InitSenderVars == /\ senderState = S_Ready
 InitConnectorVars == connectorState = [i \in Connector |-> C_Ready]
 
 InitLedgerVars == /\ ledgerState = [i \in Ledger |-> L_Proposed]
-                  /\ ledgerExpiration = [i \in Ledger |-> 2 * Cardinality(Connector) + 2 + 4 * Cardinality(Ledger) + 2 - i]
+                  /\ ledgerExpiration = [i \in Ledger |-> ClockAfterExecution - i]
 
 Init == /\ clock = 0
         /\ messages = EmptyBag
@@ -204,24 +220,8 @@ NothingHappens ==
 \* Message handlers
 \* i = recipient, j = sender, m = message
 
-\* Connector i receives a SubpaymentProposal request
-HandleSubpaymentProposalRequest(i, j, m) ==
-    /\ i \in Connector
-    /\ connectorState' = [connectorState EXCEPT ![i] = C_Proposed]
-    /\ Reply([mtype    |-> SubpaymentProposalResponse,
-              msource  |-> i,
-              mdest    |-> j], m)
-    /\ UNCHANGED <<senderVars, ledgerVars>>
-
-\* Sender receives a SubpaymentProposal request
-HandleSubpaymentProposalResponse(i, j, m) ==
-    /\ i = Sender
-    /\ senderProposalResponses' = [senderProposalResponses EXCEPT ![j] = TRUE]
-    /\ Discard(m)
-    /\ UNCHANGED <<connectorVars, ledgerVars, senderState>>
-
-\* Server i receives a Prepare request from participant j
-HandlePrepareRequest(i, j, m) ==
+\* Ledger i receives a Prepare request from participant j
+LedgerHandlePrepareRequest(i, j, m) ==
     LET valid == /\ ledgerState[i] = L_Proposed
                  /\ j = i - 1
     IN \/ /\ valid
@@ -236,9 +236,10 @@ HandlePrepareRequest(i, j, m) ==
           /\ Discard(m)
           /\ UNCHANGED <<senderVars, connectorVars, ledgerVars>>
 
-\* Server i receives an Execute request from server j
-HandleExecuteRequest(i, j, m) ==
+\* Ledger i receives an Execute request from process j
+LedgerHandleExecuteRequest(i, j, m) ==
     LET valid == /\ ledgerState[i] = L_Prepared
+                 /\ ledgerExpiration[i] > clock
                  /\ m.mreceipt = R_ReceiptSignature
     IN \/ /\ valid
           /\ i \in Ledger
@@ -253,87 +254,128 @@ HandleExecuteRequest(i, j, m) ==
           /\ Discard(m)
           /\ UNCHANGED <<senderVars, connectorVars, ledgerVars>>
 
-\* Ledger j notifies participant i that the transfer is prepared
-HandlePrepareNotify(i, j, m) ==
+\* Ledger i receives a message
+LedgerReceive(i, j, m) ==
+    \/ /\ m.mtype = PrepareRequest
+       /\ LedgerHandlePrepareRequest(i, j, m)
+    \/ /\ m.mtype = ExecuteRequest
+       /\ LedgerHandleExecuteRequest(i, j, m)
+
+\* Sender receives a SubpaymentProposal request
+SenderHandleSubpaymentProposalResponse(i, j, m) ==
+    /\ i = Sender
+    /\ senderProposalResponses' = [senderProposalResponses EXCEPT ![j] = TRUE]
+    /\ Discard(m)
+    /\ UNCHANGED <<connectorVars, ledgerVars, senderState>>
+
+\* Ledger j notifies sender that the transfer is executed
+SenderHandleExecuteNotify(i, j, m) ==
+    \/ /\ senderState = S_Waiting
+       /\ senderState' = S_Done
+       /\ Discard(m)
+       /\ UNCHANGED <<ledgerVars, connectorVars, senderProposalResponses>>
+    \/ /\ senderState # S_Waiting
+       /\ Discard(m)
+       /\ UNCHANGED <<senderVars, connectorVars, ledgerVars>>
+
+\* Ledger j notifies sender that the transfer is aborted
+SenderHandleAbortNotify(i, j, m) ==
+    LET isSenderWaiting == \/ senderState = S_ProposalWaiting
+                           \/ senderState = S_Waiting
+                           \/ senderState = S_Ready
+    IN \/ /\ isSenderWaiting
+          /\ senderState' = S_Done
+          /\ Discard(m)
+          /\ UNCHANGED <<ledgerVars, connectorVars, senderProposalResponses>>
+       \/ /\ \lnot isSenderWaiting
+          /\ Discard(m)
+          /\ UNCHANGED <<senderVars, connectorVars, ledgerVars>>
+
+\* Sender receives a message
+SenderReceive(i, j, m) ==
+    \/ /\ m.mtype = SubpaymentProposalResponse
+       /\ SenderHandleSubpaymentProposalResponse(i, j, m)
+    \/ /\ m.mtype = ExecuteNotify
+       /\ SenderHandleExecuteNotify(i, j, m)
+    \/ /\ m.mtype = AbortNotify
+       /\ SenderHandleAbortNotify(i, j, m)
+
+\* Ledger j notifies recipient that the transfer is prepared
+RecipientHandlePrepareNotify(i, j, m) ==
     \/ /\ i = Recipient
        /\ Reply([mtype    |-> ExecuteRequest,
                  msource  |-> i,
                  mdest    |-> i-1,
                  mreceipt |-> R_ReceiptSignature], m)
        /\ UNCHANGED <<senderVars, connectorVars, ledgerVars>>
-    \/ /\ i \in Connector
-       /\ Reply([mtype   |-> PrepareRequest,
+
+\* Recipient receives a message
+RecipientReceive(i, j, m) ==
+    \/ /\ m.mtype = PrepareNotify
+       /\ RecipientHandlePrepareNotify(i, j, m)
+
+\* Connector i receives a SubpaymentProposal request
+ConnectorHandleSubpaymentProposalRequest(i, j, m) ==
+    /\ i \in Connector
+    /\ connectorState' = [connectorState EXCEPT ![i] = C_Proposed]
+    /\ Reply([mtype    |-> SubpaymentProposalResponse,
+              msource  |-> i,
+              mdest    |-> j], m)
+    /\ UNCHANGED <<senderVars, ledgerVars>>
+
+\* Ledger j notifies connector i that the transfer is prepared
+ConnectorHandlePrepareNotify(i, j, m) ==
+    \/ /\ Reply([mtype   |-> PrepareRequest,
                  msource |-> i,
                  mdest   |-> i+1], m)
        /\ UNCHANGED <<senderVars, connectorVars, ledgerVars>>
 
-\* Ledger j notifies participant i that the transfer is executed
-HandleExecuteNotify(i, j, m) ==
-    \/ /\ i \in Connector
-       /\ Reply([mtype    |-> ExecuteRequest,
-                 msource  |-> i,
-                 mdest    |-> i-1,
-                 mreceipt |-> m.mreceipt], m)
-       /\ UNCHANGED <<senderVars, connectorVars, ledgerVars>>
-    \/ /\ i = Sender
-       /\ senderState = S_Waiting
-       /\ senderState' = S_Done
-       /\ Discard(m)
-       /\ UNCHANGED <<ledgerVars, connectorVars, senderProposalResponses>>
-    \/ /\ i = Sender
-       /\ senderState # S_Waiting
-       /\ Discard(m)
-       /\ UNCHANGED <<senderVars, connectorVars, ledgerVars>>
+\* Ledger j notifies connector i that the transfer is executed
+ConnectorHandleExecuteNotify(i, j, m) ==
+    /\ Reply([mtype    |-> ExecuteRequest,
+              msource  |-> i,
+              mdest    |-> i-1,
+              mreceipt |-> m.mreceipt], m)
+    /\ UNCHANGED <<senderVars, connectorVars, ledgerVars>>
 
-\* Ledger j notifies participant i that the transfer is aborted
-HandleAbortNotify(i, j, m) ==
-    LET isSenderWaiting == \/ senderState = S_ProposalWaiting
-                           \/ senderState = S_Waiting
-                           \/ senderState = S_Ready
-    IN \/ /\ i \in Connector
-          /\ Discard(m)
-          /\ UNCHANGED <<senderVars, connectorVars, ledgerVars>>
-       \/ /\ i = Sender
-          /\ isSenderWaiting
-          /\ senderState' = S_Done
-          /\ Discard(m)
-          /\ UNCHANGED <<ledgerVars, connectorVars, senderProposalResponses>>
-       \/ /\ i = Sender
-          /\ \lnot isSenderWaiting
-          /\ Discard(m)
-          /\ UNCHANGED <<senderVars, connectorVars, ledgerVars>>
+\* Ledger j notifies connector i that the transfer is aborted
+ConnectorHandleAbortNotify(i, j, m) ==
+    /\ i \in Connector
+    /\ Discard(m)
+    /\ UNCHANGED <<senderVars, connectorVars, ledgerVars>>
 
-\* Receive a message.
+\* Connector receives a message
+ConnectorReceive(i, j, m) ==
+    \/ /\ m.mtype = SubpaymentProposalRequest
+       /\ ConnectorHandleSubpaymentProposalRequest(i, j, m)
+    \/ /\ m.mtype = PrepareNotify
+       /\ ConnectorHandlePrepareNotify(i, j, m)
+    \/ /\ m.mtype = ExecuteNotify
+       /\ ConnectorHandleExecuteNotify(i, j, m)
+    \/ /\ m.mtype = AbortNotify
+       /\ ConnectorHandleAbortNotify(i, j, m)
+
+\* Receive a message
 Receive(m) ==
     LET i == m.mdest
         j == m.msource
-    IN \/ /\ m.mtype = SubpaymentProposalRequest
-          /\ HandleSubpaymentProposalRequest(i, j, m)
-       \/ /\ m.mtype = SubpaymentProposalResponse
-          /\ HandleSubpaymentProposalResponse(i, j, m)
-       \/ /\ m.mtype = PrepareRequest
-          /\ HandlePrepareRequest(i, j, m)
-       \/ /\ m.mtype = ExecuteRequest
-          /\ HandleExecuteRequest(i, j, m)
-       \/ /\ m.mtype = PrepareNotify
-          /\ HandlePrepareNotify(i, j, m)
-       \/ /\ m.mtype = ExecuteNotify
-          /\ HandleExecuteNotify(i, j, m)
-       \/ /\ m.mtype = AbortNotify
-          /\ HandleAbortNotify(i, j, m)
+    IN \/ /\ i \in Ledger
+          /\ LedgerReceive(i, j, m)
+       \/ /\ i = Sender
+          /\ SenderReceive(i, j, m)
+       \/ /\ i = Recipient
+          /\ RecipientReceive(i, j, m)
+       \/ /\ i \in Connector
+          /\ ConnectorReceive(i, j, m)
 
-\* End of message handlers.
+\* End of message handlers
 ----
-\* Defines how the variables may transition.
+\* Defines how the variables may transition
 
 Termination == 
     /\ \A l \in Ledger : IsFinalLedgerState(ledgerState[l])
     /\ senderState = S_Done
     /\ UNCHANGED vars
-
-Consistency ==
-    \A l1, l2 \in Ledger : \lnot /\ ledgerState[l1] = L_Aborted
-                                 /\ ledgerState[l2] = L_Executed
 
 Next == \/ /\ \/ StartProposalPhase(Sender)
               \/ StartPreparationPhase(Sender)
