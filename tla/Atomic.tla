@@ -4,12 +4,8 @@
 (* Interledger Protocol Atomic (ILP/A)                                     *)
 (*                                                                         *)
 (*`.                                                                       *)
-(* Copyright 2015 Ripple Labs.                                             *)
-(*    This work is licensed under the Creative Commons Attribution-4.0     *)
-(*    International License https://creativecommons.org/licenses/by/4.0/   *)
-(*                                                                         *)
 (* Modeled after the excellent Raft specification by Diego Ongaro.         *)
-(*   Available at `\href{https://github.com/ongardie/raft.tla}{Test}'      *)
+(*   Available at https://github.com/ongardie/raft.tla                     *)
 (*                                                                         *)
 (*   Copyright 2014 Diego Ongaro.                                          *)
 (*   This work is licensed under the Creative Commons Attribution-4.0      *)
@@ -37,7 +33,9 @@ CONSTANTS N_Waiting, N_Committed, N_Aborted
 CONSTANTS L_Proposed, L_Prepared, L_Executed, L_Aborted
 
 \* Message types
-CONSTANTS PrepareRequest, ExecuteRequest, AbortRequest, PrepareNotify, ExecuteNotify, AbortNotify, SubmitReceiptRequest
+CONSTANTS PrepareRequest, ExecuteRequest, AbortRequest,
+          PrepareNotify, ExecuteNotify, AbortNotify,
+          SubmitReceiptRequest
 
 ----
 \* Global variables
