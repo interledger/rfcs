@@ -251,12 +251,12 @@ HandleAbortNotify(i, j, m) ==
 HandleSubmitReceiptRequest(i, j, m) ==
     \/ /\ i = Notary
        /\ notaryState = N_Waiting
-       /\ notaryState = N_Committed
+       /\ notaryState' = N_Committed
        /\ ReplyBroadcast(
             {[mtype    |-> ExecuteRequest,
               msource  |-> i,
               mdest    |-> k] : k \in Ledger}, m)
-       /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
+       /\ UNCHANGED <<senderVars, ledgerVars>>
     \/ /\ \/ i # Notary
           \/ notaryState # N_Waiting
        /\ Discard(m)
@@ -283,19 +283,6 @@ Receive(m) ==
 
 \* End of message handlers.
 ----
-\* Network state transitions
-
-\* The network duplicates a message
-DuplicateMessage(m) ==
-    /\ Send(m)
-    /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
-
-\* The network drops a message
-DropMessage(m) ==
-    /\ Discard(m)
-    /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
-
-----
 \* Defines how the variables may transition.
 
 Termination == 
@@ -311,8 +298,6 @@ Next == \/ Start(Min(Participant))
         \/ NotaryTimeout
         \/ \E l \in Ledger : LedgerAbort(l)
         \/ \E m \in DOMAIN messages : Receive(m)
-\*        \/ \E m \in DOMAIN messages : DuplicateMessage(m)
-\*        \/ \E m \in DOMAIN messages : DropMessage(m)
         \/ Termination
 
 \* The specification must start with the initial state and transition according
