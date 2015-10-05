@@ -79,7 +79,7 @@ vars == <<messages, senderVars, ledgerVars, notaryVars>>
 ----
 \* Helpers
 
-\* Add a set of new messages in transit 
+\* Add a set of new messages in transit
 Broadcast(m) == messages' = messages (+) SetToBag(m)
 
 \* Add a message to the bag of messages
@@ -121,6 +121,13 @@ Connector == Participant \ {Sender, Recipient}
 TypeOK == /\ IsABag(messages)
           /\ senderState \in {S_Ready, S_Waiting, S_Done}
           /\ ledgerState \in [Ledger -> {L_Proposed, L_Prepared, L_Executed, L_Aborted}]
+
+Consistency ==
+    \A l1, l2 \in Ledger : \lnot /\ ledgerState[l1] = L_Aborted
+                                 /\ ledgerState[l2] = L_Executed
+
+Inv == /\ TypeOK
+       /\ Consistency
 
 ----
 \* Define initial values for all variables
@@ -271,7 +278,7 @@ ConnectorHandlePrepareNotify(i, j, m) ==
               msource |-> i,
               mdest   |-> i+1], m)
     /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
-          
+
 \* Ledger j notifies connector i that the transfer is executed
 ConnectorHandleExecuteNotify(i, j, m) ==
     /\ Reply([mtype   |-> ExecuteRequest,
@@ -292,7 +299,7 @@ ConnectorReceive(i, j, m) ==
        /\ ConnectorHandleExecuteNotify(i, j, m)
     \/ /\ m.mtype = AbortNotify
        /\ ConnectorHandleAbortNotify(i, j, m)
-          
+
 \* Notary receives a signed receipt
 NotaryHandleSubmitReceiptRequest(i, j, m) ==
     \/ /\ m.mreceipt = R_ReceiptSignature
@@ -331,14 +338,10 @@ Receive(m) ==
 ----
 \* Defines how the variables may transition
 
-Termination == 
+Termination ==
     /\ \A l \in Ledger : IsFinalLedgerState(ledgerState[l])
     /\ senderState = S_Done
     /\ UNCHANGED vars
-
-Consistency ==
-    \A l1, l2 \in Ledger : \lnot /\ ledgerState[l1] = L_Aborted
-                                 /\ ledgerState[l2] = L_Executed
 
 Next == \/ Start(Sender)
         \/ NotaryTimeout
@@ -349,8 +352,5 @@ Next == \/ Start(Sender)
 \* The specification must start with the initial state and transition according
 \* to Next.
 Spec == Init /\ [][Next]_vars
-
-\* The spec should be type-safe
-THEOREM Spec => []TypeOK
 
 =============================================================================

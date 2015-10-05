@@ -85,7 +85,7 @@ vars == <<clock, messages, senderVars, connectorVars, ledgerVars>>
 ----
 \* Helpers
 
-\* Add a set of new messages in transit 
+\* Add a set of new messages in transit
 Broadcast(m) == messages' = messages (+) SetToBag(m)
 
 \* Add a message to the bag of messages
@@ -136,7 +136,7 @@ TypeOK == /\ clock \in Nat
           /\ IsABag(messages)
           /\ senderState \in {S_Ready, S_ProposalWaiting, S_Waiting, S_Done}
           /\ senderProposalResponses \in [Connector -> BOOLEAN]
-          /\ connectorState \in [Connector -> {C_Ready, C_Proposed}]
+          /\ connectorState \in [Connector -> {C_Ready, C_Proposed}] 
           /\ ledgerState \in [Ledger -> {L_Proposed, L_Prepared, L_Executed, L_Aborted}]
           /\ ledgerExpiration \in [Ledger -> Nat]
 
@@ -145,14 +145,14 @@ Consistency ==
                                  /\ ledgerState[l2] = L_Executed
 
 Inv == /\ TypeOK
-       /\ Consistency 
+       /\ Consistency
 
 ----
 \* Define initial values for all variables
 
 InitSenderVars == /\ senderState = S_Ready
                   /\ senderProposalResponses = [i \in Connector |-> FALSE]
-                  
+
 InitConnectorVars == connectorState = [i \in Connector |-> C_Ready]
 
 InitLedgerVars == /\ ledgerState = [i \in Ledger |-> L_Proposed]
@@ -207,7 +207,8 @@ LedgerTimeout(l) ==
              mdest   |-> l-1])
     /\ UNCHANGED <<senderVars, connectorVars, ledgerExpiration>>
 
-\* If no messages are in flight, advance the clock
+\* If no messages are in flight and the sender isn't doing anything, advance the
+\* clock
 NothingHappens ==
     /\ clock \leq Max({ledgerExpiration[x] : x \in Ledger})
     /\ BagCardinality(messages) = 0
@@ -242,7 +243,6 @@ LedgerHandleExecuteRequest(i, j, m) ==
                  /\ ledgerExpiration[i] > clock
                  /\ m.mreceipt = R_ReceiptSignature
     IN \/ /\ valid
-          /\ i \in Ledger
           /\ ledgerState' = [ledgerState EXCEPT ![i] = L_Executed]
           /\ Reply([mtype    |-> ExecuteNotify,
                     msource  |-> i,
@@ -250,7 +250,6 @@ LedgerHandleExecuteRequest(i, j, m) ==
                     mreceipt |-> m.mreceipt], m)
           /\ UNCHANGED <<senderVars, connectorVars, ledgerExpiration>>
        \/ /\ \lnot valid
-          /\ i \in Ledger
           /\ Discard(m)
           /\ UNCHANGED <<senderVars, connectorVars, ledgerVars>>
 
@@ -302,8 +301,7 @@ SenderReceive(i, j, m) ==
 
 \* Ledger j notifies recipient that the transfer is prepared
 RecipientHandlePrepareNotify(i, j, m) ==
-    \/ /\ i = Recipient
-       /\ Reply([mtype    |-> ExecuteRequest,
+    \/ /\ Reply([mtype    |-> ExecuteRequest,
                  msource  |-> i,
                  mdest    |-> i-1,
                  mreceipt |-> R_ReceiptSignature], m)
@@ -372,7 +370,7 @@ Receive(m) ==
 ----
 \* Defines how the variables may transition
 
-Termination == 
+Termination ==
     /\ \A l \in Ledger : IsFinalLedgerState(ledgerState[l])
     /\ senderState = S_Done
     /\ UNCHANGED vars
@@ -382,15 +380,12 @@ Next == \/ /\ \/ StartProposalPhase(Sender)
               \/ \E l \in Ledger : LedgerAbort(l)
               \/ \E l \in Ledger : LedgerTimeout(l)
               \/ \E m \in DOMAIN messages : Receive(m)
-              \/ NothingHappens   
+              \/ NothingHappens
            /\ clock' = clock + 1
         \/ Termination
 
 \* The specification must start with the initial state and transition according
 \* to Next.
 Spec == Init /\ [][Next]_vars
-
-\* The spec should be type-safe
-THEOREM Spec => []TypeOK
 
 =============================================================================
