@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Cryptographic Conditions</title>
+    <title>Conditional Transactions</title>
     <meta charset='utf-8'>
     <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
             async class='remove'></script>
     <script class='remove'>
       var respecConfig = {
           specStatus: "CG-DRAFT",
-          shortName:  "cryptographic-conditions",
+          shortName:  "conditional-transactions",
           authors: [{
               name:       "Stefan Thomas",
               url:        "https://justmoon.net/",
@@ -54,19 +54,19 @@
     <section>
       <h2>Introduction</h2>
       <p>
-        Payments within one payment network or <em>ledger</em> are usually relatively safe, fast and cheap. However, payments across ledgers or <em>interledger</em> payments today are difficult, risky, slow and expensive if they are possible at all. Most of these problems stem from a lack of standardization and competition among the systems that provide such transfers.
+        Transactions within a centralised system are usually relatively safe, fast and cheap. However, executing transactions across a distributed set of participants across the Web are difficult, risky, slow and expensive if they are possible at all. Most of these problems stem from a lack of standardization among the systems that provide such transactions.
       </p>
       <p>
-        Escrowed transfers enable a secure protocol [[ILP]] for interledger payments. This provides a way for connectors to provide interledger liquidity with a minimum of trust. This lowers barriers to entry and enables the creation of a standard for interledger payments. However, the escrow semantics and rules must be agreed upon and strictly enforced among ledgers participating in a payment.
+          Two phase commit is a pattern that provides security and robustness to distributed transactions. However, the transaction semantics and rules must be agreed upon and strictly enforced among participants in a distributed transaction.
       </p>
       <p>
-        This document outlines the functionality that ledgers would have to provide and proposes a specific set of semantics for that functionality. Section <a href="#transfer-states"></a> explains the basic escrow semantics of holding funds and releasing them to the recipient or back to the originator based on a condition. Section <a href="#condition-types"></a> provides a list of the most useful condition types that ledgers may support.
+        This document outlines the functionality that participants would have to provide and proposes a specific set of semantics for that functionality. Section <a href="#transaction-states"></a> explains the basic semantics of preparing a transaction and executing or rolling-back based on a condition. Section <a href="#condition-types"></a> provides a list of the most useful condition types that participants may support.
       </p>
       <p>
-        Note that the <em>semantic meaning</em> of conditions must be enforced equally by all ledgers, while the <em>syntax</em> for expressing these conditions does not need to be the same. Connectors can convert between different syntax variations. In section <a href='#syntax'></a> we will provide a recommended syntax based on [[!JSON-LD]]. Section <a href="#syntax-example-bitcoin"></a> gives an example of how to convert it into an existing, but very different syntax.
+        Note that the <em>semantic meaning</em> of conditions must be enforced equally by all participants, while the <em>syntax</em> for expressing these conditions does not need to be the same. Transaction co-ordinators can convert between different syntax variations. In section <a href='#syntax'></a> we will provide a recommended syntax based on [[!JSON-LD]]. Section <a href="#syntax-example-bitcoin"></a> gives an example of how to convert it into an existing, but very different syntax.
       </p>
     </section>
-    <section id="transfer-states">
+    <section id="transaction-states">
       <h2>Transaction States</h2>
       <p>
         Distributed systems using two-phase commit MUST provide the ability to first prepare and then commit a transaction. A staged transaction MUST have a state where it can either be executed or cancelled based only on an execution and a cancellation condition respectively as outlined in this document. The semantics of the conditions are discussed in detail in section <a href="#condition-types"></a>.
