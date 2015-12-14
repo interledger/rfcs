@@ -93,10 +93,10 @@
         When transitioning a transaction to the <em>prepared</em> state, a participant MUST ensure that it can continue to guarantee that this transaction can be executed or cancelled.
       </p>
       <p>
-        Once a transaction is <em>prepared</em> it MUST transition to <em>executed</em> if the execution condition is met and the cancellation condition is not met.
+        Once a transaction is <em>prepared</em> it MUST transition to <em>executed</em> if and only if the execution condition is met and the cancellation condition is not met.
       </p>
       <p>
-        Once a transaction is <em>prepared</em> it MUST transition to <em>cancelled</em> if the cancellation condition is met.
+        Once a transaction is <em>prepared</em> it MUST transition to <em>cancelled</em> if and only if the cancellation condition is met.
       </p>
     </section>
 
@@ -215,25 +215,25 @@
         <section>
           <h2>AND</h2>
           <p>
-            The <tt>and</tt> condition specifies an array of sub-conditions which MAY be of any of the types specified in this document. The <tt>and</tt> condition is true if all of its sub-conditions are true.
+            The <tt>and</tt> condition specifies an array of sub-conditions which MAY be of any of the types specified in this document. The <tt>and</tt> condition is true if and only if all of its sub-conditions are true.
           </p>
         </section>
         <section>
           <h2>OR</h2>
           <p>
-            The <tt>or</tt> condition specifies an array of sub-conditions which MAY be of any of the types specified in this document. The <tt>or</tt> condition is true if one or more of its sub-conditions are true.
+            The <tt>or</tt> condition specifies an array of sub-conditions which MAY be of any of the types specified in this document. The <tt>or</tt> condition is true if and only if one or more of its sub-conditions are true.
           </p>
         </section>
         <section>
           <h2>Threshold gates</h2>
           <p>
-            The <tt>threshold</tt> condition is a generalization of <tt>and</tt> and <tt>or</tt>. It specifies an array of <em>n</em> sub-conditions as well as a threshold <em>t</em> which MUST be less than or equal to <em>n</em>. The <tt>threshold</tt> condition is true if <em>t</em> of its sub-conditions are true. If <em>t = 1</em>, the <tt>threshold</tt> condition behaves the same as an <tt>or</tt> condition. If <em>t = n</em>, the threshold condition behaves the same as an <tt>and</tt> condition.
+            The <tt>threshold</tt> condition is a generalization of <tt>and</tt> and <tt>or</tt>. It specifies an array of <em>n</em> sub-conditions as well as a threshold <em>t</em> which MUST be less than or equal to <em>n</em>. The <tt>threshold</tt> condition is true if and only if <em>t</em> of its sub-conditions are true. If <em>t = 1</em>, the <tt>threshold</tt> condition behaves the same as an <tt>or</tt> condition. If <em>t = n</em>, the threshold condition behaves the same as an <tt>and</tt> condition.
           </p>
         </section>
         <section>
           <h2>Weighted threshold gates</h2>
           <p>
-            The <tt>weighted-threshold</tt> condition is similar to the <tt>threshold</tt> condition, except each sub-condition MAY optionally specify a weight <em>w</em>. If a sub-condition does not specify a weight, <em>w = 1</em> is assumed. The threshold <em>t</em> MUST be less than or equal to the sum of the weights. When counting the weights, each true condition counts for <em>w</em> and the <tt>weighted-threshold</tt> condition is true iff the sum of weights for true sub-conditions is greater than or equal to <em>t</em>.
+            The <tt>weighted-threshold</tt> condition is similar to the <tt>threshold</tt> condition, except each sub-condition MAY optionally specify a weight <em>w</em>. If a sub-condition does not specify a weight, <em>w = 1</em> is assumed. The threshold <em>t</em> MUST be less than or equal to the sum of the weights. When counting the weights, each true condition counts for <em>w</em> and the <tt>weighted-threshold</tt> condition is true if and only if the sum of weights for true sub-conditions is greater than or equal to <em>t</em>.
           </p>
         </section>
         <section>
@@ -241,7 +241,7 @@
           <p>Participants MAY offer conditions which guarantee that a participant has not seen a valid fulfillment of a given cryptographic condition.</p>
           <p>A <tt>not</tt> condition specifies a single sub-condition which MUST be a cryptographic condition.</p>
           <p>Participants who offer this type of condition MUST keep a record of every transactions and its conditions. In addition, they MUST record any valid fulfillment for a cryptographic condition if it fulfills a condition or subcondition of any transaction on record. Valid fulfillments for conditions that are not part of any transaction on record MAY be discarded.</p>
-          <p>A <tt>not</tt> condition is true if the ledger has never recorded a fulfillment for the provided sub-condition.</p>
+          <p>A <tt>not</tt> condition is true if and only if the participant has never recorded a fulfillment for the provided sub-condition.</p>
         </section>
       </section>
 
@@ -253,13 +253,13 @@
         <section id="conditions-before-t">
           <h2>Before <em>t</em></h2>
           <p>
-            The <tt>before</tt> condition is true if the current time is less than the provided timestamp.
+            The <tt>before</tt> condition is true if and only if the current time is less than the provided timestamp.
           </p>
         </section>
         <section id="conditions-after-t">
           <h2>After <em>t</em></h2>
           <p>
-            The <tt>after</tt> condition is true if the current time is greater than the provided timestamp.
+            The <tt>after</tt> condition is true if and only if the current time is greater than the provided timestamp.
           </p>
         </section>
       </section>
