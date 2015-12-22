@@ -202,7 +202,7 @@
             <h2>Ed25519</h2>
           </section>
         </section>
-        <section id="conditions-crypto-preimage">
+        <section id="condition-types-crypto-preimage">
           <h2>Hash preimage conditions</h2>
         </section>
       </section>
@@ -250,13 +250,13 @@
         <p>
           Temporal conditions are conditions that are true or false based on an objective view of time. For the purposes of this document we use Universal Coordinated Time (UTC) expressed in [[!RFC3339]] format.
         </p>
-        <section id="conditions-before-t">
+        <section id="condition-types-before-t">
           <h2>Before <em>t</em></h2>
           <p>
             The <tt>before</tt> condition is true if and only if the current time is less than the provided timestamp.
           </p>
         </section>
-        <section id="conditions-after-t">
+        <section id="condition-types-after-t">
           <h2>After <em>t</em></h2>
           <p>
             The <tt>after</tt> condition is true if and only if the current time is greater than the provided timestamp.
@@ -264,7 +264,7 @@
         </section>
       </section>
 
-      <section id="conditions-minimal-subset">
+      <section id="condition-types-minimal-subset">
         <h2>Minimal Subset</h2>
         <p>
           Participants MUST at least support the following conditions in the execution condition:
