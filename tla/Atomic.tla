@@ -29,13 +29,16 @@ CONSTANTS S_Ready, S_Waiting, S_Done
 \* Notary states
 CONSTANTS N_Waiting, N_Committed, N_Aborted
 
+\* Notary decisions
+CONSTANTS D_Execute, D_Abort
+
 \* Ledger states
 CONSTANTS L_Proposed, L_Prepared, L_Executed, L_Aborted
 
 \* Message types
-CONSTANTS PrepareRequest, ExecuteRequest, AbortRequest,
-          PrepareNotify, ExecuteNotify, AbortNotify,
-          SubmitReceiptRequest
+CONSTANTS M_PrepareRequest, M_ExecuteRequest, M_AbortRequest,
+          M_PrepareNotify, M_ExecuteNotify, M_AbortNotify,
+          M_SubmitReceiptRequest
 
 \* Receipt signature
 CONSTANTS R_ReceiptSignature
@@ -150,7 +153,7 @@ Init == /\ messages = EmptyBag
 Start(i) ==
     /\ senderState = S_Ready
     /\ senderState' = S_Waiting
-    /\ Send([mtype   |-> PrepareRequest,
+    /\ Send([mtype   |-> M_PrepareRequest,
              msource |-> i,
              mdest   |-> i+1])
     /\ UNCHANGED <<ledgerVars, notaryVars>>
@@ -160,16 +163,17 @@ NotaryTimeout ==
     /\ notaryState = N_Waiting
     /\ notaryState' = N_Aborted
     /\ Broadcast(
-            {[mtype    |-> AbortRequest,
+            {[mtype    |-> M_AbortRequest,
               msource  |-> Notary,
-              mdest    |-> k] : k \in Ledger})
+              mdest    |-> k,
+              msig     |-> D_Abort] : k \in Ledger})
     /\ UNCHANGED <<senderVars, ledgerVars>>
 
 \* Ledger spontaneously aborts
 LedgerAbort(l) ==
     /\ ledgerState[l] = L_Proposed
     /\ ledgerState' = [ledgerState EXCEPT ![l] = L_Aborted]
-    /\ Send([mtype   |-> AbortNotify,
+    /\ Send([mtype   |-> M_AbortNotify,
              msource |-> l,
              mdest   |-> l-1])
     /\ UNCHANGED <<senderVars, notaryVars>>
@@ -184,7 +188,7 @@ LedgerHandlePrepareRequest(i, j, m) ==
                  /\ j = i - 1
     IN \/ /\ valid
           /\ ledgerState' = [ledgerState EXCEPT ![i] = L_Prepared]
-          /\ Reply([mtype   |-> PrepareNotify,
+          /\ Reply([mtype   |-> M_PrepareNotify,
                     msource |-> i,
                     mdest   |-> i+1], m)
           /\ UNCHANGED <<senderVars, notaryVars>>
@@ -195,10 +199,10 @@ LedgerHandlePrepareRequest(i, j, m) ==
 \* Ledger i receives an Execute request from process j
 LedgerHandleExecuteRequest(i, j, m) ==
     LET valid == /\ ledgerState[i] = L_Prepared
-                 /\ j = Notary
+                 /\ m.msig = D_Execute
     IN \/ /\ valid
           /\ ledgerState' = [ledgerState EXCEPT ![i] = L_Executed]
-          /\ Reply([mtype   |-> ExecuteNotify,
+          /\ Reply([mtype   |-> M_ExecuteNotify,
                     msource |-> i,
                     mdest   |-> i-1], m)
           /\ UNCHANGED <<senderVars, notaryVars>>
@@ -208,12 +212,11 @@ LedgerHandleExecuteRequest(i, j, m) ==
 
 \* Ledger i receives an Abort request from process j
 LedgerHandleAbortRequest(i, j, m) ==
-    LET valid == /\ \/ ledgerState[i] = L_Proposed
-                    \/ ledgerState[i] = L_Prepared
-                 /\ j = Notary
+    LET valid == /\ ledgerState[i] \in { L_Proposed, L_Prepared }
+                 /\ m.msig = D_Abort
     IN \/ /\ valid
           /\ ledgerState' = [ledgerState EXCEPT ![i] = L_Aborted]
-          /\ Reply([mtype   |-> AbortNotify,
+          /\ Reply([mtype   |-> M_AbortNotify,
                     msource |-> i,
                     mdest   |-> i-1], m)
           /\ UNCHANGED <<senderVars, notaryVars>>
@@ -223,11 +226,11 @@ LedgerHandleAbortRequest(i, j, m) ==
 
 \* Ledger i receives a message
 LedgerReceive(i, j, m) ==
-    \/ /\ m.mtype = PrepareRequest
+    \/ /\ m.mtype = M_PrepareRequest
        /\ LedgerHandlePrepareRequest(i, j, m)
-    \/ /\ m.mtype = ExecuteRequest
+    \/ /\ m.mtype = M_ExecuteRequest
        /\ LedgerHandleExecuteRequest(i, j, m)
-    \/ /\ m.mtype = AbortRequest
+    \/ /\ m.mtype = M_AbortRequest
        /\ LedgerHandleAbortRequest(i, j, m)
 
 \* Ledger j notifies sender that the transfer is executed
@@ -242,8 +245,7 @@ SenderHandleExecuteNotify(i, j, m) ==
 
 \* Ledger j notifies sender that the transfer is aborted
 SenderHandleAbortNotify(i, j, m) ==
-    LET isSenderWaiting == \/ senderState = S_Waiting
-                           \/ senderState = S_Ready
+    LET isSenderWaiting == senderState \in { S_Waiting, S_Ready }
     IN \/ /\ isSenderWaiting
           /\ senderState' = S_Done
           /\ Discard(m)
@@ -254,14 +256,14 @@ SenderHandleAbortNotify(i, j, m) ==
 
 \* Sender receives a message
 SenderReceive(i, j, m) ==
-    \/ /\ m.mtype = ExecuteNotify
+    \/ /\ m.mtype = M_ExecuteNotify
        /\ SenderHandleExecuteNotify(i, j, m)
-    \/ /\ m.mtype = AbortNotify
+    \/ /\ m.mtype = M_AbortNotify
        /\ SenderHandleAbortNotify(i, j, m)
 
 \* Ledger j notifies recipient that the transfer is prepared
 RecipientHandlePrepareNotify(i, j, m) ==
-    /\ Reply([mtype    |-> SubmitReceiptRequest,
+    /\ Reply([mtype    |-> M_SubmitReceiptRequest,
               msource  |-> i,
               mdest    |-> Notary,
               mreceipt |-> R_ReceiptSignature], m)
@@ -269,21 +271,19 @@ RecipientHandlePrepareNotify(i, j, m) ==
 
 \* Recipient receives a message
 RecipientReceive(i, j, m) ==
-    /\ m.mtype = PrepareNotify
+    /\ m.mtype = M_PrepareNotify
     /\ RecipientHandlePrepareNotify(i, j, m)
 
 \* Ledger j notifies connector i that the transfer is prepared
 ConnectorHandlePrepareNotify(i, j, m) ==
-    /\ Reply([mtype   |-> PrepareRequest,
+    /\ Reply([mtype   |-> M_PrepareRequest,
               msource |-> i,
               mdest   |-> i+1], m)
     /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
 
 \* Ledger j notifies connector i that the transfer is executed
 ConnectorHandleExecuteNotify(i, j, m) ==
-    /\ Reply([mtype   |-> ExecuteRequest,
-              msource |-> i,
-              mdest   |-> i-1], m)
+    /\ Discard(m)
     /\ UNCHANGED <<senderVars, ledgerVars, notaryVars>>
 
 \* Ledger j notifies connector i that the transfer is aborted
@@ -293,11 +293,11 @@ ConnectorHandleAbortNotify(i, j, m) ==
 
 \* Connector receives a message
 ConnectorReceive(i, j, m) ==
-    \/ /\ m.mtype = PrepareNotify
+    \/ /\ m.mtype = M_PrepareNotify
        /\ ConnectorHandlePrepareNotify(i, j, m)
-    \/ /\ m.mtype = ExecuteNotify
+    \/ /\ m.mtype = M_ExecuteNotify
        /\ ConnectorHandleExecuteNotify(i, j, m)
-    \/ /\ m.mtype = AbortNotify
+    \/ /\ m.mtype = M_AbortNotify
        /\ ConnectorHandleAbortNotify(i, j, m)
 
 \* Notary receives a signed receipt
@@ -306,9 +306,10 @@ NotaryHandleSubmitReceiptRequest(i, j, m) ==
        /\ notaryState = N_Waiting
        /\ notaryState' = N_Committed
        /\ ReplyBroadcast(
-            {[mtype    |-> ExecuteRequest,
+            {[mtype    |-> M_ExecuteRequest,
               msource  |-> i,
-              mdest    |-> k] : k \in Ledger}, m)
+              mdest    |-> k,
+              msig     |-> D_Execute] : k \in Ledger}, m)
        /\ UNCHANGED <<senderVars, ledgerVars>>
     \/ /\ notaryState # N_Waiting
        /\ Discard(m)
@@ -316,7 +317,7 @@ NotaryHandleSubmitReceiptRequest(i, j, m) ==
 
 \* Notary receives a message
 NotaryReceive(i, j, m) ==
-    /\ m.mtype = SubmitReceiptRequest
+    /\ m.mtype = M_SubmitReceiptRequest
     /\ NotaryHandleSubmitReceiptRequest(i, j, m)
 
 \* Receive a message

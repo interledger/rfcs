@@ -128,7 +128,7 @@ ClockAfterProposal == 2 * Cardinality(Connector) + 2
 ClockAfterPrepare == ClockAfterProposal + 2 * Cardinality(Ledger) + 1
 
 \* The clock value we expect to be at after the execution phase
-ClockAfterExecution == ClockAfterProposal + 2 * Cardinality(Ledger) + 1
+ClockAfterExecution == ClockAfterPrepare + 2 * Cardinality(Ledger) + 1
 ----
 \* Define type specification for all variables
 
@@ -279,9 +279,7 @@ SenderHandleExecuteNotify(i, j, m) ==
 
 \* Ledger j notifies sender that the transfer is aborted
 SenderHandleAbortNotify(i, j, m) ==
-    LET isSenderWaiting == \/ senderState = S_ProposalWaiting
-                           \/ senderState = S_Waiting
-                           \/ senderState = S_Ready
+    LET isSenderWaiting == senderState \in { S_ProposalWaiting, S_Waiting, S_Ready }
     IN \/ /\ isSenderWaiting
           /\ senderState' = S_Done
           /\ Discard(m)
@@ -314,7 +312,6 @@ RecipientReceive(i, j, m) ==
 
 \* Connector i receives a SubpaymentProposal request
 ConnectorHandleSubpaymentProposalRequest(i, j, m) ==
-    /\ i \in Connector
     /\ connectorState' = [connectorState EXCEPT ![i] = C_Proposed]
     /\ Reply([mtype    |-> SubpaymentProposalResponse,
               msource  |-> i,
@@ -338,7 +335,6 @@ ConnectorHandleExecuteNotify(i, j, m) ==
 
 \* Ledger j notifies connector i that the transfer is aborted
 ConnectorHandleAbortNotify(i, j, m) ==
-    /\ i \in Connector
     /\ Discard(m)
     /\ UNCHANGED <<senderVars, connectorVars, ledgerVars>>
 
