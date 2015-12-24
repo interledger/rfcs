@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Conditional Transactions</title>
+    <title>Cryptographic Conditions</title>
     <meta charset='utf-8'>
     <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
             async class='remove'></script>
     <script class='remove'>
       var respecConfig = {
           specStatus: "CG-DRAFT",
-          shortName:  "conditional-transactions",
+          shortName:  "crypto-conditions",
           authors: [{
               name:       "Stefan Thomas",
               url:        "https://justmoon.net/",
@@ -42,10 +42,8 @@
   <body>
     <section id='abstract'>
       <p>
-        Many distributed systems use the the two-phase commit pattern to achieve atomicity of transactions. During the preparation phase the distributed participants must agree on the conditions under which a transaction should be committed and during the execution phase must make a processing decision about whether or not to commit the transaction (if the condition has been fulfilled).</p>
-        <p>
-            To achieve consensus on the execution condition and the fulfillment thereof, it is necessary to define a standard format for conditions to be expressed and shared between participants. This recommendation defines a standard format for the expression of cryptographically signed conditions and fulfillments.</p>
-      </section>
+        To achieve consensus on the execution condition and the fulfillment thereof, it is necessary to define a standard format for conditions to be expressed and shared between participants. This recommendation defines a standard format for the expression of cryptographically signed conditions and fulfillments.</p>
+    </section>
 
     <section id='sotd'>
       <p><!-- Add additional "Status of This Document" notes here --></p>
@@ -54,49 +52,10 @@
     <section>
       <h2>Introduction</h2>
       <p>
-        Transactions within a centralised system are usually relatively safe, fast and cheap. However, executing transactions across a distributed set of participants across the Web are difficult, risky, slow and expensive if they are possible at all. Most of these problems stem from a lack of standardization among the systems that provide such transactions.
-      </p>
-      <p>
-          Two phase commit is a pattern that provides security and robustness to distributed transactions. However, the transaction semantics and rules must be agreed upon and strictly enforced among participants in a distributed transaction.
-      </p>
-      <p>
-        This document outlines the functionality that participants would have to provide and proposes a specific set of semantics for that functionality. Section <a href="#transaction-states"></a> explains the basic semantics of preparing a transaction and executing or rolling-back based on a condition. Section <a href="#condition-types"></a> provides a list of the most useful condition types that participants may support.
+        Section <a href="#condition-types"></a> provides a list of the most useful condition types that participants may support.
       </p>
       <p>
         Note that the <em>semantic meaning</em> of conditions must be enforced equally by all participants, while the <em>syntax</em> for expressing these conditions does not need to be the same. Transaction co-ordinators can convert between different syntax variations. In section <a href='#syntax'></a> we will provide a recommended syntax based on [[!JSON-LD]]. Section <a href="#syntax-example-bitcoin"></a> gives an example of how to convert it into an existing, but very different syntax.
-      </p>
-    </section>
-    <section id="transaction-states">
-      <h2>Transaction States</h2>
-      <p>
-        Distributed systems using two-phase commit MUST provide the ability to first prepare and then commit a transaction. A staged transaction MUST have a state where it can either be executed or cancelled based only on an execution and a cancellation condition respectively as outlined in this document. The semantics of the conditions are discussed in detail in section <a href="#condition-types"></a>.
-      </p>
-      <p>
-        The possible states of a staged transaction are as follows:
-      </p>
-      <dl>
-        <dt>proposed</dt>
-        <dd>The initial state of a new transaction.</dd>
-        <dt>prepared</dt>
-        <dd>The state of a transaction that is ready to be either committed or rolled-back.</dd>
-        <dt>executed</dt>
-        <dd>The state of a transaction whose execution condition has been met and the transaction has been fully executed.</dd>
-        <dt>cancelled</dt>
-        <dd>The state of a transaction whose cancellation condition has been met and the transaction has been fully rolled-back.</dd>
-      </dl>
-      <p>
-        The participants in a distributed system MAY enforce any rules and policies for when a transfer will transition to the <em>prepared</em> state. These policies or <em>preconditions</em> may include requirements resulting out of business, legal, compliance, risk or other considerations. When a policy is not met a participant MAY reject the transaction or wait for the policy to be met later.</p>
-        <p>
-            For example, a participant might require information on the purpose of a transaction for compliance reasons. Ledgers SHOULD clearly state their policies wherever possible.
-      </p>
-      <p>
-        When transitioning a transaction to the <em>prepared</em> state, a participant MUST ensure that it can continue to guarantee that this transaction can be executed or cancelled.
-      </p>
-      <p>
-        Once a transaction is <em>prepared</em> it MUST transition to <em>executed</em> if and only if the execution condition is met and the cancellation condition is not met.
-      </p>
-      <p>
-        Once a transaction is <em>prepared</em> it MUST transition to <em>cancelled</em> if and only if the cancellation condition is met.
       </p>
     </section>
 

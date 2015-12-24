@@ -4,6 +4,10 @@ This repository contains a collection of various specifications and documentatio
 
 ## Specs
 
-### **[Conditional Book Transfers](https://interledger.github.io/specs/conditional-transfers-draft.html)**
+### **[Cryptographic Conditions](https://interledger.github.io/specs/crypto-conditions-draft.html)**
 
-Explains the semantics for conditional transfers that ledgers must support in order to participate in assured interledger payments.
+Cryptographic Conditions allow distributed systems to interact securely.
+
+### **[Cryptographic Distributed Transactions](https://interledger.github.io/specs/crypto-transactions-draft.html)**
+
+Two-phase commits using cryptographic conditions.
