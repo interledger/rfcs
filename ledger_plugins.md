@@ -111,12 +111,6 @@ TODO: these fields should be similar to those in the packet format
   amount: '10',
   expiresAt: '2016-05-18T12:00:00.000Z',
   condition: 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0'
-  // The `noteToSelf` is for plugin users to include details for correlating this transfer with other transfers or actions outside of this ledger
-  // When supported by the ledger, this will be included in the transfer
-  // Otherwise, it will be persisted locally to the `store`
-  noteToSelf: {
-    sourceTransferId: 'af35a5a2-a3a0-4e96-bb52-244a429c6613'
-  }
 }
 ```
 
