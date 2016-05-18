@@ -96,7 +96,9 @@ Returns `Promise.<null|Error>`
 
 Note that all transfers will have `transferId`'s to allow the plugin user to correlate actions related to a single transfer. The `transferId` will be the same as the ID used by the underlying ledger wherever possible or applicable. If the ledger does not have transfer IDs, the plugin may generate one and use the `store` passed in to the constructor to persist them.
 
-#### p.createTransfer(params)
+#### p.createTransfer(params, packet)
+
+`params` is used to create the local transfer, `packet` is the ILP Packet to be embedded in the transfer for the next connector or receiver
 
 `params`:
 
@@ -109,9 +111,6 @@ TODO: these fields should be similar to those in the packet format
   amount: '10',
   expiresAt: '2016-05-18T12:00:00.000Z',
   condition: 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0'
-  packet: {
-    // ILP Packet to be passed on to the next connector
-  },
   // The `noteToSelf` is for plugin users to include details for correlating this transfer with other transfers or actions outside of this ledger
   // When supported by the ledger, this will be included in the transfer
   // Otherwise, it will be persisted locally to the `store`
@@ -121,16 +120,15 @@ TODO: these fields should be similar to those in the packet format
 }
 ```
 
-Returns `Promise.<Object|Error>`
+Returns `Object|Buffer|String`
 
-```js
-{
-  transferId: '...', // opaque string
-  transfer: {...} // Object|Buffer|String
-}
-```
+#### p.prepareTransfer(transfer, noteToSelf)
 
-#### p.prepareTransfer(transfer)
+`transfer` is the value returned by `createTransfer`
+
+`noteToSelf` is an optional object containing details the plugin user needs to persist with the transfer to be able to correlate the transfer later with another transfer or action outside of this ledger.
+
+Note that if the ledger supports attaching memos for the sender as well as receiver of a transfer, this will modify the transfer and add the `noteToSelf` as such a memo. Otherwise, it will be persisted locally using the `store`
 
 Returns `Promise.<String|Error>`
 
@@ -146,23 +144,19 @@ Returns `Promise.<null|Error>`
 
 Note that not all transfers will be cancellable.
 
-#### p.on('transfer_prepared', function (transferId, transfer) {})
+#### p.on('transfer_prepared', function ({ transferId, transfer, noteToSelf }) {})
 
 Returns `p` (for chaining)
 
-#### p.on('transfer_executed', function (transferId, transfer) {})
+#### p.on('transfer_executed', function ({ transferId, transfer, noteToSelf }) {})
 
 Returns `p` (for chaining)
 
-#### p.on('transfer_rejected', function (transferId, transfer) {})
+#### p.on('transfer_rejected', function ({ transferId, transfer, noteToSelf }) {})
 
 Returns `p` (for chaining)
 
-#### p.on('transfer_cancelled', function (transferId, transfer) {})
-
-Returns `p` (for chaining)
-
-TODO: should cancelled and rejected be the same event? If so, how should you differentiate them?
+TODO: how do we differentiate between cancelled and expired transfers, and other errors?
 
 
 
