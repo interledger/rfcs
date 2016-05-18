@@ -91,6 +91,12 @@ Returns `Promise.<null|Error>`
 
 Note that not all transfers will be cancellable.
 
-### p.on('transfer', function (transfer) {})
+### p.on('transfer_prepared', function (transfer) {})
 
-Returns `Promise.<null|Error>`
+### p.on('transfer_executed', function (transfer) {})
+
+### p.on('transfer_rejected', function (transfer) {})
+
+### p.on('transfer_cancelled', function (transfer) {})
+
+TODO: should cancelled and rejected be the same event? If so, how should you differentiate them?
