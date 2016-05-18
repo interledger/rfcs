@@ -114,6 +114,8 @@ TODO: these fields should be similar to those in the packet format
 }
 ```
 
+Note that ledger plugins may accept additional params for other features they support. For example, a ledger that supports cancelling transfers may accept a `cancellationCondition` parameter.
+
 Returns `Object|Buffer|String`
 
 #### p.prepareTransfer(transfer, noteToSelf)
