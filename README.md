@@ -1,9 +1,11 @@
-# Interledger Specs
+# Interledger RFCs
 
-This repository contains a collection of various specifications and documentation related to the Interledger Protocol (ILP). All of these documents are informational only and have not been ratified by any organization.
+This repository contains a collection of various specifications and documentation related to the Interledger Protocol (ILP). These documents or requests-for-comment (RFCs) are published by various authors and publication here does not imply official status unless otherwise specified in the document.
 
-## Specs
+## Index
 
-### **[Conditional Book Transfers](https://interledger.github.io/specs/conditional-transfers-draft.html)**
+Here is a list of published Interledger RFCs.
 
-Explains the semantics for conditional transfers that ledgers must support in order to participate in assured interledger payments.
+* **[ILP-RFC-1: Interledger Architecture](0001-interledger-architecture/0001-interledger-architecture.md)**
+
+  Basic overview of the Interledger architecture.
