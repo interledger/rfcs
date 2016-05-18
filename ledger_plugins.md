@@ -49,11 +49,17 @@ Returns `String`
     // auth parameters are defined by the plugin
   },
   store: {
-    // persistence may be required for some ledger plugins
+    // persistence may be required for internal use by some ledger plugins
     // (e.g. when the ledger has reduced memo capability and we can only put an ID in the memo)
-    get: function (key) {},
-    set: function (key, value) {},
-    remove: function (key) {}
+    get: function (key) {
+      // Returns Promsise.<Object|Error>
+    },
+    set: function (key, value) {
+      // Returns Promise.<Object|Error>
+    },
+    remove: function (key) {
+      // Returns Promise.<Object|Error>
+    }
   }
 }
 ```
@@ -88,48 +94,71 @@ Returns `Promise.<null|Error>`
 
 ### Ledger Transfers
 
-#### p.createTransfer(packet, quote)
+Note that all transfers will have `transferId`'s to allow the plugin user to correlate actions related to a single transfer. The `transferId` will be the same as the ID used by the underlying ledger wherever possible or applicable. If the ledger does not have transfer IDs, the plugin may generate one and use the `store` passed in to the constructor to persist them.
 
-Returns `Object`
+#### p.createTransfer(params)
+
+`params`:
+
+TODO: these fields should be similar to those in the packet format
 
 ```js
 {
-  localTransferId: '...', // opaque string
-  transfer: {...} // Object|Buffer|String
+  id: 'd86b0299-e2fa-4713-833a-96a6a75271b8', // one will be generated if it is not provided
+  destination: 'https://ledger.example/accounts/connector',
+  amount: '10',
+  expiresAt: '2016-05-18T12:00:00.000Z',
+  condition: 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0'
+  packet: {
+    // ILP Packet to be passed on to the next connector
+  },
+  // The `noteToSelf` is for plugin users to include details for correlating this transfer with other transfers or actions outside of this ledger
+  // When supported by the ledger, this will be included in the transfer
+  // Otherwise, it will be persisted locally to the `store`
+  noteToSelf: {
+    sourceTransferId: 'af35a5a2-a3a0-4e96-bb52-244a429c6613'
+  }
 }
 ```
 
-TODO: should this be synchronous or async to allow for the possibility of proposing the transfers first? That might be useful for some ledgers
+Returns `Promise.<Object|Error>`
+
+```js
+{
+  transferId: '...', // opaque string
+  transfer: {...} // Object|Buffer|String
+}
+```
 
 #### p.prepareTransfer(transfer)
 
 Returns `Promise.<String|Error>`
 
-Return value is the `localTransferId`
+Return value is the `transferId`
 
-#### p.executeTransfer(localTransferId, fulfillment)
+#### p.executeTransfer(transferId, fulfillment)
 
 Returns `Promise.<null|Error>`
 
-#### p.cancelTransfer(localTransferId, cancellationConditionFulfillment)
+#### p.cancelTransfer(transferId, cancellationConditionFulfillment)
 
 Returns `Promise.<null|Error>`
 
 Note that not all transfers will be cancellable.
 
-#### p.on('transfer_prepared', function (localTransferId, transfer) {})
+#### p.on('transfer_prepared', function (transferId, transfer) {})
 
 Returns `p` (for chaining)
 
-#### p.on('transfer_executed', function (localTransferId, transfer) {})
+#### p.on('transfer_executed', function (transferId, transfer) {})
 
 Returns `p` (for chaining)
 
-#### p.on('transfer_rejected', function (localTransferId, transfer) {})
+#### p.on('transfer_rejected', function (transferId, transfer) {})
 
 Returns `p` (for chaining)
 
-#### p.on('transfer_cancelled', function (localTransferId, transfer) {})
+#### p.on('transfer_cancelled', function (transferId, transfer) {})
 
 Returns `p` (for chaining)
 
