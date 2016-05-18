@@ -10,35 +10,61 @@ This spec depends on the [ILP Packet spec](./ilp_packet.md).
 
 ## Ledger Plugin Interface
 
-### Plugin.canConnectToLedger(auth)
+
+
+
+### Static Methods
+
+#### Plugin.canConnectToLedger(auth)
 
 Returns `Promise.<Boolean|Error>`
 
-### Plugin.getPacketFromTransfer(transfer)
+#### Plugin.getPacketFromTransfer(transfer)
 
-Returns `ILPPacket`
+Returns `Object`
 
-### Plugin.matchesPacket(transfer, packet)
+Return value is an ILPPacket in JSON form
+
+#### Plugin.matchesPacket(transfer, packet)
 
 Returns `Boolean`
 
 Used by the receiver to verify that the incoming transfer actually matches the given packet (checks amounts, condition, expiry and data if applicable)
 
-### Plugin.getExpiryFromTransfer(transfer)
+#### Plugin.getExpiryFromTransfer(transfer)
 
 Returns `String`
 
-### p = new Plugin(auth)
 
-Auth fields are defined by ledger plugin
 
-### p.checkHealth()
+
+### Ledger Management
+
+#### p = new Plugin(opts)
+
+`opts`:
+```js
+{
+  auth: {
+    // auth parameters are defined by the plugin
+  },
+  store: {
+    // persistence may be required for some ledger plugins
+    // (e.g. when the ledger has reduced memo capability and we can only put an ID in the memo)
+    get: function (key) {},
+    set: function (key, value) {},
+    remove: function (key) {}
+  }
+}
+```
+
+#### p.checkHealth()
 
 Returns `Promise.<Boolean|Error>`
 
 TODO: should this return a boolean, null, or an object with information? If it's an object it would need to be standardized. It might be easiest not to return substantive information
 
-### p.getPrecision()
+#### p.getPrecision()
 
 Returns `Promise.<Object|Error>`
 
@@ -49,54 +75,83 @@ Returns `Promise.<Object|Error>`
 }
 ```
 
-### p.connect()
+#### p.connect()
 
 Returns `Promise.<null|Error>`
 
-### p.disconnect()
+#### p.disconnect()
 
 Returns `Promise.<null|Error>`
 
-### p.getConnectors()
 
-Returns `Promise.<Array<String>|Error>`
 
-TODO: should this return an array of strings or objects? It seems like the connector identifiers would just need to be something that would be understood by `sendMessage()`
 
-### p.sendMessage(node, message)
+### Ledger Transfers
 
-TODO: should we have a generic sendConnectorMessage function or specific functions for getQuote, routeUpdate, etc?
+#### p.createTransfer(packet, quote)
 
-### p.on('message', function (message, source) {})
+Returns `Object`
 
-Returns `null`
+```js
+{
+  localTransferId: '...', // opaque string
+  transfer: {...} // Object|Buffer|String
+}
+```
 
-TODO: need to verify the source of the messages
+TODO: should this be synchronous or async to allow for the possibility of proposing the transfers first? That might be useful for some ledgers
 
-### p.createTransfer(packet, quote)
+#### p.prepareTransfer(transfer)
 
-Returns `Object|Buffer|String`
+Returns `Promise.<String|Error>`
 
-### p.prepareTransfer(transfer)
+Return value is the `localTransferId`
+
+#### p.executeTransfer(localTransferId, fulfillment)
 
 Returns `Promise.<null|Error>`
 
-### p.executeTransfer(transfer, fulfillment)
-
-Returns `Promise.<null|Error>`
-
-### p.cancelTransfer(transfer, cancellationConditionFulfillment)
+#### p.cancelTransfer(localTransferId, cancellationConditionFulfillment)
 
 Returns `Promise.<null|Error>`
 
 Note that not all transfers will be cancellable.
 
-### p.on('transfer_prepared', function (transfer) {})
+#### p.on('transfer_prepared', function (localTransferId, transfer) {})
 
-### p.on('transfer_executed', function (transfer) {})
+Returns `p` (for chaining)
 
-### p.on('transfer_rejected', function (transfer) {})
+#### p.on('transfer_executed', function (localTransferId, transfer) {})
 
-### p.on('transfer_cancelled', function (transfer) {})
+Returns `p` (for chaining)
+
+#### p.on('transfer_rejected', function (localTransferId, transfer) {})
+
+Returns `p` (for chaining)
+
+#### p.on('transfer_cancelled', function (localTransferId, transfer) {})
+
+Returns `p` (for chaining)
 
 TODO: should cancelled and rejected be the same event? If so, how should you differentiate them?
+
+
+
+
+### Connector Communication
+
+#### p.getConnectors()
+
+Returns `Promise.<Array<String>|Error>`
+
+TODO: should this return an array of strings or objects? It seems like the connector identifiers would just need to be something that would be understood by `sendMessage()`
+
+#### p.sendMessage(node, message)
+
+TODO: should we have a generic sendConnectorMessage function or specific functions for getQuote, routeUpdate, etc?
+
+#### p.on('message', function (message, source) {})
+
+Returns `p` (for chaining)
+
+TODO: need to verify the source of the messages
