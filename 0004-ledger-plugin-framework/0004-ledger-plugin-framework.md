@@ -6,7 +6,7 @@ This spec defines a ledger abstraction interface for Interledger clients and con
 
 To send ILP payments through a new ledger, one must implement a ledger plugin that exposes the interface defined below. This can be used with the ILP Client and Connector and should work out of the box.
 
-This spec depends on the [ILP Packet spec](./ilp_packet.md).
+This spec depends on the [ILP Packet spec](../0003-ilp-packet/0003-ilp-packet.md).
 
 ## Ledger Plugin Interface
 
