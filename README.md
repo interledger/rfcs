@@ -9,3 +9,12 @@ Here is a list of published Interledger RFCs.
 * **[ILP-RFC-1: Interledger Architecture](0001-interledger-architecture/0001-interledger-architecture.md)**
 
   Basic overview of the Interledger architecture.
+
+* **[ILP-RFC-3: ILP Packet](0003-ilp-packet/0003-ilp-packet.md)**
+
+  Format of the Interledger Packet, used for sending payment instructions across different ledgers and connectors.
+
+* **[ILP-RFC-4: Ledger Plugin Framework](0004-ledger-plugin-framework/0004-ledger-plugin-framework.md)**
+
+  JavaScript interface for ledger plugins, which implement all functionality necessary to make Interledger payments through a ledger. This can be used as a model for defining such plugins in other languages.
+
