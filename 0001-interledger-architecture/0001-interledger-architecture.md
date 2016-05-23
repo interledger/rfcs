@@ -7,18 +7,13 @@ This document outlines the Interledger architecture and explains how the differe
 
 The Interledger architecture is heavily inspired by the Internet architecture described in [RFC 1122](https://tools.ietf.org/html/rfc1122), [RFC 1123](https://tools.ietf.org/html/rfc1123) and [RFC 1009](https://tools.ietf.org/html/rfc1009).
 
-## Table of Contents
-
-[TOC]
-
-
 ## Introduction
 
 This document is intended to provide an overview over the Interledger architecture and protocol suite.
 
 ## The Interledger Architecture
 
-All electronic transfers have to be recorded in stateful systems. Otherwise the same instance of an asset could be sent to two different destinations, essentially duplicating the asset. This is also known as a double-spend. We call these stateful systems *ledgers*. 
+All electronic transfers have to be recorded in stateful systems. Otherwise the same instance of an asset could be sent to two different destinations, essentially duplicating the asset. This is also known as a double-spend. We call these stateful systems *ledgers*.
 
 Ledgers consist of *accounts*. Accounts are individual buckets containing a decimal amount of one type of asset, usually (but not always) associated with an owner. This amount is also called the account's *balance*. Balances can be positive or negative, representing assets or liabilities.
 
@@ -36,7 +31,7 @@ When a single organization such as a bank has accounts in multiple different ass
 
 #### The Interledger is a network of ledgers.
 
-Each account is part of a particular ledger; the Interledger itself is only conceptual. 
+Each account is part of a particular ledger; the Interledger itself is only conceptual.
 
 #### Connectors do not keep transfer state information.
 
@@ -56,7 +51,7 @@ A basic objective of the Interledger design is to tolerate a wide range of ledge
 
 The Interledger architecture is separated into four layers:
 
-![enter image description here](https://lh3.googleusercontent.com/-aEwlmiKtjNA/Vu_2bJmbQeI/AAAAAAAAEy4/sAIT_zXRi2g/s0/Interledger%252520Architecture%252520Layers.png "Interledger Architecture Layers")
+![Interledger architecture layers](assets/interledger-architecture-layers.png)
 
 
 #### Application Layer
