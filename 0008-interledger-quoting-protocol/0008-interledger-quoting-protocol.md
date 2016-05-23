@@ -9,52 +9,34 @@ Quote DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 
   QuoteRequest ::= SEQUENCE {
     version INTEGER (0..65535),
-    requestId IlpQuoteRequestId,
-    ledgerId IlpLedgerId,
-    directions IlpDirectionSet,
-    amount IlpAmount,
-    amountType IlpAmountType,
-    additionalRoutingInfo IlpRoutingInfoSet OPTIONAL,
-    -- Ten seconds seems like a good default :)
-    destinationHoldDuration IlpHoldDuration DEFAULT 10000000
+    addresses IlpAddressSet,
+    sourceAmount IlpAmount OPTIONAL,
+    destinationAmount IlpAmount OPTIONAL,
+    -- How long the receiver needs to fulfill the payment (when using TTP/ATP)
+    -- Defaults to 1.5 seconds
+    destinationHoldDuration IlpHoldDuration DEFAULT 1500000
   }
 
   QuoteResponse ::= SEQUENCE {
     version INTEGER (0..65535),
-    requestId IlpQuoteRequestId,
     connectorAccount IlpAccountName,
-    -- Source or destination amount, depending on which one was not
+    -- Address that this quote response relates to
+    address IlpAddress,
+    -- Source or destination amount, depending on whichever one was NOT
     -- provided in the request.
     requestedAmount IlpAmount,
     sourceHoldDuration IlpHoldDuration
   }
 
-  IlpQuoteRequestId ::= INTEGER (0..4294967295)
+  IlpAddressSet ::= SEQUENCE OF IlpAddress
 
-  -- Connector's local ID for that ledger
-  IlpLedgerId ::= UTF8String
+  IlpAddress ::= SEQUENCE OF OCTET STRING
 
-  IlpDirectionSet ::= SEQUENCE OF IlpDirection
-
-  IlpDirection ::= UTF8String
-
-  IlpAccountName ::= UTF8String
+  IlpAccountName ::= OCTET STRING
 
   IlpAmount ::= SEQUENCE {
-    mantissa INTEGER,
-    exponent INTEGER (-128..127)
-  }
-
-  IlpAmountType ::= ENUMERATED {
-    fixedSource (0),
-    fixedDestination (1)
-  }
-
-  IlpRoutingInfoSet ::= SEQUENCE OF IlpRoutingInfo
-
-  IlpRoutingInfo ::= SEQUENCE {
-    type INTEGER (0..65535),
-    data OCTET STRING
+    exponent INTEGER (-128..127),
+    mantissa INTEGER
   }
 
   -- Length of hold in microseconds
@@ -62,27 +44,24 @@ Quote DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 
   exampleQuoteRequest QuoteRequest ::= {
     version 0,
-    requestId 12345,
-    ledgerId "rippleXRP",
-    directions {
-      "bitcoin/bitstamp/abcledger",
-      "usfed/wf/abcledger"
+    addresses {
+      { "bitcoin", "bitstamp", "abcledger" },
+      { "usfed", "wf", "abcledger" }
     },
-    amount {
-      mantissa 10,
-      exponent 0
+    destinationAmount {
+      exponent 0,
+      mantissa 10
     },
-    amountType fixedSource,
     destinationHoldDuration 20000000
   }
 
   exampleQuoteResponse QuoteResponse ::= {
     version 0,
-    requestId 12345,
     connectorAccount "connie",
+    address { "bitcoin", "bitstamp", "abcledger" },
     requestedAmount {
-      mantissa 821,
-      exponent -2
+      exponent -2,
+      mantissa 821
     },
     sourceHoldDuration 26000000
   }
