@@ -1,14 +1,14 @@
-# Interledger Protocol
+# Interledger Protocol (ILP)
 
 ## Preface
 
-This document specifies the Standard Interledger Protocol. It draws heavily from RFC 791. The interledger protocol is the culmination of the work started in 2004 by Ryan Fugger towards the creation of a decentralized peer-to-peer payment protocol. There have been many contributors to this work both in terms of concepts and in terms of text. This edition simplifies
+This document specifies the Standard Interledger Protocol (ILP). It draws heavily from the definition of the Internet Protocol (IP) defined in RFC 791. The interledger protocol is the culmination of more than a decade of research in decentralized payment protocols. This work was started in 2004 by Ryan Fugger and involved numerous contributors since then.
 
 ## Introduction
 
 ### Motivation
 
-The Interledger Protocol is designed for use in interconnected systems of digital asset ledgers with transfer capability. The interledger protocol provides for transmitting payments from sources to destinations, where sources and destinations are hosts identified by variable length addresses. The interledger protocol also provides for payment channels, if necessary, for transmission through non-scalable ledgers.
+The Interledger Protocol is designed for use in interconnected systems of digital asset ledgers with transfer capability. The interledger protocol provides for transmitting payments from sources to destinations, where sources and destinations are hosts identified by variable length hierarchically structured addresses.
 
 ### Scope
 
@@ -16,9 +16,9 @@ The interledger protocol is specifically limited in scope to provide the functio
 
 ### Interfaces
 
-This protocol is called on by host-to-host payment protocols in an interledger environment. This protocol calls on local ledger protocols to carry the interledger payment to the next connector or destination account.
+This protocol is called on by end-to-end transport protocols in an interledger environment. This protocol calls on local ledger protocols to carry the interledger payment to the next connector or destination account.
 
-For example, a Universal Transport Protocol (UTP) module would call on the interledger module to take a UTP memo (including the UTP header and user data) as the data portion of an interledger payment. The UTP module would provide the address and other parameters in the interledger header to the interledger module as arguments of the call. The interledger module would then create an interledger payment and call on the local ledger interface to transmit the interledger payment.
+For example, a [`Two-phase Transport Protocol (TTP)`](../0006-two-phase-transport-protocol/) module would call on the interledger module to take a TTP memo (including the TTP header and user data) as the data portion of an interledger payment. The TTP module would provide the address and other parameters in the interledger header to the interledger module as arguments of the call. The interledger module would then create an interledger payment and call on the local ledger interface to transmit the interledger payment.
 
 In the Ripple case, for example, the interledger module would call on a local ledger module which would add the Ripple envelope to the interledger payment creating a Ripple transaction to transmit to the Ripple Consensus Ledger. The Ripple address would be derived from the interledger address by the local ledger interface and would be the address of some account in the Ripple network, that account might belong to a connector to other ledgers.
 
@@ -32,20 +32,18 @@ The model of operation is that an interledger module resides in each host engage
 
 The interledger protocol treats each interledger payment as an independent entity unrelated to any other interledger payment. There are no connections or channels (virtual or otherwise).
 
-The interledger protocol uses one key mechanism in providing its service: Amount
-
-The Amount acts as an implicit time-to-live: Each time the payment is forwarded, the forwarding connector will take some fee out of the inbound amount. Once a connector recognizes that the inbound amount is worth less (though not necessarily numerically smaller) than the destination amount in the ILP header, it will refuse to forward the packet.
+Interledger payments do not carry a dedicated time-to-live or remaining-hops field. Instead, the amount field acts as an implicit time-to-live: Each time the payment is forwarded, the forwarding connector will take some fee out of the inbound amount. Once a connector recognizes that the inbound amount is worth less (though not necessarily numerically smaller) than the destination amount in the ILP header, it will refuse to forward the payment.
 
 ### Definitions
+
+##### Transfer
+&emsp;Change in ownership of some asset
 
 ##### Ledger
 &emsp;System which records transfers
 
 ##### Connector
 &emsp;System which relays transfers between two ledgers
-
-##### Transfer
-&emsp;Local book transfer affecting two or more accounts on a single ledger
 
 ##### Payment
 &emsp;An exchange of assets involving one or more transfers on different ledgers
@@ -56,9 +54,9 @@ The Amount acts as an implicit time-to-live: Each time the payment is forwarded,
 
 The following diagram illustrates the place of the interledger protocol in the protocol hierarchy:
 
-![Interledger model](https://lh3.googleusercontent.com/-aEwlmiKtjNA/Vu_2bJmbQeI/AAAAAAAAEy4/sAIT_zXRi2g/s0/Interledger%252520Architecture%252520Layers.png "Interledger Architecture Layers")
+![Interledger model](../0001-interledger-architecture/assets/interledger-architecture-layers.png)
 
-Interledger protocol interfaces on one side to the higher level end-to-end protocols and on the other side to the local ledger protocol.  In this context a "ledger" may be a small ledger owned by an individual or organization or a large public ledger such as Bitcoin.
+Interledger protocol interfaces on one side to the higher level end-to-end protocols and on the other side to the local ledger protocol. In this context a "ledger" may be a small ledger owned by an individual or organization or a large public ledger such as Bitcoin.
 
 ### Model of Operation
 
@@ -151,10 +149,10 @@ Here is a summary of the fields in the ILP header format:
 
 | Field | Type | Short Description |
 |:-|:-|:-|
-| version | INTEGER | `1` |
-| destinationAddress | IlpAddress | Address corresponding to the destination account. |
+| version | INTEGER(0..255) | ILP protocol version (currently `1`) |
+| destinationAddress | IlpAddress | Address corresponding to the destination account |
 | destinationAmount | IlpAmount | Amount the destination account should receive, denominated in the asset of the destination ledger |
-| nextHeader | INTEGER | Type of the next header. |
+| nextHeader | INTEGER(0..65535) | Type of the next header |
 
 **TODO**: should we have the `sourceAddress` for sending error messages back?
 
@@ -167,7 +165,111 @@ Here is a summary of the fields in the ILP header format:
 | expiresAt | IlpTimestamp | Maximum expiry time of the last transfer that the recipient will accept |
 -->
 
+#### version
+<code>INTEGER(0..255)</code>
+
+The version of the Interledger Protocol being used. This document describes version `1`.
+
+#### destinationAddress
+<code>IlpAddress :== SEQUENCE OF OCTET STRING</code>
+
+Hierarchical list of routing labels. Each label MUST be treated by all ILP-compliant components as an opaque schema-less octet string. However, for debugging purposes, labels SHOULD be valid UTF8.
+
+#### destinationAmount
+<code>IlpAmount :== SEQUENCE { mantissa INTEGER, exponent INTEGER(-128..127) }</code>
+
+Base 10 encoded amount.
+
+**TODO**: Are we going to regret the base-10 encoding?
+
+#### nextHeader
+<code>INTEGER(0..65535)</code>
+
+Type of the next header.
+
+Header types include optional interledger extension headers, such as the [Source Routing Header](#source-routing-header-format) and transport protocols, such as [User-defined Transport Protocol (UTP)](../0005-user-defined-transport-protocol/).
+
+The list of headers is terminated by the special value `0xffff`, i.e. all bits set. When a ledger module finishes processing a header containing this value as its `nextHeader`, it MUST stop parsing and forward all remaining bytes without modification.
+
+When an interledger module encounters an unknown header type, it MUST act according to the value of the two most significant bits:
+
+| Bits | Meaning |
+|:-|:-|
+| 00 | Drop the payment, reply with an error, issue a refund if possible |
+| 01 | Drop the payment, reply with an error, do not issue a refund |
+| 01 | Drop the payment quietly, do not reply |
+| 11 | Ignore the header, process the payment as if the header wasn't there |
+
+The list of header types is managed by IANA, please see [Header Type Registry](#header-type-registry).
+
+### Generic Extension Header Format
+
+Here is a description of the format that all headers (except the ILP header) MUST follow:
+
+| Field | Type | Short Description |
+|:-|:-|:-|
+| nextHeader | INTEGER | Type of the next header |
+| size | INTEGER | Size of this header in octets |
+
+#### nextHeader
+<code>INTEGER(0..65535)</code>
+
+See [`nextHeader`](#nextheader).
+
+#### size
+<code>INTEGER(0..65535)</code>
+
+Total size of the header in bytes, including the generic header fields.
+
+### Memo Locator Header Format
+
+This header indicates where in the payload (remaining data after the headers) the user memo can be found. If this header is not provided, the interledger module MUST assume that the entire payload is the user memo. All interledger modules MUST support this header type.
+
+This header is provided for forward compatibility. Future extensions to the protocol may need to carry more data than can fit in a 64KB header. This header allows them to re-map the location of the user data in the payload and add their own content to the payload. By supporting this header from the start, we ensure that this functionality will be backwards compatible with all ILP implementations.
+
+| Field | Type | Short Description |
+|:-|:-|:-|
+| nextHeader | INTEGER | Type of the next header |
+| size | INTEGER | Size of this header in octets |
+| memoPosition | INTEGER | Starting position of the memo |
+| memoSize | INTEGER | Size of the memo in octets |
+
+#### memoPosition
+<code>INTEGER(0..4294967295)</code>
+
+Starting position of the memo. Interledger modules MUST start reading the memo this many octets after the start of the payload.
+
+If `memoPosition` is greater than the payload size, interledger modules SHOULD drop the payment.
+
+#### memoSize
+<code>INTEGER(0..4294967295)</code>
+
+Size of the memo in octets.
+
+If `memoPosition + memoSize` is greater than the payload size, interledger modules SHOULD drop the payment.
+
+### Hop-by-hop Header Format
+
+This header may be used for source routing.
+
+**TODO**: Document format.
 
 ## Discussion
 
 ### Payment Channels
+
+## Appendix A: ASN.1 Module
+
+## Appendix B: IANA Considerations
+
+### Header Type Registry
+
+The following initial entries should be added to the Interledger Header Type registry to be created and maintained at (the suggested URI) http://www.iana.org/assignments/interledger-header-types:
+
+| Header Type ID | Description |
+|:-|:-|
+| 0 | [Interledger Protocol (ILP)](#ilp-header-format) |
+| 1 | [User-defined Transport Protocol (UTP)](../0005-user-defined-transport-protocol/) |
+| 2 | [Two-phase Transport Protocol (TTP)](../0006-two-phase-transport-protocol/) |
+| 3 | [Atomic Transport Protocol (ATP)](../0007-atomic-transport-protocol/) |
+| 4 | [Interledger Quoting Protocol (ILQP)](../0008-interledger-quoting-protocol/) |
