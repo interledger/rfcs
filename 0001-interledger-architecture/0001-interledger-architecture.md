@@ -19,7 +19,9 @@ Ledgers consist of *accounts*. Accounts are individual buckets containing a deci
 
 Assets can be transferred between accounts on the same ledger. We call these events *book transfers* or just *transfers*.
 
-A transfer of assets across ledgers requires two or more local book transfers. Some system must know the relationship between the two transfers. We call this system *connector*. The same system may act as both a ledger and a connector.
+A transfer of assets across ledgers requires two or more local book transfers. Some system must know the relationship between the two transfers. We call this system a *connector*. The same system may act as both a ledger and a connector.
+
+The Interledger is a network of independent and diverse ledgers. Each account is part of a particular ledger; the Interledger itself is only conceptual.
 
 ### Architectural Assumptions
 
@@ -28,10 +30,6 @@ A transfer of assets across ledgers requires two or more local book transfers. S
 We assume that all assets within one ledger are fungible. Within one ledger transfers can happen directly from sender to recipient and do not require a third party exchanger.
 
 When a single organization such as a bank has accounts in multiple different assets of different types, we treat each asset as belonging to its own ledger.
-
-#### The Interledger is a network of ledgers.
-
-Each account is part of a particular ledger; the Interledger itself is only conceptual.
 
 #### Connectors do not keep transfer state information.
 
@@ -129,9 +127,7 @@ The ledger MUST fulfill the requirements for basic support and also the followin
 
 It MUST support all cryptographic condition types with the status "recommended".
 
-It MUST support multiple debits and credits on different accounts within a single transfer.
-
-It MUST support memos to be added to each credit and debit separately and SHOULD support fairly large memo sizes.
+It MUST support memos to be added for the credited and debited accounts separately and SHOULD support fairly large memo sizes.
 
 It MUST support a way to discover connectors connected to the ledger.
 
@@ -175,21 +171,21 @@ The Interledger Protocol (ILP) ensures that different connectors are interoperab
 
 #### Interledger Protocol (ILP)
 
-When initiating an Interledger transaction, the sender will make a transfer to a connector using their local Ledger layer protocol. Within this transfer, the sender will include an ILP packet which tells the receiving connector the final destination, the amount to be transferred and -- if applicable -- the condition.
+When initiating an Interledger transaction, the sender will make a transfer to a connector using their local Ledger layer protocol. Within this transfer, the sender will include an [ILP Packet](../0003-interledger-protocol/) which tells the receiving connector the final destination, the amount to be transferred and -- if applicable -- the condition.
 
 Note that the exact method of transmitting this data packet is dependent on the ledger layer protocol. Typically, it will be included in the transfer in a memo field. However, some ledgers may specify a different method for transporting the ILP packet.
 
-<span class="show alert alert-warning">**TODO:** Define ILP packet binary format.</span>
-
 #### Interledger Quoting Protocol (ILQP)
 
-Before an Interledger transfer takes place, the sender will request quotes from connectors which are connected to the same ledger. These quote requests happen via ILQP, a simple UDP-based protocol. Quote requests contain a mock ILP packet, responses contain an amount and suggested expiry duration.
+Before an Interledger transfer takes place, the sender will request quotes from connectors which are connected to the same ledger. These quote requests happen via the [Interledger Quoting Protocol (ILQP)](../0008-interledger-quoting-protocol/).
 
 Senders MAY cache quotes and send repeated transfers through the same connector.
 
 #### Interledger Control Protocol (ILCP)
 
-The Interledger Control Protocol (ILCP) is a TCP-based protocol which is used by connectors to exchange routing information.
+The Interledger Control Protocol (ILCP) is a protocol used by connectors to exchange routing information and communicate payment errors.
+
+**TODO**: add link
 
 ## Transport Layer
 
@@ -201,7 +197,7 @@ Transport layer protocols are responsible for coordinating the different transfe
 
 #### Optimistic Transport Protocol (OTP)
 
-Optimistic Transport Protocol (OTP) is the trivial case of a transport protocol. It simply makes a transfer to the next connector. The connector may or may not make the requested transfer and the sender is out the money either way.
+The Optimistic Transport Protocol (OTP) is the trivial case of a transport protocol. It simply makes a transfer to the next connector. The connector may or may not make the requested transfer and the sender is out the money either way.
 
 For most cases, OTP will not be appropriate. However, it may make sense in the case of recurring microtransactions where a few lost transactions are not a big deal.
 
@@ -209,7 +205,7 @@ For most cases, OTP will not be appropriate. However, it may make sense in the c
 
 #### Universal Transport Protocol (UTP)
 
-Universal Transport Protocol (UTP) is the standard and recommended transport protocol. It sets up a cascading chain of escrowed transfers in order to ensure delivery of funds.
+The Universal Transport Protocol (UTP) is the standard and recommended transport protocol. It sets up a cascading chain of escrowed transfers in order to ensure delivery of funds.
 
 The protocol flow is described in the [Interledger whitepaper](https://interledger.org/interledger.pdf).
 
@@ -221,11 +217,9 @@ In other words, the failed connector will lose money and some other connector wi
 
 #### Atomic Transport Protocol (ATP)
 
-Atomic Transport Protocol (ATP) is the most conservative, but also most complex of the standard Interledger transport protocols. In addition to the ledgers and connectors, it also involved a set of impartial notaries, which is chosen by the sender, recipient and connectors involved in the transaction by mutual agreement.
+The Atomic Transport Protocol (ATP) is the most conservative, but also most complex of the standard Interledger transport protocols. In addition to the ledgers and connectors, it also involves a set of impartial notaries, which must be agreed upon by the sender, recipient and connectors involved in the transaction.
 
-<span class="show alert alert-warning">**TODO:** Explain notary selection.</span>
-
-Since each party chooses their own set of trusted notaries, there may not be any overlap and ATP cannot be used in that case.
+Since each party chooses their own set of notaries to trust, there may not be any overlap and ATP could not be used in that case. Notaries may be selected using an automatic process or preselected by a group with standing agreements among the participants.
 
 The protocol flow is described in the [Interledger whitepaper](https://interledger.org/interledger.pdf).
 
@@ -241,144 +235,19 @@ Similarly, an ATP transaction can turn into a UTP transaction when a connector d
 
 Application layer protocols deal with the exchange of payment details and associated negotiation.
 
-### Open Web Payment Scheme (OWPS)
+### Simple Payment Setup Protocol (SPSP)
 
-An OWPS payment proceeds in several stages:
+The Simple Payment Setup Protocol (SPSP) is an application layer protocol for negotiating payment details. SPSP handles account and amount discovery, condition creation, quoting and setup. SPSP uses Webfinger ([RFC 7033](https://tools.ietf.org/html/rfc7033)) and an HTTP-based protocol for querying account and amount details, [ILQP](#interledger-quoting-protocol-ilqp) for quoting, and [UTP](#universal-transport-protocol-utp) for payment execution.
 
-1. Discovery
-2. Query
-2. Quoting
-3. Setup
-4. Execution
+The protocol is described in [ILP RFC 9](../0009-simple-payment-setup-protocol/).
 
-#### Discovery
+### Defining Other Application Layer Protocols
 
-Whenever possible, URIs should be exchanged out-of-band and discovery should be skipped. However, in some cases, it may be useful to have a standardized user-friendly identifier. This discovery method describes how to resolve such an identifier to a queryable OWPS endpoint.
+Creators of other application layer protocols should consider the following:
 
-First, the sender uses Webfinger ([RFC 7033](https://tools.ietf.org/html/rfc7033)) to look up an identifier (e.g. `bob@red.ilpdemo.org`):
-
-``` http
-GET /.well-known/webfinger?resource=acct%3Abob%40red.ilpdemo.org HTTP/1.1
-Accept: application/json
-
-{
-  "subject": "acct:bob@red.ilpdemo.org",
-  "links": [
-    {
-      "rel": "https://interledger.org/rel/receiver",
-      "href": "https://red.ilpdemo.org/api/receivers/bob"
-    }
-  ]
-}
-```
-[Try this request](https://red.ilpdemo.org/.well-known/webfinger?resource=acct%3Abob%40red.ilpdemo.org)
-
-#### Query
-
-Any OWPS recipient will create a receiving endpoint called the *receiver*. The sender queries this endpoint to get information about the type of payment that can be made to this receiver:
-
-``` http
-GET /api/receivers/bob HTTP/1.1
-Accept: application/json
-```
-``` http
-HTTP/1.1 200 OK
-{
-  "type": "payee",
-  "ledger": "https://red.ilpdemo.org/ledger",
-  "account": "https://red.ilpdemo.org/ledger/accounts/bob"
-}
-```
-
-Possible values for `type` are:
-
-`payee`
-: This is a general receiving account for peer-to-peer payments.
-
-`invoice`
-: This is an invoice, meaning it can be paid only once and only with a specific amount.
-
-##### Payee
-
-Payee information consists of basic account details. Amounts are chosen by the sender.
-
-**Example Receiver**
-``` json
-{
-  "type": "payee",
-  "ledger": "https://red.ilpdemo.org/ledger",
-  "account": "https://red.ilpdemo.org/ledger/accounts/bob",
-  "payments": "https://red.ilpdemo.org/api/receiver/bob/payments"
-}
-```
-
-If this receiver is not available, an error can be generated at this stage:
-
-``` http
-HTTP/1.1 404 Not Found
-
-{
-  "id": "InvalidReceiverIdError",
-  "message": "Invalid receiver ID"
-}
-```
-
-##### Invoice
-
-Invoice information includes an exact amount as well as the status of the invoice. (Invoices can only be paid once.)
-
-**Example Receiver**
-``` json
-{
-  "type": "invoice",
-  "ledger": "https://red.ilpdemo.org/ledger",
-  "account": "https://red.ilpdemo.org/ledger/accounts/amazon",
-  "amount": "10.40",
-  "status": "unpaid",
-  "invoice_info": "https://www.amazon.com/gp/your-account/order-details?ie=UTF8&orderID=111-7777777-1111111",
-  "payments": "https://red.ilpdemo.org/api/invoice_receiver/amazon/111-7777777-1111111/payments"
-}
-```
-
-#### Quoting
-
-The sender requests quotes from neighboring connectors using [ILQP](#interledger-quoting-protocol-ilqp).
-
-#### Setup
-
-When the sender is ready to make a payment, it submits a payment object to the receiver:
-
-``` http
-POST /api/receiver/bob/payments HTTP/1.1
-Accept: application/json
-
-{
-  "amount": "10.40",
-  "source_identifier": "alice@blue.ilpdemo.org",
-  "memo": "Hey Bob!"
-}
-```
-``` http
-HTTP/1.1 201 Created
-
-{
-  "receipt_condition": "cc:1:1:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:1"
-}
-```
-
-The setup is what primes the receiver to expect the incoming payment. It also provides the sender with the correct execution condition which describes the signed receipt which the receiver will generate to provide proof-of-payment.
-
-The receiver has the opportunity to reject an incoming payment before any funds move, for instance because of daily limits:
-
-``` http
-HTTP/1.1 422 Unprocessable Entity
-
-{
-  "id": "LimitExceededError",
-  "error": "Daily incoming funds limit exceeded"
-}
-```
-
-#### Execution
-
-The sender initiates a transfer on their local ledger using [UTP](#universal-transport-protocol-utp).
+1. Account discovery
+2. Amount and condition communication
+3. Additional details communicated in memo 
+4. Condition types supported or required
+5. Transport protocol
+6. Incoming payment validation (amount, condition, etc.)
