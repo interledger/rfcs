@@ -148,7 +148,7 @@ In a connector the higher level protocols need not be implemented and the CCP fu
 Here is a summary of the fields in the ILP header format:
 
 | Field | Type | Short Description |
-|:-|:-|:-|
+|:--|:--|:--|
 | version | INTEGER(0..255) | ILP protocol version (currently `1`) |
 | destinationAddress | IlpAddress | Address corresponding to the destination account |
 | destinationAmount | IlpAmount | Amount the destination account should receive, denominated in the asset of the destination ledger |
@@ -194,7 +194,7 @@ The list of headers is terminated by the special value `0xffff`, i.e. all bits s
 When an interledger module encounters an unknown header type, it MUST act according to the value of the two most significant bits:
 
 | Bits | Meaning |
-|:-|:-|
+|:--|:--|
 | 00 | Drop the payment, reply with an error, issue a refund if possible |
 | 01 | Drop the payment, reply with an error, do not issue a refund |
 | 01 | Drop the payment quietly, do not reply |
@@ -207,7 +207,7 @@ The list of header types is managed by IANA, please see [Header Type Registry](#
 Here is a description of the format that all headers (except the ILP header) MUST follow:
 
 | Field | Type | Short Description |
-|:-|:-|:-|
+|:--|:--|:--|
 | nextHeader | INTEGER | Type of the next header |
 | size | INTEGER | Size of this header in octets |
 
@@ -228,7 +228,7 @@ This header indicates where in the payload (remaining data after the headers) th
 This header is provided for forward compatibility. Future extensions to the protocol may need to carry more data than can fit in a 64KB header. This header allows them to re-map the location of the user data in the payload and add their own content to the payload. By supporting this header from the start, we ensure that this functionality will be backwards compatible with all ILP implementations.
 
 | Field | Type | Short Description |
-|:-|:-|:-|
+|:--|:--|:--|
 | nextHeader | INTEGER | Type of the next header |
 | size | INTEGER | Size of this header in octets |
 | memoPosition | INTEGER | Starting position of the memo |
@@ -267,7 +267,7 @@ This header may be used for source routing.
 The following initial entries should be added to the Interledger Header Type registry to be created and maintained at (the suggested URI) http://www.iana.org/assignments/interledger-header-types:
 
 | Header Type ID | Description |
-|:-|:-|
+|:--|:--|
 | 0 | [Interledger Protocol (ILP)](#ilp-header-format) |
 | 1 | [User-defined Transport Protocol (UTP)](../0005-user-defined-transport-protocol/) |
 | 2 | [Two-phase Transport Protocol (TTP)](../0006-two-phase-transport-protocol/) |

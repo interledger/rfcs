@@ -13,7 +13,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 
 ###### Methods
 | | Name |
-|:-|:-|
+|:--|:--|
 | `static` | [**canConnectToLedger**](#canconnecttoledger) ( auth ) `⇒ Boolean`|
 | `new` | [**LedgerPlugin**](#new-ledgerplugin) ( opts ) |
 | | [**connect**](#connect) ( ) `⇒ Promise.<null>` |
@@ -27,7 +27,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 
 ###### Events
 | Name | Handler |
-|:-|:-|
+|:--|:--|
 | [**connect**](#event-connect-) | `( ) ⇒` |
 | [**disconnect**](#event-disconnect-) | `( ) ⇒` |
 | [**error**](#event-error-) | `( ) ⇒` |
@@ -53,7 +53,7 @@ Create a new instance of the plugin. Each instance typically corresponds to a di
 
 ###### Parameters
 | Name | Type | Description |
-|:-|:-|:-|
+|:--|:--|:--|
 | opts | <code>[PluginOptions](#class-pluginoptions)</code> | Object containing ledger-related settings. May contain plugin-specific fields. |
 
 ###### Example
@@ -147,7 +147,7 @@ Some ledger plugins MAY implement zero-amount transfers differently than other t
 
 ###### Parameters
 | Name | Type | Description |
-|:-|:-|:-|
+|:--|:--|:--|
 | transfer | <code>[OutgoingTransfer](#outgoingtransfer)</code> | Properties of the transfer to be created |
 
 ###### Returns
@@ -266,7 +266,7 @@ The `Transfer` class is used to describe local ledger transfers.
 
 ###### Fields
 | Type | Name | Description |
-|:-|:-|:-|
+|:--|:--|:--|
 | `String` | [id](#id) | UUID used as an external identifier |
 | `String` | [account](#account) | Local source or destination account ID |
 | `String` | [amount](#amount) | Decimal transfer amount |
@@ -383,7 +383,7 @@ Metadata describing the ledger. This data is returned by the [`getInfo`](#getinf
 
 ###### Fields
 | Type | Name | Description |
-|:-|:-|:-|
+|:--|:--|:--|
 | `String` | [scale](#scale) | UUID used as an external identifier |
 | `String` | [precision](#precision) | UUID used as an external identifier |
 | `String` | [currencyCode](#currencyCode) | ISO three-letter currency code |
@@ -418,7 +418,7 @@ Plugin options are passed in to the [`LedgerPlugin`](#class-ledgerplugin) constr
 
 ###### Fields
 | Type | Name | Description |
-|:-|:-|:-|
+|:--|:--|:--|
 | `Object` | [auth](#auth) | Ledger authentication information |
 | `Object` | [store](#store) | Persistence layer callbacks |
 
