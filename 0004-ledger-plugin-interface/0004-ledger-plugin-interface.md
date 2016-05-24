@@ -272,9 +272,9 @@ The `Transfer` class is used to describe local ledger transfers.
 | `String` | [amount](#amount) | Decimal transfer amount |
 | `Buffer` | [data](#data) | Data packet or memo to be sent with the transfer, starts with an ILP header |
 | `Buffer` | [noteToSelf](#notetoself) | Host-provided memo that should be stored with the transfer |
-| `String` | [executionCondition](#executioncondition) | Cryptographic hold condition, used in [TTP](../0006-two-phase-transport-protocol/)/[ATP](../0007-atomic-transport-protocol/) |
+| `String` | [executionCondition](#executioncondition) | Cryptographic hold condition, used in [UTP](../0006-universal-transport-protocol/)/[ATP](../0007-atomic-transport-protocol/) |
 | `String` | [cancellationCondition](#cancellationcondition) | Cryptographic abort condition, used in [ATP](../0007-atomic-transport-protocol/) |
-| `String` | [expiresAt](#expiresat) | Expiry time of the cryptographic hold, used in [TTP](../0006-two-phase-transport-protocol/) |
+| `String` | [expiresAt](#expiresat) | Expiry time of the cryptographic hold, used in [UTP](../0006-universal-transport-protocol/) |
 | `Object` | [custom](#custom) | Object containing ledger plugin specific options |
 
 

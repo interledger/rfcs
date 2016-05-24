@@ -18,7 +18,7 @@ The interledger protocol is specifically limited in scope to provide the functio
 
 This protocol is called on by end-to-end transport protocols in an interledger environment. This protocol calls on local ledger protocols to carry the interledger payment to the next connector or destination account.
 
-For example, a [`Two-phase Transport Protocol (TTP)`](../0006-two-phase-transport-protocol/) module would call on the interledger module to take a TTP memo (including the TTP header and user data) as the data portion of an interledger payment. The TTP module would provide the address and other parameters in the interledger header to the interledger module as arguments of the call. The interledger module would then create an interledger payment and call on the local ledger interface to transmit the interledger payment.
+For example, a [`Universal Transport Protocol (UTP)`](../0006-universal-transport-protocol/) module would call on the interledger module to take a UTP memo (including the UTP header and user data) as the data portion of an interledger payment. The UTP module would provide the address and other parameters in the interledger header to the interledger module as arguments of the call. The interledger module would then create an interledger payment and call on the local ledger interface to transmit the interledger payment.
 
 In the Ripple case, for example, the interledger module would call on a local ledger module which would add the Ripple envelope to the interledger payment creating a Ripple transaction to transmit to the Ripple Consensus Ledger. The Ripple address would be derived from the interledger address by the local ledger interface and would be the address of some account in the Ripple network, that account might belong to a connector to other ledgers.
 
@@ -181,7 +181,7 @@ Base 10 encoded amount.
 
 Type of the next header.
 
-Header types include optional interledger extension headers, such as the [Source Routing Header](#source-routing-header-format) and transport protocols, such as [User-defined Transport Protocol (UTP)](../0005-user-defined-transport-protocol/).
+Header types include optional interledger extension headers, such as the [Source Routing Header](#source-routing-header-format) and transport protocols, such as [Optimistics Transport Protocol (OTP)](../0005-optimistic-transport-protocol/).
 
 The list of headers is terminated by the special value `0xffff`, i.e. all bits set. When a ledger module finishes processing a header containing this value as its `nextHeader`, it MUST stop parsing and forward all remaining bytes without modification.
 
@@ -263,7 +263,7 @@ The following initial entries should be added to the Interledger Header Type reg
 | Header Type ID | Description |
 |:--|:--|
 | 0 | [Interledger Protocol (ILP)](#ilp-header-format) |
-| 1 | [User-defined Transport Protocol (UTP)](../0005-user-defined-transport-protocol/) |
-| 2 | [Two-phase Transport Protocol (TTP)](../0006-two-phase-transport-protocol/) |
+| 1 | [Optimistic Transport Protocol (OTP)](../0005-optimistic-transport-protocol/) |
+| 2 | [Universal Transport Protocol (UTP)](../0006-universal-transport-protocol/) |
 | 3 | [Atomic Transport Protocol (ATP)](../0007-atomic-transport-protocol/) |
 | 4 | [Interledger Quoting Protocol (ILQP)](../0008-interledger-quoting-protocol/) |
