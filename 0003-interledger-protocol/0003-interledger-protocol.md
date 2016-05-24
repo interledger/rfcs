@@ -133,13 +133,7 @@ Connectors implement interledger protocol to forward payments between ledgers. C
 
 In a connector the higher level protocols need not be implemented and the CCP functions are added to the ILP module.
 
-    +-----------------------------------+
-    | Interledger Protocol & ILQP & CCP |
-    +-----------------------------------+
-             |                 |
-    +----------------+ +----------------+
-    |  Local Ledger  | |  Local Ledger  |
-    +----------------+ +----------------+
+![Interledger is an overlay across ledgers](assets/ilp-ledger-relation.png)
 
 ## Specification
 
