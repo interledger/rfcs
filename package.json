@@ -1,0 +1,30 @@
+{
+  "name": "interledger-rfcs",
+  "version": "0.0.0",
+  "description": "Interledger RFCs package",
+  "main": "index.js",
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/interledger/rfcs.git"
+  },
+  "keywords": [
+    "interledger",
+    "documents",
+    "standard",
+    "rfc",
+    "request-for-comment"
+  ],
+  "author": "Interledger Team <info@interledger.org>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/interledger/rfcs/issues"
+  },
+  "homepage": "https://github.com/interledger/rfcs"
+}
