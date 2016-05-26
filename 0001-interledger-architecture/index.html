@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Payments across payment networks">
+
+    <title>Interledger Architecture | Interledger</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link href="/css/monokai-sublime.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    <!-- Google fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,200,600,700|Droid+Sans+Mono|Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
+
+    <!-- Font awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
+
+    <link href="/assets/favicon.ico" rel="icon" type="image/x-icon">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body data-spy="scroll" data-target="#myScrollspy" data-offset="160" class="architecture-overview">
+
+     <!-- navbar -->
+      <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><img class="logo" alt="interledger" src="/assets/ilp_icon.png"/></a>
+          </div>
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="/overview.html">Docs</a></li>
+              <li><a href="/community.html">Community</a></li>
+              <li><a href="/news.html">News</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a target="_blank" href="https://github.com/interledger">Github</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+    <!-- docs overview section -->
+
+    <div class="container docs-wrapper">
+      <div class="row">
+        <div id="sidebarContent">
+          <nav class="col-sm-4" id="myScrollspy">
+            <ul class="nav-fixed nav nav-sidebar">
+              <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
+              
+                <li class="nav-label">
+                  <a href="#introduction-1">Introduction</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#the-interledger-architecture">The Interledger Architecture</a>
+                </li>
+              
+                <li>
+                  <a href="#architectural-assumptions">Architectural Assumptions</a>
+                </li>
+              
+                <li>
+                  <a href="#interledger-protocol-suite">Interledger Protocol Suite</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#ledger-layer-2">Ledger Layer</a>
+                </li>
+              
+                <li>
+                  <a href="#introduction-2">Introduction</a>
+                </li>
+              
+                <li>
+                  <a href="#requirements">Requirements</a>
+                </li>
+              
+                <li>
+                  <a href="#example-protocols">Example Protocols</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#interledger-layer-2">Interledger Layer</a>
+                </li>
+              
+                <li>
+                  <a href="#introduction-3">Introduction</a>
+                </li>
+              
+                <li>
+                  <a href="#protocols-1">Protocols</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#transport-layer-2">Transport Layer</a>
+                </li>
+              
+                <li>
+                  <a href="#introduction-4">Introduction</a>
+                </li>
+              
+                <li>
+                  <a href="#protocols-2">Protocols</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#application-layer-2">Application Layer</a>
+                </li>
+              
+                <li>
+                  <a href="#introduction-5">Introduction</a>
+                </li>
+              
+                <li>
+                  <a href="#simple-payment-setup-protocol-spsp">Simple Payment Setup Protocol (SPSP)</a>
+                </li>
+              
+                <li>
+                  <a href="#defining-other-application-layer-protocols">Defining Other Application Layer Protocols</a>
+                </li>
+              
+            </ul>
+          </nav>
+        </div>
+        <div class="col-sm-8 markdown-body">
+          <h1 id="interledger-architecture">Interledger Architecture</h1>
+<p class="intro"><span class="show alert alert-danger"><strong>This is a strawman proposal.</strong> Choices made in this document are merely intended as a starting point.</span></p>
+<p>This document outlines the Interledger architecture and explains how the different layers relate to each other.</p>
+<p>The Interledger architecture is heavily inspired by the Internet architecture described in <a href="https://tools.ietf.org/html/rfc1122">RFC 1122</a>, <a href="https://tools.ietf.org/html/rfc1123">RFC 1123</a> and <a href="https://tools.ietf.org/html/rfc1009">RFC 1009</a>.</p>
+<h2 id="introduction-1">Introduction</h2>
+<p>This document is intended to provide an overview over the Interledger architecture and protocol suite.</p>
+<h2 id="the-interledger-architecture">The Interledger Architecture</h2>
+<p>All electronic transfers have to be recorded in stateful systems. Otherwise the same instance of an asset could be sent to two different destinations, essentially duplicating the asset. This is also known as a double-spend. We call these stateful systems <em>ledgers</em>.</p>
+<p>Ledgers consist of <em>accounts</em>. Accounts are individual buckets containing a decimal amount of one type of asset, usually (but not always) associated with an owner. This amount is also called the account&apos;s <em>balance</em>. Balances can be positive or negative, representing assets or liabilities.</p>
+<p>Assets can be transferred between accounts on the same ledger. We call these events <em>book transfers</em> or just <em>transfers</em>.</p>
+<p>A transfer of assets across ledgers requires two or more local book transfers. Some system must know the relationship between the two transfers. We call this system a <em>connector</em>. The same system may act as both a ledger and a connector.</p>
+<p>The Interledger is a network of independent and diverse ledgers. Each account is part of a particular ledger; the Interledger itself is only conceptual.</p>
+<h3 id="architectural-assumptions">Architectural Assumptions</h3>
+<h4 id="ledgers-contain-only-one-type-of-asset">Ledgers contain only one type of asset.</h4>
+<p>We assume that all assets within one ledger are fungible. Within one ledger transfers can happen directly from sender to recipient and do not require a third party exchanger.</p>
+<p>When a single organization such as a bank has accounts in multiple different assets of different types, we treat each asset as belonging to its own ledger.</p>
+<h4 id="connectors-do-not-keep-transfer-state-information">Connectors do not keep transfer state information.</h4>
+<p>Just as Internet gateways do not keep connection state information, connectors do not keep transfer state information. All state is kept at the ledger level and connectors merely react to and trigger ledger events.</p>
+<p>Note that this does not mean that all connectors are necessarily stateless. They may keep track of their available liquidity or even maintain an internal ledger if they are transacting on behalf of third parties. But we are assuming that they do not keep authoritative state about transfers.</p>
+<h4 id="routing-complexity-should-be-in-the-connectors">Routing complexity should be in the connectors.</h4>
+<p>Routing is a complex and difficult problem, and ought to be performed by the connectors, not the end users of the system. An important objective is to isolate user software from changes caused by the inevitable evolution of the Interledger routing architecture.</p>
+<h4 id="the-system-must-tolerate-wide-ledger-variation">The system must tolerate wide ledger variation.</h4>
+<p>A basic objective of the Interledger design is to tolerate a wide range of ledger characteristics --- e.g. throughput, latency, fees, access restrictions, reliability, decentralization. In addition it must support all types of different asset characteristics --- e.g. divisibility, fungibility, interest/demurrage, issuance.</p>
+<h3 id="interledger-protocol-suite">Interledger Protocol Suite</h3>
+<p>The Interledger architecture is separated into four layers:</p>
+<p><img src="assets/interledger-architecture-layers.png" alt="Interledger architecture layers"></p>
+<h4 id="application-layer-1">Application Layer</h4>
+<p>The application layer is the top layer of the Interledger protocol suite. Protocols on this layer are responsible for negotiating the key properties of a payment:</p>
+<ul>
+<li>Source Account</li>
+<li>Destination Account</li>
+<li>Amount</li>
+<li>Condition</li>
+</ul>
+<p>Once these parameters are decided, the application layer protocol will instantiate a transport layer protocol to initiate the payment.</p>
+<p>Application layer protocols include open protocols such as the Open Web Payment Scheme (OWPS) and proprietary protocols such as the Ripple Payment Services Protocol (RPSP).</p>
+<h4 id="transport-layer-1">Transport Layer</h4>
+<p>The transport layer provides end-to-end transaction services for applications. There are three primary transport layer protocols at the moment:</p>
+<ul>
+<li>Optimistic Transport Protocol (OTP)</li>
+<li>Universal Transport Protocol (UTP)</li>
+<li>Atomic Transport Protocol (ATP)</li>
+</ul>
+<p>OTP is a trivial transport protocol which simply transfers funds without the protection of escrow. Hence it is only suitable for very small microtransactions where efficiency matters more than reliability.</p>
+<p>UTP uses escrowed transfers to guarantee that no funds leave the sender&apos;s account unless the transaction was successfully completed. It is suitable for transactions of any size and should be considered the default choice.</p>
+<p>ATP uses escrowed transfers and a set of pre-agreed, trusted notaries in order to guarantee atomicity across multiple ledgers. It is relatively expensive to set up, but can be used to reduce the need for reconciliation.</p>
+<h4 id="interledger-layer-1">Interledger Layer</h4>
+<p>All Interledger transport protocols use the Interledger Protocol (ILP) to communicate with connectors about transfer requests. This may include requesting a quote or requesting a transfer on another ledger.</p>
+<p>The Interledger layer defines a standard way to refer to ledgers, accounts and amounts. This is used in routing as well as to try and make quotes comparable.</p>
+<h4 id="ledger-layer-1">Ledger Layer</h4>
+<p>In order to facilitate transfers between accounts, ledgers must implement some API or protocol. We call this the ledger layer. There is a wide variety of ledger layer protocols, corresponding to the many different types of ledger.</p>
+<h2 id="ledger-layer-2">Ledger Layer</h2>
+<h3 id="introduction-2">Introduction</h3>
+<p>Ledger protocols are responsible for executing the individual transfers that constitute an Interledger transaction. They are also used by connectors to communicate with each other. Ledger layer protocols can differ widely depending on the type of ledger. For example, a central ledger will likely use a very different protocol than a blockchain.</p>
+<h3 id="requirements">Requirements</h3>
+<h4 id="minimal-support">Minimal Support</h4>
+<p>For minimal Interledger support, the ledger MUST have the ability for funds to be transferred from one account to another. This enables OTP transactions to pass through this ledger. It also allows third parties to act as escrow providers in order to enable UTP and ATP transactions on the ledger.</p>
+<h4 id="basic-support">Basic Support</h4>
+<p>For basic Interledger support, a ledger MUST fulfill the requirements for minimal support and also the following:</p>
+<p>The ledger MUST provide cryptographic escrow. Escrow means that transfers can have four states:</p>
+<p><img src="https://lh3.googleusercontent.com/-QHsehrPTXgM/Vu_zs1dLWPI/AAAAAAAAEys/zchHKJj_MQs/s0/Transfer%252520States.png" alt="enter image description here" title="Transfer States"></p>
+<ul>
+<li>Proposed -- Nothing has happened yet.</li>
+<li>Prepared -- Funds are held in escrow.</li>
+<li>Executed -- The transfer has completed.</li>
+<li>Rejected -- The transfer has been cancaled (and funds returned to the sender.)</li>
+</ul>
+<p><span class="show alert alert-info"><strong>Hint:</strong> Escrow is the financial equivalent of a <a href="http://foldoc.org/two-phase%20commit">two-phase commit</a>.</span></p>
+<p>The ledger MUST be able to verify a simple SHA-256 hashlock cryptographic escrow condition in order to automatically trigger the release of the escrow. It must also allow a timeout to automatically roll back an escrowed transfer.</p>
+<p>The ledger MUST support attaching a short message or <em>memo</em> to each transfer.</p>
+<h4 id="full-support">Full Support</h4>
+<p>The ledger MUST fulfill the requirements for basic support and also the following:</p>
+<p>It MUST support all cryptographic condition types with the status &quot;recommended&quot;.</p>
+<p>It MUST support memos to be added for the credited and debited accounts separately and SHOULD support fairly large memo sizes.</p>
+<p>It MUST support a way to discover connectors connected to the ledger.</p>
+<p>It MUST support a way to look up a fulfillment by condition hash. It SHOULD automatically reject new transfers (that have not been prepared yet) that have an execution condition for which the ledger already knows the fulfillment. This aids in <a href="#error-recovery">UTP error recovery</a>.</p>
+<h3 id="example-protocols">Example Protocols</h3>
+<h4 id="simple-ledger-protocol-slp">Simple Ledger Protocol (SLP)</h4>
+<p>Simple Ledger Protocol (SLP) is a RESTful, JSON-based protocol that was developed specifically to provide the minimum functionality required for full Interledger support.</p>
+<p>A reference implementation of a ledger using SLP can be found <a href="https://github.com/interledger/five-bells-ledger">here</a>.</p>
+<h4 id="blockchain-protocols-eg-bitcoin">Blockchain Protocols (e.g. Bitcoin)</h4>
+<p>Blockchains are distributed, peer-to-peer systems that provide consensus over a single shared state. Any blockchain that supports escrowed funds transfers is in principle capable of acting as a ledger connected to the Interledger.</p>
+<p>Bitcoin for instance supports multiple credits and debits as well as SHA-256 hashlocked escrow transfers which means it can participate in OTP/ILP and UTP/ILP Interledger transactions.</p>
+<h4 id="legacy-protocols-eg-ach-iso-20022">Legacy Protocols (e.g. ACH, ISO 20022)</h4>
+<p>Legacy protocols often do not provide escrow functionality. In this case, the protocol can either be upgraded, or a highly trusted participant (e.g. a bank) can act as an escrow provider.</p>
+<h4 id="proprietary-wallet-protocols-eg-paypal-api">Proprietary Wallet Protocols (e.g. PayPal API)</h4>
+<p>There are large numbers of proprietary ledgers out there. This includes web-based and mobile wallets. These types of systems can usually be extended with cryptographic escrow functionality by their operator in order to connect them to the Interledger.</p>
+<h4 id="other-proprietary-protocols-eg-skype-api">Other Proprietary Protocols (e.g. Skype API)</h4>
+<p>Some proprietary protocols intentionally do not provide general ledger functionality. A common example are stored-value systems, such as gift cards, loyalty points or pre-paid accounts. Such systems can still be connected to the Interledger in a limited capacity. For example a pre-paid account ledger could be set up to act as a receiving ledger, but not as a sending or intermediate ledger.</p>
+<p>By creating two classes of users -- resellers and end users -- and only allowing transfers if the sender is a reseller and the recipient is a user, merchants can create Interledger-capable ledgers which behave like stored-value systems. Such systems allow deposits, but do not allow withdrawals.</p>
+<h2 id="interledger-layer-2">Interledger Layer</h2>
+<h3 id="introduction-3">Introduction</h3>
+<p>The Interledger Protocol (ILP) ensures that different connectors are interoperable and can work together to route transactions.</p>
+<h3 id="protocols-1">Protocols</h3>
+<h4 id="interledger-protocol-ilp">Interledger Protocol (ILP)</h4>
+<p>When initiating an Interledger transaction, the sender will make a transfer to a connector using their local Ledger layer protocol. Within this transfer, the sender will include an <a href="../0003-interledger-protocol/">ILP Packet</a> which tells the receiving connector the final destination, the amount to be transferred and -- if applicable -- the condition.</p>
+<p>Note that the exact method of transmitting this data packet is dependent on the ledger layer protocol. Typically, it will be included in the transfer in a memo field. However, some ledgers may specify a different method for transporting the ILP packet.</p>
+<h4 id="interledger-quoting-protocol-ilqp">Interledger Quoting Protocol (ILQP)</h4>
+<p>Before an Interledger transfer takes place, the sender will request quotes from connectors which are connected to the same ledger. These quote requests happen via the <a href="../0008-interledger-quoting-protocol/">Interledger Quoting Protocol (ILQP)</a>.</p>
+<p>Senders MAY cache quotes and send repeated transfers through the same connector.</p>
+<h4 id="interledger-control-protocol-ilcp">Interledger Control Protocol (ILCP)</h4>
+<p>The Interledger Control Protocol (ILCP) is a protocol used by connectors to exchange routing information and communicate payment errors.</p>
+<p><strong>TODO</strong>: add link</p>
+<h2 id="transport-layer-2">Transport Layer</h2>
+<h3 id="introduction-4">Introduction</h3>
+<p>Transport layer protocols are responsible for coordinating the different transfers that make up an Interledger transaction. The safety guarantees afforded to the participants of a transaction vary depending on the type of transport protocol used.</p>
+<h3 id="protocols-2">Protocols</h3>
+<h4 id="optimistic-transport-protocol-otp">Optimistic Transport Protocol (OTP)</h4>
+<p>The Optimistic Transport Protocol (OTP) is the trivial case of a transport protocol. It simply makes a transfer to the next connector. The connector may or may not make the requested transfer and the sender is out the money either way.</p>
+<p>For most cases, OTP will not be appropriate. However, it may make sense in the case of recurring microtransactions where a few lost transactions are not a big deal.</p>
+<p><span class="show alert alert-warning"><strong>TODO:</strong> Need to figure out how OTP can detect dropped transfers and adjust the route accordingly.</span></p>
+<h4 id="universal-transport-protocol-utp">Universal Transport Protocol (UTP)</h4>
+<p>The Universal Transport Protocol (UTP) is the standard and recommended transport protocol. It sets up a cascading chain of escrowed transfers in order to ensure delivery of funds.</p>
+<p>The protocol flow is described in the <a href="https://interledger.org/interledger.pdf">Interledger whitepaper</a>.</p>
+<h5 id="error-recovery">Error Recovery</h5>
+<p>A UTP execution chain can be interrupted if a connector fails to deliver the condition fulfillment. In that case the sender will think that the transaction failed and retry it. While retrying, some connector will try to create a prepared transfer on a ledger which already knows the corresponding fulfillment, which will cause the request to fail. The connector will notice this and simply pass back the fulfillment without paying anything.</p>
+<p>In other words, the failed connector will lose money and some other connector will win money, but from the sender and recipient&apos;s point of view everything has executed normally.</p>
+<h4 id="atomic-transport-protocol-atp">Atomic Transport Protocol (ATP)</h4>
+<p>The Atomic Transport Protocol (ATP) is the most conservative, but also most complex of the standard Interledger transport protocols. In addition to the ledgers and connectors, it also involves a set of impartial notaries, which must be agreed upon by the sender, recipient and connectors involved in the transaction.</p>
+<p>Since each party chooses their own set of notaries to trust, there may not be any overlap and ATP could not be used in that case. Notaries may be selected using an automatic process or preselected by a group with standing agreements among the participants.</p>
+<p>The protocol flow is described in the <a href="https://interledger.org/interledger.pdf">Interledger whitepaper</a>.</p>
+<h5 id="as-a-sub-protocol">As a Sub-Protocol</h5>
+<p>ATP can be used as a sub-protocol for part of a UTP transaction. This happens when a connector decides to create an ATP transfer as the next hop. It takes on both the risk of being unable to pass on the receipt and the risk of the notaries failing. This makes sense to do if the next connector quotes a better price for an ATP transfer than for a UTP transfer.</p>
+<p>Similarly, an ATP transaction can turn into a UTP transaction when a connector decides to use UTP for the next hop. It takes on the risk of not being able to pass on the receipt to the notaries. This makes sense if ATP is not available.</p>
+<h2 id="application-layer-2">Application Layer</h2>
+<h3 id="introduction-5">Introduction</h3>
+<p>Application layer protocols deal with the exchange of payment details and associated negotiation.</p>
+<h3 id="simple-payment-setup-protocol-spsp">Simple Payment Setup Protocol (SPSP)</h3>
+<p>The Simple Payment Setup Protocol (SPSP) is an application layer protocol for negotiating payment details. SPSP handles account and amount discovery, condition creation, quoting and setup. SPSP uses Webfinger (<a href="https://tools.ietf.org/html/rfc7033">RFC 7033</a>) and an HTTP-based protocol for querying account and amount details, <a href="#interledger-quoting-protocol-ilqp">ILQP</a> for quoting, and <a href="#universal-transport-protocol-utp">UTP</a> for payment execution.</p>
+<p>The protocol is described in <a href="../0009-simple-payment-setup-protocol/">ILP RFC 9</a>.</p>
+<h3 id="defining-other-application-layer-protocols">Defining Other Application Layer Protocols</h3>
+<p>Creators of other application layer protocols should consider the following:</p>
+<ol>
+<li>Account discovery</li>
+<li>Amount and condition communication</li>
+<li>Additional details communicated in memo </li>
+<li>Condition types supported or required</li>
+<li>Transport protocol</li>
+<li>Incoming payment validation (amount, condition, etc.)</li>
+</ol>
+
+        </div>
+      </div>
+
+    </div> <!-- /container -->
+
+     <footer>
+        <div class="container">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="col-xs-4">
+                <p>Interledger Team</p>
+              </div>
+              <div class="col-xs-4">
+                <p class="text-center">See list of <a href="https://www.w3.org/community/interledger/participants">Contributors</a></p>
+              </div>
+              <div class="col-xs-4">
+                <p class="pull-right">Documentation licensed under <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0.</a></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-68500608-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    <script src="/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
