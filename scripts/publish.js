@@ -78,6 +78,8 @@ files.forEach((file) => {
 
   $('p').first().addClass('intro')
 
+  $('img').addClass('img-responsive')
+
   const content = $.html()
 
   const renderedHtml = template({ title, content, toc })
