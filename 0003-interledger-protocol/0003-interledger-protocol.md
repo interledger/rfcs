@@ -90,9 +90,7 @@ The model of operation for transmitting funds from one application to another is
 
 The purpose of the interledger protocol is to enable hosts to route payments through an interconnected set of ledgers. This is done by passing the payments from one interledger module to another until the destination is reached. The interledger modules reside in hosts and connectors in the interledger system. The payments are routed from one interledger module to another through individual ledgers based on the interpretation of an interledger address. Thus, the central component of the interledger protocol is the interledger address.
 
-<!--
-When routing payments with large amounts, the connectors and the intermediary ledgers they choose in the process of routing may not be trusted. To protect the sender and receiver from this risk, a hold mechanism is provided in the interledger protocol.
--->
+When routing payments with relatively large amounts, the connectors and the intermediary ledgers they choose in the routing process may not be trusted. Transport protocols on top of the interledger protocol MAY use the [hold](#holds-and-payment-reliability) mechanism provided by underlying ledgers to protect the sender and receivers from this risk.
 
 #### Addressing
 
@@ -108,22 +106,6 @@ ilp:us/bank1/bob
 ```
 
 Care must be taken in mapping interledger addresses to local ledger accounts. Examples of address mappings may be found in "Address Mappings" ((TODO)).
-
-<!--
-#### Hold
-
-A transfer with hold occurs in two steps rather than one. In the first step, the sending account's balance is debited. The transfer is then called on-hold. Each hold is associated with a condition that releases the hold. Conditions are provided in a format described in ((TODO: Link to cc spec)). The second step occurs when the condition is fulfilled and the funds are then released (credited) to the recipient.
-
-Held transfers may also have an expiry date. If the transfer is on hold at the time it expires, the funds will be returned to the sender. If the transfer has already been fully executed, the expiry date has no effect.
-
-Not all ledgers support held transfers. In the case of a ledger that doesn't, the sender and recipient of the local ledger transfer should choose a commonly trusted party. There are three options:
-
-1. The sender may trust the receiver. The sender will perform a regular transfer in the first step and the receiver will perform a transfer back if the condition has not been met in time.
-
-2. The receiver may trust the sender. The sender will notify the receiver about the intent to transfer. If the receiver provides a fulfillment for the condition before the expiry date, the sender will perform a regular transfer to the receiver.
-
-3. The sender and receiver may appoint a mutually trusted third-party which has an account on the local ledger. The sender performs a regular transfer into a neutral third-party account. In the first step, funds are transfered into the account belonging to the neutral third-party.
--->
 
 ### Connectors
 
@@ -245,6 +227,24 @@ This header may be used for source routing.
 **TODO**: Document format.
 
 ## Discussion
+
+### Holds and Payment Reliability
+
+Interledger payments may be transmitted through connectors and intermediary ledgers that are not trusted by the sender or receiver. If connectors fail to pass on payments, money could be lost.
+
+Ledgers MAY provide transfer hold functionality to protect hosts from the risk posed by others in a payment route. Transport protocols on top of the interledger protocol MAY take advantage of this capability to provide reliable payments, for example [UTP](../0006-universal-transport-protocol/) and [ATP](../0007-atomic-transport-protocol/). Some transport protocols, such as [OTP](../0005-optimistic-transport-protocol/), may not use holds.
+
+Transfers with holds occur in two steps rather than one. In the first step, the sending account's balance is debited. The transfer is then called "prepared". Each hold is associated with a condition that releases the hold. Conditions SHOULD be provided in the [Crypto Conditions](../0002-crypto-conditions/) format. The second step occurs when the condition is fulfilled and the funds are then released (credited) to the recipient.
+
+Held transfers may also have an expiry date. If the transfer is on hold at the time it expires, the funds will be returned to the sender. If the transfer has already been fully executed, the expiry date has no effect.
+
+Not all ledgers support held transfers. In the case of a ledger that doesn't, the sender and recipient of the local ledger transfer MAY choose a commonly trusted party to carry out the hold functions. There are three options:
+
+1. The sender MAY trust the receiver. The sender will perform a regular transfer in the first step and the receiver will perform a transfer back if the condition has not been met in time.
+
+2. The receiver MAY trust the sender. The sender will notify the receiver about the intent to transfer. If the receiver provides a fulfillment for the condition before the expiry date, the sender will perform a regular transfer to the receiver.
+
+3. The sender and receiver MAY appoint a mutually trusted third-party which has an account on the local ledger. The sender performs a regular transfer into a neutral third-party account. In the first step, funds are transfered into the account belonging to the neutral third-party.
 
 ### Payment Channels
 
