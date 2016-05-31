@@ -1,0 +1,9 @@
+GenericExtensionHeaderFormat DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+GenericHeaderPreamble ::= SEQUENCE {
+	nextHeader INTEGER (0..65535),
+	size INTEGER (0..65535)
+}
+	
+END
