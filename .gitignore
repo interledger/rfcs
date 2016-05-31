@@ -1,3 +1,9 @@
 /web/
 /node_modules/
 
+# Ignore ASN1 Studio files
+/Interledger.a1sproj
+
+# Ignore ASNLab IDE files
+/.project
+/.buildpath

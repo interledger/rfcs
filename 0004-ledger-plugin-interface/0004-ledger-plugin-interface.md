@@ -20,6 +20,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**disconnect**](#disconnect) ( ) `⇒ Promise.<null>` |
 | | [**isConnected**](#isconnected) ( ) `⇒ Boolean` |
 | | [**getInfo**](#getinfo) ( ) <code>⇒ Promise.&lt;[LedgerInfo](#class-ledgerinfo)></code> |
+| | [**getBalance**](#getbalance) ( ) <code>⇒ Promise.&lt;String></code> |
 | | [**getConnectors**](#getconnectors) ( ) <code>⇒ Promise.&lt;Array.&lt;String>></code> |
 | | [**send**](#send) ( ) <code>⇒ Promise.&lt;null></code> |
 | | [**fulfillCondition**](#fulfillcondition) ( transferId, fulfillment ) <code>⇒ Promise.&lt;null></code> |
@@ -113,6 +114,11 @@ Retrieve some metadata about the ledger.
 ```
 
 For a detailed description of these properties, please see [`LedgerInfo`](#class-ledgerinfo).
+
+#### getBalance
+<code>p.getBalance() ⇒ Promise.&lt;String></code>
+
+Return a decimal string representing the current balance.
 
 #### getConnectors
 <code>p.getConnectors() ⇒ Promise.&lt;Array.&lt;String>></code>

@@ -6,18 +6,18 @@ This repository contains a collection of various specifications and documentatio
 
 Here is a list of published Interledger RFCs.
 
-* **[ILP-RFC-1: Interledger Architecture](0001-interledger-architecture/0001-interledger-architecture.md)**
+* **[IL-RFC 1: Interledger Architecture](0001-interledger-architecture/0001-interledger-architecture.md)**
 
   Basic overview of the Interledger architecture.
 
-* **[ILP-RFC-2: Crypto-conditions](0002-crypto-conditions/0002-crypto-conditions.xml)**
+* **[IL-RFC 2: Crypto-conditions](0002-crypto-conditions/0002-crypto-conditions.xml)**
 
   Cryptographic conditions provide a flexible mechanism for delegation and authentication. Conditions include hashlocks, signatures and operators to compose them.
 
-* **[ILP-RFC-3: Interledger Protocol](0003-interledger-protocol/0003-interledger-protocol.md)**
+* **[IL-RFC 3: Interledger Protocol](0003-interledger-protocol/0003-interledger-protocol.md)**
 
   Describes the Interledger protocol, including the format of the Interledger header, used for sending payment instructions across different ledgers and connectors.
 
-* **[ILP-RFC-4: Ledger Plugin Interface](0004-ledger-plugin-interface/0004-ledger-plugin-interface.md)**
+* **[IL-RFC 4: Ledger Plugin Interface](0004-ledger-plugin-interface/0004-ledger-plugin-interface.md)**
 
   JavaScript interface for ledger plugins, which implement all functionality necessary to make Interledger payments through a ledger. This can be used as a model for defining such plugins in other languages.

@@ -1,0 +1,41 @@
+InterledgerQuotingProtocol DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+	Address,
+	Amount
+	FROM Types
+	
+	GenericHeaderPreamble
+	FROM GenericExtensionHeaderFormat
+;
+
+QuoteRequest ::= SEQUENCE {
+	preamble GenericHeaderPreamble,
+	addresses AddressSet,
+	sourceAmount Amount OPTIONAL,
+	destinationAmount Amount OPTIONAL,
+	-- How long the receiver needs to fulfill the payment (when using TTP/ATP)
+	-- Defaults to 1.5 seconds
+	destinationHoldDuration IlpHoldDuration DEFAULT 1500000
+}
+
+QuoteResponse ::= SEQUENCE {
+	preamble GenericHeaderPreamble,
+	connectorAccount IlpAccountName,
+	-- Address that this quote response relates to
+	address Address,
+	-- Source or destination amount, depending on whichever one was NOT
+	-- provided in the request.
+	requestedAmount Amount,
+	sourceHoldDuration IlpHoldDuration
+}
+
+AddressSet ::= SEQUENCE OF Address
+
+IlpAccountName ::= OCTET STRING
+
+-- Length of hold in microseconds
+IlpHoldDuration ::= INTEGER (0..18446744073709551615)
+
+END
