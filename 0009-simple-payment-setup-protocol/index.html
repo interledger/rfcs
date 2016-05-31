@@ -66,12 +66,38 @@
             <ul class="nav-fixed nav nav-sidebar">
               <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
               
+                <li class="nav-label">
+                  <a href="#stages">Stages</a>
+                </li>
+              
+                <li>
+                  <a href="#discovery">Discovery</a>
+                </li>
+              
+                <li>
+                  <a href="#query">Query</a>
+                </li>
+              
+                <li>
+                  <a href="#quoting">Quoting</a>
+                </li>
+              
+                <li>
+                  <a href="#setup">Setup</a>
+                </li>
+              
+                <li>
+                  <a href="#execution">Execution</a>
+                </li>
+              
             </ul>
           </nav>
         </div>
         <div class="col-sm-8 markdown-body">
           <h1 id="simple-payment-setup-protocol-spsp">Simple Payment Setup Protocol (SPSP)</h1>
-<p class="intro"><strong>TODO</strong> revise this, this text was just copied from the old OWPS section in the architecture doc</p>
+<p class="intro">The Simple Payment Setup Protocol (SPSP) is a basic application-layer Interledger protocol for wallet-to-wallet or wallet-to-merchant payments.</p>
+<h2 id="stages">Stages</h2>
+<p>SPSP performs its function in five stages:</p>
 <ol>
 <li>Discovery</li>
 <li>Query</li>
@@ -79,11 +105,15 @@
 <li>Setup</li>
 <li>Execution</li>
 </ol>
-<h4 id="discovery">Discovery</h4>
-<p>Whenever possible, URIs should be exchanged out-of-band and discovery should be skipped. However, in some cases, it may be useful to have a standardized user-friendly identifier. This discovery method describes how to resolve such an identifier to a queryable OWPS endpoint.</p>
+<h3 id="discovery">Discovery</h3>
+<p>Whenever possible, URIs should be exchanged out-of-band and discovery should be skipped. However, in some cases, it may be useful to have a standardized user-friendly identifier. This discovery method describes how to resolve such an identifier to a queryable SPSP endpoint.</p>
 <p>First, the sender uses Webfinger (<a href="https://tools.ietf.org/html/rfc7033">RFC 7033</a>) to look up an identifier (e.g. <code>bob@red.ilpdemo.org</code>):</p>
 <pre><code class="lang-http">GET /.well-known/webfinger?resource=acct%3Abob%40red.ilpdemo.org HTTP/1.1
+Host: red.ilpdemo.org
 Accept: application/json
+</code></pre>
+<pre><code class="lang-http">HTTP/1.1 200 OK
+Content-Type: application/json
 
 {
   &quot;subject&quot;: &quot;acct:bob@red.ilpdemo.org&quot;,
@@ -96,24 +126,29 @@ Accept: application/json
 }
 </code></pre>
 <p><a href="https://red.ilpdemo.org/.well-known/webfinger?resource=acct%3Abob%40red.ilpdemo.org">Try this request</a></p>
-<h4 id="query">Query</h4>
-<p>Any OWPS recipient will create a receiving endpoint called the <em>receiver</em>. The sender queries this endpoint to get information about the type of payment that can be made to this receiver:</p>
+<h3 id="query">Query</h3>
+<p>Any SPSP recipient will create a receiving endpoint called the <em>receiver</em>. The sender queries this endpoint to get information about the type of payment that can be made to this receiver:</p>
 <pre><code class="lang-http">GET /api/receivers/bob HTTP/1.1
+Host: red.ilpdemo.org
 Accept: application/json
 </code></pre>
 <pre><code class="lang-http">HTTP/1.1 200 OK
+Content-Type: application/json
+
 {
   &quot;type&quot;: &quot;payee&quot;,
   &quot;ledger&quot;: &quot;https://red.ilpdemo.org/ledger&quot;,
-  &quot;account&quot;: &quot;https://red.ilpdemo.org/ledger/accounts/bob&quot;
+  &quot;account&quot;: &quot;https://red.ilpdemo.org/ledger/accounts/bob&quot;,
+  &quot;payments&quot;: &quot;https://red.ilpdemo.org/api/receiver/bob/payments&quot;
 }
 </code></pre>
+<p><a href="https://red.ilpdemo.org/api/receivers/bob">Try this request</a></p>
 <p>Possible values for <code>type</code> are:</p>
 <p><code>payee</code>
 : This is a general receiving account for peer-to-peer payments.</p>
 <p><code>invoice</code>
 : This is an invoice, meaning it can be paid only once and only with a specific amount.</p>
-<h5 id="payee">Payee</h5>
+<h4 id="payee">Payee</h4>
 <p>Payee information consists of basic account details. Amounts are chosen by the sender.</p>
 <p><strong>Example Receiver</strong></p>
 <pre><code class="lang-json">{
@@ -125,13 +160,14 @@ Accept: application/json
 </code></pre>
 <p>If this receiver is not available, an error can be generated at this stage:</p>
 <pre><code class="lang-http">HTTP/1.1 404 Not Found
+Content-Type: application/json
 
 {
   &quot;id&quot;: &quot;InvalidReceiverIdError&quot;,
   &quot;message&quot;: &quot;Invalid receiver ID&quot;
 }
 </code></pre>
-<h5 id="invoice">Invoice</h5>
+<h4 id="invoice">Invoice</h4>
 <p>Invoice information includes an exact amount as well as the status of the invoice. (Invoices can only be paid once.)</p>
 <p><strong>Example Receiver</strong></p>
 <pre><code class="lang-json">{
@@ -144,11 +180,12 @@ Accept: application/json
   &quot;payments&quot;: &quot;https://red.ilpdemo.org/api/invoice_receiver/amazon/111-7777777-1111111/payments&quot;
 }
 </code></pre>
-<h4 id="quoting">Quoting</h4>
-<p>The sender requests quotes from neighboring connectors using <a href="#interledger-quoting-protocol-ilqp">ILQP</a>.</p>
-<h4 id="setup">Setup</h4>
+<h3 id="quoting">Quoting</h3>
+<p>The sender requests quotes from neighboring connectors using <a href="../0008-interledger-quoting-protocol/">ILQP</a>.</p>
+<h3 id="setup">Setup</h3>
 <p>When the sender is ready to make a payment, it submits a payment object to the receiver:</p>
 <pre><code class="lang-http">POST /api/receiver/bob/payments HTTP/1.1
+Host: red.ilpdemo.org
 Accept: application/json
 
 {
@@ -158,6 +195,7 @@ Accept: application/json
 }
 </code></pre>
 <pre><code class="lang-http">HTTP/1.1 201 Created
+Content-Type: application/json
 
 {
   &quot;receipt_condition&quot;: &quot;cc:1:1:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:1&quot;
@@ -166,14 +204,15 @@ Accept: application/json
 <p>The setup is what primes the receiver to expect the incoming payment. It also provides the sender with the correct execution condition which describes the signed receipt which the receiver will generate to provide proof-of-payment.</p>
 <p>The receiver has the opportunity to reject an incoming payment before any funds move, for instance because of daily limits:</p>
 <pre><code class="lang-http">HTTP/1.1 422 Unprocessable Entity
+Content-Type: application/json
 
 {
   &quot;id&quot;: &quot;LimitExceededError&quot;,
   &quot;error&quot;: &quot;Daily incoming funds limit exceeded&quot;
 }
 </code></pre>
-<h4 id="execution">Execution</h4>
-<p>The sender initiates a transfer on their local ledger using <a href="#universal-transport-protocol-utp">UTP</a>.</p>
+<h3 id="execution">Execution</h3>
+<p>The sender initiates a transfer on their local ledger using <a href="../0006-universal-transport-protocol/">UTP</a>.</p>
 
         </div>
       </div>

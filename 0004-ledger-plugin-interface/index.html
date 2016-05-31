@@ -160,6 +160,10 @@
 </tr>
 <tr>
 <td style="text-align:left"></td>
+<td style="text-align:left"><a href="#getbalance"><strong>getBalance</strong></a> ( ) <code>&#x21D2; Promise.&lt;String&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
 <td style="text-align:left"><a href="#getconnectors"><strong>getConnectors</strong></a> ( ) <code>&#x21D2; Promise.&lt;Array.&lt;String&gt;&gt;</code></td>
 </tr>
 <tr>
@@ -287,6 +291,9 @@
 }
 </code></pre>
 <p>For a detailed description of these properties, please see <a href="#class-ledgerinfo"><code>LedgerInfo</code></a>.</p>
+<h4 id="getbalance">getBalance</h4>
+<p><code>p.getBalance() &#x21D2; Promise.&lt;String&gt;</code></p>
+<p>Return a decimal string representing the current balance.</p>
 <h4 id="getconnectors">getConnectors</h4>
 <p><code>p.getConnectors() &#x21D2; Promise.&lt;Array.&lt;String&gt;&gt;</code></p>
 <p>Return an array of opaque local destination identifiers representing neighboring connectors.</p>
@@ -302,7 +309,7 @@
 <h3 id="ledger-transfers">Ledger Transfers</h3>
 <p>Note that all transfers will have <code>transferId</code>&apos;s to allow the plugin user to correlate actions related to a single transfer. The <code>transferId</code> will be the same as the ID used by the underlying ledger wherever possible or applicable. If the ledger does not have transfer IDs, the plugin may generate one and use the <code>store</code> passed in to the constructor to persist them.</p>
 <h4 id="send">send</h4>
-<p><code>p.send( <strong>transfer</strong>:<a href="">OutgoingTransfer</a> ) &#x21D2; Promise.&lt;null&gt;</code></p>
+<p><code>p.send( <strong>transfer</strong>:<a href="#outgoingtransfer">OutgoingTransfer</a> ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Initiates a ledger-local transfer. A transfer can contain money and/or information.</p>
 <p>Some ledger plugins MAY implement zero-amount transfers differently than other transfers.</p>
 <h6 id="parameters-2">Parameters</h6>
@@ -489,7 +496,7 @@
 <p>A decimal amount, represented as a string. MUST be positive. The supported precision is defined by each ledger plugin and can be queried by the host via <a href="#getinfo"><code>getInfo</code></a>. The ledger plugin MUST throw an <code>InsufficientPrecisionError</code> if the given amount exceeds the supported level of precision.</p>
 <h4 id="data">data</h4>
 <p><code><strong>data</strong>:Buffer</code></p>
-<p>A buffer containing the data to be sent. Ledger plugins SHOULD treat this data as opaque, however it will usually start with an <a href="../0003-interledger-protocol/">ILP header</a> followed by a transport layer header, a <a href="">quote request</a> or a custom user-provided data packet.</p>
+<p>A buffer containing the data to be sent. Ledger plugins SHOULD treat this data as opaque, however it will usually start with an <a href="../0003-interledger-protocol/">ILP header</a> followed by a transport layer header, a <a href="../0008-interledger-quoting-protocol/">quote request</a> or a custom user-provided data packet.</p>
 <p>If the <code>data</code> is too large, the ledger plugin MUST throw a <code>MaximumDataSizeExceededError</code>. If the <code>data</code> is too large only because the <code>amount</code> is insufficient, the ledger plugin MUST throw an <code>InsufficientAmountError</code>.</p>
 <h4 id="notetoself">noteToSelf</h4>
 <p><code><strong>noteToSelf</strong>:Buffer</code></p>
@@ -551,12 +558,12 @@
 </tr>
 <tr>
 <td style="text-align:left"><code>String</code></td>
-<td style="text-align:left"><a href="#currencyCode">currencyCode</a></td>
+<td style="text-align:left"><a href="#currencycode">currencyCode</a></td>
 <td style="text-align:left">ISO three-letter currency code</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>String</code></td>
-<td style="text-align:left"><a href="#currencySymbol">currencySymbol</a></td>
+<td style="text-align:left"><a href="#currencysymbol">currencySymbol</a></td>
 <td style="text-align:left">UTF8 currency symbol</td>
 </tr>
 </tbody>

@@ -20,6 +20,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**disconnect**](#disconnect) ( ) `⇒ Promise.<null>` |
 | | [**isConnected**](#isconnected) ( ) `⇒ Boolean` |
 | | [**getInfo**](#getinfo) ( ) <code>⇒ Promise.&lt;[LedgerInfo](#class-ledgerinfo)></code> |
+| | [**getBalance**](#getbalance) ( ) <code>⇒ Promise.&lt;String></code> |
 | | [**getConnectors**](#getconnectors) ( ) <code>⇒ Promise.&lt;Array.&lt;String>></code> |
 | | [**send**](#send) ( ) <code>⇒ Promise.&lt;null></code> |
 | | [**fulfillCondition**](#fulfillcondition) ( transferId, fulfillment ) <code>⇒ Promise.&lt;null></code> |
@@ -114,6 +115,11 @@ Retrieve some metadata about the ledger.
 
 For a detailed description of these properties, please see [`LedgerInfo`](#class-ledgerinfo).
 
+#### getBalance
+<code>p.getBalance() ⇒ Promise.&lt;String></code>
+
+Return a decimal string representing the current balance.
+
 #### getConnectors
 <code>p.getConnectors() ⇒ Promise.&lt;Array.&lt;String>></code>
 
@@ -139,7 +145,7 @@ General event for fatal exceptions. Emitted when the plugin experienced an unexp
 Note that all transfers will have `transferId`'s to allow the plugin user to correlate actions related to a single transfer. The `transferId` will be the same as the ID used by the underlying ledger wherever possible or applicable. If the ledger does not have transfer IDs, the plugin may generate one and use the `store` passed in to the constructor to persist them.
 
 #### send
-<code>p.send( **transfer**:[OutgoingTransfer]() ) ⇒ Promise.&lt;null></code>
+<code>p.send( **transfer**:[OutgoingTransfer](#outgoingtransfer) ) ⇒ Promise.&lt;null></code>
 
 Initiates a ledger-local transfer. A transfer can contain money and/or information.
 
@@ -318,7 +324,7 @@ A decimal amount, represented as a string. MUST be positive. The supported preci
 #### data
 <code>**data**:Buffer</code>
 
-A buffer containing the data to be sent. Ledger plugins SHOULD treat this data as opaque, however it will usually start with an [ILP header](../0003-interledger-protocol/) followed by a transport layer header, a [quote request]() or a custom user-provided data packet.
+A buffer containing the data to be sent. Ledger plugins SHOULD treat this data as opaque, however it will usually start with an [ILP header](../0003-interledger-protocol/) followed by a transport layer header, a [quote request](../0008-interledger-quoting-protocol/) or a custom user-provided data packet.
 
 If the `data` is too large, the ledger plugin MUST throw a `MaximumDataSizeExceededError`. If the `data` is too large only because the `amount` is insufficient, the ledger plugin MUST throw an `InsufficientAmountError`.
 
@@ -386,8 +392,8 @@ Metadata describing the ledger. This data is returned by the [`getInfo`](#getinf
 |:--|:--|:--|
 | `String` | [scale](#scale) | UUID used as an external identifier |
 | `String` | [precision](#precision) | UUID used as an external identifier |
-| `String` | [currencyCode](#currencyCode) | ISO three-letter currency code |
-| `String` | [currencySymbol](#currencySymbol) | UTF8 currency symbol |
+| `String` | [currencyCode](#currencycode) | ISO three-letter currency code |
+| `String` | [currencySymbol](#currencysymbol) | UTF8 currency symbol |
 
 ### Fields
 

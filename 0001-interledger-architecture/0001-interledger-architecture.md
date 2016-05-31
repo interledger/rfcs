@@ -239,7 +239,7 @@ Application layer protocols deal with the exchange of payment details and associ
 
 The Simple Payment Setup Protocol (SPSP) is an application layer protocol for negotiating payment details. SPSP handles account and amount discovery, condition creation, quoting and setup. SPSP uses Webfinger ([RFC 7033](https://tools.ietf.org/html/rfc7033)) and an HTTP-based protocol for querying account and amount details, [ILQP](#interledger-quoting-protocol-ilqp) for quoting, and [UTP](#universal-transport-protocol-utp) for payment execution.
 
-The protocol is described in [ILP RFC 9](../0009-simple-payment-setup-protocol/).
+The protocol is described in [IL-RFC 9](../0009-simple-payment-setup-protocol/).
 
 ### Defining Other Application Layer Protocols
 
@@ -247,7 +247,7 @@ Creators of other application layer protocols should consider the following:
 
 1. Account discovery
 2. Amount and condition communication
-3. Additional details communicated in memo 
+3. Additional details communicated in memo
 4. Condition types supported or required
 5. Transport protocol
 6. Incoming payment validation (amount, condition, etc.)

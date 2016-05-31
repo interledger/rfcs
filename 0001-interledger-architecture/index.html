@@ -167,7 +167,7 @@
 <p>A basic objective of the Interledger design is to tolerate a wide range of ledger characteristics --- e.g. throughput, latency, fees, access restrictions, reliability, decentralization. In addition it must support all types of different asset characteristics --- e.g. divisibility, fungibility, interest/demurrage, issuance.</p>
 <h3 id="interledger-protocol-suite">Interledger Protocol Suite</h3>
 <p>The Interledger architecture is separated into four layers:</p>
-<p><img src="assets/interledger-architecture-layers.png" alt="Interledger architecture layers"></p>
+<p><img src="assets/interledger-architecture-layers.png" alt="Interledger architecture layers" class="img-responsive"></p>
 <h4 id="application-layer-1">Application Layer</h4>
 <p>The application layer is the top layer of the Interledger protocol suite. Protocols on this layer are responsible for negotiating the key properties of a payment:</p>
 <ul>
@@ -202,7 +202,7 @@
 <h4 id="basic-support">Basic Support</h4>
 <p>For basic Interledger support, a ledger MUST fulfill the requirements for minimal support and also the following:</p>
 <p>The ledger MUST provide cryptographic escrow. Escrow means that transfers can have four states:</p>
-<p><img src="https://lh3.googleusercontent.com/-QHsehrPTXgM/Vu_zs1dLWPI/AAAAAAAAEys/zchHKJj_MQs/s0/Transfer%252520States.png" alt="enter image description here" title="Transfer States"></p>
+<p><img src="https://lh3.googleusercontent.com/-QHsehrPTXgM/Vu_zs1dLWPI/AAAAAAAAEys/zchHKJj_MQs/s0/Transfer%252520States.png" alt="enter image description here" title="Transfer States" class="img-responsive"></p>
 <ul>
 <li>Proposed -- Nothing has happened yet.</li>
 <li>Prepared -- Funds are held in escrow.</li>
@@ -271,13 +271,13 @@
 <p>Application layer protocols deal with the exchange of payment details and associated negotiation.</p>
 <h3 id="simple-payment-setup-protocol-spsp">Simple Payment Setup Protocol (SPSP)</h3>
 <p>The Simple Payment Setup Protocol (SPSP) is an application layer protocol for negotiating payment details. SPSP handles account and amount discovery, condition creation, quoting and setup. SPSP uses Webfinger (<a href="https://tools.ietf.org/html/rfc7033">RFC 7033</a>) and an HTTP-based protocol for querying account and amount details, <a href="#interledger-quoting-protocol-ilqp">ILQP</a> for quoting, and <a href="#universal-transport-protocol-utp">UTP</a> for payment execution.</p>
-<p>The protocol is described in <a href="../0009-simple-payment-setup-protocol/">ILP RFC 9</a>.</p>
+<p>The protocol is described in <a href="../0009-simple-payment-setup-protocol/">IL-RFC 9</a>.</p>
 <h3 id="defining-other-application-layer-protocols">Defining Other Application Layer Protocols</h3>
 <p>Creators of other application layer protocols should consider the following:</p>
 <ol>
 <li>Account discovery</li>
 <li>Amount and condition communication</li>
-<li>Additional details communicated in memo </li>
+<li>Additional details communicated in memo</li>
 <li>Condition types supported or required</li>
 <li>Transport protocol</li>
 <li>Incoming payment validation (amount, condition, etc.)</li>
