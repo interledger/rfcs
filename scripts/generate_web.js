@@ -93,7 +93,4 @@ if (!status.length) {
   console.log('no changes')
 } else {
   console.log(status)
-  exec('git add --all', { cwd })
-  exec('git commit -m \'chore: update gh-pages\'', { cwd })
-  exec('git push', { cwd })
 }
