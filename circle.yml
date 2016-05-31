@@ -1,4 +1,6 @@
 machine:
+  node:
+    version: 6
   pre:
     - git config --global user.email "info@circleci.com"
     - git config --global user.name "CircleCI"
