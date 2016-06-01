@@ -1,11 +1,10 @@
-
 # Interledger Architecture
-
-<span class="show alert alert-danger">**This is a strawman proposal.** Choices made in this document are merely intended as a starting point.</span>
 
 This document outlines the Interledger architecture and explains how the different layers relate to each other.
 
 The Interledger architecture is heavily inspired by the Internet architecture described in [RFC 1122](https://tools.ietf.org/html/rfc1122), [RFC 1123](https://tools.ietf.org/html/rfc1123) and [RFC 1009](https://tools.ietf.org/html/rfc1009).
+
+<span class="show alert alert-danger">**This is a strawman proposal.** Choices made in this document are merely intended as a starting point.</span>
 
 ## Introduction
 
