@@ -66,14 +66,17 @@ const ledgerPlugin = new LedgerPlugin({
   store: {
     // persistence may be required for internal use by some ledger plugins
     // (e.g. when the ledger has reduced memo capability and we can only put an ID in the memo)
-    get: function (key) {
+    // Store a value under a key
+    put: (key, value) => {
+      // Returns Promise.<null>
+    },
+    // Fetch a value by key
+    get: (key) => {
       // Returns Promise.<Object>
     },
-    set: function (key, value) {
-      // Returns Promise.<Object>
-    },
-    remove: function (key) {
-      // Returns Promise.<Object>
+    // Delete a value by key
+    del: (key) => {
+      // Returns Promise.<null>
     }
   }
 })
@@ -84,22 +87,22 @@ For a detailed description of these properties, please see [`PluginOptions`](#cl
 ### Connection Management
 
 #### connect
-<code>p.connect() ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.connect() ⇒ Promise.&lt;null></code>
 
 Initiate ledger event subscriptions. Once `connect` is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the [`connect`](#event-connect-) event. If the connection is lost, the ledger plugin SHOULD emit the [`disconnect`](#event-disconnect-) event.
 
 #### disconnect
-<code>p.disconnect() ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.disconnect() ⇒ Promise.&lt;null></code>
 
 Unsubscribe from ledger events.
 
 #### isConnected
-<code>p.isConnected() ⇒ Boolean</code>
+<code>ledgerPlugin.isConnected() ⇒ Boolean</code>
 
 Query whether the plugin is currently connected.
 
 #### getInfo
-<code>p.getInfo() ⇒ Promise.&lt;[LedgerInfo](#class-ledgerinfo)></code>
+<code>ledgerPlugin.getInfo() ⇒ Promise.&lt;[LedgerInfo](#class-ledgerinfo)></code>
 
 Retrieve some metadata about the ledger.
 
@@ -116,27 +119,27 @@ Retrieve some metadata about the ledger.
 For a detailed description of these properties, please see [`LedgerInfo`](#class-ledgerinfo).
 
 #### getBalance
-<code>p.getBalance() ⇒ Promise.&lt;String></code>
+<code>ledgerPlugin.getBalance() ⇒ Promise.&lt;String></code>
 
 Return a decimal string representing the current balance.
 
 #### getConnectors
-<code>p.getConnectors() ⇒ Promise.&lt;Array.&lt;String>></code>
+<code>ledgerPlugin.getConnectors() ⇒ Promise.&lt;Array.&lt;String>></code>
 
 Return an array of opaque local destination identifiers representing neighboring connectors.
 
 #### Event: `connect`
-<code>p.on('connect', () ⇒ )</code>
+<code>ledgerPlugin.on('connect', () ⇒ )</code>
 
 Emitted whenever a connection is successfully established.
 
 #### Event: `disconnect`
-<code>p.on('disconnect', () ⇒ )</code>
+<code>ledgerPlugin.on('disconnect', () ⇒ )</code>
 
 Emitted when the connection has been terminated or lost.
 
 #### Event: `error`
-<code>p.on('error', ( **err**:Error ) ⇒ )</code>
+<code>ledgerPlugin.on('error', ( **err**:Error ) ⇒ )</code>
 
 General event for fatal exceptions. Emitted when the plugin experienced an unexpected unrecoverable condition. Once triggered, this instance of the plugin MUST NOT be used anymore.
 
@@ -145,7 +148,7 @@ General event for fatal exceptions. Emitted when the plugin experienced an unexp
 Note that all transfers will have `transferId`'s to allow the plugin user to correlate actions related to a single transfer. The `transferId` will be the same as the ID used by the underlying ledger wherever possible or applicable. If the ledger does not have transfer IDs, the plugin may generate one and use the `store` passed in to the constructor to persist them.
 
 #### send
-<code>p.send( **transfer**:[OutgoingTransfer](#outgoingtransfer) ) ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.send( **transfer**:[OutgoingTransfer](#outgoingtransfer) ) ⇒ Promise.&lt;null></code>
 
 Initiates a ledger-local transfer. A transfer can contain money and/or information.
 
@@ -182,17 +185,17 @@ p.send({
 For a detailed description of these properties, please see [`OutgoingTransfer`](#outgoingtransfer).
 
 #### fulfillCondition
-<code>p.fulfillCondition( **transferId**:String, **fulfillment**:Buffer ) ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.fulfillCondition( **transferId**:String, **fulfillment**:Buffer ) ⇒ Promise.&lt;null></code>
 
 Submit a fulfillment to a ledger. The ledger plugin or the ledger MUST automatically detect whether the fulfillment is an execution or cancellation condition fulfillment.
 
 #### replyToTransfer
-<code>p.replyToTransfer( **transferId**:String, **replyMessage**:Buffer ) ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.replyToTransfer( **transferId**:String, **replyMessage**:Buffer ) ⇒ Promise.&lt;null></code>
 
 **TODO**: Define what the message format is
 
 #### Event: `incoming`
-<code>p.on('incoming', ( **transfer**:[IncomingTransfer](#incomingtransfer) ) ⇒ )</code>
+<code>ledgerPlugin.on('incoming', ( **transfer**:[IncomingTransfer](#incomingtransfer) ) ⇒ )</code>
 
 Emitted when an incoming transfer is received.
 
@@ -222,7 +225,7 @@ The ledger plugin MUST authenticate the source for all incoming transfers, wheth
 For a detailed description of these properties, please see [`IncomingTransfer`](#incomingtransfer).
 
 #### Event: `fulfill_execution_condition`
-<code style="">p.on('fulfill_execution_condition',
+<code style="">ledgerPlugin.on('fulfill_execution_condition',
   (
     **transfer**:[Transfer](#class-transfer),
     **fulfillment**:Buffer
@@ -234,7 +237,7 @@ Emitted when a transfer's execution condition has been fulfilled.
 If the transfer is an [`OutgoingTransfer`](#outgoingtransfer), connectors will forward the execution condition to the corresponding [`IncomingTransfer`](#incomingtransfer).
 
 #### Event: `fulfill_cancellation_condition`
-<code style="">p.on('fulfill_cancellation_condition',
+<code style="">ledgerPlugin.on('fulfill_cancellation_condition',
   (
     **transfer**:[Transfer](#class-transfer),
     **fulfillment**:Buffer
@@ -246,7 +249,7 @@ Emitted when a transfer's cancellation condition has been fulfilled.
 If the transfer is an [`IncomingTransfer`](#incomingtransfer), connectors will forward the execution condition to the corresponding [`OutgoingTransfer`](#outgoingtransfer).
 
 #### Event: `reject`
-<code>p.on('reject',
+<code>ledgerPlugin.on('reject',
   (
     **transfer**:[OutgoingTransfer](#outgoingtransfer),
     **rejectionReason**:Buffer
@@ -256,7 +259,7 @@ If the transfer is an [`IncomingTransfer`](#incomingtransfer), connectors will f
 Emitted when the ledger has informed us that our outgoing transfer is not going to happen. The `rejectionReason` is a ledger plugin-specific error.
 
 #### Event: `reply`
-<code>p.on('reject',
+<code>ledgerPlugin.on('reject',
   (
     **transfer**:[OutgoingTransfer](#outgoingtransfer),
     **replyMessage**:Buffer

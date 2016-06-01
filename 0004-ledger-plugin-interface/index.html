@@ -256,14 +256,17 @@
   store: {
     // persistence may be required for internal use by some ledger plugins
     // (e.g. when the ledger has reduced memo capability and we can only put an ID in the memo)
-    get: function (key) {
+    // Store a value under a key
+    put: (key, value) =&gt; {
+      // Returns Promise.&lt;null&gt;
+    },
+    // Fetch a value by key
+    get: (key) =&gt; {
       // Returns Promise.&lt;Object&gt;
     },
-    set: function (key, value) {
-      // Returns Promise.&lt;Object&gt;
-    },
-    remove: function (key) {
-      // Returns Promise.&lt;Object&gt;
+    // Delete a value by key
+    del: (key) =&gt; {
+      // Returns Promise.&lt;null&gt;
     }
   }
 })
@@ -271,16 +274,16 @@
 <p>For a detailed description of these properties, please see <a href="#class-pluginoptions"><code>PluginOptions</code></a>.</p>
 <h3 id="connection-management">Connection Management</h3>
 <h4 id="connect">connect</h4>
-<p><code>p.connect() &#x21D2; Promise.&lt;null&gt;</code></p>
+<p><code>ledgerPlugin.connect() &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Initiate ledger event subscriptions. Once <code>connect</code> is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the <a href="#event-connect-"><code>connect</code></a> event. If the connection is lost, the ledger plugin SHOULD emit the <a href="#event-disconnect-"><code>disconnect</code></a> event.</p>
 <h4 id="disconnect">disconnect</h4>
-<p><code>p.disconnect() &#x21D2; Promise.&lt;null&gt;</code></p>
+<p><code>ledgerPlugin.disconnect() &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Unsubscribe from ledger events.</p>
 <h4 id="isconnected">isConnected</h4>
-<p><code>p.isConnected() &#x21D2; Boolean</code></p>
+<p><code>ledgerPlugin.isConnected() &#x21D2; Boolean</code></p>
 <p>Query whether the plugin is currently connected.</p>
 <h4 id="getinfo">getInfo</h4>
-<p><code>p.getInfo() &#x21D2; Promise.&lt;<a href="#class-ledgerinfo">LedgerInfo</a>&gt;</code></p>
+<p><code>ledgerPlugin.getInfo() &#x21D2; Promise.&lt;<a href="#class-ledgerinfo">LedgerInfo</a>&gt;</code></p>
 <p>Retrieve some metadata about the ledger.</p>
 <h6 id="example-return-value">Example Return Value</h6>
 <pre><code class="lang-json">{
@@ -292,24 +295,24 @@
 </code></pre>
 <p>For a detailed description of these properties, please see <a href="#class-ledgerinfo"><code>LedgerInfo</code></a>.</p>
 <h4 id="getbalance">getBalance</h4>
-<p><code>p.getBalance() &#x21D2; Promise.&lt;String&gt;</code></p>
+<p><code>ledgerPlugin.getBalance() &#x21D2; Promise.&lt;String&gt;</code></p>
 <p>Return a decimal string representing the current balance.</p>
 <h4 id="getconnectors">getConnectors</h4>
-<p><code>p.getConnectors() &#x21D2; Promise.&lt;Array.&lt;String&gt;&gt;</code></p>
+<p><code>ledgerPlugin.getConnectors() &#x21D2; Promise.&lt;Array.&lt;String&gt;&gt;</code></p>
 <p>Return an array of opaque local destination identifiers representing neighboring connectors.</p>
 <h4 id="event-connect">Event: <code>connect</code></h4>
-<p><code>p.on(&apos;connect&apos;, () &#x21D2; )</code></p>
+<p><code>ledgerPlugin.on(&apos;connect&apos;, () &#x21D2; )</code></p>
 <p>Emitted whenever a connection is successfully established.</p>
 <h4 id="event-disconnect">Event: <code>disconnect</code></h4>
-<p><code>p.on(&apos;disconnect&apos;, () &#x21D2; )</code></p>
+<p><code>ledgerPlugin.on(&apos;disconnect&apos;, () &#x21D2; )</code></p>
 <p>Emitted when the connection has been terminated or lost.</p>
 <h4 id="event-error">Event: <code>error</code></h4>
-<p><code>p.on(&apos;error&apos;, ( <strong>err</strong>:Error ) &#x21D2; )</code></p>
+<p><code>ledgerPlugin.on(&apos;error&apos;, ( <strong>err</strong>:Error ) &#x21D2; )</code></p>
 <p>General event for fatal exceptions. Emitted when the plugin experienced an unexpected unrecoverable condition. Once triggered, this instance of the plugin MUST NOT be used anymore.</p>
 <h3 id="ledger-transfers">Ledger Transfers</h3>
 <p>Note that all transfers will have <code>transferId</code>&apos;s to allow the plugin user to correlate actions related to a single transfer. The <code>transferId</code> will be the same as the ID used by the underlying ledger wherever possible or applicable. If the ledger does not have transfer IDs, the plugin may generate one and use the <code>store</code> passed in to the constructor to persist them.</p>
 <h4 id="send">send</h4>
-<p><code>p.send( <strong>transfer</strong>:<a href="#outgoingtransfer">OutgoingTransfer</a> ) &#x21D2; Promise.&lt;null&gt;</code></p>
+<p><code>ledgerPlugin.send( <strong>transfer</strong>:<a href="#outgoingtransfer">OutgoingTransfer</a> ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Initiates a ledger-local transfer. A transfer can contain money and/or information.</p>
 <p>Some ledger plugins MAY implement zero-amount transfers differently than other transfers.</p>
 <h6 id="parameters-2">Parameters</h6>
@@ -351,13 +354,13 @@
 </code></pre>
 <p>For a detailed description of these properties, please see <a href="#outgoingtransfer"><code>OutgoingTransfer</code></a>.</p>
 <h4 id="fulfillcondition">fulfillCondition</h4>
-<p><code>p.fulfillCondition( <strong>transferId</strong>:String, <strong>fulfillment</strong>:Buffer ) &#x21D2; Promise.&lt;null&gt;</code></p>
+<p><code>ledgerPlugin.fulfillCondition( <strong>transferId</strong>:String, <strong>fulfillment</strong>:Buffer ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Submit a fulfillment to a ledger. The ledger plugin or the ledger MUST automatically detect whether the fulfillment is an execution or cancellation condition fulfillment.</p>
 <h4 id="replytotransfer">replyToTransfer</h4>
-<p><code>p.replyToTransfer( <strong>transferId</strong>:String, <strong>replyMessage</strong>:Buffer ) &#x21D2; Promise.&lt;null&gt;</code></p>
+<p><code>ledgerPlugin.replyToTransfer( <strong>transferId</strong>:String, <strong>replyMessage</strong>:Buffer ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p><strong>TODO</strong>: Define what the message format is</p>
 <h4 id="event-incoming">Event: <code>incoming</code></h4>
-<p><code>p.on(&apos;incoming&apos;, ( <strong>transfer</strong>:<a href="#incomingtransfer">IncomingTransfer</a> ) &#x21D2; )</code></p>
+<p><code>ledgerPlugin.on(&apos;incoming&apos;, ( <strong>transfer</strong>:<a href="#incomingtransfer">IncomingTransfer</a> ) &#x21D2; )</code></p>
 <p>Emitted when an incoming transfer is received.</p>
 <p>The ledger plugin MUST authenticate the source for all incoming transfers, whether they include money or not.</p>
 <h6 id="example-transfer">Example <code>transfer</code></h6>
@@ -380,7 +383,7 @@
 </code></pre>
 <p>For a detailed description of these properties, please see <a href="#incomingtransfer"><code>IncomingTransfer</code></a>.</p>
 <h4 id="event-fulfill_execution_condition">Event: <code>fulfill_execution_condition</code></h4>
-<p><code style="">p.on(&apos;fulfill_execution_condition&apos;,
+<p><code style="">ledgerPlugin.on(&apos;fulfill_execution_condition&apos;,
   (
     <strong>transfer</strong>:<a href="#class-transfer">Transfer</a>,
     <strong>fulfillment</strong>:Buffer
@@ -389,7 +392,7 @@
 <p>Emitted when a transfer&apos;s execution condition has been fulfilled.</p>
 <p>If the transfer is an <a href="#outgoingtransfer"><code>OutgoingTransfer</code></a>, connectors will forward the execution condition to the corresponding <a href="#incomingtransfer"><code>IncomingTransfer</code></a>.</p>
 <h4 id="event-fulfill_cancellation_condition">Event: <code>fulfill_cancellation_condition</code></h4>
-<p><code style="">p.on(&apos;fulfill_cancellation_condition&apos;,
+<p><code style="">ledgerPlugin.on(&apos;fulfill_cancellation_condition&apos;,
   (
     <strong>transfer</strong>:<a href="#class-transfer">Transfer</a>,
     <strong>fulfillment</strong>:Buffer
@@ -398,7 +401,7 @@
 <p>Emitted when a transfer&apos;s cancellation condition has been fulfilled.</p>
 <p>If the transfer is an <a href="#incomingtransfer"><code>IncomingTransfer</code></a>, connectors will forward the execution condition to the corresponding <a href="#outgoingtransfer"><code>OutgoingTransfer</code></a>.</p>
 <h4 id="event-reject">Event: <code>reject</code></h4>
-<p><code>p.on(&apos;reject&apos;,
+<p><code>ledgerPlugin.on(&apos;reject&apos;,
   (
     <strong>transfer</strong>:<a href="#outgoingtransfer">OutgoingTransfer</a>,
     <strong>rejectionReason</strong>:Buffer
@@ -406,7 +409,7 @@
 )</code></p>
 <p>Emitted when the ledger has informed us that our outgoing transfer is not going to happen. The <code>rejectionReason</code> is a ledger plugin-specific error.</p>
 <h4 id="event-reply">Event: <code>reply</code></h4>
-<p><code>p.on(&apos;reject&apos;,
+<p><code>ledgerPlugin.on(&apos;reject&apos;,
   (
     <strong>transfer</strong>:<a href="#outgoingtransfer">OutgoingTransfer</a>,
     <strong>replyMessage</strong>:Buffer
