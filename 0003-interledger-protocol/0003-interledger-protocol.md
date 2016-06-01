@@ -169,7 +169,7 @@ When an interledger module encounters an unknown header type, it MUST act accord
 |:--|:--|
 | 00 | Drop the payment, reply with an error, issue a refund if possible |
 | 01 | Drop the payment, reply with an error, do not issue a refund |
-| 01 | Drop the payment quietly, do not reply |
+| 10 | Drop the payment quietly, do not reply |
 | 11 | Ignore the header, process the payment as if the header wasn't there |
 
 The list of header types is managed by IANA, please see [Header Type Registry](#header-type-registry).
