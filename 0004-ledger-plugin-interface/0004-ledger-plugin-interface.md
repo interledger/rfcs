@@ -259,7 +259,7 @@ If the transfer is an [`IncomingTransfer`](#incomingtransfer), connectors will f
 Emitted when the ledger has informed us that our outgoing transfer is not going to happen. The `rejectionReason` is a ledger plugin-specific error.
 
 #### Event: `reply`
-<code>ledgerPlugin.on('reject',
+<code>ledgerPlugin.on('reply',
   (
     **transfer**:[OutgoingTransfer](#outgoingtransfer),
     **replyMessage**:Buffer
@@ -393,8 +393,8 @@ Metadata describing the ledger. This data is returned by the [`getInfo`](#getinf
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
-| `String` | [scale](#scale) | UUID used as an external identifier |
-| `String` | [precision](#precision) | UUID used as an external identifier |
+| `String` | [precision](#precision) | Total number of digits allowed |
+| `String` | [scale](#scale) | Digits allowed after decimal |
 | `String` | [currencyCode](#currencycode) | ISO three-letter currency code |
 | `String` | [currencySymbol](#currencysymbol) | UTF8 currency symbol |
 
