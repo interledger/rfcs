@@ -409,7 +409,7 @@
 )</code></p>
 <p>Emitted when the ledger has informed us that our outgoing transfer is not going to happen. The <code>rejectionReason</code> is a ledger plugin-specific error.</p>
 <h4 id="event-reply">Event: <code>reply</code></h4>
-<p><code>ledgerPlugin.on(&apos;reject&apos;,
+<p><code>ledgerPlugin.on(&apos;reply&apos;,
   (
     <strong>transfer</strong>:<a href="#outgoingtransfer">OutgoingTransfer</a>,
     <strong>replyMessage</strong>:Buffer
@@ -551,13 +551,13 @@
 <tbody>
 <tr>
 <td style="text-align:left"><code>String</code></td>
-<td style="text-align:left"><a href="#scale">scale</a></td>
-<td style="text-align:left">UUID used as an external identifier</td>
+<td style="text-align:left"><a href="#precision">precision</a></td>
+<td style="text-align:left">Total number of digits allowed</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>String</code></td>
-<td style="text-align:left"><a href="#precision">precision</a></td>
-<td style="text-align:left">UUID used as an external identifier</td>
+<td style="text-align:left"><a href="#scale">scale</a></td>
+<td style="text-align:left">Digits allowed after decimal</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>String</code></td>
