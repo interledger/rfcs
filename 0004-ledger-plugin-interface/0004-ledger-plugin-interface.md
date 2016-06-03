@@ -32,7 +32,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**connect**](#event-connect-) | `( ) ⇒` |
 | [**disconnect**](#event-disconnect-) | `( ) ⇒` |
 | [**error**](#event-error-) | `( ) ⇒` |
-| [**incoming**](#event-incoming-) | <code>( transfer:[IncomingTransfer](#incomingtransfer) ) ⇒</code> |
+| [**receive**](#event-receive-) | <code>( transfer:[IncomingTransfer](#incomingtransfer) ) ⇒</code> |
 | [**fulfill_execution_condition**](#event-fulfill_execution_condition-) | <code>( transfer:[Transfer](#class-transfer), fulfillment:Buffer ) ⇒</code> |
 | [**fulfill_cancellation_condition**](#event-fulfill_cancellation_condition-) | <code>( transfer:[Transfer](#class-transfer), fulfillment:Buffer ) ⇒</code> |
 | [**reject**](#event-reject-) | <code>( transfer:[OutgoingTransfer](#outgoingtransfer), rejectionReason:Buffer ) ⇒</code> |
@@ -194,10 +194,12 @@ Submit a fulfillment to a ledger. The ledger plugin or the ledger MUST automatic
 
 **TODO**: Define what the message format is
 
-#### Event: `incoming`
-<code>ledgerPlugin.on('incoming', ( **transfer**:[IncomingTransfer](#incomingtransfer) ) ⇒ )</code>
+#### Event: `receive`
+<code>ledgerPlugin.on('receive', ( **transfer**:[IncomingTransfer](#incomingtransfer) ) ⇒ )</code>
 
-Emitted when an incoming transfer is received.
+Emitted when a transfer is received.
+
+Note that transfers may be conditional, in which case the `receive` event **DOES NOT** indicate that money has been transferred. If users of the plugin wish to check whether they have gotten money, they MUST check whether the transfer has a condition. If transfers have conditions, the final status will only be known when the [fulfill_execution_condition](#event-fulfill_execution_condition-) or [fulfill_cancellation_condition](#event-fulfill_cancellation_condition-) are emitted.
 
 The ledger plugin MUST authenticate the source for all incoming transfers, whether they include money or not.
 
@@ -336,7 +338,7 @@ If the `data` is too large, the ledger plugin MUST throw a `MaximumDataSizeExcee
 
 An optional bytestring containing details the host needs to persist with the transfer in order to be able to react to transfer events like condition fulfillment later.
 
-Ledger plugins MAY attach the `noteToSelf` to the transfer and let the ledger store it. Otherwise it MAY use the [`store`](#TODO) in order to persist this field. Regardless of the implementation, the ledger plugin MUST ensure that all instances of the transfer carry the same `noteToSelf`, even across different machines.
+Ledger plugins MAY attach the `noteToSelf` to the transfer and let the ledger store it. Otherwise it MAY use the [`store`](#store) in order to persist this field. Regardless of the implementation, the ledger plugin MUST ensure that all instances of the transfer carry the same `noteToSelf`, even across different machines.
 
 Ledger plugins MUST ensure that the data in the `noteToSelf` either isn't shared with any untrusted party or encrypted before it is shared.
 
