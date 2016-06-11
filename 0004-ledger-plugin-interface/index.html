@@ -202,7 +202,7 @@
 <td style="text-align:left"><code>( ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-incoming-"><strong>incoming</strong></a></td>
+<td style="text-align:left"><a href="#event-receive-"><strong>receive</strong></a></td>
 <td style="text-align:left"><code>( transfer:<a href="#incomingtransfer">IncomingTransfer</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
@@ -359,9 +359,10 @@
 <h4 id="replytotransfer">replyToTransfer</h4>
 <p><code>ledgerPlugin.replyToTransfer( <strong>transferId</strong>:String, <strong>replyMessage</strong>:Buffer ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p><strong>TODO</strong>: Define what the message format is</p>
-<h4 id="event-incoming">Event: <code>incoming</code></h4>
-<p><code>ledgerPlugin.on(&apos;incoming&apos;, ( <strong>transfer</strong>:<a href="#incomingtransfer">IncomingTransfer</a> ) &#x21D2; )</code></p>
-<p>Emitted when an incoming transfer is received.</p>
+<h4 id="event-receive">Event: <code>receive</code></h4>
+<p><code>ledgerPlugin.on(&apos;receive&apos;, ( <strong>transfer</strong>:<a href="#incomingtransfer">IncomingTransfer</a> ) &#x21D2; )</code></p>
+<p>Emitted when a transfer is received.</p>
+<p>Note that transfers may be conditional, in which case the <code>receive</code> event <strong>DOES NOT</strong> indicate that money has been transferred. If users of the plugin wish to check whether they have gotten money, they MUST check whether the transfer has a condition. If transfers have conditions, the final status will only be known when the <a href="#event-fulfill_execution_condition-">fulfill_execution_condition</a> or <a href="#event-fulfill_cancellation_condition-">fulfill_cancellation_condition</a> are emitted.</p>
 <p>The ledger plugin MUST authenticate the source for all incoming transfers, whether they include money or not.</p>
 <h6 id="example-transfer">Example <code>transfer</code></h6>
 <pre><code class="lang-js">{
@@ -504,7 +505,7 @@
 <h4 id="notetoself">noteToSelf</h4>
 <p><code><strong>noteToSelf</strong>:Buffer</code></p>
 <p>An optional bytestring containing details the host needs to persist with the transfer in order to be able to react to transfer events like condition fulfillment later.</p>
-<p>Ledger plugins MAY attach the <code>noteToSelf</code> to the transfer and let the ledger store it. Otherwise it MAY use the <a href="#TODO"><code>store</code></a> in order to persist this field. Regardless of the implementation, the ledger plugin MUST ensure that all instances of the transfer carry the same <code>noteToSelf</code>, even across different machines.</p>
+<p>Ledger plugins MAY attach the <code>noteToSelf</code> to the transfer and let the ledger store it. Otherwise it MAY use the <a href="#store"><code>store</code></a> in order to persist this field. Regardless of the implementation, the ledger plugin MUST ensure that all instances of the transfer carry the same <code>noteToSelf</code>, even across different machines.</p>
 <p>Ledger plugins MUST ensure that the data in the <code>noteToSelf</code> either isn&apos;t shared with any untrusted party or encrypted before it is shared.</p>
 <h4 id="executioncondition">executionCondition</h4>
 <p><code><strong>executionCondition</strong>:String</code></p>
