@@ -8,7 +8,9 @@ This document specifies the Interledger Protocol (ILP). It draws heavily from th
 
 ### Motivation
 
-The Interledger Protocol is designed for use with digital asset ledgers capable of making transfers between local accounts. The interledger protocol provides for transmitting payments from sources to destinations on different ledgers, where sources and destinations are hosts identified by variable length hierarchically structured addresses.
+Payment networks today are siloed and disconnected. Payments are relatively easy within one country or if the sender and recipient have accounts on the same network or ledger. However, sending from one ledger to another is often impossible. Where connections do exist, they are manual, slow, or expensive.
+
+The Interledger Protocol provides for routing payments across different digital asset ledgers while isolating senders and receivers from the risk of intermediary failures. Secure multi-hop payments and automatic routing enables a global network of networks for different types of value that can connect any sender with any receiver.
 
 ### Scope
 
