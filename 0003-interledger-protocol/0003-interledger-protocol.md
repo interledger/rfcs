@@ -2,31 +2,33 @@
 
 ## Preface
 
-This document specifies the Standard Interledger Protocol (ILP). It draws heavily from the definition of the Internet Protocol (IP) defined in [RFC 791](https://tools.ietf.org/html/rfc791). The interledger protocol is the culmination of more than a decade of research in decentralized payment protocols. This work was started in 2004 by Ryan Fugger, augmented by the development of Bitcoin in 2008 and has involved numerous contributors since then.
+This document specifies the Interledger Protocol (ILP). It draws heavily from the definition of the Internet Protocol (IP) defined in [RFC 791](https://tools.ietf.org/html/rfc791). The interledger protocol is the culmination of more than a decade of research in decentralized payment protocols. This work was started in 2004 by Ryan Fugger, augmented by the development of Bitcoin in 2008 and has involved numerous contributors since then.
 
 ## Introduction
 
 ### Motivation
 
-The Interledger Protocol is designed for use in interconnected systems of digital asset ledgers with transfer capability. The interledger protocol provides for transmitting payments from sources to destinations on different ledgers, where sources and destinations are hosts identified by variable length hierarchically structured addresses.
+The Interledger Protocol is designed for use with digital asset ledgers capable of making transfers between local accounts. The interledger protocol provides for transmitting payments from sources to destinations on different ledgers, where sources and destinations are hosts identified by variable length hierarchically structured addresses.
 
 ### Scope
 
-The interledger protocol is intentionally limited in scope to provide the functions necessary to deliver a payment from a source to a destination over an interconnected system of ledgers. There are no mechanisms to augment end-to-end payment reliability, liquidity management, identity, or other services commonly found in payment protocols. The interledger protocol can capitalize on the services of its supporting ledgers to provide various types and qualities of service.
+The interledger protocol is intentionally limited in scope to provide the functions necessary to deliver a payment from a source to a destination over an interconnected system of ledgers. It includes minimal requirements for underlying ledgers and it does not include public key infrastructure, identity, liquidity management, or other services commonly found in payment protocols.
 
 ### Interfaces
 
-This protocol is called on by end-to-end transport protocols in an interledger environment. This protocol calls on local ledger protocols to carry the interledger payment to the next connector or destination account.
+This protocol is called on by hosts through higher level protocol modules in an interledger environment. Interledger protocol modules call on local ledger protocols to carry the interledger payment to the next connector or destination account.
 
-For example, a [`Universal Transport Protocol (UTP)`](../0006-universal-transport-protocol/) module would call on the interledger module to take a UTP memo (including the UTP header and user data) as the data portion of an interledger payment. The UTP module would provide the address and other parameters in the interledger header to the interledger module as arguments of the call. The interledger module would then create an interledger payment and call on the local ledger interface to transmit the interledger payment.
+For example, a [`Simple Payment Setup Protocol (SPSP)`](../0009-simple-payment-setup-protocol/) module would call the interledger module with the address and other parameters in the interledger packet to send a payment. The interledger module would send a transfer to the next connector or destination account along with the interledger packet and according to the parameters given. The transfer and interledger packet would be received by the next host's interledger module and handled by each each successive connector and finally the destination's SPSP module.
 
-In the Ripple case, for example, the interledger module would call on a local ledger module which would add the Ripple envelope to the interledger payment creating a Ripple transaction to transmit to the Ripple Consensus Ledger. The Ripple address would be derived from the interledger address by the local ledger interface and would be the address of some account in the Ripple network, that account might belong to a connector to other ledgers.
+In the Ripple case, for example, the interledger module would call on a local ledger module which would create a Ripple transaction with the interledger packet attached to transmit to the Ripple Consensus Ledger. The Ripple address would be derived from the interledger address by the local ledger interface and would be the address of some account in the Ripple network, which might belong to a connector to other ledgers.
 
 ### Operation
 
-The central function of the interledger protocol is to provide addressing across different ledgers.
+The central functions of the interledger protocol are addressing hosts and securing payments across different ledgers.
 
 Each host sending and receiving interledger payments has an interledger module that uses the addresses in the interledger header to transmit interledger payments toward their destinations. Interledger modules share common rules for interpreting addresses. The modules (especially in connectors) also have procedures for making routing decisions and other functions.
+
+The interledger protocol uses transfer holds to ensure that senders' funds are either delivered to the destination account or returned to the sender's account. This mechanism is described in greater detail in the [Overview](#overview) and the [Interledger Whitepaper](https://interledger.org/interledger.pdf).
 
 The interledger protocol treats each interledger payment as an independent entity unrelated to any other interledger payment. There are no connections or channels (virtual or otherwise).
 
@@ -58,39 +60,108 @@ The interledger protocol interfaces on one side to the higher level end-to-end p
 
 ### Model of Operation
 
-The model of operation for transmitting funds from one application to another is illustrated by the following scenario:
+#### Without Holds ("Optimistic Mode")
 
-> We suppose the source and destination hold accounts on different ledgers connected by a single connector.
+The protocol MAY be used without the security provided by holds -- sometimes referred to as "Optimistic Mode". The model of operation for transmitting funds from one application to another without holds is illustrated by the following scenario:
 
-> The sending application chooses an amount and calls on its local interledger module to send that amount as a payment and passes the destination address and other parameters as arguments of the call.
+We suppose the source and destination have accounts on different ledgers connected by a single connector.
 
-> The interledger module prepares an ILP header and attaches the data to it. The interledger module determines a destination account on the local ledger for this interledger address. In this case it is the account of a connector.
+        (1)                                               (11)
+    Application                                       Application
+           \                                              /
+           (2)                    (6)                  (10)
+    Interledger Module    Interledger Module    Interledger Module
+              \               /       \                /
+               (3)          (5)       (7)            (9)
+              LLI-1       LLI-1      LLI-2         LLI-2
+                 \   (4)   /             \    (8)   /
+              Local Ledger 1           Local Ledger 2
 
-> It passes the chosen amount and the local destination account to the local ledger interface.
+1. The sending application chooses an amount and calls on its local interledger module to send that amount as a payment and passes the destination address and other parameters as arguments of the call.
 
-> The local ledger interface creates a local ledger transfer, then authorizes this transfer on the local ledger.
+2. The interledger module prepares an ILP packet and attaches the data to it. The interledger module determines a destination account on the local ledger for this interledger address. In this case it is the account of a connector. It passes the chosen amount and the local destination account to the local ledger interface.
 
-> The transfer arrives at a connector host via the local ledger interface. The local ledger interface extracts the ILP header and turns it over to the connector's interledger module. The interledger module determines from the interledger address that the payment is to be forwarded to another account in a second ledger. The interledger module converts the amount according to its locally available liquidity and determines the local account on the other ledger corresponding to the destination host. It calls on the local ledger interface for the destination ledger to send the transfer.
+3. The local ledger interface creates a local ledger transfer, then authorizes this transfer on the local ledger.
 
-> This local ledger interface creates a local ledger transfer and authorizes it.
+4. The ledger executes the transfer and notifies the connector.
 
-> At the destination host the ILP header is extracted by the local ledger interface and handed to the interledger module.
+5. The connector host's local ledger interface receives the notification and passes it to the interledger module.
 
-> The interledger module determines that the payment is for an application in this host. It passes the data to the application, passing the source address and other parameters as results of the call.
+6. The connector's interledger module extracts the ILP packet from the notification and determines from the interledger address that the payment is to be forwarded to another account in a second ledger. The interledger module converts the amount according to its locally available liquidity and determines the local account on the other ledger corresponding to the destination host. It calls on the local ledger interface for the destination ledger to send the transfer, which includes the same ILP packet.
 
-    Application                                          Application
-           \                                                /
-      Interledger Module   Interledger Module   Interledger Module
-              \                 /       \                /
-              LLI-1          LLI-1      LLI-2         LLI-2
-                 \           /             \          /
-                 Local Ledger 1           Local Ledger 2
+7. This local ledger interface creates a local ledger transfer and authorizes it.
+
+8. The ledger executes the transfer and notifies the destination host.
+
+9. The destination host's local ledger interface receives the notification and passes it to the interledger module.
+
+10. The interledger module extracts the ILP packet and determines that the payment is for an application in this host. It passes the transfer data to the application.
+
+11. The destination application receives the notification of incoming funds and reacts accordingly.
+
+#### With Holds ("Universal Mode")
+
+The protocol MAY be used with transfer holds to ensure a sender's funds are delivered to the destination or returned to the sender's account. The model of operation is illustrated with the following example:
+
+      (1,21)                                               (11)
+    Application                                        Application
+           \                                               /
+         (2,20)                 (6,16)                 (10,12)
+    Interledger Module    Interledger Module    Interledger Module
+              \               /       \                 /
+             (3,19)       (5,17)     (7,15)         (9,13)
+              LLI-1       LLI-1       LLI-2         LLI-2
+                 \  (4,18) /             \  (8,14)   /
+              Local Ledger 1           Local Ledger 2
+
+
+1. The sending application uses a higher-level protocol to negotiate the address, an amount, and a cryptographic condition with the destination. It calls on the interledger module to send a payment with these parameters.
+
+2. The interledger module prepares the ILP packet, chooses the account to send the local ledger transfer to, and passes them to the local ledger interface.
+
+3. The local ledger interface creates a local ledger transfer, including the crytographic condition, then authorizes this transfer on the local ledger.
+
+4. The ledger puts the sender's funds on hold -- it does not transfer the funds to the connector -- and notifies the connector.
+
+5. The connector host's local ledger interface receives the notification and passes it to the interledger module.
+
+6. The connector's interledger module extracts the ILP packet and determines that it should forward the payment. The interledger module calls on the destination ledger's local ledger interface to send the second transfer, including the same condition as the sender's transfer.
+
+7. The local ledger interface creates a local ledger transfer, including the crytographic condition, then authorizes this transfer on the local ledger.
+
+8. The ledger puts the connector's funds on hold -- it does not transfer the funds to the destination -- and notifies the destination host.
+
+9. The destination host's local ledger interface receives the notification and passes it to the interledger module.
+
+10. The interledger module extracts the ILP packet and determines that the payment is for an application in this host. It passes the transfer data to the application.
+
+11. The destination application receives the notification and recognizes that funds are on hold pending the condition fulfillment. It checks the details of the incoming transfer against what was agreed upon with the sender. If checks pass, the application produces the condition fulfillment and passes it to the interledger module.
+
+12. The destination's interledger module passes the fulfillment to the local ledger interface.
+
+13. The local ledger interface submits the fulfillment to the ledger.
+
+14. The destination ledger validates the fulfillment against the held transfer's condition. If the fulfillment is valid and the transfer is not expired, the ledger executes the transfer and notifies the destination host and the connector.
+
+15. The connector's local ledger interface receives the fulfillment notification and passes it to the interledger module.
+
+16. The connector's interledger module receives the fulfillment and passes it to the local ledger interface corresponding to the source ledger.
+
+17. This ledger interface submits the fulfillment to the source ledger.
+
+18. The source ledger validates the fulfillment against the held transfer's condition. If the fulfillment is valid and the transfer is not expired, the ledger executes the transfer and notifies the connector and the sender's host.
+
+19. The sender's local ledger interface receives the fulfillment notification and passes it to the interledger module.
+
+20. The sender's interledger module receives the fulfillment notification and passes it to the application.
+
+21. The sender's application receives the fulfillment notification and reacts accordingly.
 
 ### Function Description
 
-The purpose of the interledger protocol is to enable hosts to route payments through an interconnected set of ledgers. This is done by passing the payments from one interledger module to another until the destination is reached. The interledger modules reside in hosts and connectors in the interledger system. The payments are routed from one interledger module to another through individual ledgers based on the interpretation of an interledger address. Thus, the central component of the interledger protocol is the interledger address.
+The purpose of the interledger protocol is to enable hosts to route payments through an interconnected set of ledgers. This is done by passing the payments from one interledger module to another until the destination is reached. The interledger modules reside in hosts and connectors in the interledger system. The payments are routed from one interledger module to another through individual ledgers based on the interpretation of an interledger address. Thus, a central component of the interledger protocol is the interledger address.
 
-When routing payments with relatively large amounts, the connectors and the intermediary ledgers they choose in the routing process may not be trusted. Transport protocols on top of the interledger protocol MAY use the [hold](#holds-and-payment-reliability) mechanism provided by underlying ledgers to protect the sender and receivers from this risk.
+When routing payments with relatively large amounts, the connectors and the intermediary ledgers they choose in the routing process may not be trusted. Holds provided by underlying ledgers MAY be used to protect the sender and receivers from this risk. In this case, the ILP packet contains a cryptographic condition and expiration date.
 
 #### Addressing
 
@@ -99,10 +170,10 @@ As with the [internet protocol](https://tools.ietf.org/html/rfc791#section-2.3),
 
 The interledger module translates interledger addresses to local ledger addresses. Connectors and local ledger interfaces are responsible for translating addresses into interledger routes and local routes, respectively.
 
-Addresses are hierarchically structured strings consisting of segments delimited by the slash (`/`) character. In order to distinguish the present address format from future or alternative versions, the protocol prefix `ilp:` MUST be used:
+Addresses are hierarchically structured strings consisting of segments delimited by the period (`.`) character. In order to distinguish the present address format from future or alternative versions, the protocol prefix `ilp:` MUST be used:
 
 ```
-ilp:us/bank1/bob
+ilp:us.bank1.bob
 ```
 
 Care must be taken in mapping interledger addresses to local ledger accounts. Examples of address mappings may be found in "Address Mappings" ((TODO)).
@@ -228,15 +299,7 @@ This header may be used for source routing.
 
 ## Discussion
 
-### Holds and Payment Reliability
-
-Interledger payments may be transmitted through connectors and intermediary ledgers that are not trusted by the sender or receiver. If connectors fail to pass on payments, money could be lost.
-
-Ledgers MAY provide transfer hold functionality to protect hosts from the risk posed by others in a payment route. Transport protocols on top of the interledger protocol MAY take advantage of this capability to provide reliable payments, for example [UTP](../0006-universal-transport-protocol/) and [ATP](../0007-atomic-transport-protocol/). Some transport protocols, such as [OTP](../0005-optimistic-transport-protocol/), may not use holds.
-
-Transfers with holds occur in two steps rather than one. In the first step, the sending account's balance is debited. The transfer is then called "prepared". Each hold is associated with a condition that releases the hold. Conditions SHOULD be provided in the [Crypto Conditions](../0002-crypto-conditions/) format. The second step occurs when the condition is fulfilled and the funds are then released (credited) to the recipient.
-
-Held transfers may also have an expiry date. If the transfer is on hold at the time it expires, the funds will be returned to the sender. If the transfer has already been fully executed, the expiry date has no effect.
+### Holds Without Native Ledger Support
 
 Not all ledgers support held transfers. In the case of a ledger that doesn't, the sender and recipient of the local ledger transfer MAY choose a commonly trusted party to carry out the hold functions. There are three options:
 
@@ -245,7 +308,6 @@ Not all ledgers support held transfers. In the case of a ledger that doesn't, th
 2. The receiver MAY trust the sender. The sender will notify the receiver about the intent to transfer. If the receiver provides a fulfillment for the condition before the expiry date, the sender will perform a regular transfer to the receiver.
 
 3. The sender and receiver MAY appoint a mutually trusted third-party which has an account on the local ledger. The sender performs a regular transfer into a neutral third-party account. In the first step, funds are transfered into the account belonging to the neutral third-party.
-
 ### Payment Channels
 
 ## Appendix A: ASN.1 Module
