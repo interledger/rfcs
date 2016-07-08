@@ -2,7 +2,7 @@
 coding: utf-8
 
 title: Crypto-Conditions
-docname: draft-thomas-crypto-conditions-01
+docname: draft-thomas-crypto-conditions-00
 category: std
 
 pi: [toc, sortrefs, symrefs, comments]
