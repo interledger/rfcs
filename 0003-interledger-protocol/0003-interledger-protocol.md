@@ -64,13 +64,13 @@ This specification is a part of the [Interledger Project](https://interledger.or
 
 --- abstract
 
-This document specifies the Standard Interledger Protocol (ILP). It draws heavily from the definition of the Internet Protocol (IP) defined in [RFC 791](https://tools.ietf.org/html/rfc791). The interledger protocol is the culmination of more than a decade of research in decentralized payment protocols. This work was started in 2004 by Ryan Fugger, augmented by the development of Bitcoin in 2008 and has involved numerous contributors since then.
+This document specifies the Standard Interledger Protocol (ILP). It draws heavily from the definition of the Internet Protocol (IP) defined in {{RFC 791}}. The interledger protocol is the culmination of more than a decade of research in decentralized payment protocols. This work was started in 2004 by Ryan Fugger, augmented by the development of Bitcoin in 2008 and has involved numerous contributors since then.
 
 --- middle
 
 # Introduction {#intro}
 
-Transferring digital assets betwen two accounts on a single ledger or within the confines of a constrained payment network requires no specific orchestration or protocol. In contrast, a transfer of digital assets from an account on one ledger to an account on an entirely different ledger requires at least one counter-party to transfer the assets between ledgers and also a well defined protocol for orchestration of the steps required to complete the transaction atomically and protect all participants from counter-party risk.
+Transferring digital assets between two accounts on a single ledger or within the confines of a constrained payment network requires no specific orchestration or protocol. In contrast, a transfer of digital assets from an account on one ledger to an account on an entirely different ledger requires at least one counter-party to transfer the assets between ledgers and also a well defined protocol for orchestration of the steps required to complete the transaction atomically and protect all participants from counter-party risk.
 
 The interledger protocol provides for transmitting payments from source accounts to destination accounts on different ledgers, where source accounts and destination accounts are identified by variable length, hierarchically structured universal addresses.
 
@@ -82,16 +82,16 @@ The interledger protocol is intentionally limited in scope to provide the functi
 
 ## Definitions {#definitions}
 
-##### Transfer
+### Transfer
 &emsp;Change in ownership of some asset
 
-##### Ledger
+### Ledger
 &emsp;System which records transfers
 
-##### Connector
+### Connector
 &emsp;System which relays transfers between two ledgers
 
-##### Payment
+### Payment
 &emsp;An exchange of assets involving one or more transfers on different ledgers
 
 ## Basic Concepts {#concepts}
@@ -148,11 +148,11 @@ The model of operation for transmitting funds from one application to another is
 
 The purpose of the interledger protocol is to enable hosts to route payments through an interconnected set of ledgers. This is done by passing the payments from one interledger module to another until the destination is reached. The interledger modules reside in hosts and connectors in the interledger system. The payments are routed from one interledger module to another through individual ledgers based on the interpretation of an interledger address. Thus, the central component of the interledger protocol is the interledger address.
 
-When routing payments with relatively large amounts, the connectors and the intermediary ledgers they choose in the routing process may not be trusted. The sending application MAY use the [hold](#holds-and-payment-reliability) mechanism provided by underlying ledgers to protect the sender and receivers from this risk by providing a condition in the ILP header that will be fulfilled by the receiver when the they receive the payment.
+When routing payments with relatively large amounts, the connectors and the intermediary ledgers they choose in the routing process may not be trusted. The sending application MAY use the [hold](#holds) mechanism provided by underlying ledgers to protect the sender and receivers from this risk by providing a condition in the ILP header that will be fulfilled by the receiver when the they receive the payment.
 
 ### Addressing {#addressing}
 
-As with the [internet protocol](https://tools.ietf.org/html/rfc791#section-2.3), interledger distinguishes between names, addresses, and routes.
+As with the {{RFC791}}, interledger distinguishes between names, addresses, and routes.
 > "A name indicates what we seek. An address indicates where it is. A route indicates how to get there. The internet protocol deals primarily with addresses. It is the task of higher level (i.e., end-to-end or application) protocols to make the mapping from names to addresses."
 
 The interledger module translates interledger addresses to local ledger addresses. Connectors and local ledger interfaces are responsible for translating addresses into interledger routes and local routes, respectively.
@@ -165,7 +165,7 @@ ilp:us.bank1.bob
 
 Care must be taken in mapping interledger addresses to local ledger accounts. Examples of address mappings may be found in "Address Mappings" ((TODO)).
 
-### Connectors {#addressing}
+### Connectors {#connectors}
 
 Connectors implement the interledger protocol to forward payments between ledgers. Connectors also implement other protocols to coordinate routing and other interledger control information.
 
@@ -225,3 +225,13 @@ Not all ledgers support held transfers. In the case of a ledger that doesn't, th
 2. The receiver MAY trust the sender. The sender will notify the receiver about the intent to transfer. If the receiver provides a fulfillment for the condition before the expiry date, the sender will perform a regular transfer to the receiver.
 
 3. The sender and receiver MAY appoint a mutually trusted third-party which has an account on the local ledger. The sender performs a regular transfer into a neutral third-party account. In the first step, funds are transfered into the account belonging to the neutral third-party.
+
+--- back
+
+# Security Considerations
+
+TODO
+
+# IANA Considerations {#appendix-e}
+
+TODO
