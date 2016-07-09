@@ -92,26 +92,32 @@ Crypto-conditions provide a mechanism to describe a signed message such that mul
 
 --- middle
 
-# Introduction {#intro}
-This specification describes a message format for defining distributable event descriptions (crypto-conditions) and the cryptographically verifiable event messages (fulfillments) that can be used to prove that the event occurred.
+# Introduction
+This specification describes a message format for crypto-conditions and fulfillments, with binary and string-based encodings for each.
 
-The specification defines both binary and string-based encoding for the messages.
+Crypto-conditions are **distributable event descriptions**. This means crypto-conditions say how to recognize a message without saying exactly what the message is. You can transmit a crypto-condition freely, but you cannot forge the message it describes. For convenience, we hash the description so that the crypto-condition can be a fixed size.
 
-## Terminology {#terminology}
+Fulfillments are **cryptographically verifiable messages** that prove an event occurred. If you transmit a fulfillment, then everyone who has the condition can agree that the condition has been met.
+
+In the Interledger protocol, crypto-conditions and fulfillments provide irrepudiable proof that a transfer occurred in one ledger, as messages that can be easily shared with other ledgers. This allows ledgers escrow funds or hold a transfer conditionally, then execute the transfer automatically when the ledger sees the fulfillment of the stated condition.
+
+## Terminology
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC2119].
 
 Within this specification, the term "condition" refers to the hash of a description of a signed message.
 
-The term "fulfillment" refers to a description of a signed message and a signed message that matches the description.
+The term "fulfillment" refers to a description of a signed message and a signed message that matches the description. In the simplest case, the fulfillment can be a preimage that hashes to the condition.
 
 The description can be hashed and compared to a condition. If the message matches the description and the hash of the description matches the condition, we say that the fulfillment fulfills the condition.
 
-A "hashlock" is a tuple consisting of a bytestring and its hash where the hash is published first and the publication of the corresponding bytestring acts as a one-bit, one-time signature. <!-- Q: What does this mean by "one-bit"? -->
+A "hashlock" is a very simple case of a crypto-condition. A hashlock consists of a preimage-resistant hash of a secret value (the condition), and the secret value itself (the fulfillment). In this case, the publication of the secret value, or preimage, acts as a one-time signature.
 
-## Features {#features}
+
+
+## Features
 Crypto-conditions are a simple multi-algorithm, multi-level, multi-signature standard format for expressing conditions and fulfillments.
 
-### Multi-Algorithm {#multi-algorithm}
+### Multi-Algorithm
 Crypto-conditions can support several different signature and hash algorithms and support for new ones can be added in the future.
 
 Implementations can state their supported algorithms simply by providing a bitmask. It is easy to verify that a given implementation will be able to verify the fulfillment to a given condition, by verifying that all bits that are set in the condition's bitmask are also set in the implementation's supported features bitmask.
@@ -136,13 +142,13 @@ Crypto-conditions add that flexibility elegantly, by applying thresholds not jus
 
 
 
-# Format {#format}
+# Format
 
-## Binary Encoding {#binary-encoding}
+## Binary Encoding
 
 An description of crypto-conditions is provided in this document using Abstract Syntax Notation One (ASN.1) as defined in [ITU.X680.2015](#itu.X680.2015). Implementations of this spec MUST support encoding and decoding using Octet Encoding Rules (OER) as defined in [ITU.X696.2015](#itu.X696.2015).
 
-## String Types {#string-types}
+## String Types
 
 BASE10
 : Variable-length integer encoded as a base-10 (decimal) number. Implementations MUST reject encodings that are too large for them to parse. Implementations MUST be tested for overflows.
@@ -153,7 +159,7 @@ BASE16
 BASE64URL
 : Base64-URL encoding. See [RFC4648](#RFC4648) , Section 5.
 
-## Bitmask {#bitmask}
+## Bitmask
 Any system accepting crypto-conditions must be able to state its supported algorithms. It must be possible to verify that all algorithms used in a certain condition are indeed supported even if the fulfillment is not available yet.
 
 In order to meet these design goals, we define a bitmask to express the supported primitives.
