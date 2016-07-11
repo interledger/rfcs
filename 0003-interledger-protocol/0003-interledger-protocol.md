@@ -197,109 +197,42 @@ Here is a summary of the fields in the ILP header format:
 | version | INTEGER(0..255) | ILP protocol version (currently `1`) |
 | destinationAddress | IlpAddress | Address corresponding to the destination account |
 | destinationAmount | IlpAmount | Amount the destination account should receive, denominated in the asset of the destination ledger |
-| nextHeader | INTEGER(0..65535) | Type of the next header |
-
-**TODO**: should we have the `sourceAddress` for sending error messages back?
-
-
-<!--
-| source | IlpAddress | Address corresponding to the source account. |
-| destinationPrepareBy | IlpTimestamp | Time by which the final transfer should be prepared, otherwise the recipient may not attempt to fulfill the condition |
-| condition | OCTET STRING | See the [condition spec](https://interledger.org/five-bells-condition/spec.html). The condition may be included in the packet or may be transmitted through the ledger layer. |
-| data | OCTET STRING | Message or other data to be delivered to the destination account along with the payment (i.e. destination credit memo) |
+| condition | IlpCondition | Execution condition for the transfers
 | expiresAt | IlpTimestamp | Maximum expiry time of the last transfer that the recipient will accept |
--->
 
 #### version
-<code>INTEGER(0..255)</code>
+
+    INTEGER(0..255)
 
 The version of the Interledger Protocol being used. This document describes version `1`.
 
 #### destinationAddress
-<code>IlpAddress :== SEQUENCE OF OCTET STRING</code>
+
+    IlpAddress :== SEQUENCE OF OCTET STRING
 
 Hierarchical routing label.
 
 #### destinationAmount
-<code>IlpAmount :== SEQUENCE { mantissa INTEGER, exponent INTEGER(-128..127) }</code>
+
+    IlpAmount :== SEQUENCE { mantissa INTEGER, exponent INTEGER(-128..127) }
 
 Base 10 encoded amount.
 
-**TODO**: Are we going to regret the base-10 encoding?
+#### condition
 
-#### nextHeader
-<code>INTEGER(0..65535)</code>
+    IlpCondition :== Condition</code>
 
-Type of the next header.
+Crypto-condition in binary format as defined in [draft-thomas-crypto-conditions-00](#draft-thomas-crypto-conditions-00).
 
-Header types include optional interledger extension headers, such as the [Source Routing Header](#source-routing-header-format) and transport protocols, such as [Optimistics Transport Protocol (OTP)](../0005-optimistic-transport-protocol/).
+When processing a transfer carrying a condition a ledger MUST place a hold on the funds. While the funds are on hold, neither the sender nor recipient are able to access them. Upon receiving a condition fulfillment, a ledger MUST transfer the funds to the recipient if the funds are held, the fulfillment is a valid fulfillment of the transfer condition and the transfer has not yet expired. ("Universal Mode")
 
-The list of headers is terminated by the special value `0xffff`, i.e. all bits set. When a ledger module finishes processing a header containing this value as its `nextHeader`, it MUST stop parsing and forward all remaining bytes without modification.
+The condition is an optional field. If no condition is provided, the funds are immediately credited to the recipient of the transfer. ("Optimistic Mode")
 
-When an interledger module encounters an unknown header type, it MUST act according to the value of the two most significant bits:
+#### expiresAt
 
-| Bits | Meaning |
-|:--|:--|
-| 00 | Drop the payment, reply with an error, issue a refund if possible |
-| 01 | Drop the payment, reply with an error, do not issue a refund |
-| 10 | Drop the payment quietly, do not reply |
-| 11 | Ignore the header, process the payment as if the header wasn't there |
+    IlpExpiry :== GeneralizedTime
 
-The list of header types is managed by IANA, please see [Header Type Registry](#header-type-registry).
-
-### Generic Extension Header Format
-
-Here is a description of the format that all headers (except the ILP header) MUST follow:
-
-| Field | Type | Short Description |
-|:--|:--|:--|
-| nextHeader | INTEGER | Type of the next header |
-| size | INTEGER | Size of this header in octets |
-
-#### nextHeader
-<code>INTEGER(0..65535)</code>
-
-See [`nextHeader`](#nextheader).
-
-#### size
-<code>INTEGER(0..65535)</code>
-
-Total size of the header in bytes, including the generic header fields.
-
-### Memo Locator Header Format
-
-This header indicates where in the payload (remaining data after the headers) the user memo can be found. If this header is not provided, the interledger module MUST assume that the entire payload is the user memo. All interledger modules MUST support this header type.
-
-This header is provided for forward compatibility. Future extensions to the protocol may need to carry more data than can fit in a 64KB header. This header allows them to re-map the location of the user data in the payload and add their own content to the payload. By supporting this header from the start, we ensure that this functionality will be backwards compatible with all ILP implementations.
-
-| Field | Type | Short Description |
-|:--|:--|:--|
-| nextHeader | INTEGER | Type of the next header |
-| size | INTEGER | Size of this header in octets |
-| memoPosition | INTEGER | Starting position of the memo |
-| memoSize | INTEGER | Size of the memo in octets |
-
-#### memoPosition
-<code>INTEGER(0..4294967295)</code>
-
-Starting position of the memo. Interledger modules MUST start reading the memo this many octets after the start of the payload.
-
-If `memoPosition` is greater than the payload size, interledger modules SHOULD drop the payment.
-
-#### memoSize
-<code>INTEGER(0..4294967295)</code>
-
-Size of the memo in octets.
-
-If `memoPosition + memoSize` is greater than the payload size, interledger modules SHOULD drop the payment.
-
-### Hop-by-hop Header Format
-
-This header may be used for source routing.
-
-**TODO**: Document format.
-
-## Discussion
+Ledgers MAY require that all transfers with a condition also carry an expiry timestamp. Ledgers MUST reject transfers that carry an expiry timestamp, but no condition. Ledgers MUST reject transfers whose expiry transfer time has been reached or exceeded and whose condition has not yet been fulfilled. When rejecting a transfer, the ledger MUST lift the hold and make the funds available to the sender again.
 
 ### Holds Without Native Ledger Support
 
