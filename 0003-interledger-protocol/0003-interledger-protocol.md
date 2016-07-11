@@ -75,9 +75,9 @@ We suppose the source and destination have accounts on different ledgers connect
     Interledger Module    Interledger Module    Interledger Module
               \               /       \                /
                (3)          (5)       (7)            (9)
-              LLI-1       LLI-1      LLI-2         LLI-2
+              LLI-1       LLI-1      LLI-2          LLI-2
                  \   (4)   /             \    (8)   /
-              Local Ledger 1           Local Ledger 2
+               Local Ledger 1           Local Ledger 2
 
 1. The sending application chooses an amount and calls on its local interledger module to send that amount as a payment and passes the destination address and other parameters as arguments of the call.
 
@@ -114,7 +114,7 @@ The protocol MAY be used with transfer holds to ensure a sender's funds are deli
              (3,19)       (5,17)     (7,15)         (9,13)
               LLI-1       LLI-1       LLI-2         LLI-2
                  \  (4,18) /             \  (8,14)   /
-              Local Ledger 1           Local Ledger 2
+                Local Ledger 1          Local Ledger 2
 
 
 1. The sending application uses a higher-level protocol to negotiate the address, an amount, and a cryptographic condition with the destination. It calls on the interledger module to send a payment with these parameters.
