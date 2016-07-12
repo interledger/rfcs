@@ -104,39 +104,36 @@ In the Interledger protocol, crypto-conditions and fulfillments provide irrepudi
 ## Terminology
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC2119].
 
-Within this specification, the term "condition" refers to the hash of a description of a signed message.
+Within this specification, the term "condition" refers to the hash of a description of a signed message. The hash function must be preimage-resistant.
 
-The term "fulfillment" refers to a description of a signed message and a signed message that matches the description. In the simplest case, the fulfillment can be a preimage that hashes to the condition.
+The term "fulfillment" refers to a description of a signed message and a signed message that matches the description. We hash the description and compare that to the condition, and also compare the signed message to the description. If the message matches the description and the hash of the description matches the condition, we say that the fulfillment fulfills the condition.
 
-The description can be hashed and compared to a condition. If the message matches the description and the hash of the description matches the condition, we say that the fulfillment fulfills the condition.
-
-A "hashlock" is a very simple case of a crypto-condition. A hashlock consists of a preimage-resistant hash of a secret value (the condition), and the secret value itself (the fulfillment). In this case, the publication of the secret value, or preimage, acts as a one-time signature.
-
+In the simplest case, the fulfillment can be a preimage that hashes to the condition, in which case the preimage is both the description and the message.
 
 
 ## Features
-Crypto-conditions are a simple multi-algorithm, multi-level, multi-signature standard format for expressing conditions and fulfillments.
+Crypto-conditions are a standard format for expressing conditions and fulfillments. The format supports multiple algorithms, including different hash functions and cryptographic signing schemes. Crypto-conditions can be nested in multiple levels, with each level possibly having multiple signatures.
+
+This format has been designed so that it can be expanded. For example, you can add new cryptographic signature schemes or hash functions. This is important because advances in cryptography frequently render old algorithms insecure or invent newer, more effective algorithms.
+
+The [Bitmask](#bitmask) of a crypto-condition indicates which algorithms it uses, so a compliant implementation can know whether it supports the functionality required to interpret the crypto-condition.
 
 ### Multi-Algorithm
-Crypto-conditions can support several different signature and hash algorithms and support for new ones can be added in the future.
+The crypto-condition format contains a [Bitmask](#bitmask) that specifies which hash function and signing scheme to use. Any message format for a condition or a fulfillment contains such a bitmask.
 
-Implementations can state their supported algorithms simply by providing a bitmask. It is easy to verify that a given implementation will be able to verify the fulfillment to a given condition, by verifying that all bits that are set in the condition's bitmask are also set in the implementation's supported features bitmask.
+Implementations MAY state their supported algorithms by providing a bitmask in the same format. To verify that a given implementation can verify a fulfillment for a given condition, you compare the bitmasks. If all bits set in the condition's bitmask are also set in the implementation's bitmask, then the implementation can verify the condition's fulfillment.
 
-Any new high bit can redefine the meaning of any existing lower bits when it is set. This can be used to remove obsolete algorithms.
-
-The bitmask is encoded as a varint to minimize space usage.
-
-By evaluating the bitmask of a condition actors in the system can establish, even before a fulfillment is published, if they will be able to verify the fulfilment.
-
-### Multi-Signature {#multi-signature}
+### Multi-Signature
 Crypto-conditions can abstract away many of the details of multi-sign. When a party provides a condition, other parties can treat it opaquely and do not need to know about its internal structure. That allows parties to define arbitrary multi-signature setups without breaking compatibility.
 
 Protocol designers can use crypto-conditions as a drop-in replacement for public key signature algorithms and add multi-signature support to their protocols without adding any additional complexity.
 
-### Multi-Level {#multi-level}
-Basic multi-sign is single-level and does not support more complex trust relationships such as "I trust Alice and Bob, but only when Candice also agrees". In single level 2-of-3 Alice and Bob could sign on their own, without Candice's approval.
+### Multi-Level
+Crypto-conditions elegantly support weighted multi-signatures and multi-level signatures. A threshold condition has a number of weighted subconditions, and a target threshold. Each subcondition can be a signature or another threshold condition. This provides flexibility in forming complex conditions.
 
-Crypto-conditions add that flexibility elegantly, by applying thresholds not just to signatures, but to conditions which can be signatures or further conditions. That allows the creation of an arbitrary threshold boolean circuit of signatures. <!-- Q: "boolean circuit of signatures"? -->
+For example, consider a threshold condition that consists of two subconditions, one each from Agnes and Bruce. Agnes's condition can be a signature condition while Bruce's condition is a threshold condition, requiring both Claude and Dan to sign for him.
+
+Weighted signatures allow more complex relationships than simple M-of-N signing. For example, a weighted condition can support an arrangement of subconditions such as, "Either Ron, Adi, and Leonard must approve; or Clifford must approve."
 
 
 
@@ -167,6 +164,8 @@ In order to meet these design goals, we define a bitmask to express the supporte
 Each bit represents a different suite of features. Each type of condition depends on one or more feature suites. If an implementation supports all feature suites that a certain type depends on, the implementation MUST support that condition type. The list of known types and feature suites is the IANA maintained [Crypto-Condition Type Registry](#crypto-conditions-type-registry) .
 
 Conditions contain a bitmask of types which they require the implementation to support. Implementations provide a bitmask of types they support.
+
+The bitmask is encoded as a varint to minimize space usage.
 
 ## Condition {#condition-format}
 Below are the string and binary encoding formats for a condition. In both, the featureBitmask is the boolean OR of the feature suite bitmasks of the top-level condition type and all subcondition types, recursively.
