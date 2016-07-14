@@ -102,7 +102,7 @@ Fulfillments are **cryptographically verifiable messages** that prove an event o
 In the Interledger protocol, crypto-conditions and fulfillments provide irrepudiable proof that a transfer occurred in one ledger, as messages that can be easily shared with other ledgers. This allows ledgers escrow funds or hold a transfer conditionally, then execute the transfer automatically when the ledger sees the fulfillment of the stated condition.
 
 ## Terminology
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC2119].
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC2119][].
 
 Within this specification, the term "condition" refers to the hash of a description of a signed message. The hash function must be preimage-resistant.
 
@@ -137,8 +137,6 @@ Weighted signatures allow more complex relationships than simple M-of-N signing.
 
 
 
-
-
 # Format
 
 ## Binary Encoding
@@ -147,28 +145,26 @@ An description of crypto-conditions is provided in this document using Abstract 
 
 ## String Types
 
+Crypto-conditions use the following types within string encoding:
+
 BASE10
-: Variable-length integer encoded as a base-10 (decimal) number. Implementations MUST reject encodings that are too large for them to parse. Implementations MUST be tested for overflows.
+: Variable-length integer encoded as a base-10 (decimal) number. Implementations MUST reject encoded values that are too large for them to parse. Implementations MUST be tested for overflows.
 
 BASE16
-: Variable-length integer encoded as a base-16 (hexadecimal) number. Implementations MUST reject encodings that are too large for them to parse. Implementations MUST be tested for overflows. No leading zeros.
+: Variable-length integer encoded as a base-16 (hexadecimal) number. Implementations MUST reject encoded values that are too large for them to parse. Implementations MUST be tested for overflows. No leading zeros.
 
 BASE64URL
-: Base64-URL encoding. See [RFC4648](#RFC4648) , Section 5.
+: Base64-URL encoding. See [RFC4648](#RFC4648), Section 5.
 
 ## Bitmask
-Any system accepting crypto-conditions must be able to state its supported algorithms. It must be possible to verify that all algorithms used in a certain condition are indeed supported even if the fulfillment is not available yet.
+Any system that accepts crypto-conditions must be able to state its supported algorithms. It must be possible to verify that all algorithms used in a certain condition are indeed supported even if the fulfillment is not available yet. Therefore, all conditions and fulfillments contain a bitmask to express the required features. Implementations provide a bitmask of features they support.
 
-In order to meet these design goals, we define a bitmask to express the supported primitives.
+Each bit represents a different suite of features. Each type of crypto-condition depends on one or more feature suites. If an implementation supports all feature suites that a certain type depends on, the implementation MUST support that condition type. The list of known types and feature suites is the IANA-maintained [Crypto-Condition Type Registry](#crypto-conditions-type-registry) .
 
-Each bit represents a different suite of features. Each type of condition depends on one or more feature suites. If an implementation supports all feature suites that a certain type depends on, the implementation MUST support that condition type. The list of known types and feature suites is the IANA maintained [Crypto-Condition Type Registry](#crypto-conditions-type-registry) .
-
-Conditions contain a bitmask of types which they require the implementation to support. Implementations provide a bitmask of types they support.
-
-The bitmask is encoded as a varint to minimize space usage.
+To save space, the bitmask is encoded as a variable-length integer.
 
 ## Condition {#condition-format}
-Below are the string and binary encoding formats for a condition. In both, the featureBitmask is the boolean OR of the feature suite bitmasks of the top-level condition type and all subcondition types, recursively.
+Below are the string and binary encoding formats for a condition.
 
 ### String Format {#string-condition-format}
 
@@ -176,6 +172,7 @@ Conditions are ASCII encoded as:
 
     "cc:" BASE16(type) ":" BASE16(featureBitmask) ":"
         BASE64URL(fingerprint) ":" BASE10(maxFulfillmentLength)
+
 
 ### Binary Format {#binary-condition-format}
 
@@ -202,13 +199,29 @@ type
 : is the numeric type identifier representing the condition type.
 
 featureBitmask
-: is an octet string encoding the set of feature suites an implementation must support in order to be able to successfully parse the fulfillment to this condition.
+: is an octet string encoding the set of feature suites an implementation must support in order to be able to successfully parse the fulfillment to this condition. This is the boolean OR of the featureBitmask values of the top-level condition type and all subcondition types, recursively.
 
 fingerprint
 : is an octet string uniquely representing the condition with respect to other conditions of the same type. Implementations which index conditions MUST use the entire string or binary encoded condition as the key, not just the fingerprint - as different conditions of different types may have the same fingerprint. The length and contents of the fingerprint are defined by the condition type. For most condition types, the fingerprint is a cryptographically secure hash of the data which defines the condition, such as a public key.
 
 maxFulfillmentLength
-: is the maximum length of the fulfillment payload that can fulfill this condition. When a crypto-condition is submitted to an implementation, this implementation MUST verify that it will be able to process a fulfillment with a payload of size maxFulfillmentLength.
+: is the maximum length of the fulfillment payload that can fulfill this condition, in bytes. The payload size is measured unencoded. (The size of the payload is larger in BASE64URL format.) When a crypto-condition is submitted to an implementation, this implementation MUST verify that it will be able to process a fulfillment with a payload of size maxFulfillmentLength.
+
+### Example Condition
+
+An example condition in string format:
+
+    cc:0:3:L49pDKQeScuYTG-aUSj-0SdvyvByT_zhtZg6w4ojFUk:35
+
+The example has the following attributes:
+
+| Field                | Value | Description |
+|----------------------|-------|----------------------------------------------|
+| Preface              | `cc`  | Indicates this is a condition. |
+| type                 | `0`   | Type 0 is [PREIMAGE-SHA-256][]. |
+| featuresBitmask      | `3`   | Boolean-OR combination of feature suites SHA-256 (feature bit 0x01) and PREIMAGE (feature bit 0x02). |
+| fingerprint          | `L49pDKQeScuYTG-aUSj-0SdvyvByT_zhtZg6w4ojFUk` | The hash of the fulfillment for this condition. |
+| maxFulfillmentLength | `35`  | The fulfillment payload is 35 bytes long, before being BASE64URL-encoded. |
 
 
 ## Fulfillment {#fulfillment-format}
@@ -237,61 +250,77 @@ type
 payload
 : The payload is an octet string whose internal format is defined by each of the types.
 
+### Example Fulfillment
 
+The following is an example fulfillment in string format, for the [example condition](#example-condition):
+
+    cf:0:dGhpcyBpcyBzb21lIHRleHQgdGhhdCBtRHVvMTMgd3JvdGU
+
+
+The example has the following attributes:
+
+| Field                | Value | Description |
+|----------------------|-------|----------------------------------------------|
+| Preface              | `cf`  | Indicates this is a fulfillment. |
+| type                 | `0`   | Type 0 is [PREIMAGE-SHA-256][]. |
+| payload              | `dGhpcyBpcyBzb21lIHRleHQgdGhhdCBtRHVvMTMgd3JvdGU` | The BASE64URL-encoded SHA-256 preimage of the condition, since this is a PREIMAGE-SHA-256 type fulfillment. In this case, it is an arbitrary string. |
 
 
 
 
 # Feature Suites {#feature-suites}
-The following feature suites are defined in this version of the specification. New feature suites may be defined in the future and will be registered in the IANA maintained [Crypto-Condition Type Registry](#crypto-conditions-type-registry)  
+This specification defines a starting set of feature suites necessary to support the [Condition Types][] also defined in this specification. Future versions of this spec MAY introduce new feature suites and condition types, which SHALL be registered in the IANA maintained [Crypto-Condition Type Registry](#crypto-conditions-type-registry).
 
-Support for a condition type MUST depend on one or more feature suites. Future versions of this spec MAY introduce new feature bits and condition types. However, all new condition types MUST depend on at least one of the new feature suites. This ensures that all previously created implementations correctly recognize that they do not support the new type.
+Support for a condition type MUST depend on one or more feature suites.  However, all new condition types MUST depend on at least one of the new feature suites. This ensures that all previously created implementations correctly recognize that they do not support the new type.
 
 Feature suites are chosen such that they represent reasonable clusters of functionality. For instance, it is reasonable to require that an implementation which supports SHA-256 in one context MUST support it in all contexts, since it already needed to implement the algorithm.
 
 An implementation which supports a certain set of feature suites MUST accept all condition types which depend only on that set or any subset of feature suites.
 
+| Suite Name | Feature Bit | Feature Bit (BASE16) | Summary |
+|------------|-----|------|---------------------------------|
+| SHA-256    | 2^0 | 0x01 | The SHA-256 hashing algorithm. |
+| PREIMAGE   | 2^1 | 0x02 | The functionality of comparing a hash to a preimage. |
+| PREFIX     | 2^2 | 0x04 | The functionality of prefixing the fulfillment with a prefix before generating the condition. |
+| THRESHOLD  | 2^3 | 0x08 | The functionality of composing a condition out of several weighted subconditions. |
+| RSA-PSS    | 2^4 | 0x10 | The RSA-PSS signature algorithm. |
+| ED25519    | 2^5 | 0x20 | The ED25519 signature algorithm. |
+
 ## SHA-256 {#sha-256-feature-suite}
-SHA-256 is a hashing algorithm and is assigned the feature bit 2^0 = 0x01.
+
+SHA-256 is a cryptographic hash function published by the US National Institute of Standards and Technology that produces 256 bits of output. This feature suite is assigned the feature bit 2^0 = 0x01.
 
 ## PREIMAGE {#preimage-feature-suite}
-PREIMAGE refers to hashlock conditions and is assigned the feature bit 2^1 = 0x02.
+PREIMAGE refers to conditions that use a preimage as a one-time signature. This feature suite is assigned the feature bit 2^1 = 0x02.
 
-A preimage condition is the hash of its own fulfillment. In order to fulfill a preimage condition, a valid preimage must be provided.
-
-Preimage conditions can be used as a so-called hashlock. Since cryptographically secure hashing functions are preimage-resistant, only the original creator of a preimage condition can feasibly produce the preimage if it contains a large amount of random entropy.
+The fingerprint of a preimage condition is the hash of some arbitrary value. The payload of a preimage fulfillment is the preimage that hashes to the condition's fingerprint. Conditions that use this preimage MUST also rely on a cryptographically secure hashing algorithm. Since cryptographically secure hashing functions are preimage-resistant, only the original creator of a preimage condition can produce the preimage, as long as it contains a large amount of random entropy.
 
 ## PREFIX {#prefix-feature-suite}
-PREFIX is a structural condition and is assigned the feature bit 2^2 = 0x04.
+PREFIX refers to conditions that prepend a fixed message to a subcondition. This feature suite is assigned the feature bit 2^2 = 0x04.
 
-A prefix condition condition contains exactly one subcondition. When validated it simply prepends the message to be validated with a constant string before passing it on to the subcondition's validation function.
+A prefix condition prepends the message to be validated with a constant string before passing it on to the subcondition's validation function. <!-- TODO: better explanation of why -->
 
 ## THRESHOLD {#threshold-feature-suite}
-THRESHOLD is a structural condition and is assigned the feature bit 2^3 = 0x08.
+THRESHOLD refers to conditions that have several weighted subconditions and a threshold number. This feature suite is assigned the feature bit 2^3 = 0x08.
 
-Threshold conditions provide a way to create m-of-n threshold combinations of other conditions such that m of the n subconditions have to be fulfilled in order for the threshold condition to be fulfilled.
-
-Weights are also supported which allow one subcondition to count as multiple fulfilled subconditions towards the threshold.
+Threshold conditions provide flexible multi-signing, such as requiring "M-of-N" subconditions be fulfilled. Subconditions can also be weighted so that one subcondition can count multiple times towards meeting the threshold.
 
 ## RSA-PSS {#rsa-pss-feature-suite}
-RSA-PSS is a signature algorithm and is assigned the feature bit 2^4 = 0x10.
+RSA-PSS is a signature algorithm based on the RSA cryptosystem, which relates to the problem of factoring the product of two large prime numbers. This feature suite is assigned the feature bit 2^4 = 0x10.
 
 ## ED25519 {#ed25519-feature-suite}
-ED25519 is a signature algorithm and is assigned the feature bit 2^5 = 0x20.
-
-ED25519 is a compact elliptic curve based signature algorithm.
+ED25519 is a signature algorithm based on the compact elliptic curve known as Ed25519. This feature suite is assigned the feature bit 2^5 = 0x20.
 
 
 
 
-
-# Condition Types {#condition-types}
-The following condition types are defined in this version of the specification. New types may be defined in the future and will be registered in the IANA maintained [Crypto-Condition Type Registry](#crypto-conditions-type-registry)  
+# Condition Types
+The following condition types are defined in this version of the specification. Future versions of this spec MAY introduce new feature suites and condition types, which SHALL be registered in the IANA maintained [Crypto-Condition Type Registry](#crypto-conditions-type-registry).
 
 ## PREIMAGE-SHA-256 {#preimage-sha-256-condition-type}
 PREIMAGE-SHA-256 is assigned the type ID 0. It relies on the SHA-256 and PREIMAGE feature suites which corresponds to a feature bitmask of 0x03.
 
-This type of condition is also called a hashlock. By creating a hash of a difficult-to-guess 256-bit random or pseudo-random integer it is possible to create a condition which the creator can trivially fulfill by publishing the random value. However, for anyone else, the condition is cryptgraphically hard to fulfill, because they would have to find a preimage for the given condition hash.
+This type of condition is also called a "hashlock". By creating a hash of a difficult-to-guess 256-bit random or pseudo-random integer it is possible to create a condition which the creator can trivially fulfill by publishing the random value. However, for anyone else, the condition is cryptographically hard to fulfill, because they would have to find a preimage for the given condition hash.
 
 Bitcoin supports this type of condition via the OP_HASH256 operator.
 
