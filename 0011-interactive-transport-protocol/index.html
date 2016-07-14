@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Payments across payment networks">
+
+    <title>Interactive Transport Protocol (ITP) | Interledger</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link href="/css/monokai-sublime.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    <!-- Google fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,200,600,700|Droid+Sans+Mono|Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
+
+    <!-- Font awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
+
+    <link href="/assets/favicon.ico" rel="icon" type="image/x-icon">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body data-spy="scroll" data-target="#myScrollspy" data-offset="160" class="spec">
+
+     <!-- navbar -->
+      <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><img class="logo" alt="interledger" src="/assets/ilp_icon.png"/></a>
+          </div>
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="/overview.html">Docs</a></li>
+              <li><a href="/community.html">Community</a></li>
+              <li><a href="/news.html">News</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a target="_blank" href="https://github.com/interledger">Github</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+    <!-- docs overview section -->
+
+    <div class="container docs-wrapper">
+      <div class="row">
+        <div id="sidebarContent">
+          <nav class="col-sm-4" id="myScrollspy">
+            <ul class="nav-fixed nav nav-sidebar">
+              <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
+              
+                <li class="nav-label">
+                  <a href="#preface">Preface</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#introduction">Introduction</a>
+                </li>
+              
+                <li>
+                  <a href="#motivation">Motivation</a>
+                </li>
+              
+                <li>
+                  <a href="#scope">Scope</a>
+                </li>
+              
+                <li>
+                  <a href="#interfaces">Interfaces</a>
+                </li>
+              
+                <li>
+                  <a href="#operation">Operation</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#overview">Overview</a>
+                </li>
+              
+                <li>
+                  <a href="#relation-to-other-protocols">Relation to Other Protocols</a>
+                </li>
+              
+                <li>
+                  <a href="#model-of-operation">Model of Operation</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#specification">Specification</a>
+                </li>
+              
+                <li>
+                  <a href="#interactive-transport-protocol-header">Interactive Transport Protocol Header</a>
+                </li>
+              
+            </ul>
+          </nav>
+        </div>
+        <div class="col-sm-8 markdown-body">
+          <h1 id="interactive-transport-protocol-itp">Interactive Transport Protocol (ITP)</h1>
+<h2 id="preface">Preface</h2>
+<p class="intro">This document specifies the Interactive Transport Protocol. It is a host-to-host protocol for Interledger payment requests, which include receiver-generated conditions. This condition protocol enables receivers to verify that an incoming transfer matches a payment request previously created by them, without the receiver needing to keep a record of all outstanding payment requests.</p>
+<h2 id="introduction">Introduction</h2>
+<h3 id="motivation">Motivation</h3>
+<p>The &quot;Universal&quot; mode of the Interledger Protocol uses holds based on Crypto Conditions and expiries to ensure a sender&apos;s funds are delivered to the destination or returned to the sender&apos;s account. (For more on the Interledger Protocol see <a href="../0003-interledger-protocol">IL-RFC-3</a>.)</p>
+<p>A common approach is for conditions to be generated and fulfilled by the receivers of Interledger transfers. This document specifies one such approach that enables receivers to verify that an incoming transfer matches a payment request previously created by the receiver, without the receiver needing to keep a record of all outstanding payment requests.</p>
+<h3 id="scope">Scope</h3>
+<p>This document defines one approach for receiver-generated conditions. Since the condition is opaque to all parties aside from the receiver, the receiver may use any condition they choose. However, this specification includes best practices that receivers SHOULD take into consideration.</p>
+<p>Communicating payment requests from the receiver to the sender is <em>not</em> included in this protocol and is to be handled by higher level protocols.</p>
+<h3 id="interfaces">Interfaces</h3>
+<p>This protocol is used by higher-level protocols for the receiver to generate conditions and payment requests. The sender MAY modify or add to the request details but the payment request SHOULD serve as an Interledger packet without modification.</p>
+<h3 id="operation">Operation</h3>
+<p>The receiver creates an Interledger Packet from the details of the payment they want to request from the sender. The receiver uses a secret to create an HMAC of the packet. This HMAC is used as the condition fulfillment. The condition is the hash digest of the HMAC output.</p>
+<h2 id="overview">Overview</h2>
+<h3 id="relation-to-other-protocols">Relation to Other Protocols</h3>
+<pre><code> ------    
+| SPSP |
+ ------ 
+   |
+ ------     -------
+| ITP  |   |   ?   |
+ ------     -------
+   |           |
+ ------------------  
+|       ILP        |
+ ------------------
+</code></pre><p>The <a href="../0009-simple-payment-setup-protocol">Simple Payment Setup Protocol (SPSP)</a> uses the Interactive Transport Protocol (ITP). ITP is a host-to-host protocol intended for use on top of the Interledger Protocol.</p>
+<h3 id="model-of-operation">Model of Operation</h3>
+<p>We suppose that a sender wants to pay a receiver for some good or service and that the two are using a communication channel specified by a higher level protocol.</p>
+<p>We suppose that the receiver has a 32-byte secret value.</p>
+<ol>
+<li>The receiver creates an Interledger Packet using the details of the payment they want to request from the sender. The <code>condition</code> field is left undefined.</li>
+<li>The receiver creates the ITP Header (specified <a href="#specification">below</a>) using a <a href="https://www.ietf.org/rfc/rfc4122.txt">UUID (version 4 is RECOMMENDED)</a> and a token or string associated with the sender and/or good being purchased.</li>
+<li>The receiver attaches the ITP header to the Interledger Packet.</li>
+<li>The receiver encodes the complete Interledger Packet in the <a href="http://www.oss.com/asn1/resources/books-whitepapers-pubs/Overview%20of%20OER.pdf">Canonical OER</a> format.</li>
+<li>The receiver creates an <a href="https://tools.ietf.org/html/rfc2104">HMAC</a> of the encoded packet using the SHA-256 hash function and the receiver&apos;s secret as the HMAC key.</li>
+<li>The receiver uses the HMAC output as the <em>preimage</em> for a <a href="../0002-crypto-conditions">PREIMAGE-SHA-256 Crypto Condition</a> (the HMAC output is hashed again using SHA-256 to create the condition).</li>
+<li>The receiver uses this condition as the <code>condition</code> field in the Interledger Packet.</li>
+<li>The receiver communicates the complete Interledger Packet to the sender using the communication channel.</li>
+<li>The sender requests a quote for the payment from a connector to the destination ILP address provided in the ILP packet and with a fixed destination amount corresponding to the amount given in the ILP packet.</li>
+<li>The sender sends a transfer to a connector with the packet from the recipient attached.</li>
+<li>Connectors forward the packet until it reaches the receiver&apos;s ledger and the receiver is notified of funds on hold.</li>
+<li>The receiver checks the transfer against the packet details. The receiver checks that the transfer amount is greater than or equal to the amount specified in the packet, that the packet is not yet expired, and that the packet condition matches the transfer condition. If any of the checks fail, the receiver rejects the transfer or lets the hold expire and skips all further steps.</li>
+<li>The receiver <strong>regenerates</strong> the condition fulfillment, following steps 4-6.</li>
+<li>The receiver checks that the condition generated matches the one included in the incoming transfer. If it does not, the receiver rejects the transfer or lets the hold expire and skips all further steps.</li>
+<li>The receiver submits the condition fulfillment to their ledger to claim the funds.</li>
+<li>When the receiver&apos;s ledger confirms that the fulfillment has been received and the funds transferred, the receiver uses the <code>requestUniqueId</code> and the <code>receiverRequestPurpose</code> fields from the ITP Header to reconcile the incoming transfer with the original payment request (and take whatever action corresponds to the payment request being paid).</li>
+</ol>
+<h2 id="specification">Specification</h2>
+<h3 id="interactive-transport-protocol-header">Interactive Transport Protocol Header</h3>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Short Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">version</td>
+<td style="text-align:left">INTEGER(0..255)</td>
+<td style="text-align:left">ITP protocol version (currently <code>1</code>)</td>
+</tr>
+<tr>
+<td style="text-align:left">requestUniqueId</td>
+<td style="text-align:left">ItpId</td>
+<td style="text-align:left">Unique ID for the request</td>
+</tr>
+<tr>
+<td style="text-align:left">receiverRequestPurpose</td>
+<td style="text-align:left">ItpRequestPurpose</td>
+<td style="text-align:left">Additional identifying information for the receiver to associate the incoming transfer</td>
+</tr>
+<tr>
+<td style="text-align:left">allowSenderData</td>
+<td style="text-align:left">Boolean</td>
+<td style="text-align:left">If true, do not include the <code>data</code> field in the hashed values</td>
+</tr>
+</tbody>
+</table>
+<h4 id="version">version</h4>
+<pre><code>INTEGER(0..255)
+</code></pre><p>The version of the Interactive Transport Protocol being used. This document describes version <code>1</code>.</p>
+<h4 id="requestuniqueid">requestUniqueId</h4>
+<pre><code>IlpId :== OCTET STRING
+</code></pre><p>A unique ID for the payment request. This MUST be unique to ensure that two payment requests do not have the same condition. It is RECOMMENDED to use a UUID.</p>
+<h4 id="receiverrequestpurpose">receiverRequestPurpose</h4>
+<pre><code>ItpRequestPurpose :== OCTET STRING
+</code></pre><p>The receiver may optionally include some additional identifying information to help them associate the transfer with its purpose when it arrives. For example, if a receiver is expecting multiple transfers from multiple senders, the receiver could store a sender ID or token (in addition to the <code>uniqueId</code>, which differs per request).</p>
+<h4 id="allowsenderdata">allowSenderData</h4>
+<pre><code>BOOLEAN
+</code></pre><p>If true, allow senders to put data in the <code>data</code> field of the Interledger Packet and do not include the <code>data</code> field in hash for the condition.</p>
+
+        </div>
+      </div>
+
+    </div> <!-- /container -->
+
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="col-sm-4 col-xs-12">
+              <p>Interledger Team</p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="text-center">See list of <a target="_blank" href="https://www.w3.org/community/interledger/participants">Contributors</a></p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="pull-right">Documentation licensed under <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0.</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-68500608-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    <script src="/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
