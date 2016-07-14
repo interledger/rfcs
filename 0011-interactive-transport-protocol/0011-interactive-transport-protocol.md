@@ -58,15 +58,14 @@ We suppose that the receiver has a 32-byte secret value.
 6. The receiver uses the HMAC output as the _preimage_ for a [PREIMAGE-SHA-256 Crypto Condition](../0002-crypto-conditions) (the HMAC output is hashed again using SHA-256 to create the condition).
 7. The receiver uses this condition as the `condition` field in the Interledger Packet.
 8. The receiver communicates the complete Interledger Packet to the sender using the communication channel.
-9. The sender inspects the packet details.
-10. The sender requests a quote for the payment from a connector.
-11. The sender sends a transfer to a connector with the packet from the recipient attached.
-12. Connectors forward the packet until it reaches the receiver's ledger and the receiver is notified of funds on hold.
-13. The receiver checks the transfer against the packet details. The receiver checks, among other things, that the transfer amount is greater than or equal to the amount specified in the packet and that the packet is not yet expired. If any of the checks fail, the receiver rejects the transfer or lets the hold expire and skips all further steps.
-14. The receiver **regenerates** the condition fulfillment, following steps 4-6.
-15. The receiver checks that the condition generated matches the one included in the incoming transfer. If it does not, the receiver rejects the transfer or lets the hold expire and skips all further steps.
-16. The receiver submits the condition fulfillment to their ledger to claim the funds.
-17. When the receiver's ledger confirms that the fulfillment has been received and the funds transferred, the receiver uses the `requestUniqueId` and the `receiverRequestPurpose` fields from the ITP Header to credit the sender accordingly.
+9. The sender requests a quote for the payment from a connector to the destination ILP address provided in the ILP packet and with a fixed destination amount corresponding to the amount given in the ILP packet.
+10. The sender sends a transfer to a connector with the packet from the recipient attached.
+11. Connectors forward the packet until it reaches the receiver's ledger and the receiver is notified of funds on hold.
+12. The receiver checks the transfer against the packet details. The receiver checks, among other things, that the transfer amount is greater than or equal to the amount specified in the packet and that the packet is not yet expired. If any of the checks fail, the receiver rejects the transfer or lets the hold expire and skips all further steps.
+13. The receiver **regenerates** the condition fulfillment, following steps 4-6.
+14. The receiver checks that the condition generated matches the one included in the incoming transfer. If it does not, the receiver rejects the transfer or lets the hold expire and skips all further steps.
+15. The receiver submits the condition fulfillment to their ledger to claim the funds.
+16. When the receiver's ledger confirms that the fulfillment has been received and the funds transferred, the receiver uses the `requestUniqueId` and the `receiverRequestPurpose` fields from the ITP Header to reconcile the incoming transfer with the original payment request (and take whatever action corresponds to the payment request being paid).
 
 ## Specification
 
