@@ -101,6 +101,8 @@ Fulfillments are **cryptographically verifiable messages** that prove an event o
 
 In the Interledger protocol, crypto-conditions and fulfillments provide irrepudiable proof that a transfer occurred in one ledger, as messages that can be easily shared with other ledgers. This allows ledgers escrow funds or hold a transfer conditionally, then execute the transfer automatically when the ledger sees the fulfillment of the stated condition.
 
+Crypto-conditions may also be useful in other contexts where a system needs to make a decision based on predefined criteria, such as smart contracts.
+
 ## Terminology
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC2119][].
 
@@ -141,7 +143,7 @@ Weighted signatures allow more complex relationships than simple M-of-N signing.
 
 ## Binary Encoding
 
-An description of crypto-conditions is provided in this document using Abstract Syntax Notation One (ASN.1) as defined in [ITU.X680.2015](#itu.X680.2015). Implementations of this spec MUST support encoding and decoding using Octet Encoding Rules (OER) as defined in [ITU.X696.2015](#itu.X696.2015).
+A description of crypto-conditions is provided in this document using Abstract Syntax Notation One (ASN.1) as defined in [ITU.X680.2015](#itu.X680.2015). Implementations of this spec MUST support encoding and decoding using Octet Encoding Rules (OER) as defined in [ITU.X696.2015](#itu.X696.2015).
 
 ## String Types
 
@@ -211,17 +213,17 @@ maxFulfillmentLength
 
 An example condition in string format:
 
-    cc:0:3:L49pDKQeScuYTG-aUSj-0SdvyvByT_zhtZg6w4ojFUk:35
+    cc:0:3:dB-8fb14MdO75Brp_Pvh4d7ganckilrRl13RS_UmrXA:66
 
 The example has the following attributes:
 
 | Field                | Value | Description |
 |----------------------|-------|----------------------------------------------|
-| Preface              | `cc`  | Indicates this is a condition. |
+| preface              | `cc`  | Constant. Indicates this is a condition. |
 | type                 | `0`   | Type 0 is [PREIMAGE-SHA-256][]. |
 | featuresBitmask      | `3`   | Boolean-OR combination of feature suites SHA-256 (feature bit 0x01) and PREIMAGE (feature bit 0x02). |
-| fingerprint          | `L49pDKQeScuYTG-aUSj-0SdvyvByT_zhtZg6w4ojFUk` | The hash of the fulfillment for this condition. |
-| maxFulfillmentLength | `35`  | The fulfillment payload is 35 bytes long, before being BASE64URL-encoded. |
+| fingerprint          | `dB-8fb14MdO75Brp_Pvh4d7ganckilrRl13RS_UmrXA` | The hash of the fulfillment for this condition. |
+| maxFulfillmentLength | `66`  | The fulfillment payload is 66 bytes long, before being BASE64URL-encoded. |
 
 
 ## Fulfillment {#fulfillment-format}
@@ -254,16 +256,16 @@ payload
 
 The following is an example fulfillment in string format, for the [example condition](#example-condition):
 
-    cf:0:dGhpcyBpcyBzb21lIHRleHQgdGhhdCBtRHVvMTMgd3JvdGU
+    cf:0:VGhlIG9ubHkgYmFzaXMgZm9yIGdvb2QgU29jaWV0eSBpcyB1bmxpbWl0ZWQgY3JlZGl0LuKAlE9zY2FyIFdpbGRl
 
 
 The example has the following attributes:
 
 | Field                | Value | Description |
 |----------------------|-------|----------------------------------------------|
-| Preface              | `cf`  | Indicates this is a fulfillment. |
+| preface              | `cf`  | Constant. Indicates this is a fulfillment. |
 | type                 | `0`   | Type 0 is [PREIMAGE-SHA-256][]. |
-| payload              | `dGhpcyBpcyBzb21lIHRleHQgdGhhdCBtRHVvMTMgd3JvdGU` | The BASE64URL-encoded SHA-256 preimage of the condition, since this is a PREIMAGE-SHA-256 type fulfillment. In this case, it is an arbitrary string. |
+| payload              | `VGhlIG...pbGRl` | The BASE64URL-encoded SHA-256 preimage of the condition, since this is a PREIMAGE-SHA-256 type fulfillment. In this case, it is an arbitrary string. |
 
 
 
@@ -288,28 +290,28 @@ An implementation which supports a certain set of feature suites MUST accept all
 
 ## SHA-256 {#sha-256-feature-suite}
 
-SHA-256 is a cryptographic hash function published by the US National Institute of Standards and Technology that produces 256 bits of output. This feature suite is assigned the feature bit 2^0 = 0x01.
+The SHA-256 feature suite provides the SHA-256 hash function. SHA-256 is a cryptographic hash function published by the US National Institute of Standards and Technology that produces 256 bits of output. This feature suite is assigned the feature bit 2^0 = 0x01.
 
 ## PREIMAGE {#preimage-feature-suite}
-PREIMAGE refers to conditions that use a preimage as a one-time signature. This feature suite is assigned the feature bit 2^1 = 0x02.
+The PREIMAGE feature suite provides conditions that use a preimage as a one-time signature. This feature suite is assigned the feature bit 2^1 = 0x02.
 
-The fingerprint of a preimage condition is the hash of some arbitrary value. The payload of a preimage fulfillment is the preimage that hashes to the condition's fingerprint. Conditions that use this preimage MUST also rely on a cryptographically secure hashing algorithm. Since cryptographically secure hashing functions are preimage-resistant, only the original creator of a preimage condition can produce the preimage, as long as it contains a large amount of random entropy.
+The fingerprint of a preimage condition is the hash of an arbitrary value. The payload of a preimage fulfillment is the hashed arbitrary value before hashing, also known as the preimage. Conditions that use this preimage MUST also rely on a cryptographically secure hashing algorithm. Since cryptographically secure hashing functions are preimage-resistant, only the original creator of a preimage condition can produce the preimage, as long as it contains a large amount of random entropy.
 
 ## PREFIX {#prefix-feature-suite}
-PREFIX refers to conditions that prepend a fixed message to a subcondition. This feature suite is assigned the feature bit 2^2 = 0x04.
+The PREFIX feature suite provides conditions that prepend a fixed message to a subcondition. This feature suite is assigned the feature bit 2^2 = 0x04.
 
 A prefix condition prepends the message to be validated with a constant string before passing it on to the subcondition's validation function. <!-- TODO: better explanation of why -->
 
 ## THRESHOLD {#threshold-feature-suite}
-THRESHOLD refers to conditions that have several weighted subconditions and a threshold number. This feature suite is assigned the feature bit 2^3 = 0x08.
+The THRESHOLD feature suite provides conditions that have several weighted subconditions and a threshold number. This feature suite is assigned the feature bit 2^3 = 0x08.
 
 Threshold conditions provide flexible multi-signing, such as requiring "M-of-N" subconditions be fulfilled. Subconditions can also be weighted so that one subcondition can count multiple times towards meeting the threshold.
 
 ## RSA-PSS {#rsa-pss-feature-suite}
-RSA-PSS is a signature algorithm based on the RSA cryptosystem, which relates to the problem of factoring the product of two large prime numbers. This feature suite is assigned the feature bit 2^4 = 0x10.
+The RSA-PSS feature suite provides the RSS-PSA signature algorithm. RSA-PSS is a signature algorithm based on the RSA cryptosystem, which relates to the problem of factoring the product of two large prime numbers. This feature suite is assigned the feature bit 2^4 = 0x10.
 
 ## ED25519 {#ed25519-feature-suite}
-ED25519 is a signature algorithm based on the compact elliptic curve known as Ed25519. This feature suite is assigned the feature bit 2^5 = 0x20.
+The ED25519 feature suite provides the Ed25519 signature algorithm. Ed25519 is a signature algorithm based on the EdDSA signing scheme and the compact elliptic curve known as Ed25519. This feature suite is assigned the feature bit 2^5 = 0x20.
 
 
 
@@ -329,6 +331,17 @@ The fingerprint of a PREIMAGE-SHA-256 condition is the SHA-256 hash of the preim
 
 ### Fulfillment {#preimage-sha-256-condition-type-fulfillment}
 The fulfillment payload of a PREIMAGE-SHA-256 condition is the preimage.
+
+### Example {#preimage-sha-256-example}
+
+Example condition:
+
+    cc:0:3:dB-8fb14MdO75Brp_Pvh4d7ganckilrRl13RS_UmrXA:66
+
+Example fulfillment:
+
+    cf:0:VGhlIG9ubHkgYmFzaXMgZm9yIGdvb2QgU29jaWV0eSBpcyB1bmxpbWl0ZWQgY3JlZGl0LuKAlE9zY2FyIFdpbGRl
+
 
 ## PREFIX-SHA-256 {#prefix-sha-256-condition-type}
 PREFIX-SHA-256 is assigned the type ID 1. It relies on the SHA-256 and PREFIX feature suites which corresponds to a feature bitmask of 0x05.
@@ -366,6 +379,16 @@ prefix
 
 subfulfillment
 : is the fulfilled subcondition.
+
+### Example {#prefix-sha-256-example}
+
+Example condition:
+
+    cc:1:25:7myveZs3EaZMMuez-3kq6u69BDNYMYRMi_VF9yIuFLc:102
+
+Example fulfillment:
+
+    cf:1:DUhlbGxvIFdvcmxkISAABGDsFyuTrV5WO_STLHDhJFA0w1Rn7y79TWTr-BloNGfiv7YikfrZQy-PKYucSkiV2-KT9v_aGmja3wzN719HoMchKl_qPNqXo_TAPqny6Kwc7IalHUUhJ6vboJ0bbzMcBwo
 
 
 ## THRESHOLD-SHA-256 {#threshold-sha-256-condition-type}
@@ -428,6 +451,17 @@ condition
 fulfillment
 : is the subfulfillment if this subcondition is fulfilled.
 
+### Example {#threshold-sha-256-example}
+
+Example condition:
+
+    cc:2:2b:mJUaGKCuF5n-3tfXM2U81VYtHbX-N8MP6kz8R-ASwNQ:146
+
+
+Example fulfillment:
+
+    cf:2:AQEBAgEBAwAAAAABAQAnAAQBICDsFyuTrV5WO_STLHDhJFA0w1Rn7y79TWTr-BloNGfivwFg
+
 
 ## RSA-SHA-256 {#rsa-sha-256-condition-type}
 RSA-SHA-256 is assigned the type ID 3. It relies on the SHA-256 and RSA-PSS feature suites which corresponds to a feature bitmask of 0x11.
@@ -468,11 +502,23 @@ signature
 
 : Implementations MUST verify that the signature and modulus consist of the same number of octets and that the signature is numerically less than the modulus.
 
-
 The message to be signed is provided separately. If no message is provided, the message is assumed to be an octet string of length zero.
 
 ### Implementation {#rsa-sha-256-condition-type-implementation}
 The recommended modulus size as of 2016 is 2048 bits [KEYLENGTH-RECOMMENDATION](#KEYLENGTH-RECOMMENDATION) . In the future we anticipate an upgrade to 3072 bits which provides approximately 128 bits of security [NIST-KEYMANAGEMENT](#NIST-KEYMANAGEMENT) (p. 64), about the same level as SHA-256.
+
+### Example {#rsa-sha-256-example}
+
+Example condition:
+
+    cc:3:11:Bw-r77AGqSCL0huuMQYj3KW0Jh67Fpayeq9h_4UJctg:260
+
+Example fulfillment:
+
+    cf:3:gYCzDnqTh4O6v4NoUP9J4U-H4_ktXEbjP-yj5PCyI1hYCxF2WZX0uO6n-0cSwuHjFvf3dalT0jIhahadmmTdwAcSCkALN_KvwHe2L-ME3nTeahGexAdrUpxPYJawuq1PUz3wFzubgi_YXWX6S--pLY9ST2nLygE2vYDQlcFprsDglYGAjQM0-Z5B-953uQtJ5dXL1D5TWpM0s0eFF0Zty7J2Y3Nb0PqsR5I47a2wYlA7-106vjC8gHFdHVeSR6JksSrhj8YaMWfV0A6qhPz6hq-TqSKCXd4mf3eCpyyFYR_EyH5zXd56sJEU3snWlFbB_bKAW4si_qdfY9dT87YGUp_Grm0
+
+
+
 
 ## ED25519 {#ed25519-condition-type}
 ED25519 is assigned the type ID 4. It relies only on the ED25519 feature suite which corresponds to a bitmask of 0x20.
@@ -498,15 +544,28 @@ publicKey
 signature
 : is an octet string containing the Ed25519 signature.
 
+### Example
+
+Example condition:
+
+    cc:4:20:7Bcrk61eVjv0kyxw4SRQNMNUZ-8u_U1k6_gZaDRn4r8:96
+
+Example fulfillment:
+
+    cf:4:7Bcrk61eVjv0kyxw4SRQNMNUZ-8u_U1k6_gZaDRn4r-2IpH62UMvjymLnEpIldvik_b_2hpo2t8Mze9fR6DHISpf6jzal6P0wD6p8uisHOyGpR1FISer26CdG28zHAcK
+
+
+
+
 --- back
 
 # Security Considerations
 
-TODO
+This section to be expanded in a later draft. <!-- TODO -->
 
 # Test Values
 
-TODO
+This section to be expanded in a later draft.  <!-- TODO --> For now, see the test cases for the reference implementation: <https://github.com/interledger/five-bells-condition/tree/master/test>
 
 # ASN.1 Module {#appendix-c}
 
@@ -661,9 +720,6 @@ TODO
 
     END
 
-# Acknowledgements
-
-The editor would like to thank the following individuals for feedback on and implementations of the specification (in alphabetical order): TODO
 
 # IANA Considerations {#appendix-e}
 
