@@ -17,3 +17,6 @@ deployment:
     commands:
       # Publish spec
       - node scripts/publish_web.js
+general:
+  artifacts:
+    - "web"
