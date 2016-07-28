@@ -104,7 +104,7 @@ Query whether the plugin is currently connected.
 #### getInfo
 <code>ledgerPlugin.getInfo() ⇒ Promise.&lt;[LedgerInfo](#class-ledgerinfo)></code>
 
-Retrieve some metadata about the ledger.
+Retrieve some metadata about the ledger. Plugin must be connected, otherwise the promise should reject.
 
 ###### Example Return Value
 ```json
@@ -121,12 +121,12 @@ For a detailed description of these properties, please see [`LedgerInfo`](#class
 #### getBalance
 <code>ledgerPlugin.getBalance() ⇒ Promise.&lt;String></code>
 
-Return a decimal string representing the current balance.
+Return a decimal string representing the current balance. Plugin must be connected, otherwise the promise should reject.
 
 #### getConnectors
 <code>ledgerPlugin.getConnectors() ⇒ Promise.&lt;Array.&lt;String>></code>
 
-Return an array of opaque local destination identifiers representing neighboring connectors.
+Return an array of opaque local destination identifiers representing neighboring connectors. Plugin must be connected, otherwise the promise should reject.
 
 #### Event: `connect`
 <code>ledgerPlugin.on('connect', () ⇒ )</code>
@@ -150,9 +150,14 @@ Note that all transfers will have `transferId`'s to allow the plugin user to cor
 #### send
 <code>ledgerPlugin.send( **transfer**:[OutgoingTransfer](#outgoingtransfer) ) ⇒ Promise.&lt;null></code>
 
-Initiates a ledger-local transfer. A transfer can contain money and/or information.
+Plugin must be connected, otherwise the promise should reject. Initiates a ledger-local transfer. A transfer can
+contain money and/or information. If there is a problem with the structure or
+validity of the transfer, then `send` should throw an error in the form of a
+rejected promise. If the transfer is accepted by the ledger, however, then
+further errors will be in the form of `"reject"` events.
 
-Some ledger plugins MAY implement zero-amount transfers differently than other transfers.
+All plugins MUST implement zero-amount transfers, but some ledger plugins MAY
+implement zero-amount transfers differently than other transfers.
 
 ###### Parameters
 | Name | Type | Description |
@@ -187,12 +192,12 @@ For a detailed description of these properties, please see [`OutgoingTransfer`](
 #### fulfillCondition
 <code>ledgerPlugin.fulfillCondition( **transferId**:String, **fulfillment**:Buffer ) ⇒ Promise.&lt;null></code>
 
-Submit a fulfillment to a ledger. The ledger plugin or the ledger MUST automatically detect whether the fulfillment is an execution or cancellation condition fulfillment.
+Submit a fulfillment to a ledger. Plugin must be connected, otherwise the promise should reject.
 
 #### replyToTransfer
 <code>ledgerPlugin.replyToTransfer( **transferId**:String, **replyMessage**:Buffer ) ⇒ Promise.&lt;null></code>
 
-**TODO**: Define what the message format is
+**TODO**: Define what the message format is.  Plugin must be connected, otherwise the promise should reject.
 
 #### Event: `receive`
 <code>ledgerPlugin.on('receive', ( **transfer**:[IncomingTransfer](#incomingtransfer) ) ⇒ )</code>
@@ -259,6 +264,7 @@ If the transfer is an [`IncomingTransfer`](#incomingtransfer), connectors will f
 )</code>
 
 Emitted when the ledger has informed us that our outgoing transfer is not going to happen. The `rejectionReason` is a ledger plugin-specific error.
+This event applies to both receiver initiated rejection and to a transfer timing out.
 
 #### Event: `reply`
 <code>ledgerPlugin.on('reply',
@@ -273,7 +279,9 @@ Emitted when the recipient of a local transfer we initiated has sent us a reply 
 ## Class: Transfer
 <code>class Transfer</code>
 
-The `Transfer` class is used to describe local ledger transfers.
+The `Transfer` class is used to describe local ledger transfers. Only
+[id](#id), [account](#account), [ledger](#ledger), and [amount](#amount) are required; the other
+fields can be left undefined (but not any other false-y value) if unused.
 
 ###### Fields
 | Type | Name | Description |
@@ -281,6 +289,7 @@ The `Transfer` class is used to describe local ledger transfers.
 | `String` | [id](#id) | UUID used as an external identifier |
 | `String` | [account](#account) | Local source or destination account ID |
 | `String` | [amount](#amount) | Decimal transfer amount |
+| `String` | [ledger](#ledger) | Ledger address |
 | `Buffer` | [data](#data) | Data packet or memo to be sent with the transfer, starts with an ILP header |
 | `Buffer` | [noteToSelf](#notetoself) | Host-provided memo that should be stored with the transfer |
 | `String` | [executionCondition](#executioncondition) | Cryptographic hold condition, used in [UTP](../0006-universal-transport-protocol/)/[ATP](../0007-atomic-transport-protocol/) |
@@ -325,6 +334,11 @@ A local account identifier. The format for account identifiers is chosen by the 
 <code>**amount**:String</code>
 
 A decimal amount, represented as a string. MUST be positive. The supported precision is defined by each ledger plugin and can be queried by the host via [`getInfo`](#getinfo). The ledger plugin MUST throw an `InsufficientPrecisionError` if the given amount exceeds the supported level of precision.
+
+#### ledger
+<code>**ledger**:String</code>
+
+The ledger that this transfer is going through on, used for exchange rate purposes.
 
 #### data
 <code>**data**:Buffer</code>
@@ -395,8 +409,8 @@ Metadata describing the ledger. This data is returned by the [`getInfo`](#getinf
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
-| `String` | [precision](#precision) | Total number of digits allowed |
-| `String` | [scale](#scale) | Digits allowed after decimal |
+| `Number` | [precision](#precision) | Total number of digits allowed |
+| `Number` | [scale](#scale) | Digits allowed after decimal |
 | `String` | [currencyCode](#currencycode) | ISO three-letter currency code |
 | `String` | [currencySymbol](#currencysymbol) | UTF8 currency symbol |
 
