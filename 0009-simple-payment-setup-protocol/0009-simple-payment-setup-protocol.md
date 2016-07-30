@@ -157,4 +157,4 @@ Content-Type: application/json
 
 ### Execution
 
-The sender initiates a transfer on their local ledger using [UTP](../0006-universal-transport-protocol/).
+The sender initiates a transfer on their local ledger using the [Interledger Protocol](../0003-interledger-protocol/).
