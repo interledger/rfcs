@@ -20,6 +20,8 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**disconnect**](#disconnect) ( ) `⇒ Promise.<null>` |
 | | [**isConnected**](#isconnected) ( ) `⇒ Boolean` |
 | | [**getInfo**](#getinfo) ( ) <code>⇒ Promise.&lt;[LedgerInfo](#class-ledgerinfo)></code> |
+| | [**getPrefix**](#getprefix) ( ) `⇒ Promise<String>` |
+| | [**getAddress**](#getaddress) ( ) `⇒ Promise<String>` |
 | | [**getBalance**](#getbalance) ( ) <code>⇒ Promise.&lt;String></code> |
 | | [**getConnectors**](#getconnectors) ( ) <code>⇒ Promise.&lt;Array.&lt;String>></code> |
 | | [**send**](#send) ( transfer ) <code>⇒ Promise.&lt;null></code> |
@@ -123,6 +125,26 @@ Retrieve some metadata about the ledger. Plugin must be connected, otherwise the
 
 For a detailed description of these properties, please see [`LedgerInfo`](#class-ledgerinfo).
 
+#### getPrefix
+<code>ledgerPlugin.getPrefix() ⇒ Promise.&lt;String></code>
+
+Get the ledger plugin's ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin's `send` method.
+
+The prefix may be configured, automatically detected, or hard-coded, depending on the ledger. For example, a Bitcoin ledger plugin may have the address hard-coded, while a [`five-bells-ledger`](https://github.com/interledger/five-bells-ledger) would use an API call to get the prefix.
+
+###### Example Return Value
+`us.fed.some-bank`
+
+#### getAddress
+<code>ledgerPlugin.getAddress() ⇒ Promise.&lt;String></code>
+
+Get the ledger plugin's ILP address. This is given to senders to receive transfers to this account.
+
+The mapping from the ILP address to the local ledger address is dependent on the ledger / ledger plugin. An ILP address could be the `<ledger prefix>.<account name or number>`, or a token could be used in place of the actual account name or number.
+
+###### Example Return Value
+`us.fed.some-bank.my-account`
+
 #### getBalance
 <code>ledgerPlugin.getBalance() ⇒ Promise.&lt;String></code>
 
@@ -176,19 +198,12 @@ implement zero-amount transfers differently than other transfers.
 ```js
 p.send({
   id: 'd86b0299-e2fa-4713-833a-96a6a75271b8',
-  account: 'https://ledger.example/accounts/connector',
+  address: 'example.ledger.connector',
   amount: '10',
   data: new Buffer('...', 'base64'),
   noteToSelf: {},
-
-  // for UTP/ATP support
   executionCondition: 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0',
-
-  // for UTP support
-  expiresAt: '2016-05-18T12:00:00.000Z',
-
-  // for ATP support
-  cancellationCondition: 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0'
+  expiresAt: '2016-05-18T12:00:00.000Z'
 })
 ```
 
@@ -288,16 +303,15 @@ means that a transfer you created has timed out.
 <code>class Transfer</code>
 
 The `Transfer` class is used to describe local ledger transfers. Only
-[id](#id), [account](#account), [ledger](#ledger), and [amount](#amount) are required; the other
+[id](#id), [address](#address), [ledger](#ledger), and [amount](#amount) are required; the other
 fields can be left undefined (but not any other false-y value) if unused.
 
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
 | `String` | [id](#id) | UUID used as an external identifier |
-| `String` | [account](#account) | Local source or destination account ID |
+| `String` | [address](#address) | ILP Address of the source or destination account |
 | `String` | [amount](#amount) | Decimal transfer amount |
-| `String` | [ledger](#ledger) | Ledger address |
 | `Buffer` | [data](#data) | Data packet or memo to be sent with the transfer, starts with an ILP header |
 | `Buffer` | [noteToSelf](#notetoself) | Host-provided memo that should be stored with the transfer |
 | `String` | [executionCondition](#executioncondition) | Cryptographic hold condition, used in [UTP](../0006-universal-transport-protocol/)/[ATP](../0007-atomic-transport-protocol/) |
@@ -333,20 +347,15 @@ For [`IncomingTransfer`](#incomingtransfer)s, the ID is chosen by the ledger plu
 
 Ledger plugins that support scalability (e.g. running multiple instances of a connector using the same settings) MUST ensure that external transfer IDs are unique **globally**, i.e. across all machines and instances. Otherwise a connector could accidentally process two outgoing payments for one incoming payment.
 
-#### account
-<code>**account**:String</code>
+#### address
+<code>**address**:String</code>
 
-A local account identifier. The format for account identifiers is chosen by the ledger plugin. Hosts MUST treat account identifiers as opaque strings.
+The ILP Address of a local account.
 
 #### amount
 <code>**amount**:String</code>
 
 A decimal amount, represented as a string. MUST be positive. The supported precision is defined by each ledger plugin and can be queried by the host via [`getInfo`](#getinfo). The ledger plugin MUST throw an `InsufficientPrecisionError` if the given amount exceeds the supported level of precision.
-
-#### ledger
-<code>**ledger**:String</code>
-
-The ledger that this transfer is going through on, used for exchange rate purposes.
 
 #### data
 <code>**data**:Buffer</code>
@@ -398,7 +407,7 @@ Ledger plugins MAY use this object to accept and/or set additional fields for ot
 ``` js
 {
   id: '94adc29e-26cd-471b-987e-8d41e8773864',
-  account: 'bob',
+  address: 'example.ledger.bob',
   amount: '100',
   data: /* ... */,
   noteToSelf: /* ... */,
