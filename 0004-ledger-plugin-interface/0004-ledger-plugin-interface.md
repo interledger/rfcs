@@ -308,9 +308,8 @@ fields can be left undefined (but not any other false-y value) if unused.
 | `String` | [amount](#amount) | Decimal transfer amount |
 | `Buffer` | [data](#data) | Data packet or memo to be sent with the transfer, starts with an ILP header |
 | `Buffer` | [noteToSelf](#notetoself) | Host-provided memo that should be stored with the transfer |
-| `String` | [executionCondition](#executioncondition) | Cryptographic hold condition, used in [UTP](../0006-universal-transport-protocol/)/[ATP](../0007-atomic-transport-protocol/) |
-| `String` | [cancellationCondition](#cancellationcondition) | Cryptographic abort condition, used in [ATP](../0007-atomic-transport-protocol/) |
-| `String` | [expiresAt](#expiresat) | Expiry time of the cryptographic hold, used in [UTP](../0006-universal-transport-protocol/) |
+| `String` | [executionCondition](#executioncondition) | Cryptographic hold condition |
+| `String` | [expiresAt](#expiresat) | Expiry time of the cryptographic hold |
 | `Object` | [custom](#custom) | Object containing ledger plugin specific options |
 
 
@@ -375,15 +374,6 @@ A [cryptographic condition](../0002-crypto-conditions/) used for implementing ho
 Ledger plugins that do not support holds MUST throw an `HoldsNotSupportedError` if this parameter is provided.
 
 Ledger plugins that do support holds, but do not support the given condition type or bitmask MUST throw a  `ExecutionConditionNotSupportedError`.
-
-#### cancellationCondition
-<code>**cancellationCondition**:String</code>
-
-A [cryptographic condition](../0002-crypto-conditions/) used for implementing holds. If this condition is met and the transfer is on hold, the ledger MUST cancel the transfer and return the funds to the sender.
-
-Ledger plugins that do not support holds or do not support cancellation MUST throw a `CancellationNotSupportedError` if this parameter is provided.
-
-Ledger plugins that do support cancellation, but do not support the given condition type or bitmask MUST throw a `CancellationConditionNotSupportedError`.
 
 #### expiresAt
 <code>**expiresAt**:String</code>
