@@ -14,7 +14,6 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 ###### Methods
 | | Name |
 |:--|:--|
-| `static` | [**canConnectToLedger**](#canconnecttoledger) ( auth ) `⇒ Boolean`|
 | `new` | [**LedgerPlugin**](#new-ledgerplugin) ( opts ) |
 | | [**connect**](#connect) ( ) `⇒ Promise.<null>` |
 | | [**disconnect**](#disconnect) ( ) `⇒ Promise.<null>` |
@@ -40,13 +39,6 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 
 ### Instance Management
 
-#### canConnectToLedger
-<code>LedgerPlugin.canConnectToLedger( **auth** : Object ) ⇒ Boolean</code>
-
-Returns true if and only if this ledger plugin can connect to the ledger described by the authentication data provided.
-
-Ledger plugins are queried in precedence order and the first plugin that returns true for this method will be used to talk to the given ledger.
-
 #### new LedgerPlugin
 <code>new LedgerPlugin( **opts** : [PluginOptions](#class-pluginoptions) )</code>
 
@@ -60,10 +52,10 @@ Create a new instance of the plugin. Each instance typically corresponds to a di
 ###### Example
 ```js
 const ledgerPlugin = new LedgerPlugin({
-  auth: {
-    // auth parameters are defined by the plugin
-  },
-  store: {
+
+  // auth parameters are defined by the plugin
+
+  _store: {
     // persistence may be required for internal use by some ledger plugins
     // (e.g. when the ledger has reduced memo capability and we can only put an ID in the memo)
     // Store a value under a key
@@ -439,31 +431,20 @@ The currency symbol as one or more UTF8 characters.
 ## Class: PluginOptions
 <code>class PluginOptions</code>
 
-Plugin options are passed in to the [`LedgerPlugin`](#class-ledgerplugin) constructor when a plugin is being instantiated.
+Plugin options are passed in to the [`LedgerPlugin`](#class-ledgerplugin)
+constructor when a plugin is being instantiated. The fields are ledger
+specific. Any fields which cannot be represented as strings are preceded with
+an underscore, and listed in the table below.
 
-###### Fields
+###### Special Fields
 | Type | Name | Description |
 |:--|:--|:--|
-| `Object` | [auth](#auth) | Ledger authentication information |
-| `Object` | [store](#store) | Persistence layer callbacks |
+| `Object` | [_store](#_store) | Persistence layer callbacks |
 
 ### Fields
 
-#### auth
-<code>**auth**:Object</code>
-
-A JSON object that encapsulates authentication information and ledger properties. The format of this object is specific to each ledger plugin.
-
-###### Example
-```js
-{
-  "account": "https://red.ilpdemo.org/ledger/accounts/alice",
-  "password": "alice"
-}
-```
-
-#### store
-<code>**store**:Object</code>
+#### _store
+<code>**_store**:Object</code>
 
 Provides callback hooks to the host's persistence layer.
 
