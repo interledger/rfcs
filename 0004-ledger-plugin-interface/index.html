@@ -131,7 +131,7 @@
                 </li>
               
                 <li>
-                  <a href="#fields-6">Fields</a>
+                  <a href="#fields-5">Fields</a>
                 </li>
               
             </ul>
@@ -154,10 +154,6 @@
 </tr>
 </thead>
 <tbody>
-<tr>
-<td style="text-align:left"><code>static</code></td>
-<td style="text-align:left"><a href="#canconnecttoledger"><strong>canConnectToLedger</strong></a> ( auth ) <code>&#x21D2; Boolean</code></td>
-</tr>
 <tr>
 <td style="text-align:left"><code>new</code></td>
 <td style="text-align:left"><a href="#new-ledgerplugin"><strong>LedgerPlugin</strong></a> ( opts )</td>
@@ -264,10 +260,6 @@
 </tbody>
 </table>
 <h3 id="instance-management">Instance Management</h3>
-<h4 id="canconnecttoledger">canConnectToLedger</h4>
-<p><code>LedgerPlugin.canConnectToLedger( <strong>auth</strong> : Object ) &#x21D2; Boolean</code></p>
-<p>Returns true if and only if this ledger plugin can connect to the ledger described by the authentication data provided.</p>
-<p>Ledger plugins are queried in precedence order and the first plugin that returns true for this method will be used to talk to the given ledger.</p>
 <h4 id="new-ledgerplugin">new LedgerPlugin</h4>
 <p><code>new LedgerPlugin( <strong>opts</strong> : <a href="#class-pluginoptions">PluginOptions</a> )</code></p>
 <p>Create a new instance of the plugin. Each instance typically corresponds to a different ledger. However, some plugins MAY deviate from a strict one-to-one relationship and MAY use one instance for multiple (similar) ledgers or multiple instances to talk to the same ledger.</p>
@@ -290,10 +282,10 @@
 </table>
 <h6 id="example-1">Example</h6>
 <pre><code class="lang-js">const ledgerPlugin = new LedgerPlugin({
-  auth: {
-    // auth parameters are defined by the plugin
-  },
-  store: {
+
+  // auth parameters are defined by the plugin
+
+  _store: {
     // persistence may be required for internal use by some ledger plugins
     // (e.g. when the ledger has reduced memo capability and we can only put an ID in the memo)
     // Store a value under a key
@@ -643,8 +635,11 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <p>The currency symbol as one or more UTF8 characters.</p>
 <h2 id="class-pluginoptions">Class: PluginOptions</h2>
 <p><code>class PluginOptions</code></p>
-<p>Plugin options are passed in to the <a href="#class-ledgerplugin"><code>LedgerPlugin</code></a> constructor when a plugin is being instantiated.</p>
-<h6 id="fields-5">Fields</h6>
+<p>Plugin options are passed in to the <a href="#class-ledgerplugin"><code>LedgerPlugin</code></a>
+constructor when a plugin is being instantiated. The fields are ledger
+specific. Any fields which cannot be represented as strings are preceded with
+an underscore, and listed in the table below.</p>
+<h6 id="special-fields">Special Fields</h6>
 <table class="table table-striped">
 <thead>
 <tr>
@@ -656,32 +651,18 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <tbody>
 <tr>
 <td style="text-align:left"><code>Object</code></td>
-<td style="text-align:left"><a href="#auth">auth</a></td>
-<td style="text-align:left">Ledger authentication information</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>Object</code></td>
-<td style="text-align:left"><a href="#store">store</a></td>
+<td style="text-align:left"><a href="#_store">_store</a></td>
 <td style="text-align:left">Persistence layer callbacks</td>
 </tr>
 </tbody>
 </table>
-<h3 id="fields-6">Fields</h3>
-<h4 id="auth">auth</h4>
-<p><code><strong>auth</strong>:Object</code></p>
-<p>A JSON object that encapsulates authentication information and ledger properties. The format of this object is specific to each ledger plugin.</p>
-<h6 id="example-4">Example</h6>
-<pre><code class="lang-js">{
-  &quot;account&quot;: &quot;https://red.ilpdemo.org/ledger/accounts/alice&quot;,
-  &quot;password&quot;: &quot;alice&quot;
-}
-</code></pre>
-<h4 id="store">store</h4>
-<p><code><strong>store</strong>:Object</code></p>
+<h3 id="fields-5">Fields</h3>
+<h4 id="_store">_store</h4>
+<p><code><strong>_store</strong>:Object</code></p>
 <p>Provides callback hooks to the host&apos;s persistence layer.</p>
 <p>Persistence MAY be required for internal use by some ledger plugins. For this purpose hosts MAY be configured with a persistence layer.</p>
 <p>Method names are based on the popular LevelUP/LevelDOWN packages.</p>
-<h6 id="example-5">Example</h6>
+<h6 id="example-4">Example</h6>
 <pre><code class="lang-js">{
   // Store a value under a key
   put: (key, value) =&gt; {
