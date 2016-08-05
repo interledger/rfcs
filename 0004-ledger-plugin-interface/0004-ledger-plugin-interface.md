@@ -32,11 +32,16 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**connect**](#event-connect-) | `( ) ⇒` |
 | [**disconnect**](#event-disconnect-) | `( ) ⇒` |
 | [**error**](#event-error-) | `( ) ⇒` |
-| [**receive**](#event-receive-) | <code>( transfer:[IncomingTransfer](#incomingtransfer) ) ⇒</code> |
-| [**fulfill_execution_condition**](#event-fulfill_execution_condition-) | <code>( transfer:[Transfer](#class-transfer), fulfillment:Buffer ) ⇒</code> |
-| [**fulfill_cancellation_condition**](#event-fulfill_cancellation_condition-) | <code>( transfer:[Transfer](#class-transfer), fulfillment:Buffer ) ⇒</code> |
-| [**reject**](#event-reject-) | <code>( transfer:[OutgoingTransfer](#outgoingtransfer), rejectionReason:Buffer ) ⇒</code> |
-| [**reply**](#event-reply-) | <code>( transfer:[OutgoingTransfer](#outgoingtransfer), replyMessage:Buffer ) ⇒</code> |
+| [**incoming_transfer**](#event-*_transfer-) | <code>( transfer:[IncomingTransfer](#incomingtransfer) ) ⇒</code> |
+| [**incoming_prepare**](#event-*_prepare-) | <code>( transfer:[IncomingTransfer](#incomingtransfer) ) ⇒</code> |
+| [**incoming_fulfill**](#event-*_fulfill-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), fulfillment:Buffer ) ⇒</code> |
+| [**incoming_reject**](#event-*_reject-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), rejectionReason:Buffer ) ⇒</code> |
+| [**incoming_cancel**](#event-*_cancel-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), cancellationReason:Buffer ) ⇒</code> |
+| [**outgoing_transfer**](#event-*_transfer-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
+| [**outgoing_prepare**](#event-*_prepare-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
+| [**outgoing_fulfill**](#event-*_fulfill-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), fulfillment:Buffer ) ⇒</code> |
+| [**outgoing_reject**](#event-*_reject-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), rejectionReason:Buffer ) ⇒</code> |
+| [**outgoing_cancel**](#event-*_cancel-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), cancellationReason:Buffer ) ⇒</code> |
 
 ### Instance Management
 
@@ -199,82 +204,85 @@ Submit a fulfillment to a ledger. Plugin must be connected, otherwise the promis
 
 **TODO**: Define what the message format is.  Plugin must be connected, otherwise the promise should reject.
 
-#### Event: `receive`
-<code>ledgerPlugin.on('receive', ( **transfer**:[IncomingTransfer](#incomingtransfer) ) ⇒ )</code>
+### Event: `*_transfer`
+<code style="">ledgerPlugin.on('incoming_transfer',
+  (
+    **transfer**:[Transfer](#class-transfer),
+  ) ⇒
+)</code>
 
-Emitted when a transfer is received.
+Emitted after an outgoing/incoming transfer which does not have a condition is
+executed on the ledger.
 
-Note that transfers may be conditional, in which case the `receive` event **DOES NOT** indicate that money has been transferred. If users of the plugin wish to check whether they have gotten money, they MUST check whether the transfer has a condition. If transfers have conditions, the final status will only be known when the [fulfill_execution_condition](#event-fulfill_execution_condition-) or [fulfill_cancellation_condition](#event-fulfill_cancellation_condition-) are emitted.
+This indicates that the funds have already been
+transferred. In order to prevent unexpected incoming funds, a ledger MAY allow users to forbid incoming transfers without
+conditions.
+
+If the event is `outgoing_transfer`, then it means you sent the transfer. `incoming_transfer` means somebody sent funds
+to you.
+
+### Event: `*_prepare`
+<code style="">ledgerPlugin.on('incoming_prepare',
+  (
+    **transfer**:[Transfer](#class-transfer),
+  ) ⇒
+)</code>
+
+Emitted when an outgoing/incoming transfer containing a condition is prepared.
+
+Note that the `*_prepare` event **DOES NOT** indicate that money has been transferred. The final status will only be known when either the [*_fulfill](#event-*_fulfill-) or [*_cancel](#event-*_cancel-) events are emitted.
 
 The ledger plugin MUST authenticate the source for all incoming transfers, whether they include money or not.
 
-###### Example `transfer`
+If the event is `outgoing_prepare`, then it means you prepared the transfer. `incoming_prepare` means someone prepared
+a transfer to you.
 
-```js
-{
-  id: 'https//ledger.example/transfers/123',
-  account: 'https://ledger.example/accounts/connector',
-  amount: '10',
-  data: Buffer(...),
-  noteToSelf: {},
-
-  // for UTP/ATP support
-  executionCondition: 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0',
-
-  // for UTP support
-  expiresAt: '2016-05-18T12:00:00.000Z',
-
-  // for ATP support
-  cancellationCondition: 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0'
-}
-```
-
-For a detailed description of these properties, please see [`IncomingTransfer`](#incomingtransfer).
-
-#### Event: `fulfill_execution_condition`
-<code style="">ledgerPlugin.on('fulfill_execution_condition',
+### Event: `*_fulfill`
+<code style="">ledgerPlugin.on('outgoing_fulfill',
   (
     **transfer**:[Transfer](#class-transfer),
     **fulfillment**:Buffer
   ) ⇒
 )</code>
 
-Emitted when a transfer's execution condition has been fulfilled.
+Emitted when an outgoing/incoming transfer with a condition is fulfilled.
 
-If the transfer is an [`OutgoingTransfer`](#outgoingtransfer), connectors will forward the execution condition to the corresponding [`IncomingTransfer`](#incomingtransfer).
+This indicates that funds have been transferred. In order to prevent unexpected incoming funds, a ledger MAY forbid
+accounts from fulfilling a transfer who are not the transfer's receiver.
 
-#### Event: `fulfill_cancellation_condition`
-<code style="">ledgerPlugin.on('fulfill_cancellation_condition',
+If the event is `incoming_fulfill`, then it means you fulfilled the transfer. `outgoing_fulfill` means the receiver
+of your outgoing transfer has fulfilled the condition.
+
+### Event: `*_reject`
+<code style="">ledgerPlugin.on('outgoing_reject',
   (
     **transfer**:[Transfer](#class-transfer),
-    **fulfillment**:Buffer
+    **reason**:Buffer
   ) ⇒
 )</code>
 
-Emitted when a transfer's cancellation condition has been fulfilled.
+Emitted when an outgoing/incoming transfer is rejected by the receiver.
 
-If the transfer is an [`IncomingTransfer`](#incomingtransfer), connectors will forward the execution condition to the corresponding [`OutgoingTransfer`](#outgoingtransfer).
+This indicates that a transfer has been manually cancelled before the timeout
+by the receiver. A message can be passed along with the rejection.
 
-#### Event: `reject`
-<code>ledgerPlugin.on('reject',
+If the event is `incoming_reject`, then it means you rejected the transfer. `outgoing_reject` means that
+the receiver of your outgoing transfer has rejected it.
+
+### Event: `*_cancel`
+<code style="">ledgerPlugin.on('outgoing_cancel',
   (
-    **transfer**:[OutgoingTransfer](#outgoingtransfer),
-    **rejectionReason**:Buffer
+    **transfer**:[Transfer](#class-transfer),
+    **reason**:Buffer
   ) ⇒
 )</code>
 
-Emitted when the ledger has informed us that our outgoing transfer is not going to happen. The `rejectionReason` is a ledger plugin-specific error.
-This event applies to both receiver initiated rejection and to a transfer timing out.
+Emitted when an outgoing/incoming transfer is rejected by the ledger.
 
-#### Event: `reply`
-<code>ledgerPlugin.on('reply',
-  (
-    **transfer**:[OutgoingTransfer](#outgoingtransfer),
-    **replyMessage**:Buffer
-  ) ⇒
-)</code>
+This will happen on a timeout, triggered by the ledger and not by the receiver.
 
-Emitted when the recipient of a local transfer we initiated has sent us a reply related to the transfer, e.g. using [`replyToTransfer`](#replytotransfer). Used for returning errors in the case of a failed payment.
+If the event is `incoming_cancel`, an incoming transfer was timed out by the ledger. `outgoing_cancel`
+means that a transfer you created has timed out.
 
 ## Class: Transfer
 <code>class Transfer</code>

@@ -82,6 +82,26 @@
                   <a href="#ledger-transfers">Ledger Transfers</a>
                 </li>
               
+                <li>
+                  <a href="#event-_transfer">Event: *_transfer</a>
+                </li>
+              
+                <li>
+                  <a href="#event-_prepare">Event: *_prepare</a>
+                </li>
+              
+                <li>
+                  <a href="#event-_fulfill">Event: *_fulfill</a>
+                </li>
+              
+                <li>
+                  <a href="#event-_reject">Event: *_reject</a>
+                </li>
+              
+                <li>
+                  <a href="#event-_cancel">Event: *_cancel</a>
+                </li>
+              
                 <li class="nav-label">
                   <a href="#class-transfer">Class: Transfer</a>
                 </li>
@@ -202,24 +222,44 @@
 <td style="text-align:left"><code>( ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-receive-"><strong>receive</strong></a></td>
+<td style="text-align:left"><a href="#event-*_transfer-"><strong>incoming_transfer</strong></a></td>
 <td style="text-align:left"><code>( transfer:<a href="#incomingtransfer">IncomingTransfer</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-fulfill_execution_condition-"><strong>fulfill_execution_condition</strong></a></td>
-<td style="text-align:left"><code>( transfer:<a href="#class-transfer">Transfer</a>, fulfillment:Buffer ) &#x21D2;</code></td>
+<td style="text-align:left"><a href="#event-*_prepare-"><strong>incoming_prepare</strong></a></td>
+<td style="text-align:left"><code>( transfer:<a href="#incomingtransfer">IncomingTransfer</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-fulfill_cancellation_condition-"><strong>fulfill_cancellation_condition</strong></a></td>
-<td style="text-align:left"><code>( transfer:<a href="#class-transfer">Transfer</a>, fulfillment:Buffer ) &#x21D2;</code></td>
+<td style="text-align:left"><a href="#event-*_fulfill-"><strong>incoming_fulfill</strong></a></td>
+<td style="text-align:left"><code>( transfer:<a href="#incomingtransfer">IncomingTransfer</a>, fulfillment:Buffer ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-reject-"><strong>reject</strong></a></td>
-<td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">OutgoingTransfer</a>, rejectionReason:Buffer ) &#x21D2;</code></td>
+<td style="text-align:left"><a href="#event-*_reject-"><strong>incoming_reject</strong></a></td>
+<td style="text-align:left"><code>( transfer:<a href="#incomingtransfer">IncomingTransfer</a>, rejectionReason:Buffer ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-reply-"><strong>reply</strong></a></td>
-<td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">OutgoingTransfer</a>, replyMessage:Buffer ) &#x21D2;</code></td>
+<td style="text-align:left"><a href="#event-*_cancel-"><strong>incoming_cancel</strong></a></td>
+<td style="text-align:left"><code>( transfer:<a href="#incomingtransfer">IncomingTransfer</a>, cancellationReason:Buffer ) &#x21D2;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="#event-*_transfer-"><strong>outgoing_transfer</strong></a></td>
+<td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a> ) &#x21D2;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="#event-*_prepare-"><strong>outgoing_prepare</strong></a></td>
+<td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a> ) &#x21D2;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="#event-*_fulfill-"><strong>outgoing_fulfill</strong></a></td>
+<td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a>, fulfillment:Buffer ) &#x21D2;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="#event-*_reject-"><strong>outgoing_reject</strong></a></td>
+<td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a>, rejectionReason:Buffer ) &#x21D2;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="#event-*_cancel-"><strong>outgoing_cancel</strong></a></td>
+<td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a>, cancellationReason:Buffer ) &#x21D2;</code></td>
 </tr>
 </tbody>
 </table>
@@ -364,65 +404,65 @@ implement zero-amount transfers differently than other transfers.</p>
 <h4 id="replytotransfer">replyToTransfer</h4>
 <p><code>ledgerPlugin.replyToTransfer( <strong>transferId</strong>:String, <strong>replyMessage</strong>:Buffer ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p><strong>TODO</strong>: Define what the message format is.  Plugin must be connected, otherwise the promise should reject.</p>
-<h4 id="event-receive">Event: <code>receive</code></h4>
-<p><code>ledgerPlugin.on(&apos;receive&apos;, ( <strong>transfer</strong>:<a href="#incomingtransfer">IncomingTransfer</a> ) &#x21D2; )</code></p>
-<p>Emitted when a transfer is received.</p>
-<p>Note that transfers may be conditional, in which case the <code>receive</code> event <strong>DOES NOT</strong> indicate that money has been transferred. If users of the plugin wish to check whether they have gotten money, they MUST check whether the transfer has a condition. If transfers have conditions, the final status will only be known when the <a href="#event-fulfill_execution_condition-">fulfill_execution_condition</a> or <a href="#event-fulfill_cancellation_condition-">fulfill_cancellation_condition</a> are emitted.</p>
+<h3 id="event-_transfer">Event: <code>*_transfer</code></h3>
+<p><code style="">ledgerPlugin.on(&apos;incoming_transfer&apos;,
+  (
+    <strong>transfer</strong>:<a href="#class-transfer">Transfer</a>,
+  ) &#x21D2;
+)</code></p>
+<p>Emitted after an outgoing/incoming transfer which does not have a condition is
+executed on the ledger.</p>
+<p>This indicates that the funds have already been
+transferred. In order to prevent unexpected incoming funds, a ledger MAY allow users to forbid incoming transfers without
+conditions.</p>
+<p>If the event is <code>outgoing_transfer</code>, then it means you sent the transfer. <code>incoming_transfer</code> means somebody sent funds
+to you.</p>
+<h3 id="event-_prepare">Event: <code>*_prepare</code></h3>
+<p><code style="">ledgerPlugin.on(&apos;incoming_prepare&apos;,
+  (
+    <strong>transfer</strong>:<a href="#class-transfer">Transfer</a>,
+  ) &#x21D2;
+)</code></p>
+<p>Emitted when an outgoing/incoming transfer containing a condition is prepared.</p>
+<p>Note that the <code>*_prepare</code> event <strong>DOES NOT</strong> indicate that money has been transferred. The final status will only be known when either the <a href="#event-*_fulfill-">*_fulfill</a> or <a href="#event-*_cancel-">*_cancel</a> events are emitted.</p>
 <p>The ledger plugin MUST authenticate the source for all incoming transfers, whether they include money or not.</p>
-<h6 id="example-transfer">Example <code>transfer</code></h6>
-<pre><code class="lang-js">{
-  id: &apos;https//ledger.example/transfers/123&apos;,
-  account: &apos;https://ledger.example/accounts/connector&apos;,
-  amount: &apos;10&apos;,
-  data: Buffer(...),
-  noteToSelf: {},
-
-  // for UTP/ATP support
-  executionCondition: &apos;cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0&apos;,
-
-  // for UTP support
-  expiresAt: &apos;2016-05-18T12:00:00.000Z&apos;,
-
-  // for ATP support
-  cancellationCondition: &apos;cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0&apos;
-}
-</code></pre>
-<p>For a detailed description of these properties, please see <a href="#incomingtransfer"><code>IncomingTransfer</code></a>.</p>
-<h4 id="event-fulfill_execution_condition">Event: <code>fulfill_execution_condition</code></h4>
-<p><code style="">ledgerPlugin.on(&apos;fulfill_execution_condition&apos;,
+<p>If the event is <code>outgoing_prepare</code>, then it means you prepared the transfer. <code>incoming_prepare</code> means someone prepared
+a transfer to you.</p>
+<h3 id="event-_fulfill">Event: <code>*_fulfill</code></h3>
+<p><code style="">ledgerPlugin.on(&apos;outgoing_fulfill&apos;,
   (
     <strong>transfer</strong>:<a href="#class-transfer">Transfer</a>,
     <strong>fulfillment</strong>:Buffer
   ) &#x21D2;
 )</code></p>
-<p>Emitted when a transfer&apos;s execution condition has been fulfilled.</p>
-<p>If the transfer is an <a href="#outgoingtransfer"><code>OutgoingTransfer</code></a>, connectors will forward the execution condition to the corresponding <a href="#incomingtransfer"><code>IncomingTransfer</code></a>.</p>
-<h4 id="event-fulfill_cancellation_condition">Event: <code>fulfill_cancellation_condition</code></h4>
-<p><code style="">ledgerPlugin.on(&apos;fulfill_cancellation_condition&apos;,
+<p>Emitted when an outgoing/incoming transfer with a condition is fulfilled.</p>
+<p>This indicates that funds have been transferred. In order to prevent unexpected incoming funds, a ledger MAY forbid
+accounts from fulfilling a transfer who are not the transfer&apos;s receiver.</p>
+<p>If the event is <code>incoming_fulfill</code>, then it means you fulfilled the transfer. <code>outgoing_fulfill</code> means the receiver
+of your outgoing transfer has fulfilled the condition.</p>
+<h3 id="event-_reject">Event: <code>*_reject</code></h3>
+<p><code style="">ledgerPlugin.on(&apos;outgoing_reject&apos;,
   (
     <strong>transfer</strong>:<a href="#class-transfer">Transfer</a>,
-    <strong>fulfillment</strong>:Buffer
+    <strong>reason</strong>:Buffer
   ) &#x21D2;
 )</code></p>
-<p>Emitted when a transfer&apos;s cancellation condition has been fulfilled.</p>
-<p>If the transfer is an <a href="#incomingtransfer"><code>IncomingTransfer</code></a>, connectors will forward the execution condition to the corresponding <a href="#outgoingtransfer"><code>OutgoingTransfer</code></a>.</p>
-<h4 id="event-reject">Event: <code>reject</code></h4>
-<p><code>ledgerPlugin.on(&apos;reject&apos;,
+<p>Emitted when an outgoing/incoming transfer is rejected by the receiver.</p>
+<p>This indicates that a transfer has been manually cancelled before the timeout
+by the receiver. A message can be passed along with the rejection.</p>
+<p>If the event is <code>incoming_reject</code>, then it means you rejected the transfer. <code>outgoing_reject</code> means that
+the receiver of your outgoing transfer has rejected it.</p>
+<h3 id="event-_cancel">Event: <code>*_cancel</code></h3>
+<p><code style="">ledgerPlugin.on(&apos;outgoing_cancel&apos;,
   (
-    <strong>transfer</strong>:<a href="#outgoingtransfer">OutgoingTransfer</a>,
-    <strong>rejectionReason</strong>:Buffer
+    <strong>transfer</strong>:<a href="#class-transfer">Transfer</a>,
+    <strong>reason</strong>:Buffer
   ) &#x21D2;
 )</code></p>
-<p>Emitted when the ledger has informed us that our outgoing transfer is not going to happen. The <code>rejectionReason</code> is a ledger plugin-specific error.
-This event applies to both receiver initiated rejection and to a transfer timing out.</p>
-<h4 id="event-reply">Event: <code>reply</code></h4>
-<p><code>ledgerPlugin.on(&apos;reply&apos;,
-  (
-    <strong>transfer</strong>:<a href="#outgoingtransfer">OutgoingTransfer</a>,
-    <strong>replyMessage</strong>:Buffer
-  ) &#x21D2;
-)</code></p>
-<p>Emitted when the recipient of a local transfer we initiated has sent us a reply related to the transfer, e.g. using <a href="#replytotransfer"><code>replyToTransfer</code></a>. Used for returning errors in the case of a failed payment.</p>
+<p>Emitted when an outgoing/incoming transfer is rejected by the ledger.</p>
+<p>This will happen on a timeout, triggered by the ledger and not by the receiver.</p>
+<p>If the event is <code>incoming_cancel</code>, an incoming transfer was timed out by the ledger. <code>outgoing_cancel</code>
+means that a transfer you created has timed out.</p>
 <h2 id="class-transfer">Class: Transfer</h2>
 <p><code>class Transfer</code></p>
 <p>The <code>Transfer</code> class is used to describe local ledger transfers. Only
