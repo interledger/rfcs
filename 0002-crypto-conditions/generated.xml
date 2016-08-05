@@ -33,7 +33,7 @@
         </postal>
         <phone>-----------------</phone>
         <email>stefan@ripple.com</email>
-        <uri>http://www.ripple.com</uri>
+        <uri>https://www.ripple.com</uri>
       </address>
     </author>
     <author initials="R." surname="Reginelli" fullname="Rome Reginelli">
@@ -48,7 +48,7 @@
         </postal>
         <phone>-----------------</phone>
         <email>rome@ripple.com</email>
-        <uri>http://www.ripple.com</uri>
+        <uri>https://www.ripple.com</uri>
       </address>
     </author>
 
@@ -666,7 +666,7 @@ cf:4:7Bcrk61eVjv0kyxw4SRQNMNUZ-8u_U1k6_gZaDRn4r-2IpH62UMvjymLnEpIldvik_b_2hpo2t8
 &RFC3447;
 &RFC4648;
 &I-D.draft-irtf-cfrg-eddsa-04;
-<reference anchor="itu.X680.2015" target="http://www.itu.int/rec/T-REC-X.680-201508-I/">
+<reference anchor="itu.X680.2015" target="https://www.itu.int/rec/T-REC-X.680-201508-I/">
   <front>
     <title>Information technology – Abstract Syntax Notation One (ASN.1): Specification of basic notation</title>
     <author >
@@ -702,7 +702,7 @@ cf:4:7Bcrk61eVjv0kyxw4SRQNMNUZ-8u_U1k6_gZaDRn4r-2IpH62UMvjymLnEpIldvik_b_2hpo2t8
     <date year="2012" month="March" day="17"/>
   </front>
 </reference>
-<reference anchor="USING-RSA-EXPONENT-OF-65537" target="http://crypto.stackexchange.com/questions/3110/impacts-of-not-using-rsa-exponent-of-65537">
+<reference anchor="USING-RSA-EXPONENT-OF-65537" target="https://crypto.stackexchange.com/questions/3110/impacts-of-not-using-rsa-exponent-of-65537">
   <front>
     <title>Cryptography - StackExchange - Impacts of not using RSA exponent of 65537</title>
     <author fullname="http://crypto.stackexchange.com/users/555/fgrieu">
