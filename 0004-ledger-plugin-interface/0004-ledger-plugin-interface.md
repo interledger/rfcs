@@ -305,14 +305,15 @@ means that a transfer you created has timed out.
 <code>class Transfer</code>
 
 The `Transfer` class is used to describe local ledger transfers. Only
-[id](#id), [address](#address), [ledger](#ledger), and [amount](#amount) are required; the other
+[id](#id), [account](#account), [ledger](#ledger), and [amount](#amount) are required; the other
 fields can be left undefined (but not any other false-y value) if unused.
 
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
 | `String` | [id](#id) | UUID used as an external identifier |
-| `String` | [address](#address) | ILP Address of the source or destination account |
+| `String` | [account](#account) | ILP Address of the source or destination account |
+| `String` | [ledger](#ledger) | ILP Address prefix of the ledger |
 | `String` | [amount](#amount) | Decimal transfer amount |
 | `Buffer` | [data](#data) | Data packet or memo to be sent with the transfer, starts with an ILP header |
 | `Buffer` | [noteToSelf](#notetoself) | Host-provided memo that should be stored with the transfer |
@@ -348,10 +349,15 @@ For [`IncomingTransfer`](#incomingtransfer)s, the ID is chosen by the ledger plu
 
 Ledger plugins that support scalability (e.g. running multiple instances of a connector using the same settings) MUST ensure that external transfer IDs are unique **globally**, i.e. across all machines and instances. Otherwise a connector could accidentally process two outgoing payments for one incoming payment.
 
-#### address
-<code>**address**:String</code>
+#### account
+<code>**account**:String</code>
 
 The ILP Address of a local account.
+
+#### ledger
+ <code>**ledger**:String</code>
+
+ILP Address prefix of the ledger that this transfer is going through on.
 
 #### amount
 <code>**amount**:String</code>
@@ -399,7 +405,8 @@ Ledger plugins MAY use this object to accept and/or set additional fields for ot
 ``` js
 {
   id: '94adc29e-26cd-471b-987e-8d41e8773864',
-  address: 'example.ledger.bob',
+  account: 'example.ledger.bob',
+  ledger: 'example.ledger.',
   amount: '100',
   data: /* ... */,
   noteToSelf: /* ... */,
