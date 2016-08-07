@@ -1,5 +1,12 @@
-Types DEFINITIONS AUTOMATIC TAGS ::=
+InterledgerTypes DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
+
+IMPORTS
+	Int8,
+	VarUInt
+	FROM GenericTypes
+;
+
 
 -- GeneralizedTime is a standard ASN.1 time format based on ISO 8601. It was
 -- tempting to use the Unix epoch, however unfortunately, standard POSIX
@@ -10,13 +17,13 @@ BEGIN
 -- 8601.
 Timestamp ::= GeneralizedTime
 
--- A standard interledger address is a hierarchical list of octet strings
-Address ::= SEQUENCE OF OCTET STRING
+-- A standard interledger address is an arbitrary byte string
+Address ::= IA5String
 
 -- A standard interledger amount is a base-10 floating point amount
 Amount ::= SEQUENCE {
-	exponent INTEGER (-128..127),
-	mantissa INTEGER
+	exponent Int8,
+	mantissa VarUInt
 }
-	
+
 END

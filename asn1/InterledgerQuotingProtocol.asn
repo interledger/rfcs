@@ -2,9 +2,12 @@ InterledgerQuotingProtocol DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
+	UInt64
+	FROM GenericTypes
+
 	Address,
 	Amount
-	FROM Types
+	FROM InterledgerTypes
 	
 	GenericHeaderPreamble
 	FROM GenericExtensionHeaderFormat
@@ -36,6 +39,6 @@ AddressSet ::= SEQUENCE OF Address
 IlpAccountName ::= OCTET STRING
 
 -- Length of hold in microseconds
-IlpHoldDuration ::= INTEGER (0..18446744073709551615)
+IlpHoldDuration ::= UInt64
 
 END

@@ -1,9 +1,14 @@
 GenericExtensionHeaderFormat DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
+IMPORTS
+	UInt16
+	FROM GenericTypes
+;
+
 GenericHeaderPreamble ::= SEQUENCE {
-	nextHeader INTEGER (0..65535),
-	size INTEGER (0..65535)
+	type UInt16,
+	size UInt16
 }
 	
 END
