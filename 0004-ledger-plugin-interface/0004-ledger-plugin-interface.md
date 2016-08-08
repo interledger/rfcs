@@ -21,7 +21,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**isConnected**](#isconnected) ( ) `⇒ Boolean` |
 | | [**getInfo**](#getinfo) ( ) <code>⇒ Promise.&lt;[LedgerInfo](#class-ledgerinfo)></code> |
 | | [**getPrefix**](#getprefix) ( ) `⇒ Promise<String>` |
-| | [**getAddress**](#getaddress) ( ) `⇒ Promise<String>` |
+| | [**getAccount**](#getaccount) ( ) `⇒ Promise<String>` |
 | | [**getBalance**](#getbalance) ( ) <code>⇒ Promise.&lt;String></code> |
 | | [**send**](#send) ( transfer ) <code>⇒ Promise.&lt;null></code> |
 | | [**fulfillCondition**](#fulfillcondition) ( transferId, fulfillment ) <code>⇒ Promise.&lt;null></code> |
@@ -135,8 +135,8 @@ The prefix may be configured, automatically detected, or hard-coded, depending o
 ###### Example Return Value
 `us.fed.some-bank`
 
-#### getAddress
-<code>ledgerPlugin.getAddress() ⇒ Promise.&lt;String></code>
+#### getAccount
+<code>ledgerPlugin.getAccount() ⇒ Promise.&lt;String></code>
 
 Get the ledger plugin's ILP address. This is given to senders to receive transfers to this account.
 
