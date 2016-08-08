@@ -176,11 +176,15 @@
 </tr>
 <tr>
 <td style="text-align:left"></td>
-<td style="text-align:left"><a href="#getbalance"><strong>getBalance</strong></a> ( ) <code>&#x21D2; Promise.&lt;String&gt;</code></td>
+<td style="text-align:left"><a href="#getprefix"><strong>getPrefix</strong></a> ( ) <code>&#x21D2; Promise&lt;String&gt;</code></td>
 </tr>
 <tr>
 <td style="text-align:left"></td>
-<td style="text-align:left"><a href="#getconnectors"><strong>getConnectors</strong></a> ( ) <code>&#x21D2; Promise.&lt;Array.&lt;String&gt;&gt;</code></td>
+<td style="text-align:left"><a href="#getaccount"><strong>getAccount</strong></a> ( ) <code>&#x21D2; Promise&lt;String&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><a href="#getbalance"><strong>getBalance</strong></a> ( ) <code>&#x21D2; Promise.&lt;String&gt;</code></td>
 </tr>
 <tr>
 <td style="text-align:left"></td>
@@ -193,6 +197,10 @@
 <tr>
 <td style="text-align:left"></td>
 <td style="text-align:left"><a href="#replytotransfer"><strong>replyToTransfer</strong></a> ( transferId, replyMessage ) <code>&#x21D2; Promise.&lt;null&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><a href="#rejectincomingtransfer"><strong>rejectIncomingTransfer</strong></a> ( transferId, rejectMessage ) <code>&#x21D2; Promise.&lt;null&gt;</code></td>
 </tr>
 </tbody>
 </table>
@@ -317,7 +325,7 @@
 <h4 id="getinfo">getInfo</h4>
 <p><code>ledgerPlugin.getInfo() &#x21D2; Promise.&lt;<a href="#class-ledgerinfo">LedgerInfo</a>&gt;</code></p>
 <p>Retrieve some metadata about the ledger. Plugin must be connected, otherwise the promise should reject.</p>
-<h6 id="example-return-value">Example Return Value</h6>
+<h6 id="example-return-value-1">Example Return Value</h6>
 <pre><code class="lang-json">{
   &quot;precision&quot;: 10,
   &quot;scale&quot;: 4,
@@ -326,12 +334,21 @@
 }
 </code></pre>
 <p>For a detailed description of these properties, please see <a href="#class-ledgerinfo"><code>LedgerInfo</code></a>.</p>
+<h4 id="getprefix">getPrefix</h4>
+<p><code>ledgerPlugin.getPrefix() &#x21D2; Promise.&lt;String&gt;</code></p>
+<p>Get the ledger plugin&apos;s ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin&apos;s <code>send</code> method.</p>
+<p>The prefix may be configured, automatically detected, or hard-coded, depending on the ledger. For example, a Bitcoin ledger plugin may have the address hard-coded, while a <a href="https://github.com/interledger/five-bells-ledger"><code>five-bells-ledger</code></a> would use an API call to get the prefix.</p>
+<h6 id="example-return-value-2">Example Return Value</h6>
+<p><code>us.fed.some-bank</code></p>
+<h4 id="getaccount">getAccount</h4>
+<p><code>ledgerPlugin.getAccount() &#x21D2; Promise.&lt;String&gt;</code></p>
+<p>Get the ledger plugin&apos;s ILP address. This is given to senders to receive transfers to this account.</p>
+<p>The mapping from the ILP address to the local ledger address is dependent on the ledger / ledger plugin. An ILP address could be the <code>&lt;ledger prefix&gt;.&lt;account name or number&gt;</code>, or a token could be used in place of the actual account name or number.</p>
+<h6 id="example-return-value-3">Example Return Value</h6>
+<p><code>us.fed.some-bank.my-account</code></p>
 <h4 id="getbalance">getBalance</h4>
 <p><code>ledgerPlugin.getBalance() &#x21D2; Promise.&lt;String&gt;</code></p>
 <p>Return a decimal string representing the current balance. Plugin must be connected, otherwise the promise should reject.</p>
-<h4 id="getconnectors">getConnectors</h4>
-<p><code>ledgerPlugin.getConnectors() &#x21D2; Promise.&lt;Array.&lt;String&gt;&gt;</code></p>
-<p>Return an array of opaque local destination identifiers representing neighboring connectors. Plugin must be connected, otherwise the promise should reject.</p>
 <h4 id="event-connect">Event: <code>connect</code></h4>
 <p><code>ledgerPlugin.on(&apos;connect&apos;, () &#x21D2; )</code></p>
 <p>Emitted whenever a connection is successfully established.</p>
@@ -374,19 +391,12 @@ implement zero-amount transfers differently than other transfers.</p>
 <h6 id="example-2">Example</h6>
 <pre><code class="lang-js">p.send({
   id: &apos;d86b0299-e2fa-4713-833a-96a6a75271b8&apos;,
-  account: &apos;https://ledger.example/accounts/connector&apos;,
+  account: &apos;example.ledger.connector&apos;,
   amount: &apos;10&apos;,
   data: new Buffer(&apos;...&apos;, &apos;base64&apos;),
   noteToSelf: {},
-
-  // for UTP/ATP support
   executionCondition: &apos;cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0&apos;,
-
-  // for UTP support
-  expiresAt: &apos;2016-05-18T12:00:00.000Z&apos;,
-
-  // for ATP support
-  cancellationCondition: &apos;cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0&apos;
+  expiresAt: &apos;2016-05-18T12:00:00.000Z&apos;
 })
 </code></pre>
 <p>For a detailed description of these properties, please see <a href="#outgoingtransfer"><code>OutgoingTransfer</code></a>.</p>
@@ -396,6 +406,10 @@ implement zero-amount transfers differently than other transfers.</p>
 <h4 id="replytotransfer">replyToTransfer</h4>
 <p><code>ledgerPlugin.replyToTransfer( <strong>transferId</strong>:String, <strong>replyMessage</strong>:Buffer ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p><strong>TODO</strong>: Define what the message format is.  Plugin must be connected, otherwise the promise should reject.</p>
+<h4 id="rejectincomingtransfer">rejectIncomingTransfer</h4>
+<p><code>ledgerPlugin.rejectIncomingTransfer( <strong>transferId</strong>:String, <strong>rejectMessage</strong>:Buffer ) &#x21D2; Promise.&lt;null&gt;</code></p>
+<p>Reject an incoming transfer that is held pending the fulfillment of its <code>executionCondition</code> before the <code>expiresAt</code> time. <code>rejectMessage</code> MAY be supplied to provide details on why the transfer was rejected.</p>
+<p>This MAY be used by receivers or connectors to reject incoming funds if they will not fulfill the condition or are unable to forward the payment. Previous hops in an Interledger transfer would have their money returned before the expiry and the sender or previous connectors MAY retry and reroute the transfer through an alternate path.</p>
 <h3 id="event-_transfer">Event: <code>*_transfer</code></h3>
 <p><code style="">ledgerPlugin.on(&apos;incoming_transfer&apos;,
   (
@@ -478,17 +492,17 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <tr>
 <td style="text-align:left"><code>String</code></td>
 <td style="text-align:left"><a href="#account">account</a></td>
-<td style="text-align:left">Local source or destination account ID</td>
+<td style="text-align:left">ILP Address of the source or destination account</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left"><a href="#ledger">ledger</a></td>
+<td style="text-align:left">ILP Address prefix of the ledger</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>String</code></td>
 <td style="text-align:left"><a href="#amount">amount</a></td>
 <td style="text-align:left">Decimal transfer amount</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>String</code></td>
-<td style="text-align:left"><a href="#ledger">ledger</a></td>
-<td style="text-align:left">Ledger address</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>Buffer</code></td>
@@ -503,17 +517,12 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <tr>
 <td style="text-align:left"><code>String</code></td>
 <td style="text-align:left"><a href="#executioncondition">executionCondition</a></td>
-<td style="text-align:left">Cryptographic hold condition, used in <a href="../0006-universal-transport-protocol/">UTP</a>/<a href="../0007-atomic-transport-protocol/">ATP</a></td>
-</tr>
-<tr>
-<td style="text-align:left"><code>String</code></td>
-<td style="text-align:left"><a href="#cancellationcondition">cancellationCondition</a></td>
-<td style="text-align:left">Cryptographic abort condition, used in <a href="../0007-atomic-transport-protocol/">ATP</a></td>
+<td style="text-align:left">Cryptographic hold condition</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>String</code></td>
 <td style="text-align:left"><a href="#expiresat">expiresAt</a></td>
-<td style="text-align:left">Expiry time of the cryptographic hold, used in <a href="../0006-universal-transport-protocol/">UTP</a></td>
+<td style="text-align:left">Expiry time of the cryptographic hold</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>Object</code></td>
@@ -539,13 +548,13 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <p>Ledger plugins that support scalability (e.g. running multiple instances of a connector using the same settings) MUST ensure that external transfer IDs are unique <strong>globally</strong>, i.e. across all machines and instances. Otherwise a connector could accidentally process two outgoing payments for one incoming payment.</p>
 <h4 id="account">account</h4>
 <p><code><strong>account</strong>:String</code></p>
-<p>A local account identifier. The format for account identifiers is chosen by the ledger plugin. Hosts MUST treat account identifiers as opaque strings.</p>
+<p>The ILP Address of a local account.</p>
+<h4 id="ledger">ledger</h4>
+<p> <code><strong>ledger</strong>:String</code></p>
+<p>ILP Address prefix of the ledger that this transfer is going through on.</p>
 <h4 id="amount">amount</h4>
 <p><code><strong>amount</strong>:String</code></p>
 <p>A decimal amount, represented as a string. MUST be positive. The supported precision is defined by each ledger plugin and can be queried by the host via <a href="#getinfo"><code>getInfo</code></a>. The ledger plugin MUST throw an <code>InsufficientPrecisionError</code> if the given amount exceeds the supported level of precision.</p>
-<h4 id="ledger">ledger</h4>
-<p><code><strong>ledger</strong>:String</code></p>
-<p>The ledger that this transfer is going through on, used for exchange rate purposes.</p>
 <h4 id="data">data</h4>
 <p><code><strong>data</strong>:Buffer</code></p>
 <p>A buffer containing the data to be sent. Ledger plugins SHOULD treat this data as opaque, however it will usually start with an <a href="../0003-interledger-protocol/">ILP header</a> followed by a transport layer header, a <a href="../0008-interledger-quoting-protocol/">quote request</a> or a custom user-provided data packet.</p>
@@ -560,11 +569,6 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <p>A <a href="../0002-crypto-conditions/">cryptographic condition</a> used for implementing holds. The underlying ledger MUST hold the transfer until the condition has been fulfilled or the <code>expiresAt</code> time has been reached.</p>
 <p>Ledger plugins that do not support holds MUST throw an <code>HoldsNotSupportedError</code> if this parameter is provided.</p>
 <p>Ledger plugins that do support holds, but do not support the given condition type or bitmask MUST throw a  <code>ExecutionConditionNotSupportedError</code>.</p>
-<h4 id="cancellationcondition">cancellationCondition</h4>
-<p><code><strong>cancellationCondition</strong>:String</code></p>
-<p>A <a href="../0002-crypto-conditions/">cryptographic condition</a> used for implementing holds. If this condition is met and the transfer is on hold, the ledger MUST cancel the transfer and return the funds to the sender.</p>
-<p>Ledger plugins that do not support holds or do not support cancellation MUST throw a <code>CancellationNotSupportedError</code> if this parameter is provided.</p>
-<p>Ledger plugins that do support cancellation, but do not support the given condition type or bitmask MUST throw a <code>CancellationConditionNotSupportedError</code>.</p>
 <h4 id="expiresat">expiresAt</h4>
 <p><code><strong>expiresAt</strong>:String</code></p>
 <p>An ISO 8601 timestamp representing the expiry date for the transfer.</p>
@@ -575,7 +579,8 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <h6 id="example-3">Example</h6>
 <pre><code class="lang-js">{
   id: &apos;94adc29e-26cd-471b-987e-8d41e8773864&apos;,
-  account: &apos;bob&apos;,
+  account: &apos;example.ledger.bob&apos;,
+  ledger: &apos;example.ledger.&apos;,
   amount: &apos;100&apos;,
   data: /* ... */,
   noteToSelf: /* ... */,
