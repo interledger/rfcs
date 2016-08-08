@@ -193,7 +193,7 @@ implement zero-amount transfers differently than other transfers.
 ```js
 p.send({
   id: 'd86b0299-e2fa-4713-833a-96a6a75271b8',
-  address: 'example.ledger.connector',
+  account: 'example.ledger.connector',
   amount: '10',
   data: new Buffer('...', 'base64'),
   noteToSelf: {},
