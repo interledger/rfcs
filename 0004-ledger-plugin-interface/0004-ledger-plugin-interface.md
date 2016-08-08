@@ -19,11 +19,13 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**disconnect**](#disconnect) ( ) `⇒ Promise.<null>` |
 | | [**isConnected**](#isconnected) ( ) `⇒ Boolean` |
 | | [**getInfo**](#getinfo) ( ) <code>⇒ Promise.&lt;[LedgerInfo](#class-ledgerinfo)></code> |
+| | [**getPrefix**](#getprefix) ( ) `⇒ Promise<String>` |
+| | [**getAccount**](#getaccount) ( ) `⇒ Promise<String>` |
 | | [**getBalance**](#getbalance) ( ) <code>⇒ Promise.&lt;String></code> |
-| | [**getConnectors**](#getconnectors) ( ) <code>⇒ Promise.&lt;Array.&lt;String>></code> |
 | | [**send**](#send) ( transfer ) <code>⇒ Promise.&lt;null></code> |
 | | [**fulfillCondition**](#fulfillcondition) ( transferId, fulfillment ) <code>⇒ Promise.&lt;null></code> |
 | | [**replyToTransfer**](#replytotransfer) ( transferId, replyMessage ) <code>⇒ Promise.&lt;null></code> |
+| | [**rejectIncomingTransfer**](#rejectincomingtransfer) ( transferId, rejectMessage ) <code>⇒ Promise.&lt;null></code> |
 
 ###### Events
 | Name | Handler |
@@ -115,15 +117,30 @@ Retrieve some metadata about the ledger. Plugin must be connected, otherwise the
 
 For a detailed description of these properties, please see [`LedgerInfo`](#class-ledgerinfo).
 
+#### getPrefix
+<code>ledgerPlugin.getPrefix() ⇒ Promise.&lt;String></code>
+
+Get the ledger plugin's ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin's `send` method.
+
+The prefix may be configured, automatically detected, or hard-coded, depending on the ledger. For example, a Bitcoin ledger plugin may have the address hard-coded, while a [`five-bells-ledger`](https://github.com/interledger/five-bells-ledger) would use an API call to get the prefix.
+
+###### Example Return Value
+`us.fed.some-bank`
+
+#### getAccount
+<code>ledgerPlugin.getAccount() ⇒ Promise.&lt;String></code>
+
+Get the ledger plugin's ILP address. This is given to senders to receive transfers to this account.
+
+The mapping from the ILP address to the local ledger address is dependent on the ledger / ledger plugin. An ILP address could be the `<ledger prefix>.<account name or number>`, or a token could be used in place of the actual account name or number.
+
+###### Example Return Value
+`us.fed.some-bank.my-account`
+
 #### getBalance
 <code>ledgerPlugin.getBalance() ⇒ Promise.&lt;String></code>
 
 Return a decimal string representing the current balance. Plugin must be connected, otherwise the promise should reject.
-
-#### getConnectors
-<code>ledgerPlugin.getConnectors() ⇒ Promise.&lt;Array.&lt;String>></code>
-
-Return an array of opaque local destination identifiers representing neighboring connectors. Plugin must be connected, otherwise the promise should reject.
 
 #### Event: `connect`
 <code>ledgerPlugin.on('connect', () ⇒ )</code>
@@ -168,19 +185,12 @@ implement zero-amount transfers differently than other transfers.
 ```js
 p.send({
   id: 'd86b0299-e2fa-4713-833a-96a6a75271b8',
-  account: 'https://ledger.example/accounts/connector',
+  account: 'example.ledger.connector',
   amount: '10',
   data: new Buffer('...', 'base64'),
   noteToSelf: {},
-
-  // for UTP/ATP support
   executionCondition: 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0',
-
-  // for UTP support
-  expiresAt: '2016-05-18T12:00:00.000Z',
-
-  // for ATP support
-  cancellationCondition: 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0'
+  expiresAt: '2016-05-18T12:00:00.000Z'
 })
 ```
 
@@ -195,6 +205,13 @@ Submit a fulfillment to a ledger. Plugin must be connected, otherwise the promis
 <code>ledgerPlugin.replyToTransfer( **transferId**:String, **replyMessage**:Buffer ) ⇒ Promise.&lt;null></code>
 
 **TODO**: Define what the message format is.  Plugin must be connected, otherwise the promise should reject.
+
+#### rejectIncomingTransfer
+<code>ledgerPlugin.rejectIncomingTransfer( **transferId**:String, **rejectMessage**:Buffer ) ⇒ Promise.&lt;null></code>
+
+Reject an incoming transfer that is held pending the fulfillment of its `executionCondition` before the `expiresAt` time. `rejectMessage` MAY be supplied to provide details on why the transfer was rejected.
+
+This MAY be used by receivers or connectors to reject incoming funds if they will not fulfill the condition or are unable to forward the payment. Previous hops in an Interledger transfer would have their money returned before the expiry and the sender or previous connectors MAY retry and reroute the transfer through an alternate path.
 
 ### Event: `*_transfer`
 <code style="">ledgerPlugin.on('incoming_transfer',
@@ -287,14 +304,13 @@ fields can be left undefined (but not any other false-y value) if unused.
 | Type | Name | Description |
 |:--|:--|:--|
 | `String` | [id](#id) | UUID used as an external identifier |
-| `String` | [account](#account) | Local source or destination account ID |
+| `String` | [account](#account) | ILP Address of the source or destination account |
+| `String` | [ledger](#ledger) | ILP Address prefix of the ledger |
 | `String` | [amount](#amount) | Decimal transfer amount |
-| `String` | [ledger](#ledger) | Ledger address |
 | `Buffer` | [data](#data) | Data packet or memo to be sent with the transfer, starts with an ILP header |
 | `Buffer` | [noteToSelf](#notetoself) | Host-provided memo that should be stored with the transfer |
-| `String` | [executionCondition](#executioncondition) | Cryptographic hold condition, used in [UTP](../0006-universal-transport-protocol/)/[ATP](../0007-atomic-transport-protocol/) |
-| `String` | [cancellationCondition](#cancellationcondition) | Cryptographic abort condition, used in [ATP](../0007-atomic-transport-protocol/) |
-| `String` | [expiresAt](#expiresat) | Expiry time of the cryptographic hold, used in [UTP](../0006-universal-transport-protocol/) |
+| `String` | [executionCondition](#executioncondition) | Cryptographic hold condition |
+| `String` | [expiresAt](#expiresat) | Expiry time of the cryptographic hold |
 | `Object` | [custom](#custom) | Object containing ledger plugin specific options |
 
 
@@ -328,17 +344,17 @@ Ledger plugins that support scalability (e.g. running multiple instances of a co
 #### account
 <code>**account**:String</code>
 
-A local account identifier. The format for account identifiers is chosen by the ledger plugin. Hosts MUST treat account identifiers as opaque strings.
+The ILP Address of a local account.
+
+#### ledger
+ <code>**ledger**:String</code>
+
+ILP Address prefix of the ledger that this transfer is going through on.
 
 #### amount
 <code>**amount**:String</code>
 
 A decimal amount, represented as a string. MUST be positive. The supported precision is defined by each ledger plugin and can be queried by the host via [`getInfo`](#getinfo). The ledger plugin MUST throw an `InsufficientPrecisionError` if the given amount exceeds the supported level of precision.
-
-#### ledger
-<code>**ledger**:String</code>
-
-The ledger that this transfer is going through on, used for exchange rate purposes.
 
 #### data
 <code>**data**:Buffer</code>
@@ -365,15 +381,6 @@ Ledger plugins that do not support holds MUST throw an `HoldsNotSupportedError` 
 
 Ledger plugins that do support holds, but do not support the given condition type or bitmask MUST throw a  `ExecutionConditionNotSupportedError`.
 
-#### cancellationCondition
-<code>**cancellationCondition**:String</code>
-
-A [cryptographic condition](../0002-crypto-conditions/) used for implementing holds. If this condition is met and the transfer is on hold, the ledger MUST cancel the transfer and return the funds to the sender.
-
-Ledger plugins that do not support holds or do not support cancellation MUST throw a `CancellationNotSupportedError` if this parameter is provided.
-
-Ledger plugins that do support cancellation, but do not support the given condition type or bitmask MUST throw a `CancellationConditionNotSupportedError`.
-
 #### expiresAt
 <code>**expiresAt**:String</code>
 
@@ -390,7 +397,8 @@ Ledger plugins MAY use this object to accept and/or set additional fields for ot
 ``` js
 {
   id: '94adc29e-26cd-471b-987e-8d41e8773864',
-  account: 'bob',
+  account: 'example.ledger.bob',
+  ledger: 'example.ledger.',
   amount: '100',
   data: /* ... */,
   noteToSelf: /* ... */,
