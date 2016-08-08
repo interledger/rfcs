@@ -2,7 +2,7 @@
 coding: utf-8
 
 title: Crypto-Conditions
-docname: draft-thomas-crypto-conditions-00
+docname: draft-thomas-crypto-conditions-01
 category: std
 
 pi: [toc, sortrefs, symrefs, comments]
@@ -21,7 +21,20 @@ author:
     country: US
     phone: -----------------
     email: stefan@ripple.com
-    uri: http://www.ripple.com
+    uri: https://www.ripple.com
+
+  -
+    ins: R. Reginelli
+    name: Rome Reginelli
+    org: Ripple
+    street: 300 Montgomery Street
+    city: San Francisco
+    region: CA
+    code: 94104
+    country: US
+    phone: -----------------
+    email: rome@ripple.com
+    uri: https://www.ripple.com
 
 normative:
     RFC3447:
@@ -29,16 +42,16 @@ normative:
     I-D.draft-irtf-cfrg-eddsa-04:
     itu.X680.2015:
         title: "Information technology – Abstract Syntax Notation One (ASN.1): Specification of basic notation"
-        target: http://www.itu.int/rec/T-REC-X.680-201508-I/
+        target: https://www.itu.int/rec/T-REC-X.680-201508-I/
         author:
             organization: International Telecommunications Union
-            date: 2015-08
+        date: 2015-08
     itu.X696.2015:
         title: "Information technology – ASN.1 encoding rules: Specification of Octet Encoding Rules (OER)"
         target: http://handle.itu.int/11.1002/1000/12487
         author:
             organization: International Telecommunications Union
-            date: 2015-08
+        date: 2015-08
         seriesInfo:
             name: "ITU-T"
             value: "Recommendation X.696"
@@ -55,7 +68,7 @@ informative:
         date: 2012-03-17
     USING-RSA-EXPONENT-OF-65537:
         title: Cryptography - StackExchange - Impacts of not using RSA exponent of 65537
-        target: http://crypto.stackexchange.com/questions/3110/impacts-of-not-using-rsa-exponent-of-65537
+        target: https://crypto.stackexchange.com/questions/3110/impacts-of-not-using-rsa-exponent-of-65537
         author:
             fullname: http://crypto.stackexchange.com/users/555/fgrieu
         date: 2014-11-18

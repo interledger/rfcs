@@ -388,10 +388,12 @@
 <link href="#rfc.section.2.4.1" rel="Chapter" title="2.4.1 String Format"/>
 <link href="#rfc.section.2.4.2" rel="Chapter" title="2.4.2 Binary Format"/>
 <link href="#rfc.section.2.4.3" rel="Chapter" title="2.4.3 Fields"/>
+<link href="#rfc.section.2.4.4" rel="Chapter" title="2.4.4 Example Condition"/>
 <link href="#rfc.section.2.5" rel="Chapter" title="2.5 Fulfillment"/>
 <link href="#rfc.section.2.5.1" rel="Chapter" title="2.5.1 String Format"/>
 <link href="#rfc.section.2.5.2" rel="Chapter" title="2.5.2 Binary Format"/>
 <link href="#rfc.section.2.5.3" rel="Chapter" title="2.5.3 Fields"/>
+<link href="#rfc.section.2.5.4" rel="Chapter" title="2.5.4 Example Fulfillment"/>
 <link href="#rfc.section.3" rel="Chapter" title="3 Feature Suites"/>
 <link href="#rfc.section.3.1" rel="Chapter" title="3.1 SHA-256"/>
 <link href="#rfc.section.3.2" rel="Chapter" title="3.2 PREIMAGE"/>
@@ -403,37 +405,41 @@
 <link href="#rfc.section.4.1" rel="Chapter" title="4.1 PREIMAGE-SHA-256"/>
 <link href="#rfc.section.4.1.1" rel="Chapter" title="4.1.1 Condition"/>
 <link href="#rfc.section.4.1.2" rel="Chapter" title="4.1.2 Fulfillment"/>
+<link href="#rfc.section.4.1.3" rel="Chapter" title="4.1.3 Example"/>
 <link href="#rfc.section.4.2" rel="Chapter" title="4.2 PREFIX-SHA-256"/>
 <link href="#rfc.section.4.2.1" rel="Chapter" title="4.2.1 Condition"/>
 <link href="#rfc.section.4.2.2" rel="Chapter" title="4.2.2 Fulfillment"/>
+<link href="#rfc.section.4.2.3" rel="Chapter" title="4.2.3 Example"/>
 <link href="#rfc.section.4.3" rel="Chapter" title="4.3 THRESHOLD-SHA-256"/>
 <link href="#rfc.section.4.3.1" rel="Chapter" title="4.3.1 Condition"/>
 <link href="#rfc.section.4.3.2" rel="Chapter" title="4.3.2 Fulfillment"/>
+<link href="#rfc.section.4.3.3" rel="Chapter" title="4.3.3 Example"/>
 <link href="#rfc.section.4.4" rel="Chapter" title="4.4 RSA-SHA-256"/>
 <link href="#rfc.section.4.4.1" rel="Chapter" title="4.4.1 Condition"/>
 <link href="#rfc.section.4.4.2" rel="Chapter" title="4.4.2 Fulfillment"/>
 <link href="#rfc.section.4.4.3" rel="Chapter" title="4.4.3 Implementation"/>
+<link href="#rfc.section.4.4.4" rel="Chapter" title="4.4.4 Example"/>
 <link href="#rfc.section.4.5" rel="Chapter" title="4.5 ED25519"/>
 <link href="#rfc.section.4.5.1" rel="Chapter" title="4.5.1 Condition"/>
 <link href="#rfc.section.4.5.2" rel="Chapter" title="4.5.2 Fulfillment"/>
+<link href="#rfc.section.4.5.3" rel="Chapter" title="4.5.3 Example"/>
 <link href="#rfc.references" rel="Chapter" title="5 References"/>
 <link href="#rfc.references.1" rel="Chapter" title="5.1 Normative References"/>
 <link href="#rfc.references.2" rel="Chapter" title="5.2 Informative References"/>
 <link href="#rfc.appendix.A" rel="Chapter" title="A Security Considerations"/>
 <link href="#rfc.appendix.B" rel="Chapter" title="B Test Values"/>
 <link href="#rfc.appendix.C" rel="Chapter" title="C ASN.1 Module"/>
-<link href="#rfc.appendix.D" rel="Chapter" title="D Acknowledgements"/>
-<link href="#rfc.appendix.E" rel="Chapter" title="E IANA Considerations"/>
-<link href="#rfc.appendix.E.1" rel="Chapter" title="E.1 Crypto-Condition Type Registry"/>
+<link href="#rfc.appendix.D" rel="Chapter" title="D IANA Considerations"/>
+<link href="#rfc.appendix.D.1" rel="Chapter" title="D.1 Crypto-Condition Type Registry"/>
 <link href="#rfc.authors" rel="Chapter"/>
 
 
   <meta name="generator" content="xml2rfc version 2.5.1 - http://tools.ietf.org/tools/xml2rfc" />
   <link rel="schema.dct" href="http://purl.org/dc/terms/" />
 
-  <meta name="dct.creator" content="Thomas, S." />
-  <meta name="dct.identifier" content="urn:ietf:id:draft-thomas-crypto-conditions-00" />
-  <meta name="dct.issued" scheme="ISO8601" content="2016-7-08" />
+  <meta name="dct.creator" content="Thomas, S. and R. Reginelli" />
+  <meta name="dct.identifier" content="urn:ietf:id:draft-thomas-crypto-conditions-01" />
+  <meta name="dct.issued" scheme="ISO8601" content="2016-8-04" />
   <meta name="dct.abstract" content="Crypto-conditions provide a mechanism to describe a signed message such that multiple actors in a distributed system can all verify the same signed message and agree on whether it matches the description. This provides a useful primitive for event-based systems that are distributed on the Internet since we can describe events in a standard deterministic manner (represented by signed messages) and therefore define generic authenticated event handlers." />
   <meta name="description" content="Crypto-conditions provide a mechanism to describe a signed message such that multiple actors in a distributed system can all verify the same signed message and agree on whether it matches the description. This provides a useful primitive for event-based systems that are distributed on the Internet since we can describe events in a standard deterministic manner (represented by signed messages) and therefore define generic authenticated event handlers." />
 
@@ -450,15 +456,15 @@
 </tr>
 <tr>
   <td class="left">Internet-Draft</td>
-  <td class="right">Ripple</td>
+  <td class="right">R. Reginelli</td>
 </tr>
 <tr>
   <td class="left">Intended status: Standards Track</td>
-  <td class="right">July 08, 2016</td>
+  <td class="right">Ripple</td>
 </tr>
 <tr>
-  <td class="left">Expires: January 9, 2017</td>
-  <td class="right"></td>
+  <td class="left">Expires: February 5, 2017</td>
+  <td class="right">August 04, 2016</td>
 </tr>
 
     	
@@ -466,7 +472,7 @@
   </table>
 
   <p class="title">Crypto-Conditions<br />
-  <span class="filename">draft-thomas-crypto-conditions-00</span></p>
+  <span class="filename">draft-thomas-crypto-conditions-01</span></p>
   
   <h1 id="rfc.abstract">
   <a href="#rfc.abstract">Abstract</a>
@@ -482,7 +488,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on January 9, 2017.</p>
+<p>This Internet-Draft will expire on February 5, 2017.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -508,10 +514,12 @@
 <ul><li>2.4.1.   <a href="#rfc.section.2.4.1">String Format</a></li>
 <li>2.4.2.   <a href="#rfc.section.2.4.2">Binary Format</a></li>
 <li>2.4.3.   <a href="#rfc.section.2.4.3">Fields</a></li>
+<li>2.4.4.   <a href="#rfc.section.2.4.4">Example Condition</a></li>
 </ul><li>2.5.   <a href="#rfc.section.2.5">Fulfillment</a></li>
 <ul><li>2.5.1.   <a href="#rfc.section.2.5.1">String Format</a></li>
 <li>2.5.2.   <a href="#rfc.section.2.5.2">Binary Format</a></li>
 <li>2.5.3.   <a href="#rfc.section.2.5.3">Fields</a></li>
+<li>2.5.4.   <a href="#rfc.section.2.5.4">Example Fulfillment</a></li>
 </ul></ul><li>3.   <a href="#rfc.section.3">Feature Suites</a></li>
 <ul><li>3.1.   <a href="#rfc.section.3.1">SHA-256</a></li>
 <li>3.2.   <a href="#rfc.section.3.2">PREIMAGE</a></li>
@@ -523,77 +531,83 @@
 <ul><li>4.1.   <a href="#rfc.section.4.1">PREIMAGE-SHA-256</a></li>
 <ul><li>4.1.1.   <a href="#rfc.section.4.1.1">Condition</a></li>
 <li>4.1.2.   <a href="#rfc.section.4.1.2">Fulfillment</a></li>
+<li>4.1.3.   <a href="#rfc.section.4.1.3">Example</a></li>
 </ul><li>4.2.   <a href="#rfc.section.4.2">PREFIX-SHA-256</a></li>
 <ul><li>4.2.1.   <a href="#rfc.section.4.2.1">Condition</a></li>
 <li>4.2.2.   <a href="#rfc.section.4.2.2">Fulfillment</a></li>
+<li>4.2.3.   <a href="#rfc.section.4.2.3">Example</a></li>
 </ul><li>4.3.   <a href="#rfc.section.4.3">THRESHOLD-SHA-256</a></li>
 <ul><li>4.3.1.   <a href="#rfc.section.4.3.1">Condition</a></li>
 <li>4.3.2.   <a href="#rfc.section.4.3.2">Fulfillment</a></li>
+<li>4.3.3.   <a href="#rfc.section.4.3.3">Example</a></li>
 </ul><li>4.4.   <a href="#rfc.section.4.4">RSA-SHA-256</a></li>
 <ul><li>4.4.1.   <a href="#rfc.section.4.4.1">Condition</a></li>
 <li>4.4.2.   <a href="#rfc.section.4.4.2">Fulfillment</a></li>
 <li>4.4.3.   <a href="#rfc.section.4.4.3">Implementation</a></li>
+<li>4.4.4.   <a href="#rfc.section.4.4.4">Example</a></li>
 </ul><li>4.5.   <a href="#rfc.section.4.5">ED25519</a></li>
 <ul><li>4.5.1.   <a href="#rfc.section.4.5.1">Condition</a></li>
 <li>4.5.2.   <a href="#rfc.section.4.5.2">Fulfillment</a></li>
+<li>4.5.3.   <a href="#rfc.section.4.5.3">Example</a></li>
 </ul></ul><li>5.   <a href="#rfc.references">References</a></li>
 <ul><li>5.1.   <a href="#rfc.references.1">Normative References</a></li>
 <li>5.2.   <a href="#rfc.references.2">Informative References</a></li>
 </ul><li>Appendix A.   <a href="#rfc.appendix.A">Security Considerations</a></li>
 <li>Appendix B.   <a href="#rfc.appendix.B">Test Values</a></li>
 <li>Appendix C.   <a href="#rfc.appendix.C">ASN.1 Module</a></li>
-<li>Appendix D.   <a href="#rfc.appendix.D">Acknowledgements</a></li>
-<li>Appendix E.   <a href="#rfc.appendix.E">IANA Considerations</a></li>
-<ul><li>E.1.   <a href="#rfc.appendix.E.1">Crypto-Condition Type Registry</a></li>
-</ul><li><a href="#rfc.authors">Author's Address</a></li>
+<li>Appendix D.   <a href="#rfc.appendix.D">IANA Considerations</a></li>
+<ul><li>D.1.   <a href="#rfc.appendix.D.1">Crypto-Condition Type Registry</a></li>
+</ul><li><a href="#rfc.authors">Authors' Addresses</a></li>
 
 
   </ul>
 
-  <h1 id="rfc.section.1"><a href="#rfc.section.1">1.</a> <a href="#intro" id="intro">Introduction</a></h1>
-<p id="rfc.section.1.p.1">This specification describes a message format for defining distributable event descriptions (crypto-conditions) and the cryptographically verifiable event messages (fulfillments) that can be used to prove that the event occurred.</p>
-<p id="rfc.section.1.p.2">The specification defines both binary and string-based encoding for the messages.</p>
+  <h1 id="rfc.section.1"><a href="#rfc.section.1">1.</a> <a href="#introduction" id="introduction">Introduction</a></h1>
+<p id="rfc.section.1.p.1">This specification describes a message format for crypto-conditions and fulfillments, with binary and string-based encodings for each.</p>
+<p id="rfc.section.1.p.2">Crypto-conditions are <strong>distributable event descriptions</strong>. This means crypto-conditions say how to recognize a message without saying exactly what the message is. You can transmit a crypto-condition freely, but you cannot forge the message it describes. For convenience, we hash the description so that the crypto-condition can be a fixed size.</p>
+<p id="rfc.section.1.p.3">Fulfillments are <strong>cryptographically verifiable messages</strong> that prove an event occurred. If you transmit a fulfillment, then everyone who has the condition can agree that the condition has been met.</p>
+<p id="rfc.section.1.p.4">In the Interledger protocol, crypto-conditions and fulfillments provide irrepudiable proof that a transfer occurred in one ledger, as messages that can be easily shared with other ledgers. This allows ledgers escrow funds or hold a transfer conditionally, then execute the transfer automatically when the ledger sees the fulfillment of the stated condition.</p>
+<p id="rfc.section.1.p.5">Crypto-conditions may also be useful in other contexts where a system needs to make a decision based on predefined criteria, such as smart contracts.</p>
 <h1 id="rfc.section.1.1"><a href="#rfc.section.1.1">1.1.</a> <a href="#terminology" id="terminology">Terminology</a></h1>
-<p id="rfc.section.1.1.p.1">The key words &#8220;MUST&#8221;, &#8220;MUST NOT&#8221;, &#8220;REQUIRED&#8221;, &#8220;SHALL&#8221;, &#8220;SHALL NOT&#8221;, &#8220;SHOULD&#8221;, &#8220;SHOULD NOT&#8221;, &#8220;RECOMMENDED&#8221;, &#8220;MAY&#8221;, and &#8220;OPTIONAL&#8221; in this document are to be interpreted as described in <a href="#RFC2119">[RFC2119]</a>.</p>
-<p id="rfc.section.1.1.p.2">Within this specification, the term &#8220;condition&#8221; refers to the hash of a description of a signed message.</p>
-<p id="rfc.section.1.1.p.3">The term &#8220;fulfillment&#8221; refers to a description of a signed message and a signed message that matches the description.</p>
-<p id="rfc.section.1.1.p.4">The description can be hashed and compared to a condition. If the message matches the description and the hash of the description matches the condition, we say that the fulfillment fulfills the condition.</p>
-<p id="rfc.section.1.1.p.5">A &#8220;hashlock&#8221; is a tuple consisting of a bytestring and its hash where the hash is published first and the publication of the corresponding bytestring acts as a one-bit, one-time signature. </p>
+<p id="rfc.section.1.1.p.1">The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <a href="#RFC2119">[RFC2119]</a>.</p>
+<p id="rfc.section.1.1.p.2">Within this specification, the term "condition" refers to the hash of a description of a signed message. The hash function must be preimage-resistant.</p>
+<p id="rfc.section.1.1.p.3">The term "fulfillment" refers to a description of a signed message and a signed message that matches the description. We hash the description and compare that to the condition, and also compare the signed message to the description. If the message matches the description and the hash of the description matches the condition, we say that the fulfillment fulfills the condition.</p>
+<p id="rfc.section.1.1.p.4">In the simplest case, the fulfillment can be a preimage that hashes to the condition, in which case the preimage is both the description and the message.</p>
 <h1 id="rfc.section.1.2"><a href="#rfc.section.1.2">1.2.</a> <a href="#features" id="features">Features</a></h1>
-<p id="rfc.section.1.2.p.1">Crypto-conditions are a simple multi-algorithm, multi-level, multi-signature standard format for expressing conditions and fulfillments.</p>
+<p id="rfc.section.1.2.p.1">Crypto-conditions are a standard format for expressing conditions and fulfillments. The format supports multiple algorithms, including different hash functions and cryptographic signing schemes. Crypto-conditions can be nested in multiple levels, with each level possibly having multiple signatures.</p>
+<p id="rfc.section.1.2.p.2">This format has been designed so that it can be expanded. For example, you can add new cryptographic signature schemes or hash functions. This is important because advances in cryptography frequently render old algorithms insecure or invent newer, more effective algorithms.</p>
+<p id="rfc.section.1.2.p.3">The <a href="#bitmask">Section 2.3</a> of a crypto-condition indicates which algorithms it uses, so a compliant implementation can know whether it supports the functionality required to interpret the crypto-condition.</p>
 <h1 id="rfc.section.1.2.1"><a href="#rfc.section.1.2.1">1.2.1.</a> <a href="#multi-algorithm" id="multi-algorithm">Multi-Algorithm</a></h1>
-<p id="rfc.section.1.2.1.p.1">Crypto-conditions can support several different signature and hash algorithms and support for new ones can be added in the future.</p>
-<p id="rfc.section.1.2.1.p.2">Implementations can state their supported algorithms simply by providing a bitmask. It is easy to verify that a given implementation will be able to verify the fulfillment to a given condition, by verifying that all bits that are set in the condition&#8217;s bitmask are also set in the implementation&#8217;s supported features bitmask.</p>
-<p id="rfc.section.1.2.1.p.3">Any new high bit can redefine the meaning of any existing lower bits when it is set. This can be used to remove obsolete algorithms.</p>
-<p id="rfc.section.1.2.1.p.4">The bitmask is encoded as a varint to minimize space usage.</p>
-<p id="rfc.section.1.2.1.p.5">By evaluating the bitmask of a condition actors in the system can establish, even before a fulfillment is published, if they will be able to verify the fulfilment.</p>
+<p id="rfc.section.1.2.1.p.1">The crypto-condition format contains a <a href="#bitmask">Section 2.3</a> that specifies which hash function and signing scheme to use. Any message format for a condition or a fulfillment contains such a bitmask.</p>
+<p id="rfc.section.1.2.1.p.2">Implementations MAY state their supported algorithms by providing a bitmask in the same format. To verify that a given implementation can verify a fulfillment for a given condition, you compare the bitmasks. If all bits set in the condition's bitmask are also set in the implementation's bitmask, then the implementation can verify the condition's fulfillment.</p>
 <h1 id="rfc.section.1.2.2"><a href="#rfc.section.1.2.2">1.2.2.</a> <a href="#multi-signature" id="multi-signature">Multi-Signature</a></h1>
 <p id="rfc.section.1.2.2.p.1">Crypto-conditions can abstract away many of the details of multi-sign. When a party provides a condition, other parties can treat it opaquely and do not need to know about its internal structure. That allows parties to define arbitrary multi-signature setups without breaking compatibility.</p>
 <p id="rfc.section.1.2.2.p.2">Protocol designers can use crypto-conditions as a drop-in replacement for public key signature algorithms and add multi-signature support to their protocols without adding any additional complexity.</p>
 <h1 id="rfc.section.1.2.3"><a href="#rfc.section.1.2.3">1.2.3.</a> <a href="#multi-level" id="multi-level">Multi-Level</a></h1>
-<p id="rfc.section.1.2.3.p.1">Basic multi-sign is single-level and does not support more complex trust relationships such as &#8220;I trust Alice and Bob, but only when Candice also agrees&#8221;. In single level 2-of-3 Alice and Bob could sign on their own, without Candice&#8217;s approval.</p>
-<p id="rfc.section.1.2.3.p.2">Crypto-conditions add that flexibility elegantly, by applying thresholds not just to signatures, but to conditions which can be signatures or further conditions. That allows the creation of an arbitrary threshold boolean circuit of signatures. </p>
+<p id="rfc.section.1.2.3.p.1">Crypto-conditions elegantly support weighted multi-signatures and multi-level signatures. A threshold condition has a number of weighted subconditions, and a target threshold. Each subcondition can be a signature or another threshold condition. This provides flexibility in forming complex conditions.</p>
+<p id="rfc.section.1.2.3.p.2">For example, consider a threshold condition that consists of two subconditions, one each from Agnes and Bruce. Agnes's condition can be a signature condition while Bruce's condition is a threshold condition, requiring both Claude and Dan to sign for him.</p>
+<p id="rfc.section.1.2.3.p.3">Weighted signatures allow more complex relationships than simple M-of-N signing. For example, a weighted condition can support an arrangement of subconditions such as, "Either Ron, Adi, and Leonard must approve; or Clifford must approve."</p>
 <h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> <a href="#format" id="format">Format</a></h1>
 <h1 id="rfc.section.2.1"><a href="#rfc.section.2.1">2.1.</a> <a href="#binary-encoding" id="binary-encoding">Binary Encoding</a></h1>
-<p id="rfc.section.2.1.p.1">An description of crypto-conditions is provided in this document using Abstract Syntax Notation One (ASN.1) as defined in <a href="#itu.X680.2015">[itu.X680.2015]</a>. Implementations of this spec MUST support encoding and decoding using Octet Encoding Rules (OER) as defined in <a href="#itu.X696.2015">[itu.X696.2015]</a>.</p>
+<p id="rfc.section.2.1.p.1">A description of crypto-conditions is provided in this document using Abstract Syntax Notation One (ASN.1) as defined in <a href="#itu.X680.2015">[itu.X680.2015]</a>. Implementations of this spec MUST support encoding and decoding using Octet Encoding Rules (OER) as defined in <a href="#itu.X696.2015">[itu.X696.2015]</a>.</p>
 <h1 id="rfc.section.2.2"><a href="#rfc.section.2.2">2.2.</a> <a href="#string-types" id="string-types">String Types</a></h1>
+<p id="rfc.section.2.2.p.1">Crypto-conditions use the following types within string encoding:</p>
 <p/>
 
 <dl>
   <dt>BASE10</dt>
-  <dd style="margin-left: 8">Variable-length integer encoded as a base-10 (decimal) number. Implementations MUST reject encodings that are too large for them to parse. Implementations MUST be tested for overflows.</dd>
+  <dd style="margin-left: 8">Variable-length integer encoded as a base-10 (decimal) number. Implementations MUST reject encoded values that are too large for them to parse. Implementations MUST be tested for overflows.</dd>
   <dt>BASE16</dt>
-  <dd style="margin-left: 8">Variable-length integer encoded as a base-16 (hexadecimal) number. Implementations MUST reject encodings that are too large for them to parse. Implementations MUST be tested for overflows. No leading zeros.</dd>
+  <dd style="margin-left: 8">Variable-length integer encoded as a base-16 (hexadecimal) number. Implementations MUST reject encoded values that are too large for them to parse. Implementations MUST be tested for overflows. No leading zeros.</dd>
   <dt>BASE64URL</dt>
-  <dd style="margin-left: 8">Base64-URL encoding. See <a href="#RFC4648">[RFC4648]</a> , Section 5.</dd>
+  <dd style="margin-left: 8">Base64-URL encoding. See <a href="#RFC4648">[RFC4648]</a>, Section 5.</dd>
 </dl>
 <h1 id="rfc.section.2.3"><a href="#rfc.section.2.3">2.3.</a> <a href="#bitmask" id="bitmask">Bitmask</a></h1>
-<p id="rfc.section.2.3.p.1">Any system accepting crypto-conditions must be able to state its supported algorithms. It must be possible to verify that all algorithms used in a certain condition are indeed supported even if the fulfillment is not available yet.</p>
-<p id="rfc.section.2.3.p.2">In order to meet these design goals, we define a bitmask to express the supported primitives.</p>
-<p id="rfc.section.2.3.p.3">Each bit represents a different suite of features. Each type of condition depends on one or more feature suites. If an implementation supports all feature suites that a certain type depends on, the implementation MUST support that condition type. The list of known types and feature suites is the IANA maintained <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite> .</p>
-<p id="rfc.section.2.3.p.4">Conditions contain a bitmask of types which they require the implementation to support. Implementations provide a bitmask of types they support.</p>
+<p id="rfc.section.2.3.p.1">Any system that accepts crypto-conditions must be able to state its supported algorithms. It must be possible to verify that all algorithms used in a certain condition are indeed supported even if the fulfillment is not available yet. Therefore, all conditions and fulfillments contain a bitmask to express the required features. Implementations provide a bitmask of features they support.</p>
+<p id="rfc.section.2.3.p.2">Each bit represents a different suite of features. Each type of crypto-condition depends on one or more feature suites. If an implementation supports all feature suites that a certain type depends on, the implementation MUST support that condition type. The list of known types and feature suites is the IANA-maintained <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite> .</p>
+<p id="rfc.section.2.3.p.3">To save space, the bitmask is encoded as a variable-length integer.</p>
 <h1 id="rfc.section.2.4"><a href="#rfc.section.2.4">2.4.</a> <a href="#condition-format" id="condition-format">Condition</a></h1>
-<p id="rfc.section.2.4.p.1">Below are the string and binary encoding formats for a condition. In both, the featureBitmask is the boolean OR of the feature suite bitmasks of the top-level condition type and all subcondition types, recursively.</p>
+<p id="rfc.section.2.4.p.1">Below are the string and binary encoding formats for a condition.</p>
 <h1 id="rfc.section.2.4.1"><a href="#rfc.section.2.4.1">2.4.1.</a> <a href="#string-condition-format" id="string-condition-format">String Format</a></h1>
 <p id="rfc.section.2.4.1.p.1">Conditions are ASCII encoded as:</p>
 <pre>
@@ -625,12 +639,64 @@ ConditionType ::= INTEGER {
   <dt>type</dt>
   <dd style="margin-left: 8">is the numeric type identifier representing the condition type.</dd>
   <dt>featureBitmask</dt>
-  <dd style="margin-left: 8">is an octet string encoding the set of feature suites an implementation must support in order to be able to successfully parse the fulfillment to this condition.</dd>
+  <dd style="margin-left: 8">is an octet string encoding the set of feature suites an implementation must support in order to be able to successfully parse the fulfillment to this condition. This is the boolean OR of the featureBitmask values of the top-level condition type and all subcondition types, recursively.</dd>
   <dt>fingerprint</dt>
   <dd style="margin-left: 8">is an octet string uniquely representing the condition with respect to other conditions of the same type. Implementations which index conditions MUST use the entire string or binary encoded condition as the key, not just the fingerprint - as different conditions of different types may have the same fingerprint. The length and contents of the fingerprint are defined by the condition type. For most condition types, the fingerprint is a cryptographically secure hash of the data which defines the condition, such as a public key.</dd>
   <dt>maxFulfillmentLength</dt>
-  <dd style="margin-left: 8">is the maximum length of the fulfillment payload that can fulfill this condition. When a crypto-condition is submitted to an implementation, this implementation MUST verify that it will be able to process a fulfillment with a payload of size maxFulfillmentLength.</dd>
+  <dd style="margin-left: 8">is the maximum length of the fulfillment payload that can fulfill this condition, in bytes. The payload size is measured unencoded. (The size of the payload is larger in BASE64URL format.) When a crypto-condition is submitted to an implementation, this implementation MUST verify that it will be able to process a fulfillment with a payload of size maxFulfillmentLength.</dd>
 </dl>
+<h1 id="rfc.section.2.4.4"><a href="#rfc.section.2.4.4">2.4.4.</a> <a href="#example-condition" id="example-condition">Example Condition</a></h1>
+<p id="rfc.section.2.4.4.p.1">An example condition in string format:</p>
+<pre>
+cc:0:3:dB-8fb14MdO75Brp_Pvh4d7ganckilrRl13RS_UmrXA:66
+</pre>
+<p id="rfc.section.2.4.4.p.2">The example has the following attributes:</p>
+<table cellpadding="3" cellspacing="0" class="tt full center">
+  <thead>
+    <tr>
+      <th class="left">Field</th>
+      <th class="left">Value</th>
+      <th class="left">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="left">preface</td>
+      <td class="left">
+        <samp>cc</samp>
+      </td>
+      <td class="left">Constant. Indicates this is a condition.</td>
+    </tr>
+    <tr>
+      <td class="left">type</td>
+      <td class="left">
+        <samp>0</samp>
+      </td>
+      <td class="left">Type 0 is [PREIMAGE-SHA-256][].</td>
+    </tr>
+    <tr>
+      <td class="left">featuresBitmask</td>
+      <td class="left">
+        <samp>3</samp>
+      </td>
+      <td class="left">Boolean-OR combination of feature suites SHA-256 (feature bit 0x01) and PREIMAGE (feature bit 0x02).</td>
+    </tr>
+    <tr>
+      <td class="left">fingerprint</td>
+      <td class="left">
+        <samp>dB-8fb14MdO75Brp_Pvh4d7ganckilrRl13RS_UmrXA</samp>
+      </td>
+      <td class="left">The hash of the fulfillment for this condition.</td>
+    </tr>
+    <tr>
+      <td class="left">maxFulfillmentLength</td>
+      <td class="left">
+        <samp>66</samp>
+      </td>
+      <td class="left">The fulfillment payload is 66 bytes long, before being BASE64URL-encoded.</td>
+    </tr>
+  </tbody>
+</table>
 <h1 id="rfc.section.2.5"><a href="#rfc.section.2.5">2.5.</a> <a href="#fulfillment-format" id="fulfillment-format">Fulfillment</a></h1>
 <p id="rfc.section.2.5.p.1">Below are the string and binary encoding formats for a fulfillment.</p>
 <h1 id="rfc.section.2.5.1"><a href="#rfc.section.2.5.1">2.5.1.</a> <a href="#string-fulfillment-format" id="string-fulfillment-format">String Format</a></h1>
@@ -655,39 +721,131 @@ Fulfillment ::= SEQUENCE {
   <dt>payload</dt>
   <dd style="margin-left: 8">The payload is an octet string whose internal format is defined by each of the types.</dd>
 </dl>
+<h1 id="rfc.section.2.5.4"><a href="#rfc.section.2.5.4">2.5.4.</a> <a href="#example-fulfillment" id="example-fulfillment">Example Fulfillment</a></h1>
+<p id="rfc.section.2.5.4.p.1">The following is an example fulfillment in string format, for the <a href="#example-condition">example condition</a> <cite title="NONE">[example-condition]</cite>:</p>
+<pre>
+cf:0:VGhlIG9ubHkgYmFzaXMgZm9yIGdvb2QgU29jaWV0eSBpcyB1bmxpbWl0ZWQgY3JlZGl0LuKAlE9zY2FyIFdpbGRl
+</pre>
+<p id="rfc.section.2.5.4.p.2">The example has the following attributes:</p>
+<table cellpadding="3" cellspacing="0" class="tt full center">
+  <thead>
+    <tr>
+      <th class="left">Field</th>
+      <th class="left">Value</th>
+      <th class="left">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="left">preface</td>
+      <td class="left">
+        <samp>cf</samp>
+      </td>
+      <td class="left">Constant. Indicates this is a fulfillment.</td>
+    </tr>
+    <tr>
+      <td class="left">type</td>
+      <td class="left">
+        <samp>0</samp>
+      </td>
+      <td class="left">Type 0 is [PREIMAGE-SHA-256][].</td>
+    </tr>
+    <tr>
+      <td class="left">payload</td>
+      <td class="left">
+        <samp>VGhlIG...pbGRl</samp>
+      </td>
+      <td class="left">The BASE64URL-encoded SHA-256 preimage of the condition, since this is a PREIMAGE-SHA-256 type fulfillment. In this case, it is an arbitrary string.</td>
+    </tr>
+  </tbody>
+</table>
 <h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#feature-suites" id="feature-suites">Feature Suites</a></h1>
-<p id="rfc.section.3.p.1">The following feature suites are defined in this version of the specification. New feature suites may be defined in the future and will be registered in the IANA maintained <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite></p>
-<p id="rfc.section.3.p.2">Support for a condition type MUST depend on one or more feature suites. Future versions of this spec MAY introduce new feature bits and condition types. However, all new condition types MUST depend on at least one of the new feature suites. This ensures that all previously created implementations correctly recognize that they do not support the new type.</p>
+<p id="rfc.section.3.p.1">This specification defines a starting set of feature suites necessary to support the [Condition Types][] also defined in this specification. Future versions of this spec MAY introduce new feature suites and condition types, which SHALL be registered in the IANA maintained <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite>.</p>
+<p id="rfc.section.3.p.2">Support for a condition type MUST depend on one or more feature suites.  However, all new condition types MUST depend on at least one of the new feature suites. This ensures that all previously created implementations correctly recognize that they do not support the new type.</p>
 <p id="rfc.section.3.p.3">Feature suites are chosen such that they represent reasonable clusters of functionality. For instance, it is reasonable to require that an implementation which supports SHA-256 in one context MUST support it in all contexts, since it already needed to implement the algorithm.</p>
 <p id="rfc.section.3.p.4">An implementation which supports a certain set of feature suites MUST accept all condition types which depend only on that set or any subset of feature suites.</p>
+<table cellpadding="3" cellspacing="0" class="tt full center">
+  <thead>
+    <tr>
+      <th class="left">Suite Name</th>
+      <th class="left">Feature Bit</th>
+      <th class="left">Feature Bit (BASE16)</th>
+      <th class="left">Summary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="left">SHA-256</td>
+      <td class="left">2^0</td>
+      <td class="left">0x01</td>
+      <td class="left">The SHA-256 hashing algorithm.</td>
+    </tr>
+    <tr>
+      <td class="left">PREIMAGE</td>
+      <td class="left">2^1</td>
+      <td class="left">0x02</td>
+      <td class="left">The functionality of comparing a hash to a preimage.</td>
+    </tr>
+    <tr>
+      <td class="left">PREFIX</td>
+      <td class="left">2^2</td>
+      <td class="left">0x04</td>
+      <td class="left">The functionality of prefixing the fulfillment with a prefix before generating the condition.</td>
+    </tr>
+    <tr>
+      <td class="left">THRESHOLD</td>
+      <td class="left">2^3</td>
+      <td class="left">0x08</td>
+      <td class="left">The functionality of composing a condition out of several weighted subconditions.</td>
+    </tr>
+    <tr>
+      <td class="left">RSA-PSS</td>
+      <td class="left">2^4</td>
+      <td class="left">0x10</td>
+      <td class="left">The RSA-PSS signature algorithm.</td>
+    </tr>
+    <tr>
+      <td class="left">ED25519</td>
+      <td class="left">2^5</td>
+      <td class="left">0x20</td>
+      <td class="left">The ED25519 signature algorithm.</td>
+    </tr>
+  </tbody>
+</table>
 <h1 id="rfc.section.3.1"><a href="#rfc.section.3.1">3.1.</a> <a href="#sha-256-feature-suite" id="sha-256-feature-suite">SHA-256</a></h1>
-<p id="rfc.section.3.1.p.1">SHA-256 is a hashing algorithm and is assigned the feature bit 2^0 = 0x01.</p>
+<p id="rfc.section.3.1.p.1">The SHA-256 feature suite provides the SHA-256 hash function. SHA-256 is a cryptographic hash function published by the US National Institute of Standards and Technology that produces 256 bits of output. This feature suite is assigned the feature bit 2^0 = 0x01.</p>
 <h1 id="rfc.section.3.2"><a href="#rfc.section.3.2">3.2.</a> <a href="#preimage-feature-suite" id="preimage-feature-suite">PREIMAGE</a></h1>
-<p id="rfc.section.3.2.p.1">PREIMAGE refers to hashlock conditions and is assigned the feature bit 2^1 = 0x02.</p>
-<p id="rfc.section.3.2.p.2">A preimage condition is the hash of its own fulfillment. In order to fulfill a preimage condition, a valid preimage must be provided.</p>
-<p id="rfc.section.3.2.p.3">Preimage conditions can be used as a so-called hashlock. Since cryptographically secure hashing functions are preimage-resistant, only the original creator of a preimage condition can feasibly produce the preimage if it contains a large amount of random entropy.</p>
+<p id="rfc.section.3.2.p.1">The PREIMAGE feature suite provides conditions that use a preimage as a one-time signature. This feature suite is assigned the feature bit 2^1 = 0x02.</p>
+<p id="rfc.section.3.2.p.2">The fingerprint of a preimage condition is the hash of an arbitrary value. The payload of a preimage fulfillment is the hashed arbitrary value before hashing, also known as the preimage. Conditions that use this preimage MUST also rely on a cryptographically secure hashing algorithm. Since cryptographically secure hashing functions are preimage-resistant, only the original creator of a preimage condition can produce the preimage, as long as it contains a large amount of random entropy.</p>
 <h1 id="rfc.section.3.3"><a href="#rfc.section.3.3">3.3.</a> <a href="#prefix-feature-suite" id="prefix-feature-suite">PREFIX</a></h1>
-<p id="rfc.section.3.3.p.1">PREFIX is a structural condition and is assigned the feature bit 2^2 = 0x04.</p>
-<p id="rfc.section.3.3.p.2">A prefix condition condition contains exactly one subcondition. When validated it simply prepends the message to be validated with a constant string before passing it on to the subcondition&#8217;s validation function.</p>
+<p id="rfc.section.3.3.p.1">The PREFIX feature suite provides conditions that prepend a fixed message to a subcondition. This feature suite is assigned the feature bit 2^2 = 0x04.</p>
+<p id="rfc.section.3.3.p.2">A prefix condition prepends the message to be validated with a constant string before passing it on to the subcondition's validation function. </p>
 <h1 id="rfc.section.3.4"><a href="#rfc.section.3.4">3.4.</a> <a href="#threshold-feature-suite" id="threshold-feature-suite">THRESHOLD</a></h1>
-<p id="rfc.section.3.4.p.1">THRESHOLD is a structural condition and is assigned the feature bit 2^3 = 0x08.</p>
-<p id="rfc.section.3.4.p.2">Threshold conditions provide a way to create m-of-n threshold combinations of other conditions such that m of the n subconditions have to be fulfilled in order for the threshold condition to be fulfilled.</p>
-<p id="rfc.section.3.4.p.3">Weights are also supported which allow one subcondition to count as multiple fulfilled subconditions towards the threshold.</p>
+<p id="rfc.section.3.4.p.1">The THRESHOLD feature suite provides conditions that have several weighted subconditions and a threshold number. This feature suite is assigned the feature bit 2^3 = 0x08.</p>
+<p id="rfc.section.3.4.p.2">Threshold conditions provide flexible multi-signing, such as requiring "M-of-N" subconditions be fulfilled. Subconditions can also be weighted so that one subcondition can count multiple times towards meeting the threshold.</p>
 <h1 id="rfc.section.3.5"><a href="#rfc.section.3.5">3.5.</a> <a href="#rsa-pss-feature-suite" id="rsa-pss-feature-suite">RSA-PSS</a></h1>
-<p id="rfc.section.3.5.p.1">RSA-PSS is a signature algorithm and is assigned the feature bit 2^4 = 0x10.</p>
+<p id="rfc.section.3.5.p.1">The RSA-PSS feature suite provides the RSS-PSA signature algorithm. RSA-PSS is a signature algorithm based on the RSA cryptosystem, which relates to the problem of factoring the product of two large prime numbers. This feature suite is assigned the feature bit 2^4 = 0x10.</p>
 <h1 id="rfc.section.3.6"><a href="#rfc.section.3.6">3.6.</a> <a href="#ed25519-feature-suite" id="ed25519-feature-suite">ED25519</a></h1>
-<p id="rfc.section.3.6.p.1">ED25519 is a signature algorithm and is assigned the feature bit 2^5 = 0x20.</p>
-<p id="rfc.section.3.6.p.2">ED25519 is a compact elliptic curve based signature algorithm.</p>
+<p id="rfc.section.3.6.p.1">The ED25519 feature suite provides the Ed25519 signature algorithm. Ed25519 is a signature algorithm based on the EdDSA signing scheme and the compact elliptic curve known as Ed25519. This feature suite is assigned the feature bit 2^5 = 0x20.</p>
 <h1 id="rfc.section.4"><a href="#rfc.section.4">4.</a> <a href="#condition-types" id="condition-types">Condition Types</a></h1>
-<p id="rfc.section.4.p.1">The following condition types are defined in this version of the specification. New types may be defined in the future and will be registered in the IANA maintained <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite></p>
+<p id="rfc.section.4.p.1">The following condition types are defined in this version of the specification. Future versions of this spec MAY introduce new feature suites and condition types, which SHALL be registered in the IANA maintained <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite>.</p>
 <h1 id="rfc.section.4.1"><a href="#rfc.section.4.1">4.1.</a> <a href="#preimage-sha-256-condition-type" id="preimage-sha-256-condition-type">PREIMAGE-SHA-256</a></h1>
 <p id="rfc.section.4.1.p.1">PREIMAGE-SHA-256 is assigned the type ID 0. It relies on the SHA-256 and PREIMAGE feature suites which corresponds to a feature bitmask of 0x03.</p>
-<p id="rfc.section.4.1.p.2">This type of condition is also called a hashlock. By creating a hash of a difficult-to-guess 256-bit random or pseudo-random integer it is possible to create a condition which the creator can trivially fulfill by publishing the random value. However, for anyone else, the condition is cryptgraphically hard to fulfill, because they would have to find a preimage for the given condition hash.</p>
+<p id="rfc.section.4.1.p.2">This type of condition is also called a "hashlock". By creating a hash of a difficult-to-guess 256-bit random or pseudo-random integer it is possible to create a condition which the creator can trivially fulfill by publishing the random value. However, for anyone else, the condition is cryptographically hard to fulfill, because they would have to find a preimage for the given condition hash.</p>
 <p id="rfc.section.4.1.p.3">Bitcoin supports this type of condition via the OP_HASH256 operator.</p>
 <h1 id="rfc.section.4.1.1"><a href="#rfc.section.4.1.1">4.1.1.</a> <a href="#preimage-sha-256-condition-type-condition" id="preimage-sha-256-condition-type-condition">Condition</a></h1>
 <p id="rfc.section.4.1.1.p.1">The fingerprint of a PREIMAGE-SHA-256 condition is the SHA-256 hash of the preimage.</p>
 <h1 id="rfc.section.4.1.2"><a href="#rfc.section.4.1.2">4.1.2.</a> <a href="#preimage-sha-256-condition-type-fulfillment" id="preimage-sha-256-condition-type-fulfillment">Fulfillment</a></h1>
 <p id="rfc.section.4.1.2.p.1">The fulfillment payload of a PREIMAGE-SHA-256 condition is the preimage.</p>
+<h1 id="rfc.section.4.1.3"><a href="#rfc.section.4.1.3">4.1.3.</a> <a href="#preimage-sha-256-example" id="preimage-sha-256-example">Example</a></h1>
+<p id="rfc.section.4.1.3.p.1">Example condition:</p>
+<pre>
+cc:0:3:dB-8fb14MdO75Brp_Pvh4d7ganckilrRl13RS_UmrXA:66
+</pre>
+<p id="rfc.section.4.1.3.p.2">Example fulfillment:</p>
+<pre>
+cf:0:VGhlIG9ubHkgYmFzaXMgZm9yIGdvb2QgU29jaWV0eSBpcyB1bmxpbWl0ZWQgY3JlZGl0LuKAlE9zY2FyIFdpbGRl
+</pre>
 <h1 id="rfc.section.4.2"><a href="#rfc.section.4.2">4.2.</a> <a href="#prefix-sha-256-condition-type" id="prefix-sha-256-condition-type">PREFIX-SHA-256</a></h1>
 <p id="rfc.section.4.2.p.1">PREFIX-SHA-256 is assigned the type ID 1. It relies on the SHA-256 and PREFIX feature suites which corresponds to a feature bitmask of 0x05.</p>
 <p id="rfc.section.4.2.p.2">Prefix conditions provide a way to effective narrow the scope of other conditions. A condition can be used as the fingerprint of a public key to sign an arbitrary message. By creating a prefix subcondition we can narrow the scope from signing an arbitrary message to signing a message with a specific prefix.</p>
@@ -723,6 +881,15 @@ PrefixSha256FulfillmentPayload ::= SEQUENCE {
   <dt>subfulfillment</dt>
   <dd style="margin-left: 8">is the fulfilled subcondition.</dd>
 </dl>
+<h1 id="rfc.section.4.2.3"><a href="#rfc.section.4.2.3">4.2.3.</a> <a href="#prefix-sha-256-example" id="prefix-sha-256-example">Example</a></h1>
+<p id="rfc.section.4.2.3.p.1">Example condition:</p>
+<pre>
+cc:1:25:7myveZs3EaZMMuez-3kq6u69BDNYMYRMi_VF9yIuFLc:102
+</pre>
+<p id="rfc.section.4.2.3.p.2">Example fulfillment:</p>
+<pre>
+cf:1:DUhlbGxvIFdvcmxkISAABGDsFyuTrV5WO_STLHDhJFA0w1Rn7y79TWTr-BloNGfiv7YikfrZQy-PKYucSkiV2-KT9v_aGmja3wzN719HoMchKl_qPNqXo_TAPqny6Kwc7IalHUUhJ6vboJ0bbzMcBwo
+</pre>
 <h1 id="rfc.section.4.3"><a href="#rfc.section.4.3">4.3.</a> <a href="#threshold-sha-256-condition-type" id="threshold-sha-256-condition-type">THRESHOLD-SHA-256</a></h1>
 <p id="rfc.section.4.3.p.1">THRESHOLD-SHA-256 is assigned the type ID 2. It relies on the SHA-256 and THRESHOLD feature suites which corresponds to a feature bitmask of 0x09.</p>
 <h1 id="rfc.section.4.3.1"><a href="#rfc.section.4.3.1">4.3.1.</a> <a href="#threshold-sha-256-condition-type-condition" id="threshold-sha-256-condition-type-condition">Condition</a></h1>
@@ -778,6 +945,15 @@ ThresholdSubfulfillment ::= SEQUENCE {
   <dt>fulfillment</dt>
   <dd style="margin-left: 8">is the subfulfillment if this subcondition is fulfilled.</dd>
 </dl>
+<h1 id="rfc.section.4.3.3"><a href="#rfc.section.4.3.3">4.3.3.</a> <a href="#threshold-sha-256-example" id="threshold-sha-256-example">Example</a></h1>
+<p id="rfc.section.4.3.3.p.1">Example condition:</p>
+<pre>
+cc:2:2b:mJUaGKCuF5n-3tfXM2U81VYtHbX-N8MP6kz8R-ASwNQ:146
+</pre>
+<p id="rfc.section.4.3.3.p.2">Example fulfillment:</p>
+<pre>
+cf:2:AQEBAgEBAwAAAAABAQAnAAQBICDsFyuTrV5WO_STLHDhJFA0w1Rn7y79TWTr-BloNGfivwFg
+</pre>
 <h1 id="rfc.section.4.4"><a href="#rfc.section.4.4">4.4.</a> <a href="#rsa-sha-256-condition-type" id="rsa-sha-256-condition-type">RSA-SHA-256</a></h1>
 <p id="rfc.section.4.4.p.1">RSA-SHA-256 is assigned the type ID 3. It relies on the SHA-256 and RSA-PSS feature suites which corresponds to a feature bitmask of 0x11.</p>
 <p id="rfc.section.4.4.p.2">The signature algorithm used is RSASSA-PSS as defined in PKCS#1 v2.2. <a href="#RFC3447">[RFC3447]</a></p>
@@ -819,6 +995,15 @@ RsaSha256FulfillmentPayload ::= SEQUENCE {
 <p id="rfc.section.4.4.2.p.2">The message to be signed is provided separately. If no message is provided, the message is assumed to be an octet string of length zero.</p>
 <h1 id="rfc.section.4.4.3"><a href="#rfc.section.4.4.3">4.4.3.</a> <a href="#rsa-sha-256-condition-type-implementation" id="rsa-sha-256-condition-type-implementation">Implementation</a></h1>
 <p id="rfc.section.4.4.3.p.1">The recommended modulus size as of 2016 is 2048 bits <a href="#KEYLENGTH-RECOMMENDATION">[KEYLENGTH-RECOMMENDATION]</a> . In the future we anticipate an upgrade to 3072 bits which provides approximately 128 bits of security <a href="#NIST-KEYMANAGEMENT">[NIST-KEYMANAGEMENT]</a> (p. 64), about the same level as SHA-256.</p>
+<h1 id="rfc.section.4.4.4"><a href="#rfc.section.4.4.4">4.4.4.</a> <a href="#rsa-sha-256-example" id="rsa-sha-256-example">Example</a></h1>
+<p id="rfc.section.4.4.4.p.1">Example condition:</p>
+<pre>
+cc:3:11:Bw-r77AGqSCL0huuMQYj3KW0Jh67Fpayeq9h_4UJctg:260
+</pre>
+<p id="rfc.section.4.4.4.p.2">Example fulfillment:</p>
+<pre>
+cf:3:gYCzDnqTh4O6v4NoUP9J4U-H4_ktXEbjP-yj5PCyI1hYCxF2WZX0uO6n-0cSwuHjFvf3dalT0jIhahadmmTdwAcSCkALN_KvwHe2L-ME3nTeahGexAdrUpxPYJawuq1PUz3wFzubgi_YXWX6S--pLY9ST2nLygE2vYDQlcFprsDglYGAjQM0-Z5B-953uQtJ5dXL1D5TWpM0s0eFF0Zty7J2Y3Nb0PqsR5I47a2wYlA7-106vjC8gHFdHVeSR6JksSrhj8YaMWfV0A6qhPz6hq-TqSKCXd4mf3eCpyyFYR_EyH5zXd56sJEU3snWlFbB_bKAW4si_qdfY9dT87YGUp_Grm0
+</pre>
 <h1 id="rfc.section.4.5"><a href="#rfc.section.4.5">4.5.</a> <a href="#ed25519-condition-type" id="ed25519-condition-type">ED25519</a></h1>
 <p id="rfc.section.4.5.p.1">ED25519 is assigned the type ID 4. It relies only on the ED25519 feature suite which corresponds to a bitmask of 0x20.</p>
 <p id="rfc.section.4.5.p.2">The exact algorithm and encodings used for public key and signature are defined in <a href="#I-D.irtf-cfrg-eddsa">[I-D.irtf-cfrg-eddsa]</a> as Ed25519. SHA-512 is used as the hashing function.</p>
@@ -840,6 +1025,15 @@ Ed25519FulfillmentPayload ::= SEQUENCE {
   <dt>signature</dt>
   <dd style="margin-left: 8">is an octet string containing the Ed25519 signature.</dd>
 </dl>
+<h1 id="rfc.section.4.5.3"><a href="#rfc.section.4.5.3">4.5.3.</a> <a href="#example" id="example">Example</a></h1>
+<p id="rfc.section.4.5.3.p.1">Example condition:</p>
+<pre>
+cc:4:20:7Bcrk61eVjv0kyxw4SRQNMNUZ-8u_U1k6_gZaDRn4r8:96
+</pre>
+<p id="rfc.section.4.5.3.p.2">Example fulfillment:</p>
+<pre>
+cf:4:7Bcrk61eVjv0kyxw4SRQNMNUZ-8u_U1k6_gZaDRn4r-2IpH62UMvjymLnEpIldvik_b_2hpo2t8Mze9fR6DHISpf6jzal6P0wD6p8uisHOyGpR1FISer26CdG28zHAcK
+</pre>
 <h1 id="rfc.references"><a href="#rfc.references">5.</a> References</h1>
 <h1 id="rfc.references.1"><a href="#rfc.references.1">5.1.</a> Normative References</h1>
 <table>
@@ -854,13 +1048,13 @@ Ed25519FulfillmentPayload ::= SEQUENCE {
       <td class="reference">
         <b id="itu.X680.2015">[itu.X680.2015]</b>
       </td>
-      <td class="top"><a>International Telecommunications Union</a>, "<a href="http://www.itu.int/rec/T-REC-X.680-201508-I/">Information technology &#8211; Abstract Syntax Notation One (ASN.1): Specification of basic notation</a>", n.d..</td>
+      <td class="top"><a>International Telecommunications Union</a>, "<a href="https://www.itu.int/rec/T-REC-X.680-201508-I/">Information technology &#8211; Abstract Syntax Notation One (ASN.1): Specification of basic notation</a>", August 2015.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="itu.X696.2015">[itu.X696.2015]</b>
       </td>
-      <td class="top"><a>International Telecommunications Union</a>, "<a href="http://handle.itu.int/11.1002/1000/12487">Information technology &#8211; ASN.1 encoding rules: Specification of Octet Encoding Rules (OER)</a>", n.d..</td>
+      <td class="top"><a>International Telecommunications Union</a>, "<a href="http://handle.itu.int/11.1002/1000/12487">Information technology &#8211; ASN.1 encoding rules: Specification of Octet Encoding Rules (OER)</a>", August 2015.</td>
     </tr>
     <tr>
       <td class="reference">
@@ -901,13 +1095,13 @@ Ed25519FulfillmentPayload ::= SEQUENCE {
       </td>
       <td class="top"><a>Allman, E.</a>, <a>Callas, J.</a>, <a>Delany, M.</a>, <a>Libbey, M.</a>, <a>Fenton, J.</a> and <a>M. Thomas</a>, <a href="http://tools.ietf.org/html/rfc4871">DomainKeys Identified Mail (DKIM) Signatures</a>", RFC 4871, DOI 10.17487/RFC4871, May 2007.</td>
     </tr>
-    <tr><td class="reference"><b id="USING-RSA-EXPONENT-OF-65537">[USING-RSA-EXPONENT-OF-65537]</b></td><td class="top"><a href="http://crypto.stackexchange.com/questions/3110/impacts-of-not-using-rsa-exponent-of-65537">Cryptography - StackExchange - Impacts of not using RSA exponent of 65537</a>", November 2014.</td>, "</tr>
+    <tr><td class="reference"><b id="USING-RSA-EXPONENT-OF-65537">[USING-RSA-EXPONENT-OF-65537]</b></td><td class="top"><a href="https://crypto.stackexchange.com/questions/3110/impacts-of-not-using-rsa-exponent-of-65537">Cryptography - StackExchange - Impacts of not using RSA exponent of 65537</a>", November 2014.</td>, "</tr>
   </tbody>
 </table>
 <h1 id="rfc.appendix.A"><a href="#rfc.appendix.A">Appendix A.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a></h1>
-<p id="rfc.section.A.p.1">TODO</p>
+<p id="rfc.section.A.p.1">This section to be expanded in a later draft. </p>
 <h1 id="rfc.appendix.B"><a href="#rfc.appendix.B">Appendix B.</a> <a href="#test-values" id="test-values">Test Values</a></h1>
-<p id="rfc.section.B.p.1">TODO</p>
+<p id="rfc.section.B.p.1">This section to be expanded in a later draft.   For now, see the test cases for the reference implementation: <a href="https://github.com/interledger/five-bells-condition/tree/master/test">https://github.com/interledger/five-bells-condition/tree/master/test</a></p>
 <h1 id="rfc.appendix.C"><a href="#rfc.appendix.C">Appendix C.</a> <a href="#appendix-c" id="appendix-c">ASN.1 Module</a></h1>
 <pre>
 --&lt;ASN1.PDU CryptoConditions.Condition, CryptoConditions.Fulfillment&gt;--
@@ -1061,12 +1255,10 @@ B62291FA D9432F8F 298B9C4A 4895DBE2 93F6FFDA 1A68DADF 0CCDEF5F 47A0C721
 
 END
 </pre>
-<h1 id="rfc.appendix.D"><a href="#rfc.appendix.D">Appendix D.</a> <a href="#acknowledgements" id="acknowledgements">Acknowledgements</a></h1>
-<p id="rfc.section.D.p.1">The editor would like to thank the following individuals for feedback on and implementations of the specification (in alphabetical order): TODO</p>
-<h1 id="rfc.appendix.E"><a href="#rfc.appendix.E">Appendix E.</a> <a href="#appendix-e" id="appendix-e">IANA Considerations</a></h1>
-<h1 id="rfc.appendix.E.1"><a href="#rfc.appendix.E.1">E.1.</a> <a href="#crypto-conditions-type-registry" id="crypto-conditions-type-registry">Crypto-Condition Type Registry</a></h1>
-<p id="rfc.section.E.1.p.1">The following initial entries should be added to the Crypto-Condition Type registry to be created and maintained at (the suggested URI) <a href="http://www.iana.org/assignments/crypto-condition-types">http://www.iana.org/assignments/crypto-condition-types</a>:</p>
-<p id="rfc.section.E.1.p.2">The following feature suite bits are registered:</p>
+<h1 id="rfc.appendix.D"><a href="#rfc.appendix.D">Appendix D.</a> <a href="#appendix-e" id="appendix-e">IANA Considerations</a></h1>
+<h1 id="rfc.appendix.D.1"><a href="#rfc.appendix.D.1">D.1.</a> <a href="#crypto-conditions-type-registry" id="crypto-conditions-type-registry">Crypto-Condition Type Registry</a></h1>
+<p id="rfc.section.D.1.p.1">The following initial entries should be added to the Crypto-Condition Type registry to be created and maintained at (the suggested URI) <a href="http://www.iana.org/assignments/crypto-condition-types">http://www.iana.org/assignments/crypto-condition-types</a>:</p>
+<p id="rfc.section.D.1.p.2">The following feature suite bits are registered:</p>
 <div id="rfc.table.1"/>
 <div id="crypto-condition-feature-suites"/>
 <table cellpadding="3" cellspacing="0" class="tt full center">
@@ -1118,7 +1310,7 @@ END
     </tr>
   </tbody>
 </table>
-<p id="rfc.section.E.1.p.3">The following types are registered:</p>
+<p id="rfc.section.D.1.p.3">The following types are registered:</p>
 <div id="rfc.table.2"/>
 <div id="crypto-condition-types"/>
 <table cellpadding="3" cellspacing="0" class="tt full center">
@@ -1159,7 +1351,7 @@ END
   </tbody>
 </table>
 <h1 id="rfc.authors">
-  <a href="#rfc.authors">Author's Address</a>
+  <a href="#rfc.authors">Authors' Addresses</a>
 </h1>
 <div class="avoidbreak">
   <address class="vcard">
@@ -1184,7 +1376,33 @@ END
 
 <span class="vcardline">EMail: <a href="mailto:stefan@ripple.com">stefan@ripple.com</a></span>
 
-<span class="vcardline">URI: <a href="http://www.ripple.com">http://www.ripple.com</a></span>
+<span class="vcardline">URI: <a href="https://www.ripple.com">https://www.ripple.com</a></span>
+
+  </address>
+</div><div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">Rome Reginelli</span> 
+	  <span class="n hidden">
+		<span class="family-name">Reginelli</span>
+	  </span>
+	</span>
+	<span class="org vcardline">Ripple</span>
+	<span class="adr">
+	  <span class="vcardline">300 Montgomery Street</span>
+
+	  <span class="vcardline">
+		<span class="locality">San Francisco</span>,  
+		<span class="region">CA</span> 
+		<span class="code">94104</span>
+	  </span>
+	  <span class="country-name vcardline">US</span>
+	</span>
+	<span class="vcardline">Phone: -----------------</span>
+
+<span class="vcardline">EMail: <a href="mailto:rome@ripple.com">rome@ripple.com</a></span>
+
+<span class="vcardline">URI: <a href="https://www.ripple.com">https://www.ripple.com</a></span>
 
   </address>
 </div>
