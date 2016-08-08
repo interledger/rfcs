@@ -2,43 +2,76 @@ InterledgerQuotingProtocol DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
-	UInt64
-	FROM GenericTypes
+    UInt8,
+    UInt32,
+    UInt64,
+    UInt128,
+    Int8
+    FROM GenericTypes
 
-	Address,
-	Amount
-	FROM InterledgerTypes
-	
-	GenericHeaderPreamble
-	FROM GenericExtensionHeaderFormat
+    Address,
+    Amount,
+    Timestamp,
+    LiquidityCurve
+    FROM InterledgerTypes
 ;
 
-QuoteRequest ::= SEQUENCE {
-	preamble GenericHeaderPreamble,
-	addresses AddressSet,
-	sourceAmount Amount OPTIONAL,
-	destinationAmount Amount OPTIONAL,
-	-- How long the receiver needs to fulfill the payment (when using TTP/ATP)
-	-- Defaults to 1.5 seconds
-	destinationHoldDuration IlpHoldDuration DEFAULT 1500000
+-- Request to receive liquidity information between the current ledger and the
+-- destination account. This information is sufficient to locally quote any
+-- amount until the curve expires.
+QuoteLiquidityRequest ::= SEQUENCE {
+    requestId UInt128,
+    destinationAccount Address,
+    -- How much time the receiver needs to fulfill the payment (in milliseconds)
+    destinationHoldDuration UInt32
 }
 
-QuoteResponse ::= SEQUENCE {
-	preamble GenericHeaderPreamble,
-	connectorAccount IlpAccountName,
-	-- Address that this quote response relates to
-	address Address,
-	-- Source or destination amount, depending on whichever one was NOT
-	-- provided in the request.
-	requestedAmount Amount,
-	sourceHoldDuration IlpHoldDuration
+QuoteLiquidityResponse ::= SEQUENCE {
+    requestId UInt128,
+    -- Curve describing the liquidity (relationship between input and output
+  -- amounts) for the quoted route
+    liquidity LiquidityCurve,
+    -- Common prefix of all addresses for which this liquidity curve applies
+    -- SHOULD end with a period "." (but clients MUST NOT enforce this)
+    destinationPrefix Address,
+    -- How long the sender should put money on hold (in milliseconds)
+    sourceHoldDuration UInt32
+    -- TODO: An exact quote expiry doesn't seem necessary...
+    -- expiresAt Timestamp
 }
 
-AddressSet ::= SEQUENCE OF Address
+-- Quote with a specific source or destination amount
+QuoteBySourceAmountRequest ::= SEQUENCE {
+    requestId UInt128,
+    destinationAccount Address,
+    sourceAmount Amount,
+    -- How much time the receiver needs to fulfill the payment (in milliseconds)
+    destinationHoldDuration UInt32
+}
 
-IlpAccountName ::= OCTET STRING
+QuoteBySourceAmountResponse ::= SEQUENCE {
+    requestId UInt128,
+    -- Amount that will arrive at the receiver
+    destinationAmount Amount,
+    -- How long the sender should put money on hold (in milliseconds)
+    sourceHoldDuration UInt32
+}
 
--- Length of hold in microseconds
-IlpHoldDuration ::= UInt64
+-- Quote with a specific source or destination amount
+QuoteByDestinationAmountRequest ::= SEQUENCE {
+    requestId UInt128,
+    destinationAccount Address,
+    destinationAmount Amount,
+    -- How much time the receiver needs to fulfill the payment (in milliseconds)
+    destinationHoldDuration UInt32
+}
+
+QuoteByDestinationAmountResponse ::= SEQUENCE {
+    requestId UInt128,
+    -- Amount the sender needs to send based on the requested destination amount
+    sourceAmount Amount,
+    -- How long the sender should put money on hold (in milliseconds)
+    sourceHoldDuration UInt32
+}
 
 END
