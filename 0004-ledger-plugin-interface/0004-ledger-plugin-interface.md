@@ -26,7 +26,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**send**](#send) ( transfer ) <code>⇒ Promise.&lt;null></code> |
 | | [**fulfillCondition**](#fulfillcondition) ( transferId, fulfillment ) <code>⇒ Promise.&lt;null></code> |
 | | [**replyToTransfer**](#replytotransfer) ( transferId, replyMessage ) <code>⇒ Promise.&lt;null></code> |
-| | [**rejectIncomingTransfer**](#rejectincomingtransfer) ( transferId ) <code>⇒ Promise.&lt;null></code> |
+| | [**rejectIncomingTransfer**](#rejectincomingtransfer) ( transferId, rejectMessage ) <code>⇒ Promise.&lt;null></code> |
 
 ###### Events
 | Name | Handler |
@@ -215,9 +215,9 @@ Submit a fulfillment to a ledger. Plugin must be connected, otherwise the promis
 **TODO**: Define what the message format is.  Plugin must be connected, otherwise the promise should reject.
 
 #### rejectIncomingTransfer
-<code>ledgerPlugin.rejectIncomingTransfer( **transferId**:String ) ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.rejectIncomingTransfer( **transferId**:String, **rejectMessage**:Buffer ) ⇒ Promise.&lt;null></code>
 
-Reject an incoming transfer that is held pending the fulfillment of its `executionCondition` before the `expiresAt` time.
+Reject an incoming transfer that is held pending the fulfillment of its `executionCondition` before the `expiresAt` time. `rejectMessage` MAY be supplied to provide details on why the transfer was rejected.
 
 This MAY be used by receivers or connectors to reject incoming funds if they will not fulfill the condition or are unable to forward the payment. Previous hops in an Interledger transfer would have their money returned before the expiry and the sender or previous connectors MAY retry and reroute the transfer through an alternate path.
 
