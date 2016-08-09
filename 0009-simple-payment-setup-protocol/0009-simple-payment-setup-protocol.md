@@ -1,10 +1,100 @@
 # Simple Payment Setup Protocol (SPSP)
 
-The Simple Payment Setup Protocol (SPSP) is a basic application-layer Interledger protocol for wallet-to-wallet or wallet-to-merchant payments. It uses HTTPS for communication between the sender and recipient of an ILP payment.
+## Preface
 
-## The Receiver Endpoint
+This document describes the Simple Payment Setup Protocol (SPSP), a basic application-layer Interledger protocol for exchanging payment information between senders and recipients.
 
-Any SPSP recipient will create a receiving HTTP endpoint called the *receiver*. The sender can Query this endpoint to get information about the type of payment that can be made to this receiver. The sender also uses the receiver endpoint to Setup the ILP payment.
+## Introduction 
+
+### Motivation
+
+The Interledger Protocol does not specify how payment details, such as the ILP Packet or Crypto Condition, should be exchanged between the sender and recipient. SPSP is a minimal protocol that uses HTTP for communicating these details.
+
+### Scope
+
+SPSP provides for exchanging basic payment details needed by a sender to confirm the details of and set up an ILP payment. It is intended for use by end-user applications.
+
+### Interfaces
+
+SPSP may be used by end-user applications, such as a digital wallet with a user interface for the sender to initiate payments. SPSP clients and receivers use ILP modules to send and receive Interledger payments.
+
+SPSP messages MUST be exchanged over HTTPS.
+
+### Operation
+
+Any SPSP recipient will create a receiving HTTP endpoint called the *receiver*. The sender can query this endpoint to get information about the type of payment that can be made to this receiver. The sender also uses the receiver endpoint to set up the ILP payment.
+
+### Definitions
+
+#### SPSP Client
+
+The sender application that uses SPSP to interact with the SPSP Server.
+
+#### SPSP Server
+
+The server used on the recipient's side to handle SPSP requests.
+
+#### Receiver
+
+The specific HTTP endpoint on the SPSP used for setting up a payment.
+
+## Overview
+
+### Relation to Other Protocols
+
+SPSP is used for exchanging payment information before an ILP payment is initiated. It uses the [Interactive Transport Protocol (ITP)](../0011-interactive-transport-protocol) for generating conditions.
+
+### Model of Operation
+
+#### Fixed Destination Amount
+
+SPSP may be used by the sender to send a payment such that the recipient receives a specific amount of their chosen currency or asset type. The model of operation is illustrated with the following example:
+
+We assume that the sender knows the receiver endpoint (see [Appendix A: (Optional) Webfinger Discovery](#appendix-a-optional-webfinger-discovery)).
+
+1. The sender's SPSP client queries the receiver endpoint.
+2. The receiver endpoint responds with the receiver info, including the receiver's currency code.
+3. The sender chooses an amount of the receiver's asset to deliver.
+4. The sender's SPSP client submits the payment information, including the destination amount, to the receiver endpoint.
+5. The receiver endpoint responds with an ILP Packet and Crypto Condition corresponding to the destination amount.
+6. The sender's SPSP client uses its ILP module to get a quote in their currency or asset type for the ILP transfer.
+7. The sender accepts the quote.
+8. The sender's SPSP client uses its ILP module to initiate the ILP transfer.
+9. The receiver's ILP module registers the incoming transfer held pending the fulfillment of the Crypto Condition. It validates that the transfer matches the packet and regenerates the condition fulfillment using the [Interactive Transport Protocol (ITP)](../0011-interactive-transport-protocol). The ILP module submits the fulfillment to execute the transfer and claim the funds.
+10. The sender's SPSP client receives a notification from its ILP module that the transfer has been executed, including the condition fulfillment from the recipient, and notifies the sender that the payment is completed.
+
+#### Fixed Source Amount
+
+SPSP may be used by the sender to send a payment of a fixed amount of the sender's chosen currency or asset type. This is illustrated with the following example:
+
+We assume that the sender knows the receiver endpoint (see [Appendix A: (Optional) Webfinger Discovery](#appendix-a-optional-webfinger-discovery)).
+
+1. The sender's SPSP client queries the receiver endpoint.
+2. The receiver endpoint responds with the receiver info, including the recipient's ILP address.
+3. The sender choses an amount of their currency or assets to send.
+4. The sender's SPSP client uses its ILP module to quote how much of the recipient's currency or asset type will be delivered to the recipient's ILP address for the given source amount.
+5. The sender accepts the quote.
+6. The sender's SPSP client submits the payment information, including the destination amount, to the receiver endpoint.
+7. The receiver endpoint responds with an ILP Packet and Crypto Condition corresponding to the destination amount.
+8. The sender's SPSP client uses its ILP module to create a transfer **using the chosen source amount, NOT by quoting the ILP packet**, and attach the ILP packet to the transfer.
+9. The receiver's ILP module registers the incoming transfer held pending the fulfillment of the Crypto Condition. It validates that the transfer matches the packet and regenerates the condition fulfillment using the [Interactive Transport Protocol (ITP)](../0011-interactive-transport-protocol). The ILP module submits the fulfillment to execute the transfer and claim the funds.
+10. The sender's SPSP client receives a notification from its ILP module that the transfer has been executed, including the condition fulfillment from the recipient, and notifies the sender that the payment is completed.
+
+#### Invoice
+
+1. The sender's SPSP client queries the receiver endpoint.
+2. The receiver endpoint responds with the receiver info, including the invoice status, amount, and currency code.
+3. The sender's SPSP client submits the sender's info, including the sender's ILP address to the receiver endpoint.
+4. The receiver endpoint responds with an ILP Packet and Crypto Condition corresponding to the destination amount.
+5. The sender's SPSP client uses its ILP module to get a quote in their currency or asset type for the ILP transfer.
+6. The sender accepts the quote.
+7. The sender's SPSP client uses its ILP module to initiate the ILP transfer.
+8. The receiver's ILP module registers the incoming transfer held pending the fulfillment of the Crypto Condition. It validates that the transfer matches the packet and regenerates the condition fulfillment using the [Interactive Transport Protocol (ITP)](../0011-interactive-transport-protocol). The ILP module submits the fulfillment to execute the transfer and claim the funds.
+9. The sender's SPSP client receives a notification from its ILP module that the transfer has been executed, including the condition fulfillment from the recipient, and notifies the sender that the payment is completed.
+
+## Specification
+
+The receiver endpoint will respond to HTTP `GET` and `POST` requests in the following manner:
 
 ### Query (`GET <receiver>`)
 
@@ -113,9 +203,7 @@ Content-Type: application/json
 }
 ```
 
-## Appendix
-
-### Appendix A: (Optional) Webfinger Discovery
+## Appendix A: (Optional) Webfinger Discovery
 
 Whenever possible, receiver URLs should be exchanged out-of-band and discovery should be skipped. However, in some cases, it may be useful to have a standardized user-friendly identifier. This discovery method describes how to resolve such an identifier to an SPSP receiver endpoint.
 
