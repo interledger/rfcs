@@ -111,7 +111,8 @@ Content-Type: application/json
 
 {
   "type": "payee",
-  "account": "ilpdemo.red.bob"
+  "account": "ilpdemo.red.bob",
+  "currency_code": "USD"
 }
 ```
 
@@ -133,7 +134,8 @@ Payee information consists of basic account details. Amounts are chosen by the s
 ``` json
 {
   "type": "payee",
-  "account": "ilpdemo.red.bob"
+  "account": "ilpdemo.red.bob",
+  "currency_code": "USD"
 }
 ```
 
@@ -159,6 +161,7 @@ Invoice information includes an exact amount as well as the status of the invoic
   "type": "invoice",
   "account": "ilpdemo.red.amazon.111-7777777-1111111",
   "amount": "10.40",
+  "currency_code": "USD",
   "status": "unpaid",
   "invoice_info": "https://www.amazon.com/gp/your-account/order-details?ie=UTF8&orderID=111-7777777-1111111"
 }
