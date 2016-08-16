@@ -2,7 +2,7 @@
 
 ## Preface
 
-This document describes the Simple Payment Setup Protocol (SPSP), a basic application-layer Interledger protocol for exchanging payment information between senders and recipients.
+This document describes the Simple Payment Setup Protocol (SPSP), a basic protocol for exchanging payment information between senders and recipients to set up an Interledger payment.
 
 ## Introduction 
 
@@ -156,8 +156,8 @@ Example Receiver:
 |---|---|---|
 | `type` | `"payee"` | Receiver type |
 | `account` | ILP Address | ILP Address of the recipient's account |
-| `currency_code` | [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) code | Currency code to identify the receiver's currency |
-| `currency_symbol` | String | Symbol for the receiver's currency intended for display in the sender's UI (e.g. `"$"` or `"shares"`) |
+| `currency_code` | String | Currency code to identify the receiver's currency. Currencies that have [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) codes should use those. Sender UIs SHOULD be able to render non-standard codes |
+| `currency_symbol` | String | Symbol for the receiver's currency intended for display in the sender's UI (e.g. `"$"` or `"shares"`). Sender UIs SHOULD be able to render non-standard symbols |
 | `first_name` | String | Given name of the recipient |
 | `last_name` | String | Family name of the recipient |
 | `image_url` | HTTPS URL | URL that a picture of the recipient can be fetched from. The image MUST be square and SHOULD be 128x128 pixels. |
@@ -195,8 +195,8 @@ Example Receiver:
 |---|---|---|
 | `type` | `"invoice"` | Receiver type |
 | `account` | ILP Address | ILP Address of the recipient's account |
-| `currency_code` | [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) code | Currency code to identify the invoice's currency |
-| `currency_symbol` | String | Symbol for the invoice's currency intended for display in the sender's UI (e.g. `"$"` or `"shares"`) |
+| `currency_code` | String | Currency code to identify the receiver's currency. Currencies that have [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) codes should use those. Sender UIs SHOULD be able to render non-standard codes |
+| `currency_symbol` | String | Symbol for the receiver's currency intended for display in the sender's UI (e.g. `"$"` or `"shares"`). Sender UIs SHOULD be able to render non-standard symbols |
 | `amount` | Decimal String | Value of the invoice in the recipient's currency |
 | `status` | Enum: `"paid"`, `"unpaid"`, `"cancelled"` | State of the invoice |
 | `invoice_info` | URI | URI where additional information about the invoice can be found. |
