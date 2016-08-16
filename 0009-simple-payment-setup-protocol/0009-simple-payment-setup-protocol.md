@@ -254,17 +254,13 @@ Content-Type: application/json
       "memo": "Hey Bob!"
     }
   },
-  "condition": "cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0",
-  "additional_routing_info": {
-    "something": "that helps the sender's client deliver the packet to the recipient"
-  }
+  "condition": "cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0"
 }
 ```
 | Field | Type | Description |
 |---|---|---|
 | `packet` | Object | JSON representation of the ILP Packet used by the sender's client to construct the binary ILP Packet |
 | `condition` | Crypto Condition | Execution condition the sender must use for the payment to the recipient |
-| `additional_routing_info` | Object | Additional info used by the sender's client to route the payment to the recipient |
 
 The setup is what primes the receiver to expect the incoming payment. The receiver generates the ILP packet the sender will need to use to send this payment and uses the [Interactive Transport Protocol](../0011-interactive-transport-protocol) to generate the execution condition. The fulfillment of the condition will serve as the sender's proof of payment.
 
