@@ -94,7 +94,9 @@ We assume that the sender knows the receiver endpoint (see [Appendix A: (Optiona
 
 ## Specification
 
-The receiver endpoint will respond to HTTP `GET` and `POST` requests in the following manner:
+The receiver endpoint is a URI used by the sender to query information about the sender and set up payments. The receiver URI MAY contain query string parameters. The sender SHOULD treat the URI as opaque.
+
+The receiver endpoint MUST respond to HTTP `GET` and `POST` requests in the following manner:
 
 ### Query (`GET <receiver>`)
 
