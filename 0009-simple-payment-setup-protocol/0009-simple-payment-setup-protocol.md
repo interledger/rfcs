@@ -100,11 +100,14 @@ The receiver endpoint will respond to HTTP `GET` and `POST` requests in the foll
 
 The sender queries the receiver endpoint to get information about the type of payment that can be made to this receiver:
 
+#### Request
 ``` http
 GET /api/receivers/bob HTTP/1.1
 Host: red.ilpdemo.org
 Accept: application/json
 ```
+
+#### Response
 ``` http
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -112,7 +115,10 @@ Content-Type: application/json
 {
   "type": "payee",
   "account": "ilpdemo.red.bob",
-  "currency_code": "USD"
+  "currency_code": "USD",
+  "currency_symbol": "$",
+  "first_name": "Bob",
+  "last_name": "Dylan"
 }
 ```
 
@@ -126,18 +132,30 @@ Possible values for `type` are:
 `invoice`
 : This is an invoice, meaning it can be paid only once and only with a specific amount.
 
-#### Payee
+##### Payee
 
 Payee information consists of basic account details. Amounts are chosen by the sender.
 
-**Example Receiver**
+Example Receiver:
 ``` json
 {
   "type": "payee",
   "account": "ilpdemo.red.bob",
-  "currency_code": "USD"
+  "currency_code": "USD",
+  "currency_symbol": "$",
+  "first_name": "Bob",
+  "last_name": "Dylan"
 }
 ```
+
+| Field | Type | Description |
+|---|---|---|
+| `type` | `"payee"` | Receiver type |
+| `account` | ILP Address | ILP Address of the recipient's account |
+| `currency_code` | [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) code | Currency code to identify the receiver's currency |
+| `currency_symbol` | String | Symbol for the receiver's currency intended for display in the sender's UI (e.g. `"$"` or `"shares"`) |
+| `first_name` | String | Given name of the recipient |
+| `last_name` | String | Family name of the recipient |
 
 If this receiver is not available, an error can be generated at this stage:
 
@@ -151,25 +169,40 @@ Content-Type: application/json
 }
 ```
 
-#### Invoice
+##### Invoice
 
 Invoice information includes an exact amount as well as the status of the invoice. (Invoices can only be paid once.)
 
-**Example Receiver**
+Example Receiver:
 ``` json
 {
   "type": "invoice",
   "account": "ilpdemo.red.amazon.111-7777777-1111111",
-  "amount": "10.40",
   "currency_code": "USD",
+  "currency_symbol": "$",
+  "amount": "10.40",
   "status": "unpaid",
   "invoice_info": "https://www.amazon.com/gp/your-account/order-details?ie=UTF8&orderID=111-7777777-1111111"
 }
 ```
 
+| Field | Type | Description |
+|---|---|---|
+| `type` | `"invoice"` | Receiver type |
+| `account` | ILP Address | ILP Address of the recipient's account |
+| `currency_code` | [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) code | Currency code to identify the invoice's currency |
+| `currency_symbol` | String | Symbol for the invoice's currency intended for display in the sender's UI (e.g. `"$"` or `"shares"`) |
+| `amount` | Decimal String | Value of the invoice in the recipient's currency |
+| `status` | Enum: `"paid"`, `"unpaid"`, `"cancelled"` | State of the invoice |
+| `invoice_info` | URI | URI where additional information about the invoice can be found. |
+
 ### Setup (`POST <receiver>`)
 
 When the sender is ready to make a payment, it submits a payment object to the receiver.
+
+#### Request
+
+##### For a Payee
 
 ``` http
 POST /api/receiver/bob HTTP/1.1
@@ -178,19 +211,58 @@ Accept: application/json
 
 {
   "amount": "10.40",
-  "source_identifier": "alice@blue.ilpdemo.org",
+  "sender_identifier": "alice@blue.ilpdemo.org",
   "memo": "Hey Bob!"
 }
 ```
+
+| Field | Type | Description |
+|---|---|---|
+| `amount` | Decimal String | _Destination amount_ the receiver will receive |
+| `sender_identifier` | String | Identifier of the sender |
+| `memo` | String | Message for the recipient linked to the payment |
+
+##### For an Invoice
+
+``` http
+POST /api/receiver/bob HTTP/1.1
+Host: red.ilpdemo.org
+Accept: application/json
+
+{
+  "sender_identifier": "alice@blue.ilpdemo.org"
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `sender_identifier` | String | Identifier of the sender |
+
+#### Response
 ``` http
 HTTP/1.1 201 Created
 Content-Type: application/json
 
 {
-  "packet": "asdglkjlsdfoiuaosiduf...",
-  "condition": "cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0"
+  "packet": {
+    "account": "ilpdemo.red.bob",
+    "amount": "10.40",
+    "data": {
+      "sender_identifier": "alice@blue.ilpdemo.org",
+      "memo": "Hey Bob!"
+    }
+  },
+  "condition": "cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0",
+  "additional_routing_info": {
+    "something": "that helps the sender's client deliver the packet to the recipient"
+  }
 }
 ```
+| Field | Type | Description |
+|---|---|---|
+| `packet` | Object | JSON representation of the ILP Packet used by the sender's client to construct the binary ILP Packet |
+| `condition` | Crypto Condition | Execution condition the sender must use for the payment to the recipient |
+| `additional_routing_info` | Object | Additional info used by the sender's client to route the payment to the recipient |
 
 The setup is what primes the receiver to expect the incoming payment. The receiver generates the ILP packet the sender will need to use to send this payment and uses the [Interactive Transport Protocol](../0011-interactive-transport-protocol) to generate the execution condition. The fulfillment of the condition will serve as the sender's proof of payment.
 
