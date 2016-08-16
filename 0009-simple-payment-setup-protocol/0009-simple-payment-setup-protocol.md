@@ -119,8 +119,7 @@ Content-Type: application/json
   "account": "ilpdemo.red.bob",
   "currency_code": "USD",
   "currency_symbol": "$",
-  "first_name": "Bob",
-  "last_name": "Dylan",
+  "name": "Bob Dylan",
   "image_url": "https://red.ilpdemo.org/api/receivers/bob/profile_pic.jpg"
 }
 ```
@@ -146,8 +145,7 @@ Example Receiver:
   "account": "ilpdemo.red.bob",
   "currency_code": "USD",
   "currency_symbol": "$",
-  "first_name": "Bob",
-  "last_name": "Dylan",
+  "name": "Bob Dylan",
   "image_url": "https://red.ilpdemo.org/api/receivers/bob/profile_pic.jpg"
 }
 ```
@@ -158,8 +156,7 @@ Example Receiver:
 | `account` | ILP Address | ILP Address of the recipient's account |
 | `currency_code` | String | Currency code to identify the receiver's currency. Currencies that have [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) codes should use those. Sender UIs SHOULD be able to render non-standard codes |
 | `currency_symbol` | String | Symbol for the receiver's currency intended for display in the sender's UI (e.g. `"$"` or `"shares"`). Sender UIs SHOULD be able to render non-standard symbols |
-| `first_name` | String | Given name of the recipient |
-| `last_name` | String | Family name of the recipient |
+| `name` | String | Full name of the individual, company or organization the receiver represents |
 | `image_url` | HTTPS URL | URL that a picture of the recipient can be fetched from. The image MUST be square and SHOULD be 128x128 pixels. |
 
 If this receiver is not available, an error can be generated at this stage:
