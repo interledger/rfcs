@@ -120,7 +120,8 @@ Content-Type: application/json
   "currency_code": "USD",
   "currency_symbol": "$",
   "first_name": "Bob",
-  "last_name": "Dylan"
+  "last_name": "Dylan",
+  "image_url": "https://red.ilpdemo.org/api/receivers/bob/profile_pic.jpg"
 }
 ```
 
@@ -146,7 +147,8 @@ Example Receiver:
   "currency_code": "USD",
   "currency_symbol": "$",
   "first_name": "Bob",
-  "last_name": "Dylan"
+  "last_name": "Dylan",
+  "image_url": "https://red.ilpdemo.org/api/receivers/bob/profile_pic.jpg"
 }
 ```
 
@@ -158,6 +160,7 @@ Example Receiver:
 | `currency_symbol` | String | Symbol for the receiver's currency intended for display in the sender's UI (e.g. `"$"` or `"shares"`) |
 | `first_name` | String | Given name of the recipient |
 | `last_name` | String | Family name of the recipient |
+| `image_url` | HTTPS URL | URL that a picture of the recipient can be fetched from. The image MUST be square and SHOULD be 128x128 pixels. |
 
 If this receiver is not available, an error can be generated at this stage:
 
