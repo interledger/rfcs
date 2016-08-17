@@ -44,6 +44,9 @@ Interledger Payment Requests are intended to be used in higher-level protocols a
     "address": "ilpdemo.red.bob.b9c4ceba-51e4-4a80-b1a7-2972383e98af",
     "amount": "10.25",
     "expires_at": "2016-08-16T12:00:00Z",
+    "data": {
+        "re": "dinner the other night"
+    },
     "additional_headers": "asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv"
 }
 ```
@@ -54,7 +57,8 @@ Interledger Payment Requests are intended to be used in higher-level protocols a
 | `amount` | Decimal String | Amount requested by the recipient |
 | `condition` | Crypto Condition | Execution condition for the payment |
 | `expires_at` | [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) Timestamp | Expiry of the request |
-| `additional_headers` | Base64 String | Additional headers for the ILP packet |
+| `data` | Object | Data to be included in the ILP Packet |
+| `additional_headers` | Base64 String | Additional headers for the ILP Packet |
 
 #### address 
 
@@ -78,6 +82,10 @@ The Crypto Condition to be used as the execution condition for the payment. See 
 
 The timestamp when the request expires. Recipients SHOULD NOT fulfill the conditions of incoming transfers that arrive after the expiry has passed. Senders MAY use the request expiry to determine the expiry of the transfer they put on hold for the first connector.
 
+#### data
+
+An arbitrary JSON object that should be included in the ILP Packet's user data header.
+
 #### additional_headers
 
 Additional binary headers, encoded as a base64 string, that should be included in the ILP Packet. The sender SHOULD treat these as opaque.
@@ -96,7 +104,7 @@ Recipients MUST include a payment request-specific component in the account ILP 
 
 This is how a [PREIMAGE-SHA-256 Crypto Condition](../0002-crypto-conditions) MAY be generated using an HMAC of a JSON-encoded Interledger Payment Request:
 
-1. The recipient takes the `address`, `amount`, and `expires_at` fields from the payment request. Any fields that are used for routing are probably not important to perform an integrity check upon, because they may be modified in transit and there is no further use for them once the ILP packet is received attached to an incoming transfer.
+1. The recipient takes the `address`, `amount`, `expires_at`, and `data` fields from the payment request. Any fields that are used for routing are probably not important to perform an integrity check upon, because they may be modified in transit and there is no further use for them once the ILP packet is received attached to an incoming transfer.
 2. The recipient uses a canonical encoding, such as [Canonical JSON](https://www.npmjs.com/package/canonical-json) to create a stringified version of `1.`
 3. The recipient uses a secret key to create an HMAC of `2.`
 4. The recipient uses the digest of `3.` as the preimage of a [PREIMAGE-SHA-256 Crypto Condition](../0002-crypto-conditions).
@@ -112,7 +120,10 @@ const RECIPIENT_HMAC_KEY = Buffer.from('/4t65RDqth7/rxI0j+MqtQyv04Y8mzUCMhAAofhD
 const requestString = stringify({
   "address": "ilpdemo.red.bob.b9c4ceba-51e4-4a80-b1a7-2972383e98af",
   "amount": "10.25",
-  "expires_at": "2016-08-16T12:00:00Z"
+  "expires_at": "2016-08-16T12:00:00Z",
+  "data": {
+    "re": "dinner the other night"
+  }
 })
 
 const hmac = crypto.createHmac('sha256', RECIPIENT_HMAC_KEY)
