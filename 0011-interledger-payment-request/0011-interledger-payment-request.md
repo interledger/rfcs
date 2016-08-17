@@ -44,11 +44,6 @@ Interledger Payment Requests are intended to be used in higher-level protocols a
     "address": "ilpdemo.red.bob.b9c4ceba-51e4-4a80-b1a7-2972383e98af",
     "amount": "10.25",
     "expires_at": "2016-08-16T12:00:00Z",
-    "additional_routing_info": {
-        "rate_curves": {
-            "bitcoin.": [[0,0],[1,400]]
-        } 
-    },
     "additional_headers": "asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv"
 }
 ```
@@ -59,7 +54,6 @@ Interledger Payment Requests are intended to be used in higher-level protocols a
 | `amount` | Decimal String | Amount requested by the recipient |
 | `condition` | Crypto Condition | Execution condition for the payment |
 | `expires_at` | [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) Timestamp | Expiry of the request |
-| `additional_routing_info` | Object | Details used by the sender's client to route the payment |
 | `additional_headers` | Base64 String | Additional headers for the ILP packet |
 
 #### address 
@@ -83,10 +77,6 @@ The Crypto Condition to be used as the execution condition for the payment. See 
 #### expires_at
 
 The timestamp when the request expires. Recipients SHOULD NOT fulfill the conditions of incoming transfers that arrive after the expiry has passed. Senders MAY use the request expiry to determine the expiry of the transfer they put on hold for the first connector.
-
-#### additional_routing_info
-
-Additional information supplied by the recipient for the sender's client to route the payment. For example, this may include the rate curve that includes fee and exchange rate information for payments from a well-known ledger to the recipient's ledgers.
 
 #### additional_headers
 
