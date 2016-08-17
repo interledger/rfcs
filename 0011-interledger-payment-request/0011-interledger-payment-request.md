@@ -114,7 +114,7 @@ The following snippet shows how this can be done in JavaScript:
 ```js
 const crypto = require('crypto') // Node.js crypto
 const stringify = require('canonical-json') // https://www.npmjs.com/package/canonical-json
-const cc = require('cc') // https://www.npmjs.com/package/five-bells-condition
+const cc = require('five-bells-condition') // https://www.npmjs.com/package/five-bells-condition
 
 const RECIPIENT_HMAC_KEY = Buffer.from('/4t65RDqth7/rxI0j+MqtQyv04Y8mzUCMhAAofhDQIY=', 'base64')
 const requestString = stringify({
