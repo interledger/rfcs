@@ -246,23 +246,19 @@ HTTP/1.1 201 Created
 Content-Type: application/json
 
 {
-  "packet": {
-    "account": "ilpdemo.red.bob",
+    "address": "ilpdemo.red.bob.b9c4ceba-51e4-4a80-b1a7-2972383e98af",
     "amount": "10.40",
+    "expires_at": "2016-08-16T12:00:00Z",
     "data": {
-      "sender_identifier": "alice@blue.ilpdemo.org",
-      "memo": "Hey Bob!"
-    }
-  },
-  "condition": "cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0"
+        "sender_identifier": "alice@blue.ilpdemo.org"
+    },
+    "additional_headers": "asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv",
+    "condition": "cc:0:3:wey2IMPk-3MsBpbOcObIbtgIMs0f7uBMGwebg1qUeyw:32"
 }
 ```
-| Field | Type | Description |
-|---|---|---|
-| `packet` | Object | JSON representation of the ILP Packet used by the sender's client to construct the binary ILP Packet |
-| `condition` | Crypto Condition | Execution condition the sender must use for the payment to the recipient |
+The response is an [Interledger Payment Request](../0011-interledger-payment-request).
 
-The setup is what primes the receiver to expect the incoming payment. The receiver generates the ILP packet the sender will need to use to send this payment and uses the [Interactive Transport Protocol](../0011-interactive-transport-protocol) to generate the execution condition. The fulfillment of the condition will serve as the sender's proof of payment.
+The setup is what primes the receiver to expect the incoming payment. The receiver generates the payment request and condition the sender must use to create the ILP Packet. The fulfillment of the condition will serve as the sender's proof of payment.
 
 The receiver has the opportunity to reject an incoming payment before any funds move, for instance because of daily limits:
 
