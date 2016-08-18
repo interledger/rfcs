@@ -1,7 +1,7 @@
 # Interledger RFCs [![gitter][gitter-image]][gitter-url]
 
-[gitter-img] : https://badges.gitter.im/Join Chat.svg
-[gitter-url] : https://gitter.im/interledger/Lobby
+[gitter-img]: https://badges.gitter.im/Join%20Chat.svg
+[gitter-url]: https://gitter.im/interledger/Lobby
 
 This repository contains a collection of various specifications and documentation related to the Interledger Protocol (ILP). These documents or requests-for-comment (RFCs) are published by various authors and publication here does not imply official status unless otherwise specified in the document.
 
