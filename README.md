@@ -1,4 +1,4 @@
-# Interledger RFCs [![gitter][gitter-image]][gitter-url]
+# Interledger RFCs [![gitter][gitter-img]][gitter-url]
 
 [gitter-img]: https://badges.gitter.im/Join%20Chat.svg
 [gitter-url]: https://gitter.im/interledger/Lobby
