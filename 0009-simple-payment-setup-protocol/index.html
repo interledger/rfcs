@@ -148,7 +148,7 @@
 <p>The specific HTTP endpoint on the SPSP used for setting up a payment.</p>
 <h2 id="overview">Overview</h2>
 <h3 id="relation-to-other-protocols">Relation to Other Protocols</h3>
-<p>SPSP is used for exchanging payment information before an ILP payment is initiated. It uses the <a href="../0011-interactive-transport-protocol">Interactive Transport Protocol (ITP)</a> for generating conditions.</p>
+<p>SPSP is used for exchanging payment information before an ILP payment is initiated. It uses the receiver generated <a href="../0011-interledger-payment-request">Interledger Payment Requests</a> over HTTP.</p>
 <h3 id="model-of-operation">Model of Operation</h3>
 <h4 id="fixed-destination-amount">Fixed Destination Amount</h4>
 <p>SPSP may be used by the sender to send a payment such that the recipient receives a specific amount of their chosen currency or asset type. The model of operation is illustrated with the following example:</p>
@@ -158,11 +158,11 @@
 <li>The receiver endpoint responds with the receiver info, including the receiver&apos;s currency code.</li>
 <li>The sender chooses an amount of the receiver&apos;s asset to deliver.</li>
 <li>The sender&apos;s SPSP client submits the payment information, including the destination amount, to the receiver endpoint.</li>
-<li>The receiver endpoint responds with an ILP Packet and Crypto Condition corresponding to the destination amount.</li>
+<li>The receiver endpoint responds with an <a href="../0011-interledger-payment-request">Interledger Payment Request</a>, which includes the execution condition.</li>
 <li>The sender&apos;s SPSP client uses its ILP module to get a quote in their currency or asset type for the ILP transfer.</li>
 <li>The sender accepts the quote.</li>
-<li>The sender&apos;s SPSP client uses its ILP module to initiate the ILP transfer.</li>
-<li>The receiver&apos;s ILP module registers the incoming transfer held pending the fulfillment of the Crypto Condition. It validates that the transfer matches the packet and regenerates the condition fulfillment using the <a href="../0011-interactive-transport-protocol">Interactive Transport Protocol (ITP)</a>. The ILP module submits the fulfillment to execute the transfer and claim the funds.</li>
+<li>The sender&apos;s SPSP client uses its ILP module to initiate the ILP payment.</li>
+<li>The receiver&apos;s ILP module registers the incoming transfer held pending the fulfillment of the Crypto Condition. It validates that the transfer matches the packet and regenerates the condition fulfillment using the method recommended in the <a href="../0011-interledger-payment-request">Interledger Payment Request</a> spec. The ILP module submits the fulfillment to execute the transfer and claim the funds.</li>
 <li>The sender&apos;s SPSP client receives a notification from its ILP module that the transfer has been executed, including the condition fulfillment from the recipient, and notifies the sender that the payment is completed.</li>
 </ol>
 <h4 id="fixed-source-amount">Fixed Source Amount</h4>
@@ -175,9 +175,9 @@
 <li>The sender&apos;s SPSP client uses its ILP module to quote how much of the recipient&apos;s currency or asset type will be delivered to the recipient&apos;s ILP address for the given source amount.</li>
 <li>The sender accepts the quote.</li>
 <li>The sender&apos;s SPSP client submits the payment information, including the destination amount, to the receiver endpoint.</li>
-<li>The receiver endpoint responds with an ILP Packet and Crypto Condition corresponding to the destination amount.</li>
-<li>The sender&apos;s SPSP client uses its ILP module to create a transfer <strong>using the chosen source amount, NOT by quoting the ILP packet</strong>, and attach the ILP packet to the transfer.</li>
-<li>The receiver&apos;s ILP module registers the incoming transfer held pending the fulfillment of the Crypto Condition. It validates that the transfer matches the packet and regenerates the condition fulfillment using the <a href="../0011-interactive-transport-protocol">Interactive Transport Protocol (ITP)</a>. The ILP module submits the fulfillment to execute the transfer and claim the funds.</li>
+<li>The receiver endpoint responds with an <a href="../0011-interledger-payment-request">Interledger Payment Requests</a>, which includes the execution condition.</li>
+<li>The sender&apos;s SPSP client uses its ILP module to create a transfer <strong>using the chosen source amount, NOT by quoting the payment request</strong>, and attaches the ILP packet to the transfer.</li>
+<li>The receiver&apos;s ILP module registers the incoming transfer held pending the fulfillment of the Crypto Condition. It validates that the transfer matches the packet and regenerates the condition fulfillment using the method recommended in the <a href="../0011-interledger-payment-request">Interledger Payment Request</a> spec. The ILP module submits the fulfillment to execute the transfer and claim the funds.</li>
 <li>The sender&apos;s SPSP client receives a notification from its ILP module that the transfer has been executed, including the condition fulfillment from the recipient, and notifies the sender that the payment is completed.</li>
 </ol>
 <h4 id="invoice-1">Invoice</h4>
@@ -185,11 +185,11 @@
 <li>The sender&apos;s SPSP client queries the receiver endpoint.</li>
 <li>The receiver endpoint responds with the receiver info, including the invoice status, amount, and currency code.</li>
 <li>The sender&apos;s SPSP client submits the sender&apos;s info, including the sender&apos;s ILP address to the receiver endpoint.</li>
-<li>The receiver endpoint responds with an ILP Packet and Crypto Condition corresponding to the destination amount.</li>
+<li>The receiver endpoint responds with an <a href="../0011-interledger-payment-request">Interledger Payment Request</a> corresponding to the destination amount.</li>
 <li>The sender&apos;s SPSP client uses its ILP module to get a quote in their currency or asset type for the ILP transfer.</li>
 <li>The sender accepts the quote.</li>
 <li>The sender&apos;s SPSP client uses its ILP module to initiate the ILP transfer.</li>
-<li>The receiver&apos;s ILP module registers the incoming transfer held pending the fulfillment of the Crypto Condition. It validates that the transfer matches the packet and regenerates the condition fulfillment using the <a href="../0011-interactive-transport-protocol">Interactive Transport Protocol (ITP)</a>. The ILP module submits the fulfillment to execute the transfer and claim the funds.</li>
+<li>The receiver&apos;s ILP module registers the incoming transfer held pending the fulfillment of the Crypto Condition. It validates that the transfer matches the packet and regenerates the condition fulfillment using the method recommended in the <a href="../0011-interledger-payment-request">Interledger Payment Request</a> spec. The ILP module submits the fulfillment to execute the transfer and claim the funds.</li>
 <li>The sender&apos;s SPSP client receives a notification from its ILP module that the transfer has been executed, including the condition fulfillment from the recipient, and notifies the sender that the payment is completed.</li>
 </ol>
 <h2 id="specification">Specification</h2>
