@@ -22,6 +22,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**getPrefix**](#getprefix) ( ) `⇒ Promise<String>` |
 | | [**getAccount**](#getaccount) ( ) `⇒ Promise<String>` |
 | | [**getBalance**](#getbalance) ( ) <code>⇒ Promise.&lt;String></code> |
+| | [**getFulfillment**](#getfulfillment) ( transferId ) <code>⇒ Promise.&lt;String></code> |
 | | [**send**](#send) ( transfer ) <code>⇒ Promise.&lt;null></code> |
 | | [**fulfillCondition**](#fulfillcondition) ( transferId, fulfillment ) <code>⇒ Promise.&lt;null></code> |
 | | [**replyToTransfer**](#replytotransfer) ( transferId, replyMessage ) <code>⇒ Promise.&lt;null></code> |
@@ -141,6 +142,11 @@ The mapping from the ILP address to the local ledger address is dependent on the
 <code>ledgerPlugin.getBalance() ⇒ Promise.&lt;String></code>
 
 Return a decimal string representing the current balance. Plugin must be connected, otherwise the promise should reject.
+
+#### getFulfillment
+<code>ledgerPlugin.getFulfillment( transferId ) ⇒ Promise.&lt;String></code>
+
+Return the fulfillment of a transfer if it has already been executed.
 
 #### Event: `connect`
 <code>ledgerPlugin.on('connect', () ⇒ )</code>
