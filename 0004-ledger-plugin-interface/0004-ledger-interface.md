@@ -12,16 +12,24 @@ In order for ledgers to connect seamlessly with any of the ILP plugins `ilp-plug
 - a RESTful HTTP API with endpoints to `transfer` (or `transaction`, `asset`) objects
 - PUSH notifications to register changes in the ledger objects, albeit using websockets, long-polling (EPOLL), or server-sent events.
 
+TODO: define types (uuid, base58, base64, URI, ...)
+
 ## RESTful API Methods
 
+### Authorization
+
+TODO: explain how it works
+
 ### Ledger Metadata
+
+TODO: description
 
 #### Retrieve Metadata
 
 ##### Request
 ```http
 GET / HTTP/1.1
-Host: ledger.my
+Host: ledger.example
 Authorization: <token>/<cert>/<password>/...
 Content-Type: application/json
 ```
@@ -43,8 +51,8 @@ HTTP/1.1 200 OK
 
 ##### Request
 ```http
-GET /accounts/<ID> HTTP/1.1
-Host: ledger.my
+GET /accounts/<uuid: ID> HTTP/1.1
+Host: ledger.example
 Authorization: <token>/<cert>/<password>/...
 Content-Type: application/json
 ```
@@ -63,8 +71,8 @@ HTTP/1.1 200 OK
 
 ##### Request
 ```http
-PUT /accounts/<ID> HTTP/1.1
-Host: ledger.my
+PUT /accounts/<uuid: ID> HTTP/1.1
+Host: ledger.example
 Authorization: <token>/<cert>/<password>/...
 Content-Type: application/json
 Body:
@@ -88,8 +96,8 @@ HTTP/1.1 200 OK
 
 ##### Request
 ```http
-GET /accounts/<ID>/balance HTTP/1.1
-Host: ledger.my
+GET /accounts/<uuid: ID>/balance HTTP/1.1
+Host: ledger.example
 Authorization: <token>/<cert>/<password>/...
 Content-Type: application/json
 ```
@@ -102,36 +110,14 @@ HTTP/1.1 200 OK
 }
 ```
 
-#### Retrieve connectors
-
-##### Request
-```http
-GET /connectors/ HTTP/1.1
-Host: ledger.my
-Authorization: <token>/<cert>/<password>/...
-Content-Type: application/json
-```
-
-##### Response
-```http
-HTTP/1.1 200 OK
-[
-    {
-        'connector': <uri>
-    },
-    ...
-]
-```
-
-
 ### Transfers
 
 #### Retrieve transfer item
 
 ##### Request
 ```http
-GET /transfers/<ID> HTTP/1.1
-Host: ledger.my
+GET /transfers/<uuid|base58: ID> HTTP/1.1
+Host: ledger.example
 Authorization: <token>/<cert>/<password>/...
 Content-Type: application/json
 ```
@@ -146,8 +132,8 @@ ledgerTransfer
 
 ##### Request
 ```http
-POST /transfers/<ID> HTTP/1.1
-Host: ledger.my
+POST /transfers/<uuid|base58: ID> HTTP/1.1
+Host: ledger.example
 Authorization: <token>/<cert>/<password>/...
 Content-Type: application/json
 Body:
@@ -164,8 +150,8 @@ ledgerTransfer
 
 ##### Request
 ```http
-GET /transfers/<ID>/fulfillment HTTP/1.1
-Host: ledger.my
+GET /transfers/<uuid|base58: ID>/fulfillment HTTP/1.1
+Host: ledger.example
 Authorization: <token>/<cert>/<password>/...
 Content-Type: application/json
 ```
@@ -180,8 +166,8 @@ ilpFulfillment
 
 ##### Request
 ```http
-PUT /transfers/<ID>/fulfillment  HTTP/1.1
-Host: ledger.my
+PUT /transfers/<uuid|base58: ID>/fulfillment  HTTP/1.1
+Host: ledger.example
 Authorization: <token>/<cert>/<password>/...
 Content-Type: application/json
 Body:
@@ -199,5 +185,5 @@ ilpFulfillment
 #### Open
 
 ```
-uri: ws://ledger.my/<accountID>/transfers
+uri: ws://ledger.example/<uuid: accountID>/transfers
 ```
