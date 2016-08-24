@@ -1,4 +1,4 @@
-# Ledger Interface
+# Ledger Web API
 
 This spec defines some guidelines for **RESTful ledger APIs** to easily integrate with the Interledger Protocol suite.
 
@@ -42,10 +42,10 @@ Content-Type: application/json
 ```http
 HTTP/1.1 200 OK
 {
-    'precision': <int>,
-    'scale': <int>,
-    'currencyCode': <string: optional>,
-    'currencySymbol': <string: optional>
+    "precision": <int>,
+    "scale": <int>,
+    "currencyCode": <string: optional>,
+    "currencySymbol": <string: optional>
 }
 ```
 
@@ -65,9 +65,9 @@ Content-Type: application/json
 ```http
 HTTP/1.1 200 OK
 {
-    'ledger': <uri>,
-    'name': <string: optional>,
-    'connector': <uri: optional>
+    "ledger": <uri>,
+    "name": <string: optional>,
+    "connector": <uri: optional>
 }
 ```
 
@@ -81,8 +81,8 @@ Authorization: <token>/<cert>/<password>/...
 Content-Type: application/json
 Body:
     {
-        'connector': <uri>,
-        'name': <string: optional>
+        "connector": <uri>,
+        "name": <string: optional>
     }
 ```
 
@@ -90,9 +90,9 @@ Body:
 ```http
 HTTP/1.1 200 OK
 {
-    'ledger': <uri>,
-    'name': <string>,
-    'connector': <uri>
+    "ledger": <uri>,
+    "name": <string>,
+    "connector": <uri>
 }
 ```
 
@@ -110,7 +110,7 @@ Content-Type: application/json
 ```http
 HTTP/1.1 200 OK
 {
-    'balance': <float>
+    "balance": <float>
 }
 ```
 
