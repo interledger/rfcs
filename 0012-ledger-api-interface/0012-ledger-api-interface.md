@@ -6,6 +6,10 @@ The advantages of following this spec when designing a ledger are:
 - A standardized interface for inter-ledger communication
 - Easy adoption of existing interledger plugins
 
+<p align="center">
+  <img width="70%" height="70%" src ="./static/ilp_interface.png" />
+</p>
+
 ## Requirements
 
 In order for ledgers to connect seamlessly with any of the ILP plugins `ilp-plugin-<ledgerID>`, the ledger needs to provide:
