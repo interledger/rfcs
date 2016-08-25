@@ -4,7 +4,7 @@ This spec defines some guidelines for **RESTful ledger APIs** to easily integrat
 
 The advantages of following this spec when designing a ledger are:
 - A standardized interface for inter-ledger communication
-- Easy adoption of existing interledger plugins
+- Easy adoption by connectors that implement the standard Web client (Example: `ilp-plugin-web`)
 
 <p align="center">
   <img width="70%" height="70%" src ="./static/ilp_interface.png" />
@@ -12,9 +12,10 @@ The advantages of following this spec when designing a ledger are:
 
 ## Requirements
 
-In order for ledgers to connect seamlessly with any of the ILP plugins `ilp-plugin-<ledgerID>`, the ledger needs to provide:
-- a RESTful HTTP API with endpoints to `transfer` (or `transaction`, `asset`) objects
-- PUSH notifications to register changes in the ledger objects, albeit using websockets, long-polling (EPOLL), or server-sent events.
+In order for ledgers to integrate seamlessly with connectors the ledger needs to provide:
+- a RESTful HTTP API with endpoints to initiate `transfers` and submit `fulfillments`
+- PUSH notifications to notify connectors of changes in the ledger objects and incoming transfers or fulfillments. 
+This could be through websockets, long-polling (EPOLL), or server-sent events.
 
 TODO: define types (uuid, base58, base64, URI, ...)
 
