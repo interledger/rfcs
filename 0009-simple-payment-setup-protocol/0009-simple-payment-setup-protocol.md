@@ -55,10 +55,10 @@ We assume that the sender knows the receiver endpoint (see [Appendix A: (Optiona
 1. The sender's SPSP client queries the receiver endpoint.
 2. The receiver endpoint responds with the receiver info, including the receiver's currency code.
 3. The sender chooses an amount of the receiver's asset to deliver.
-4. The sender's SPSP client submits the payment information, including the destination amount, to the receiver endpoint.
-5. The receiver endpoint responds with an [Interledger Payment Request](../0011-interledger-payment-request), which includes the execution condition.
-6. The sender's SPSP client uses its ILP module to get a quote in their currency or asset type for the ILP transfer.
-7. The sender accepts the quote.
+4. The sender's SPSP client uses its ILP module to get a quote in their currency or asset type for the ILP transfer.
+5. The sender accepts the quote.
+6. The sender's SPSP client submits the payment information, including the destination amount, to the receiver endpoint.
+7. The receiver endpoint responds with an [Interledger Payment Request](../0011-interledger-payment-request), which includes the execution condition.
 8. The sender's SPSP client uses its ILP module to initiate the ILP payment.
 9. The receiver's ILP module registers the incoming transfer held pending the fulfillment of the Crypto Condition. It validates that the transfer matches the packet and regenerates the condition fulfillment using the method recommended in the [Interledger Payment Request](../0011-interledger-payment-request) spec. The ILP module submits the fulfillment to execute the transfer and claim the funds.
 10. The sender's SPSP client receives a notification from its ILP module that the transfer has been executed, including the condition fulfillment from the recipient, and notifies the sender that the payment is completed.
