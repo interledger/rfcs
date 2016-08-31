@@ -27,9 +27,9 @@ TODO: explain how it works
 
 ### Ledger Metadata
 
-TODO: description
-
 #### Retrieve Metadata
+
+Retrieve some metadata about the ledger. 
 
 ##### Request
 ```http
@@ -50,7 +50,11 @@ HTTP/1.1 200 OK
 }
 ```
 
+For a detailed description of these properties, please see [`LedgerInfo`](https://github.com/interledger/rfcs/blob/master/0004-ledger-plugin-interface/0004-ledger-plugin-interface.md#class-ledgerinfo).
+
 ### Accounts
+
+`TODO:` Account should be inline with the [ILP address specification](https://github.com/interledger/rfcs/blob/master/0004-ledger-plugin-interface/0004-ledger-plugin-interface.md#getaccount)
 
 #### Retrieve account
 
@@ -72,6 +76,9 @@ HTTP/1.1 200 OK
 }
 ```
 
+`TODO:` define the fields
+`TODO:` is the connector field required? Should the ledger be connector-agnostic?
+
 #### Update account
 
 ##### Request
@@ -87,6 +94,9 @@ Body:
     }
 ```
 
+`TODO:` define the fields
+`TODO:` is the connector field required? Should the ledger be connector-agnostic?
+
 ##### Response
 ```http
 HTTP/1.1 200 OK
@@ -98,6 +108,8 @@ HTTP/1.1 200 OK
 ```
 
 #### Retrieve account balance
+
+Return a decimal string representing the current balance.
 
 ##### Request
 ```http
@@ -117,6 +129,8 @@ HTTP/1.1 200 OK
 
 ### Transfers
 
+Transfer payloads and responses need to conform to the [`Transfer` class](https://github.com/interledger/rfcs/blob/master/0004-ledger-plugin-interface/0004-ledger-plugin-interface.md#class-transfer).
+
 #### Retrieve transfer item
 
 ##### Request
@@ -130,7 +144,16 @@ Content-Type: application/json
 ##### Response
 ```http
 HTTP/1.1 200 OK
-ledgerTransfer
+{
+    "id": "<string: uuid|base58>",
+    "amount": "<string: decimal value>",
+    "debitAccount": "<string: ILP address>",
+    "creditAccount": "<string: ILP address>",
+    "data": "<JSON object>",
+    "noteToSelf": "<JSON object>",
+    "executionCondition": "<string: ILP condition URI>",
+    "expiresAt": "<string: ISO 8601 timestamp>    
+}
 ```
 
 #### Create transfer item
@@ -142,29 +165,21 @@ Host: ledger.example
 Authorization: <token>/<cert>/<password>/...
 Content-Type: application/json
 Body:
-    ledgerTransfer
+    {
+        "id": "<string: uuid|base58>",
+        "amount": "<string: decimal value>",
+        "debitAccount": "<string: ILP address>",
+        "creditAccount": "<string: ILP address>",
+        "data": "<JSON object>",
+        "noteToSelf": "<JSON object>",
+        "executionCondition": "<string: ILP condition URI>",
+        "expiresAt": "<string: ISO 8601 timestamp>    
+    }
 ```
 
 ##### Response
 ```http
 HTTP/1.1 200 OK
-ledgerTransfer
-```
-
-#### Retrieve fulfillment for transfer
-
-##### Request
-```http
-GET /transfers/<uuid|base58: ID>/fulfillment HTTP/1.1
-Host: ledger.example
-Authorization: <token>/<cert>/<password>/...
-Content-Type: application/json
-```
-
-##### Response
-```http
-HTTP/1.1 200 OK
-ilpFulfillment
 ```
 
 #### Create/update fulfillment for transfer
@@ -176,16 +191,19 @@ Host: ledger.example
 Authorization: <token>/<cert>/<password>/...
 Content-Type: application/json
 Body:
-    ilpFulfillment
+    {
+        "fulfillment" : "<string: ILP fulfillment URI>"
+    }
 ```
 
 ##### Response
 ```http
 HTTP/1.1 200 OK
-ilpFulfillment
 ```
 
 ## PUSH notifications (websockets)
+
+The emitted events of the ledger should include the [LedgerPlugin events](https://github.com/interledger/rfcs/blob/master/0004-ledger-plugin-interface/0004-ledger-plugin-interface.md#events)
 
 #### Open
 
