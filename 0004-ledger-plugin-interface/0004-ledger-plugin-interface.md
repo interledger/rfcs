@@ -45,12 +45,24 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**outgoing_reject**](#event-*_reject-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), rejectionReason:Buffer ) ⇒</code> |
 | [**outgoing_cancel**](#event-*_cancel-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), cancellationReason:Buffer ) ⇒</code> |
 
+###### Errors
+| Name | Description |
+|:--|:--|
+| [**InvalidFieldsError**]() | Arguments or configuration were invalidated client-side |
+| [**UnreachableError**]() | An error occured due to connection failure |
+| [**TransferNotFoundError**]() | A requested transfer does not exist and cannot be fetched |
+| [**MissingFulfillmentError**]() | A transfer has not yet been fulfilled, so the fulfillment cannot be fetched |
+| [**RepeatError**]() | A requested transfer has already been sent/fulfilled/rejected and cannot be modified |
+| [**NotAcceptedError**]() | An operation has been rejected due to ledger-side logic |
+
 ### Instance Management
 
 #### new LedgerPlugin
 <code>new LedgerPlugin( **opts** : [PluginOptions](#class-pluginoptions) )</code>
 
 Create a new instance of the plugin. Each instance typically corresponds to a different ledger. However, some plugins MAY deviate from a strict one-to-one relationship and MAY use one instance for multiple (similar) ledgers or multiple instances to talk to the same ledger.
+
+Throws `InvalidFieldsError` if the constructor is given incorrect arguments.
 
 ###### Parameters
 | Name | Type | Description |
@@ -90,6 +102,8 @@ For a detailed description of these properties, please see [`PluginOptions`](#cl
 <code>ledgerPlugin.connect() ⇒ Promise.&lt;null></code>
 
 Initiate ledger event subscriptions. Once `connect` is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the [`connect`](#event-connect-) event. If the connection is lost, the ledger plugin SHOULD emit the [`disconnect`](#event-disconnect-) event.
+
+Throws `InvalidFieldsError` if credentials are missing, and `NotAcceptedError` if credentials are rejected.
 
 #### disconnect
 <code>ledgerPlugin.disconnect() ⇒ Promise.&lt;null></code>
@@ -148,6 +162,10 @@ Return a decimal string representing the current balance. Plugin must be connect
 
 Return the fulfillment of a transfer if it has already been executed.
 
+Throws `MissingFulfillmentError` if the transfer exists but is not yet
+fulfilled. Throws `TransferNotFoundError` if no conditional transfer is found
+with the given ID.
+
 #### Event: `connect`
 <code>ledgerPlugin.on('connect', () ⇒ )</code>
 
@@ -187,6 +205,10 @@ implement zero-amount transfers differently than other transfers.
 ###### Returns
 **`Promise.<null>`** A promise which resolves when the transfer has been submitted (but not necessarily accepted.)
 
+Throws `InvalidFieldsError` if required fields are missing from the transfer or malformed. Throws `RepeatError` if a transfer with
+the given ID already exists. Throws `NotAcceptedError` if the transfer is rejected by the ledger due to insufficient balance or
+a nonexistant destination account.
+
 ###### Example
 ```js
 p.send({
@@ -207,15 +229,27 @@ For a detailed description of these properties, please see [`OutgoingTransfer`](
 
 Submit a fulfillment to a ledger. Plugin must be connected, otherwise the promise should reject.
 
+Throws `InvalidFieldsError` if the fulfillment is malformed. Throws `TransferNotFoundError` if the fulfillment
+if no conditional transfer with the given ID exists. Throws `RepeatError` if the transfer has already been fulfilled
+or rolled back. Throws `NotAcceptedError` if the fulfillment is formatted correctly, but does not match the condition
+of the specified transfer.
+
 #### replyToTransfer
 <code>ledgerPlugin.replyToTransfer( **transferId**:String, **replyMessage**:Buffer ) ⇒ Promise.&lt;null></code>
 
 **TODO**: Define what the message format is.  Plugin must be connected, otherwise the promise should reject.
 
+Throws `TransferNotFoundError` if no transfer with the given ID exists.
+
 #### rejectIncomingTransfer
 <code>ledgerPlugin.rejectIncomingTransfer( **transferId**:String, **rejectMessage**:Buffer ) ⇒ Promise.&lt;null></code>
 
 Reject an incoming transfer that is held pending the fulfillment of its `executionCondition` before the `expiresAt` time. `rejectMessage` MAY be supplied to provide details on why the transfer was rejected.
+
+Throws `TransferNotFoundError` if there is no conditional transfer with the
+given ID. Throws `RepeatError` if the specified transfer has already been
+fulfilled or rolled back. Throws `NotAcceptedError` if you are not authorized
+to reject the transfer (e.g. if you are the sender).
 
 This MAY be used by receivers or connectors to reject incoming funds if they will not fulfill the condition or are unable to forward the payment. Previous hops in an Interledger transfer would have their money returned before the expiry and the sender or previous connectors MAY retry and reroute the transfer through an alternate path.
 

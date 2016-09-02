@@ -271,10 +271,46 @@
 </tr>
 </tbody>
 </table>
+<h6 id="errors">Errors</h6>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Name</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><a href=""><strong>InvalidFieldsError</strong></a></td>
+<td style="text-align:left">Arguments or configuration were invalidated client-side</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href=""><strong>UnreachableError</strong></a></td>
+<td style="text-align:left">An error occured due to connection failure</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href=""><strong>TransferNotFoundError</strong></a></td>
+<td style="text-align:left">A requested transfer does not exist and cannot be fetched</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href=""><strong>MissingFulfillmentError</strong></a></td>
+<td style="text-align:left">A transfer has not yet been fulfilled, so the fulfillment cannot be fetched</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href=""><strong>RepeatError</strong></a></td>
+<td style="text-align:left">A requested transfer has already been sent/fulfilled/rejected and cannot be modified</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href=""><strong>NotAcceptedError</strong></a></td>
+<td style="text-align:left">An operation has been rejected due to ledger-side logic</td>
+</tr>
+</tbody>
+</table>
 <h3 id="instance-management">Instance Management</h3>
 <h4 id="new-ledgerplugin">new LedgerPlugin</h4>
 <p><code>new LedgerPlugin( <strong>opts</strong> : <a href="#class-pluginoptions">PluginOptions</a> )</code></p>
 <p>Create a new instance of the plugin. Each instance typically corresponds to a different ledger. However, some plugins MAY deviate from a strict one-to-one relationship and MAY use one instance for multiple (similar) ledgers or multiple instances to talk to the same ledger.</p>
+<p>Throws <code>InvalidFieldsError</code> if the constructor is given incorrect arguments.</p>
 <h6 id="parameters-1">Parameters</h6>
 <table class="table table-striped">
 <thead>
@@ -320,6 +356,7 @@
 <h4 id="connect">connect</h4>
 <p><code>ledgerPlugin.connect() &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Initiate ledger event subscriptions. Once <code>connect</code> is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the <a href="#event-connect-"><code>connect</code></a> event. If the connection is lost, the ledger plugin SHOULD emit the <a href="#event-disconnect-"><code>disconnect</code></a> event.</p>
+<p>Throws <code>InvalidFieldsError</code> if credentials are missing, and <code>NotAcceptedError</code> if credentials are rejected.</p>
 <h4 id="disconnect">disconnect</h4>
 <p><code>ledgerPlugin.disconnect() &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Unsubscribe from ledger events.</p>
@@ -356,6 +393,9 @@
 <h4 id="getfulfillment">getFulfillment</h4>
 <p><code>ledgerPlugin.getFulfillment( transferId ) &#x21D2; Promise.&lt;String&gt;</code></p>
 <p>Return the fulfillment of a transfer if it has already been executed.</p>
+<p>Throws <code>MissingFulfillmentError</code> if the transfer exists but is not yet
+fulfilled. Throws <code>TransferNotFoundError</code> if no conditional transfer is found
+with the given ID.</p>
 <h4 id="event-connect">Event: <code>connect</code></h4>
 <p><code>ledgerPlugin.on(&apos;connect&apos;, () &#x21D2; )</code></p>
 <p>Emitted whenever a connection is successfully established.</p>
@@ -395,6 +435,9 @@ implement zero-amount transfers differently than other transfers.</p>
 </table>
 <h6 id="returns">Returns</h6>
 <p><strong><code>Promise.&lt;null&gt;</code></strong> A promise which resolves when the transfer has been submitted (but not necessarily accepted.)</p>
+<p>Throws <code>InvalidFieldsError</code> if required fields are missing from the transfer or malformed. Throws <code>RepeatError</code> if a transfer with
+the given ID already exists. Throws <code>NotAcceptedError</code> if the transfer is rejected by the ledger due to insufficient balance or
+a nonexistant destination account.</p>
 <h6 id="example-2">Example</h6>
 <pre><code class="lang-js">p.send({
   id: &apos;d86b0299-e2fa-4713-833a-96a6a75271b8&apos;,
@@ -410,12 +453,21 @@ implement zero-amount transfers differently than other transfers.</p>
 <h4 id="fulfillcondition">fulfillCondition</h4>
 <p><code>ledgerPlugin.fulfillCondition( <strong>transferId</strong>:String, <strong>fulfillment</strong>:Buffer ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Submit a fulfillment to a ledger. Plugin must be connected, otherwise the promise should reject.</p>
+<p>Throws <code>InvalidFieldsError</code> if the fulfillment is malformed. Throws <code>TransferNotFoundError</code> if the fulfillment
+if no conditional transfer with the given ID exists. Throws <code>RepeatError</code> if the transfer has already been fulfilled
+or rolled back. Throws <code>NotAcceptedError</code> if the fulfillment is formatted correctly, but does not match the condition
+of the specified transfer.</p>
 <h4 id="replytotransfer">replyToTransfer</h4>
 <p><code>ledgerPlugin.replyToTransfer( <strong>transferId</strong>:String, <strong>replyMessage</strong>:Buffer ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p><strong>TODO</strong>: Define what the message format is.  Plugin must be connected, otherwise the promise should reject.</p>
+<p>Throws <code>TransferNotFoundError</code> if no transfer with the given ID exists.</p>
 <h4 id="rejectincomingtransfer">rejectIncomingTransfer</h4>
 <p><code>ledgerPlugin.rejectIncomingTransfer( <strong>transferId</strong>:String, <strong>rejectMessage</strong>:Buffer ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Reject an incoming transfer that is held pending the fulfillment of its <code>executionCondition</code> before the <code>expiresAt</code> time. <code>rejectMessage</code> MAY be supplied to provide details on why the transfer was rejected.</p>
+<p>Throws <code>TransferNotFoundError</code> if there is no conditional transfer with the
+given ID. Throws <code>RepeatError</code> if the specified transfer has already been
+fulfilled or rolled back. Throws <code>NotAcceptedError</code> if you are not authorized
+to reject the transfer (e.g. if you are the sender).</p>
 <p>This MAY be used by receivers or connectors to reject incoming funds if they will not fulfill the condition or are unable to forward the payment. Previous hops in an Interledger transfer would have their money returned before the expiry and the sender or previous connectors MAY retry and reroute the transfer through an alternate path.</p>
 <h3 id="event-_transfer">Event: <code>*_transfer</code></h3>
 <p><code style="">ledgerPlugin.on(&apos;incoming_transfer&apos;,
