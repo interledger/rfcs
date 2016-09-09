@@ -134,6 +134,14 @@
                   <a href="#fields-5">Fields</a>
                 </li>
               
+                <li class="nav-label">
+                  <a href="#class-connectorinfo">Class: ConnectorInfo</a>
+                </li>
+              
+                <li>
+                  <a href="#fields-7">Fields</a>
+                </li>
+              
             </ul>
           </nav>
         </div>
@@ -599,7 +607,7 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <p><code>OutgoingTransfer</code> objects describe transfers which have been <strong>sent</strong> by the ledger plugin. The <code>account</code> field refers to the local destination account on the underlying ledger.</p>
 <p>See <a href="#class-transfer"><code>Transfer</code></a> for more information.</p>
 <h3 id="fields-2">Fields</h3>
-<h4 id="id">id</h4>
+<h4 id="id-1">id</h4>
 <p><code><strong>id</strong>:String</code></p>
 <p>External unique identifier used by the host.</p>
 <p>For <a href="#outgoingtransfer"><code>OutgoingTransfer</code></a>s, the ID is chosen by the host. The ledger plugin MAY use a different identifier internally, but MUST fail if the external ID has already been used. In the case of a connector, the ID will be deterministically chosen from the hash of the ledger and transfer IDs of the inbound transfer that triggered this outbound transfer.</p>
@@ -682,6 +690,11 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <td style="text-align:left"><a href="#currencysymbol">currencySymbol</a></td>
 <td style="text-align:left">UTF8 currency symbol</td>
 </tr>
+<tr>
+<td style="text-align:left"><code>ConnectorInfo[]</code></td>
+<td style="text-align:left"><a href="#connectors">connectors</a></td>
+<td style="text-align:left">Recommended connectors</td>
+</tr>
 </tbody>
 </table>
 <h3 id="fields-4">Fields</h3>
@@ -697,6 +710,9 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <h4 id="currencysymbol">currencySymbol</h4>
 <p><code><strong>currencySymbol</strong>:String</code></p>
 <p>The currency symbol as one or more UTF8 characters.</p>
+<h4 id="connectors">connectors</h4>
+<p><code><strong>connectors</strong>:<a href="#class-connectorinfo">ConnectorInfo</a>[]</code></p>
+<p>The list of recommended connectors.</p>
 <h2 id="class-pluginoptions">Class: PluginOptions</h2>
 <p><code>class PluginOptions</code></p>
 <p>Plugin options are passed in to the <a href="#class-ledgerplugin"><code>LedgerPlugin</code></a>
@@ -740,6 +756,53 @@ an underscore, and listed in the table below.</p>
   del: (key) =&gt; {
     // Returns Promise.&lt;null&gt;
   }
+}
+</code></pre>
+<h2 id="class-connectorinfo">Class: ConnectorInfo</h2>
+<p><code>class ConnectorInfo</code></p>
+<p>Data about recommended connectors included in <a href="#class-ledgerinfo"><code>LedgerInfo</code></a>.</p>
+<h6 id="fields-6">Fields</h6>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Name</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left">id</td>
+<td style="text-align:left">Account URI</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left">name</td>
+<td style="text-align:left">Account name</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left">connector</td>
+<td style="text-align:left">Connector URI</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fields-7">Fields</h3>
+<h4 id="id-2">id</h4>
+<p><code><strong>id</strong>:String</code></p>
+<p>The connector&apos;s account URI on the ledger.</p>
+<h4 id="name">name</h4>
+<p><code><strong>name</strong>:String</code></p>
+<p>The connector&apos;s account name on the ledger.</p>
+<h4 id="connector">connector</h4>
+<p><code><strong>connector</strong>:String</code></p>
+<p>The URI of the connector.</p>
+<h6 id="example-5">Example</h6>
+<pre><code class="lang-js">{
+    &quot;id&quot;: &quot;http://usd-ledger.example/accounts/chloe&quot;,
+    &quot;name&quot;: &quot;chloe&quot;,
+    &quot;connector&quot;: &quot;http://usd-eur-connector.example&quot;
 }
 </code></pre>
 
