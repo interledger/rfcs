@@ -461,6 +461,7 @@ Metadata describing the ledger. This data is returned by the [`getInfo`](#getinf
 | `Number` | [scale](#scale) | Digits allowed after decimal |
 | `String` | [currencyCode](#currencycode) | ISO three-letter currency code |
 | `String` | [currencySymbol](#currencysymbol) | UTF8 currency symbol |
+| `ConnectorInfo[]` | [connectors](#connectors) | Recommended connectors |
 
 ### Fields
 
@@ -483,6 +484,11 @@ The ISO 4217 currency code (if any) used by the ledger.
 <code>**currencySymbol**:String</code>
 
 The currency symbol as one or more UTF8 characters.
+
+#### connectors
+<code>**connectors**:[ConnectorInfo](#class-connectorinfo)[]</code>
+
+The list of recommended connectors.
 
 ## Class: PluginOptions
 <code>class PluginOptions</code>
@@ -523,5 +529,43 @@ Method names are based on the popular LevelUP/LevelDOWN packages.
   del: (key) => {
     // Returns Promise.<null>
   }
+}
+```
+
+## Class: ConnectorInfo
+<code>class ConnectorInfo</code>
+
+Data about recommended connectors included in [`LedgerInfo`](#class-ledgerinfo).
+
+###### Fields
+| Type | Name | Description |
+|:--|:--|:--|
+| `String` | id | Account URI |
+| `String` | name | Account name |
+| `String` | connector | Connector URI |
+
+### Fields
+
+#### id
+<code>**id**:String</code>
+
+The connector's account URI on the ledger.
+
+#### name
+<code>**name**:String</code>
+
+The connector's account name on the ledger.
+
+#### connector
+<code>**connector**:String</code>
+
+The URI of the connector.
+
+###### Example
+```js
+{
+    "id": "http://usd-ledger.example/accounts/chloe",
+    "name": "chloe",
+    "connector": "http://usd-eur-connector.example"
 }
 ```
