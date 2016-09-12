@@ -52,7 +52,10 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**UnreachableError**]() | An error occured due to connection failure |
 | [**TransferNotFoundError**]() | A requested transfer does not exist and cannot be fetched |
 | [**MissingFulfillmentError**]() | A transfer has not yet been fulfilled, so the fulfillment cannot be fetched |
-| [**RepeatError**]() | A requested transfer has already been sent/fulfilled/rejected and cannot be modified |
+| [**DuplicateIdError**]() | A transfer with the same ID and different fields has been sent |
+| [**AlreadyRolledBackError**]() | A requested transfer has already been timed out or rejected and cannot be modified |
+| [**AlreadyFulfilledError**]() | A requested transfer has already been fulfilled and cannot be modified |
+| [**TransferNotConditionalError**]() | A requested transfer is not conditional and cannot be rejected/fulfilled/etc. |
 | [**NotAcceptedError**]() | An operation has been rejected due to ledger-side logic |
 
 ### Instance Management
@@ -164,7 +167,9 @@ Return the fulfillment of a transfer if it has already been executed.
 
 Throws `MissingFulfillmentError` if the transfer exists but is not yet
 fulfilled. Throws `TransferNotFoundError` if no conditional transfer is found
-with the given ID.
+with the given ID. Throws `AlreadyRolledBackError` if the transfer has been rolled back
+and will not be fulfilled. Throws `TransferNotConditionalError` if transfer is not
+conditional.
 
 #### Event: `connect`
 <code>ledgerPlugin.on('connect', () ⇒ )</code>
@@ -205,8 +210,8 @@ implement zero-amount transfers differently than other transfers.
 ###### Returns
 **`Promise.<null>`** A promise which resolves when the transfer has been submitted (but not necessarily accepted.)
 
-Throws `InvalidFieldsError` if required fields are missing from the transfer or malformed. Throws `RepeatError` if a transfer with
-the given ID already exists. Throws `NotAcceptedError` if the transfer is rejected by the ledger due to insufficient balance or
+Throws `InvalidFieldsError` if required fields are missing from the transfer or malformed. Throws `DuplicateIdError` if a transfer with
+the given ID and different already exists. Throws `NotAcceptedError` if the transfer is rejected by the ledger due to insufficient balance or
 a nonexistant destination account.
 
 ###### Example
@@ -230,9 +235,9 @@ For a detailed description of these properties, please see [`OutgoingTransfer`](
 Submit a fulfillment to a ledger. Plugin must be connected, otherwise the promise should reject.
 
 Throws `InvalidFieldsError` if the fulfillment is malformed. Throws `TransferNotFoundError` if the fulfillment
-if no conditional transfer with the given ID exists. Throws `RepeatError` if the transfer has already been fulfilled
-or rolled back. Throws `NotAcceptedError` if the fulfillment is formatted correctly, but does not match the condition
-of the specified transfer.
+if no conditional transfer with the given ID exists. Throws `AlreadyRolledBackError` if the transfer has already been
+rolled back. Throws `NotAcceptedError` if the fulfillment is formatted correctly, but does not match the condition
+of the specified transfer. Throws `TransferNotConditionalError` if transfer is not conditional.
 
 #### replyToTransfer
 <code>ledgerPlugin.replyToTransfer( **transferId**:String, **replyMessage**:Buffer ) ⇒ Promise.&lt;null></code>
@@ -247,9 +252,10 @@ Throws `TransferNotFoundError` if no transfer with the given ID exists.
 Reject an incoming transfer that is held pending the fulfillment of its `executionCondition` before the `expiresAt` time. `rejectMessage` MAY be supplied to provide details on why the transfer was rejected.
 
 Throws `TransferNotFoundError` if there is no conditional transfer with the
-given ID. Throws `RepeatError` if the specified transfer has already been
-fulfilled or rolled back. Throws `NotAcceptedError` if you are not authorized
-to reject the transfer (e.g. if you are the sender).
+given ID. Throws `AlreadyFulfilledError` if the specified transfer has already been
+fulfilled. Throws `NotAcceptedError` if you are not authorized
+to reject the transfer (e.g. if you are the sender). Throws `TransferNotConditionalError`
+if transfer is not conditional.
 
 This MAY be used by receivers or connectors to reject incoming funds if they will not fulfill the condition or are unable to forward the payment. Previous hops in an Interledger transfer would have their money returned before the expiry and the sender or previous connectors MAY retry and reroute the transfer through an alternate path.
 
