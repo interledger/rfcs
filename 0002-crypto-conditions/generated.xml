@@ -52,7 +52,7 @@
       </address>
     </author>
 
-    <date year="2016" month="August" day="04"/>
+    <date year="2016" month="September" day="14"/>
 
     <area>security</area>
     
@@ -89,7 +89,7 @@
 
 <t>Fulfillments are <spanx style="strong">cryptographically verifiable messages</spanx> that prove an event occurred. If you transmit a fulfillment, then everyone who has the condition can agree that the condition has been met.</t>
 
-<t>In the Interledger protocol, crypto-conditions and fulfillments provide irrepudiable proof that a transfer occurred in one ledger, as messages that can be easily shared with other ledgers. This allows ledgers escrow funds or hold a transfer conditionally, then execute the transfer automatically when the ledger sees the fulfillment of the stated condition.</t>
+<t>In the Interledger protocol, crypto-conditions and fulfillments provide irrepudiable proof that a transfer occurred in one ledger, as messages that can be easily shared with other ledgers. This allows ledgers to escrow funds or hold a transfer conditionally, then execute the transfer automatically when the ledger sees the fulfillment of the stated condition.</t>
 
 <t>Crypto-conditions may also be useful in other contexts where a system needs to make a decision based on predefined criteria, such as smart contracts.</t>
 
