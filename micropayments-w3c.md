@@ -24,6 +24,7 @@ Notes from W3C Micropayments Breakout
 
 ## Minutes from IRC
 
+```text
 14:07 Stefan: [Demo of browser plug-in]
 14:08 Demo is at https://red.ilpdemo.org
 14:08 Stefan: Value prop for ILP is that payer and payee don't need to have a common payment method
@@ -79,3 +80,4 @@ Notes from W3C Micropayments Breakout
 14:56 kaoru: privacy vs money laundering is a tough balance. Open standards can be defined that toe that line
 15:01 ledger@ietf.org for the IETF mailing list
 15:01 public-interledger@w3.org for the W3C mailing list
+```
