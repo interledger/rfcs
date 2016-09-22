@@ -391,7 +391,14 @@
   &quot;precision&quot;: 10,
   &quot;scale&quot;: 4,
   &quot;currencyCode&quot;: &quot;USD&quot;,
-  &quot;currencySymbol&quot;: &quot;$&quot;
+  &quot;currencySymbol&quot;: &quot;$&quot;,
+  &quot;connectors&quot;: [
+    {
+      &quot;id&quot;: &quot;http://usd-ledger.example/accounts/chloe&quot;,
+      &quot;name&quot;: &quot;chloe&quot;,
+      &quot;connector&quot;: &quot;http://usd-eur-connector.example&quot;
+    }
+  ]
 }
 </code></pre>
 <p>For a detailed description of these properties, please see <a href="#class-ledgerinfo"><code>LedgerInfo</code></a>.</p>

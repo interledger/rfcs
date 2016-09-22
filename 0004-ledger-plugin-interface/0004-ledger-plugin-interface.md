@@ -129,7 +129,14 @@ Retrieve some metadata about the ledger. Plugin must be connected, otherwise the
   "precision": 10,
   "scale": 4,
   "currencyCode": "USD",
-  "currencySymbol": "$"
+  "currencySymbol": "$",
+  "connectors": [
+    {
+      "id": "http://usd-ledger.example/accounts/chloe",
+      "name": "chloe",
+      "connector": "http://usd-eur-connector.example"
+    }
+  ]
 }
 ```
 
