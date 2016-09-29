@@ -26,9 +26,9 @@ The sending and receiving ledger are different ledgers. Otherwise, there should 
 **Parties:**
 
 * The **sender** is the party being debited at the start of the overall chain.
-* The **source** is the party being debited in a single link of the chain. In a simple payment, the source is also the sender.
+* The **source** is the party being debited in a single link of the chain.
 * The **receiver** is the party being credited at the end of the overall chain.
-* The **destination** receives money from the connector in a single link. In a simple payment, the destination is also the receiver.
+* The **destination** is the party being credited in a single link of the chain.
 * A **connector** facilitates the payment between the source and destination in a single link. In a multiple-hop payment, there are multiple connectors, each of which is the destination of one link and the source of the next.
 
 ## Get Quote (HTTP)
@@ -51,7 +51,7 @@ The request uses the following query parameters:
 | `destination_amount`          | Number      | Fixed amount to credit to the destination's account. (Required unless `source_amount` specified.) |
 | `destination_expiry_duration` | Number      | (Optional) Number of milliseconds before the transfer in the destination ledger expires. |
 | `source_expiry_duration`      | Number      | (Optional) Number of milliseconds before the transfer in the source ledger expires. |
-| `slippage`                    | Number      | (Optional) Custom slippage ***amount? percentage?*** to assume for the exchange between ledgers. Lower slippage means the payment is cheaper but more likely to fail due to market movement. |
+| `slippage`                    | Number      | (Optional) Custom slippage to assume for the exchange between ledgers, as a decimal proportion. Lower slippage means the payment is cheaper but more likely to fail due to market movement. |
 
 The request must specify either `source_amount` or `destination_amount` but not both.
 
@@ -73,7 +73,7 @@ The response uses the HTTP status code 200 OK and contains a JSON object with th
 |:------------------------------|:------------|:-------------------------------|
 | `source_connector_account`    | ILP Address | The address of the connector's account in the source ledger where it should receive the first transfer. |
 | `source_ledger`               | ILP Address | The address of the ILP-enabled ledger where the source account is. |
-| `source_amount`               | String      | Decimal number amount of currency the ***TODO: connector's account should receive(?)*** in the source ledger. |
+| `source_amount`               | String      | Decimal number amount of currency the connector's account should receive in the source ledger. |
 | `source_expiry_duration`      | String      | Integer number of milliseconds between when the payment in the source ledger is prepared and when it must be executed. |
 | `destination_ledger`          | ILP Address | The address of the ILP-enabled ledger where the destination account is. |
 | `destination_amount`          | String      | Decimal number amount of currency that should be received by the destination account in the destination ledger. |
