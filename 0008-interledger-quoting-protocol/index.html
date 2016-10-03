@@ -67,6 +67,26 @@
               <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
               
                 <li class="nav-label">
+                  <a href="#background-and-terminology">Background and Terminology</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#get-quote-http">Get Quote (HTTP)</a>
+                </li>
+              
+                <li>
+                  <a href="#request-format">Request Format</a>
+                </li>
+              
+                <li>
+                  <a href="#response-format">Response Format</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#next-steps">Next Steps</a>
+                </li>
+              
+                <li class="nav-label">
                   <a href="#appendix-a-asn1-module">Appendix A: ASN.1 Module</a>
                 </li>
               
@@ -75,9 +95,150 @@
         </div>
         <div class="col-sm-8 markdown-body">
           <h1 id="interledger-quoting-protocol-ilqp">Interledger Quoting Protocol (ILQP)</h1>
+<p class="intro">The Interledger Quoting Protocol is a method of getting quote information from a Connector in preparation for arranging transfers across two ledgers. The quote returned by a Connector is non-binding, but provides a basis for choosing which connectors to use.</p>
+<p>There are two consumers of the ILQP: sending clients, and other connectors.</p>
+<p>The HTTP+JSON interface for the ILQP is a temporary measure. Eventually, it should be replaced completely by a binary version.</p>
+<h2 id="background-and-terminology">Background and Terminology</h2>
+<p>The quoting protocol returns the price of a <em>hypothetical</em> payment through the connector being queried. However, no part of the ILQP initiates or creates an actual payment. All the information in the ILQP is non-binding and advisory. ILQP only calculates and reports the expected cost of a payment.</p>
+<p>Accounts in ILQP are identified by their ILP Addresses. For a full explanation of ILP Addresses, see <a href="https://github.com/interledger/rfcs/issues/31">Proposal: ILP Address Mapping</a> and <a href="https://github.com/interledger/rfcs/issues/77">Fowarding/Delivery Distinction</a>.</p>
+<!--{# ***TODO: Better reference for ILP addresses***. #}-->
+<p>ILP payments can as simple as two transfers in different ledgers joined by a single connector. In other cases, they may be longer chains with multiple connectors across three or more ledgers. The response of an ILQP request only defines one link in the chain.</p>
+<p><strong>Ledgers:</strong></p>
+<ul>
+<li>The <strong>source ledger</strong> is where the sender and the connector both have accounts.</li>
+<li>The <strong>destination ledger</strong> is where the receiver and the connector both have accounts.</li>
+</ul>
+<p>The sending and receiving ledger are different ledgers. Otherwise, there should be no reason to use ILQP.</p>
+<p><strong>Parties:</strong></p>
+<ul>
+<li>The <strong>sender</strong> is the party being debited at the start of the overall chain.</li>
+<li>The <strong>source</strong> is the party being debited in a single link of the chain.</li>
+<li>The <strong>receiver</strong> is the party being credited at the end of the overall chain.</li>
+<li>The <strong>destination</strong> is the party being credited in a single link of the chain.</li>
+<li>A <strong>connector</strong> facilitates the payment between the source and destination in a single link. In a multiple-hop payment, there are multiple connectors, each of which is the destination of one link and the source of the next.</li>
+</ul>
+<h2 id="get-quote-http">Get Quote (HTTP)</h2>
+<p>This is the only API method in the HTTP+JSON version of the ILQP.</p>
+<h3 id="request-format">Request Format</h3>
+<pre><code>GET /
+</code></pre><p>The request uses the following query parameters:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>source_address</code></td>
+<td style="text-align:left">ILP Address</td>
+<td style="text-align:left">Address of the source&apos;s account in the source ledger.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>destination_address</code></td>
+<td style="text-align:left">ILP Address</td>
+<td style="text-align:left">Address of the destination&apos;s account in the destination ledger.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>source_amount</code></td>
+<td style="text-align:left">Number</td>
+<td style="text-align:left">Fixed amount to debit from the source&apos;s account. (Required unless <code>destination_amount</code> specified.)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>destination_amount</code></td>
+<td style="text-align:left">Number</td>
+<td style="text-align:left">Fixed amount to credit to the destination&apos;s account. (Required unless <code>source_amount</code> specified.)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>destination_expiry_duration</code></td>
+<td style="text-align:left">Number</td>
+<td style="text-align:left">(Optional) Number of milliseconds before the transfer in the destination ledger expires.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>source_expiry_duration</code></td>
+<td style="text-align:left">Number</td>
+<td style="text-align:left">(Optional) Number of milliseconds before the transfer in the source ledger expires.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>slippage</code></td>
+<td style="text-align:left">Number</td>
+<td style="text-align:left">(Optional) Custom slippage to assume for the exchange between ledgers, as a decimal proportion. Lower slippage means the payment is cheaper but more likely to fail due to market movement.</td>
+</tr>
+</tbody>
+</table>
+<p>The request must specify either <code>source_amount</code> or <code>destination_amount</code> but not both.</p>
+<p>Example request:</p>
+<pre><code>GET https://connector.example/?source_amount=100.25\
+  &amp;source_address=example.eur-ledger.alice\
+  &amp;destination_address=example.usd-ledger.bob\
+  &amp;source_expiry_duration=6000\
+  &amp;destination_expiry_duration=5
+</code></pre><h3 id="response-format">Response Format</h3>
+<p>The response uses the HTTP status code 200 OK and contains a JSON object with the following fields:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>source_connector_account</code></td>
+<td style="text-align:left">ILP Address</td>
+<td style="text-align:left">The address of the connector&apos;s account in the source ledger where it should receive the first transfer.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>source_ledger</code></td>
+<td style="text-align:left">ILP Address</td>
+<td style="text-align:left">The address of the ILP-enabled ledger where the source account is.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>source_amount</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">Decimal number amount of currency the connector&apos;s account should receive in the source ledger.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>source_expiry_duration</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">Integer number of milliseconds between when the payment in the source ledger is prepared and when it must be executed.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>destination_ledger</code></td>
+<td style="text-align:left">ILP Address</td>
+<td style="text-align:left">The address of the ILP-enabled ledger where the destination account is.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>destination_amount</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">Decimal number amount of currency that should be received by the destination account in the destination ledger.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>destination_expiry_duration</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">Integer number of milliseconds between when the payment in the destination ledger is prepared and when it must be executed.</td>
+</tr>
+</tbody>
+</table>
+<p>Example response:</p>
+<pre><code>HTTP/1.1 200 OK
+
+{
+  &quot;source_connector_account&quot;: &quot;mark&quot;,
+  &quot;source_ledger&quot;: &quot;example.eur-ledger.&quot;,
+  &quot;source_amount&quot;: &quot;100.25&quot;,
+  &quot;source_expiry_duration&quot;: &quot;6000&quot;,
+  &quot;destination_ledger&quot;: &quot;example.usd-ledger.&quot;,
+  &quot;destination_amount&quot;: &quot;105.71&quot;,
+  &quot;destination_expiry_duration&quot;: &quot;5000&quot;
+}
+</code></pre><h2 id="next-steps">Next Steps</h2>
+<p>After getting a quote using ILQP, the client can display the quote to the user and optionally proceed to <em>Preparing</em> (also called <em>Setting Up</em>) the payment, for example using the <a href="https://github.com/interledger/rfcs/tree/master/0009-simple-payment-setup-protocol">Simple Payment Setup Protocol</a>. That process actually sets money aside and creates the crypto-conditions that will release the money to the desired parties.</p>
 <h2 id="appendix-a-asn1-module">Appendix A: ASN.1 Module</h2>
-<p class="intro"><strong>TODO</strong>: What&apos;s the best way to link this?</p>
-<p><a href="../asn1/InterledgerQuotingProtocol.asn">InterledgerQuotingProtocol.asn</a></p>
+<p>The <a href="InterledgerQuotingProtocol.asn">InterledgerQuotingProtocol.asn</a> ASN.1 module tentatively describes the binary version of ILQP. This is not final.</p>
 
         </div>
       </div>
