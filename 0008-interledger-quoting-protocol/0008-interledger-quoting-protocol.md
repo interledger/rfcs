@@ -4,7 +4,7 @@ The Interledger Quoting Protocol is a method of getting quote information from a
 
 There are two consumers of the ILQP: sending clients, and other connectors.
 
-The HTTP+JSON interface for the ILQP is a temporary measure. Eventually, it should be replaced completely by a binary version.
+The JSON interface for the ILQP is a temporary measure. Eventually, it should be replaced completely by a binary version.
 
 ## Background and Terminology
 
@@ -31,20 +31,22 @@ The sending and receiving ledger are different ledgers. Otherwise, there should 
 * The **destination** is the party being credited in a single link of the chain.
 * A **connector** facilitates the payment between the source and destination in a single link. In a multiple-hop payment, there are multiple connectors, each of which is the destination of one link and the source of the next.
 
-## Get Quote (HTTP)
+## Get Quote
 
-This is the only API method in the HTTP+JSON version of the ILQP.
+Quotes are requested with `plugin.sendMessage(message)` and returned via `plugin.on("incoming_message")` (see the Ledger Plugin Interface for more details).
 
-### Request Format
+### Request Message Format
 
-```
-GET /
-```
+| Field    | Type            | Description |
+|:---------|:----------------|:------------|
+| `method` | String          | `"quote_request"` |
+| `id`     | String          | A UUID to match this request to the corresponding response. |
+| `data`   | QuoteParameters | An Object describing the quote parameters. |
 
-The request uses the following query parameters:
+##### QuoteParameters
 
-| Field                         | Type        | Description                    |
-|:------------------------------|:------------|:-------------------------------|
+| Field                         | Type        | Description |
+|:------------------------------|:------------|:------------|
 | `source_address`              | ILP Address | Address of the source's account in the source ledger. |
 | `destination_address`         | ILP Address | Address of the destination's account in the destination ledger. |
 | `source_amount`               | Number      | Fixed amount to debit from the source's account. (Required unless `destination_amount` specified.) |
@@ -55,22 +57,34 @@ The request uses the following query parameters:
 
 The request must specify either `source_amount` or `destination_amount` but not both.
 
-Example request:
+##### Example request
 
+```js
+{
+  "method": "quote_request",
+  "id": "721e4126-98a1-4974-b35a-8a8f4655f934",
+  "data": {
+    "source_amount": "100.25",
+    "source_address": "example.eur-ledger.alice",
+    "destination_address": "example.usd-ledger.bob",
+    "source_expiry_duration": "6000",
+    "destination_expiry_duration": "5"
+  }
+}
 ```
-GET https://connector.example/?source_amount=100.25\
-  &source_address=example.eur-ledger.alice\
-  &destination_address=example.usd-ledger.bob\
-  &source_expiry_duration=6000\
-  &destination_expiry_duration=5
-```
 
-### Response Format
+### Response Message Format (success)
 
-The response uses the HTTP status code 200 OK and contains a JSON object with the following fields:
+| Field    | Type           | Description |
+|:---------|:---------------|:------------|
+| `method` | String         | `"quote_response"` or `"error"` |
+| `id`     | String         | A UUID to match this request to the corresponding `quote_request`. |
+| `data`   | Quote or Error | An Object describing the quote (when method=`quote_response`) or the error (when method=`error`). |
 
-| Field                         | Type        | Description                    |
-|:------------------------------|:------------|:-------------------------------|
+##### Quote (method = `"quote_response"`)
+
+| Field                         | Type        | Description |
+|:------------------------------|:------------|:------------|
 | `source_connector_account`    | ILP Address | The address of the connector's account in the source ledger where it should receive the first transfer. |
 | `source_ledger`               | ILP Address | The address of the ILP-enabled ledger where the source account is. |
 | `source_amount`               | String      | Decimal number amount of currency the connector's account should receive in the source ledger. |
@@ -79,19 +93,41 @@ The response uses the HTTP status code 200 OK and contains a JSON object with th
 | `destination_amount`          | String      | Decimal number amount of currency that should be received by the destination account in the destination ledger. |
 | `destination_expiry_duration` | String      | Integer number of milliseconds between when the payment in the destination ledger is prepared and when it must be executed. |
 
-Example response:
+##### Example response (method = `"quote_response"`)
 
-```
-HTTP/1.1 200 OK
-
+```js
 {
-  "source_connector_account": "mark",
-  "source_ledger": "example.eur-ledger.",
-  "source_amount": "100.25",
-  "source_expiry_duration": "6000",
-  "destination_ledger": "example.usd-ledger.",
-  "destination_amount": "105.71",
-  "destination_expiry_duration": "5000"
+  "method": "quote_response",
+  "id": "721e4126-98a1-4974-b35a-8a8f4655f934",
+  "data": {
+    "source_connector_account": "mark",
+    "source_ledger": "example.eur-ledger.",
+    "source_amount": "100.25",
+    "source_expiry_duration": "6000",
+    "destination_ledger": "example.usd-ledger.",
+    "destination_amount": "105.71",
+    "destination_expiry_duration": "5000"
+  }
+}
+```
+
+##### Error (method = `"error"`)
+
+| Field     | Type   | Description |
+|:----------|:-------|:------------|
+| `id`      | String | The type of error. |
+| `message` | String | Additional details about the nature of the error. |
+
+##### Example response (method = `"error"`)
+
+```js
+{
+  "method": "quote_response",
+  "id": "721e4126-98a1-4974-b35a-8a8f4655f934",
+  "data": {
+    "id": "InvalidBodyError",
+    "message": "Missing required parameter: source_address"
+  }
 }
 ```
 
