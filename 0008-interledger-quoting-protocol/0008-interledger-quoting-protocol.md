@@ -34,6 +34,7 @@ The sending and receiving ledger are different ledgers. Otherwise, there should 
 ## Get Quote
 
 Quotes are requested with `plugin.sendMessage(message)` and returned via `plugin.on("incoming_message")` (see the Ledger Plugin Interface for more details).
+The message formats described here are the `data` properties of an `OutgoingMessage`.
 
 ### Request Message Format
 
@@ -122,7 +123,7 @@ The request must specify either `source_amount` or `destination_amount` but not 
 
 ```js
 {
-  "method": "quote_response",
+  "method": "error",
   "id": "721e4126-98a1-4974-b35a-8a8f4655f934",
   "data": {
     "id": "InvalidBodyError",

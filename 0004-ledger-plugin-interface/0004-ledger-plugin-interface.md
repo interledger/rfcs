@@ -243,13 +243,15 @@ For a detailed description of these properties, please see [`OutgoingTransfer`](
 Plugin must be connected, otherwise the promise should reject. Send a ledger-local message.
 If there is a problem with the structure or validity of the message, then `sendMessage` should throw an error in the form of a rejected promise.
 
+Messaging is used by connectors for [quoting](../0008-interledger-quoting-protocol/) and broadcasting routes.
+
 ###### Parameters
 | Name | Type | Description |
 |:--|:--|:--|
 | message | <code>[OutgoingMessage](#outgoingmessage)</code> | Properties of the message to be created |
 
 ###### Returns
-**`Promise.<null>`** A promise which resolves when the message has been submitted (but not necessarily delivered.)
+**`Promise.<null>`** A promise which resolves when the message has been submitted (but not necessarily delivered). To ensure delivery, you must build a mechanism for that on top.
 
 Throws `InvalidFieldsError` if required fields are missing from the message or malformed.
 Throws `NotAcceptedError` if the message is rejected by the ledger.
