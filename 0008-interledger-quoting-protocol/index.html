@@ -71,15 +71,15 @@
                 </li>
               
                 <li class="nav-label">
-                  <a href="#get-quote-http">Get Quote (HTTP)</a>
+                  <a href="#get-quote">Get Quote</a>
                 </li>
               
                 <li>
-                  <a href="#request-format">Request Format</a>
+                  <a href="#request-message-format">Request Message Format</a>
                 </li>
               
                 <li>
-                  <a href="#response-format">Response Format</a>
+                  <a href="#response-message-format-success">Response Message Format (success)</a>
                 </li>
               
                 <li class="nav-label">
@@ -97,7 +97,7 @@
           <h1 id="interledger-quoting-protocol-ilqp">Interledger Quoting Protocol (ILQP)</h1>
 <p class="intro">The Interledger Quoting Protocol is a method of getting quote information from a Connector in preparation for arranging transfers across two ledgers. The quote returned by a Connector is non-binding, but provides a basis for choosing which connectors to use.</p>
 <p>There are two consumers of the ILQP: sending clients, and other connectors.</p>
-<p>The HTTP+JSON interface for the ILQP is a temporary measure. Eventually, it should be replaced completely by a binary version.</p>
+<p>The JSON interface for the ILQP is a temporary measure. Eventually, it should be replaced completely by a binary version.</p>
 <h2 id="background-and-terminology">Background and Terminology</h2>
 <p>The quoting protocol returns the price of a <em>hypothetical</em> payment through the connector being queried. However, no part of the ILQP initiates or creates an actual payment. All the information in the ILQP is non-binding and advisory. ILQP only calculates and reports the expected cost of a payment.</p>
 <p>Accounts in ILQP are identified by their ILP Addresses. For a full explanation of ILP Addresses, see <a href="https://github.com/interledger/rfcs/issues/31">Proposal: ILP Address Mapping</a> and <a href="https://github.com/interledger/rfcs/issues/77">Fowarding/Delivery Distinction</a>.</p>
@@ -117,11 +117,37 @@
 <li>The <strong>destination</strong> is the party being credited in a single link of the chain.</li>
 <li>A <strong>connector</strong> facilitates the payment between the source and destination in a single link. In a multiple-hop payment, there are multiple connectors, each of which is the destination of one link and the source of the next.</li>
 </ul>
-<h2 id="get-quote-http">Get Quote (HTTP)</h2>
-<p>This is the only API method in the HTTP+JSON version of the ILQP.</p>
-<h3 id="request-format">Request Format</h3>
-<pre><code>GET /
-</code></pre><p>The request uses the following query parameters:</p>
+<h2 id="get-quote">Get Quote</h2>
+<p>Quotes are requested with <code>plugin.sendMessage(message)</code> and returned via <code>plugin.on(&quot;incoming_message&quot;)</code> (see the Ledger Plugin Interface for more details).
+The message formats described here are the <code>data</code> properties of an <code>OutgoingMessage</code>.</p>
+<h3 id="request-message-format">Request Message Format</h3>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>method</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left"><code>&quot;quote_request&quot;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>id</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">A UUID to match this request to the corresponding response.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>data</code></td>
+<td style="text-align:left">QuoteParameters</td>
+<td style="text-align:left">An Object describing the quote parameters.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="quoteparameters">QuoteParameters</h5>
 <table class="table table-striped">
 <thead>
 <tr>
@@ -169,14 +195,47 @@
 </tbody>
 </table>
 <p>The request must specify either <code>source_amount</code> or <code>destination_amount</code> but not both.</p>
-<p>Example request:</p>
-<pre><code>GET https://connector.example/?source_amount=100.25\
-  &amp;source_address=example.eur-ledger.alice\
-  &amp;destination_address=example.usd-ledger.bob\
-  &amp;source_expiry_duration=6000\
-  &amp;destination_expiry_duration=5
-</code></pre><h3 id="response-format">Response Format</h3>
-<p>The response uses the HTTP status code 200 OK and contains a JSON object with the following fields:</p>
+<h5 id="example-request">Example request</h5>
+<pre><code class="lang-js">{
+  &quot;method&quot;: &quot;quote_request&quot;,
+  &quot;id&quot;: &quot;721e4126-98a1-4974-b35a-8a8f4655f934&quot;,
+  &quot;data&quot;: {
+    &quot;source_amount&quot;: &quot;100.25&quot;,
+    &quot;source_address&quot;: &quot;example.eur-ledger.alice&quot;,
+    &quot;destination_address&quot;: &quot;example.usd-ledger.bob&quot;,
+    &quot;source_expiry_duration&quot;: &quot;6000&quot;,
+    &quot;destination_expiry_duration&quot;: &quot;5&quot;
+  }
+}
+</code></pre>
+<h3 id="response-message-format-success">Response Message Format (success)</h3>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>method</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left"><code>&quot;quote_response&quot;</code> or <code>&quot;error&quot;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>id</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">A UUID to match this request to the corresponding <code>quote_request</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>data</code></td>
+<td style="text-align:left">Quote or Error</td>
+<td style="text-align:left">An Object describing the quote (when method=<code>quote_response</code>) or the error (when method=<code>error</code>).</td>
+</tr>
+</tbody>
+</table>
+<h5 id="quote-method--quote_response">Quote (method = <code>&quot;quote_response&quot;</code>)</h5>
 <table class="table table-striped">
 <thead>
 <tr>
@@ -223,19 +282,54 @@
 </tr>
 </tbody>
 </table>
-<p>Example response:</p>
-<pre><code>HTTP/1.1 200 OK
-
-{
-  &quot;source_connector_account&quot;: &quot;mark&quot;,
-  &quot;source_ledger&quot;: &quot;example.eur-ledger.&quot;,
-  &quot;source_amount&quot;: &quot;100.25&quot;,
-  &quot;source_expiry_duration&quot;: &quot;6000&quot;,
-  &quot;destination_ledger&quot;: &quot;example.usd-ledger.&quot;,
-  &quot;destination_amount&quot;: &quot;105.71&quot;,
-  &quot;destination_expiry_duration&quot;: &quot;5000&quot;
+<h5 id="example-response-method--quote_response">Example response (method = <code>&quot;quote_response&quot;</code>)</h5>
+<pre><code class="lang-js">{
+  &quot;method&quot;: &quot;quote_response&quot;,
+  &quot;id&quot;: &quot;721e4126-98a1-4974-b35a-8a8f4655f934&quot;,
+  &quot;data&quot;: {
+    &quot;source_connector_account&quot;: &quot;mark&quot;,
+    &quot;source_ledger&quot;: &quot;example.eur-ledger.&quot;,
+    &quot;source_amount&quot;: &quot;100.25&quot;,
+    &quot;source_expiry_duration&quot;: &quot;6000&quot;,
+    &quot;destination_ledger&quot;: &quot;example.usd-ledger.&quot;,
+    &quot;destination_amount&quot;: &quot;105.71&quot;,
+    &quot;destination_expiry_duration&quot;: &quot;5000&quot;
+  }
 }
-</code></pre><h2 id="next-steps">Next Steps</h2>
+</code></pre>
+<h5 id="error-method--error">Error (method = <code>&quot;error&quot;</code>)</h5>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>id</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">The type of error.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>message</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">Additional details about the nature of the error.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="example-response-method--error">Example response (method = <code>&quot;error&quot;</code>)</h5>
+<pre><code class="lang-js">{
+  &quot;method&quot;: &quot;error&quot;,
+  &quot;id&quot;: &quot;721e4126-98a1-4974-b35a-8a8f4655f934&quot;,
+  &quot;data&quot;: {
+    &quot;id&quot;: &quot;InvalidBodyError&quot;,
+    &quot;message&quot;: &quot;Missing required parameter: source_address&quot;
+  }
+}
+</code></pre>
+<h2 id="next-steps">Next Steps</h2>
 <p>After getting a quote using ILQP, the client can display the quote to the user and optionally proceed to <em>Preparing</em> (also called <em>Setting Up</em>) the payment, for example using the <a href="https://github.com/interledger/rfcs/tree/master/0009-simple-payment-setup-protocol">Simple Payment Setup Protocol</a>. That process actually sets money aside and creates the crypto-conditions that will release the money to the desired parties.</p>
 <h2 id="appendix-a-asn1-module">Appendix A: ASN.1 Module</h2>
 <p>The <a href="InterledgerQuotingProtocol.asn">InterledgerQuotingProtocol.asn</a> ASN.1 module tentatively describes the binary version of ILQP. This is not final.</p>

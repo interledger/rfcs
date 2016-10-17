@@ -23,9 +23,9 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**getAccount**](#getaccount) ( ) `⇒ Promise<String>` |
 | | [**getBalance**](#getbalance) ( ) <code>⇒ Promise.&lt;String></code> |
 | | [**getFulfillment**](#getfulfillment) ( transferId ) <code>⇒ Promise.&lt;String></code> |
-| | [**send**](#send) ( transfer ) <code>⇒ Promise.&lt;null></code> |
+| | [**sendTransfer**](#sendTransfer) ( transfer ) <code>⇒ Promise.&lt;null></code> |
+| | [**sendMessage**](#sendMessage) ( message ) <code>⇒ Promise.&lt;null></code> |
 | | [**fulfillCondition**](#fulfillcondition) ( transferId, fulfillment ) <code>⇒ Promise.&lt;null></code> |
-| | [**replyToTransfer**](#replytotransfer) ( transferId, replyMessage ) <code>⇒ Promise.&lt;null></code> |
 | | [**rejectIncomingTransfer**](#rejectincomingtransfer) ( transferId, rejectMessage ) <code>⇒ Promise.&lt;null></code> |
 
 ###### Events
@@ -39,6 +39,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**incoming_fulfill**](#event-*_fulfill-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), fulfillment:Buffer ) ⇒</code> |
 | [**incoming_reject**](#event-*_reject-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), rejectionReason:Buffer ) ⇒</code> |
 | [**incoming_cancel**](#event-*_cancel-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), cancellationReason:Buffer ) ⇒</code> |
+| [**incoming_message**](#event-*_message-) | <code>( message:[IncomingMessage](#incomingmessage) ) ⇒</code> |
 | [**outgoing_transfer**](#event-*_transfer-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
 | [**outgoing_prepare**](#event-*_prepare-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
 | [**outgoing_fulfill**](#event-*_fulfill-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), fulfillment:Buffer ) ⇒</code> |
@@ -145,7 +146,7 @@ For a detailed description of these properties, please see [`LedgerInfo`](#class
 #### getPrefix
 <code>ledgerPlugin.getPrefix() ⇒ Promise.&lt;String></code>
 
-Get the ledger plugin's ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin's `send` method.
+Get the ledger plugin's ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin's `sendTransfer` method.
 
 The prefix may be configured, automatically detected, or hard-coded, depending on the ledger. For example, a Bitcoin ledger plugin may have the address hard-coded, while a [`five-bells-ledger`](https://github.com/interledger/five-bells-ledger) would use an API call to get the prefix.
 
@@ -197,12 +198,12 @@ General event for fatal exceptions. Emitted when the plugin experienced an unexp
 
 Note that all transfers will have `transferId`'s to allow the plugin user to correlate actions related to a single transfer. The `transferId` will be the same as the ID used by the underlying ledger wherever possible or applicable. If the ledger does not have transfer IDs, the plugin may generate one and use the `store` passed in to the constructor to persist them.
 
-#### send
-<code>ledgerPlugin.send( **transfer**:[OutgoingTransfer](#outgoingtransfer) ) ⇒ Promise.&lt;null></code>
+#### sendTransfer
+<code>ledgerPlugin.sendTransfer( **transfer**:[OutgoingTransfer](#outgoingtransfer) ) ⇒ Promise.&lt;null></code>
 
 Plugin must be connected, otherwise the promise should reject. Initiates a ledger-local transfer. A transfer can
 contain money and/or information. If there is a problem with the structure or
-validity of the transfer, then `send` should throw an error in the form of a
+validity of the transfer, then `sendTransfer` should throw an error in the form of a
 rejected promise. If the transfer is accepted by the ledger, however, then
 further errors will be in the form of `"reject"` events.
 
@@ -223,7 +224,7 @@ a nonexistant destination account.
 
 ###### Example
 ```js
-p.send({
+p.sendTransfer({
   id: 'd86b0299-e2fa-4713-833a-96a6a75271b8',
   account: 'example.ledger.connector',
   amount: '10',
@@ -236,6 +237,37 @@ p.send({
 
 For a detailed description of these properties, please see [`OutgoingTransfer`](#outgoingtransfer).
 
+#### sendMessage
+<code>ledgerPlugin.sendMessage( **message**:[OutgoingMessage](#outgoingmessage) ) ⇒ Promise.&lt;null></code>
+
+Plugin must be connected, otherwise the promise should reject. Send a ledger-local message.
+If there is a problem with the structure or validity of the message, then `sendMessage` should throw an error in the form of a rejected promise.
+
+Messaging is used by connectors for [quoting](../0008-interledger-quoting-protocol/) and broadcasting routes.
+
+###### Parameters
+| Name | Type | Description |
+|:--|:--|:--|
+| message | <code>[OutgoingMessage](#outgoingmessage)</code> | Properties of the message to be created |
+
+###### Returns
+**`Promise.<null>`** A promise which resolves when the message has been submitted (but not necessarily delivered). To ensure delivery, you must build a mechanism for that on top.
+
+Throws `InvalidFieldsError` if required fields are missing from the message or malformed.
+Throws `NotAcceptedError` if the message is rejected by the ledger.
+
+###### Example
+```js
+p.sendMessage({
+  ledger: 'example.ledger.',
+  account: 'example.ledger.connector',
+  data: { foo: 'bar' }
+})
+```
+
+For a detailed description of these properties, please see [`OutgoingMessage`](#outgoingmessage).
+
+
 #### fulfillCondition
 <code>ledgerPlugin.fulfillCondition( **transferId**:String, **fulfillment**:Buffer ) ⇒ Promise.&lt;null></code>
 
@@ -245,13 +277,6 @@ Throws `InvalidFieldsError` if the fulfillment is malformed. Throws `TransferNot
 if no conditional transfer with the given ID exists. Throws `AlreadyRolledBackError` if the transfer has already been
 rolled back. Throws `NotAcceptedError` if the fulfillment is formatted correctly, but does not match the condition
 of the specified transfer. Throws `TransferNotConditionalError` if transfer is not conditional.
-
-#### replyToTransfer
-<code>ledgerPlugin.replyToTransfer( **transferId**:String, **replyMessage**:Buffer ) ⇒ Promise.&lt;null></code>
-
-**TODO**: Define what the message format is.  Plugin must be connected, otherwise the promise should reject.
-
-Throws `TransferNotFoundError` if no transfer with the given ID exists.
 
 #### rejectIncomingTransfer
 <code>ledgerPlugin.rejectIncomingTransfer( **transferId**:String, **rejectMessage**:Buffer ) ⇒ Promise.&lt;null></code>
@@ -345,6 +370,15 @@ This will happen on a timeout, triggered by the ledger and not by the receiver.
 
 If the event is `incoming_cancel`, an incoming transfer was timed out by the ledger. `outgoing_cancel`
 means that a transfer you created has timed out.
+
+### Event: `incoming_message`
+<code style="">ledgerPlugin.on('incoming_message',
+  (
+    **message**:[IncomingMessage](#incomingmessage),
+  ) ⇒
+)</code>
+
+Emitted when an incoming message arrives from the ledger.
 
 ## Class: Transfer
 <code>class Transfer</code>
@@ -459,6 +493,42 @@ Ledger plugins MAY use this object to accept and/or set additional fields for ot
     alternateAccount: 'bob-savings',
     executionPriority: 9
   }
+}
+```
+
+## Class: Message
+<code>class Message</code>
+
+The `Message` class is used to describe local ledger message. All fields are required.
+
+###### Fields
+| Type | Name | Description |
+|:--|:--|:--|
+| `String` | account | ILP Address of the source or destination account |
+| `String` | ledger | ILP Address prefix of the ledger |
+| `Object` | data | Data packet to be sent with the message |
+
+
+### IncomingMessage
+<code>class IncomingMessage extends [Message](#class-message)</code>
+
+`IncomingMessage` objects describe messages which are **received** by the ledger plugin. The `account` field refers to the local source account that the message originated from.
+
+See [`Message`](#class-message) for more information.
+
+### OutgoingMessage
+<code>class OutgoingMessage extends [Message](#class-message)</code>
+
+`OutgoingMessage` objects describe messages which have been **sent** by the ledger plugin. The `account` field refers to the local destination account on the underlying ledger.
+
+See [`Message`](#class-message) for more information.
+
+###### Example
+``` js
+{
+  account: 'example.ledger.bob',
+  ledger: 'example.ledger.',
+  data: { /* ... */ }
 }
 ```
 

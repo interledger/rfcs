@@ -102,6 +102,10 @@
                   <a href="#event-_cancel">Event: *_cancel</a>
                 </li>
               
+                <li>
+                  <a href="#event-incoming_message">Event: incoming_message</a>
+                </li>
+              
                 <li class="nav-label">
                   <a href="#class-transfer">Class: Transfer</a>
                 </li>
@@ -119,15 +123,19 @@
                 </li>
               
                 <li class="nav-label">
-                  <a href="#class-ledgerinfo">Class: LedgerInfo</a>
+                  <a href="#class-message">Class: Message</a>
                 </li>
               
                 <li>
-                  <a href="#fields-4">Fields</a>
+                  <a href="#incomingmessage">IncomingMessage</a>
+                </li>
+              
+                <li>
+                  <a href="#outgoingmessage">OutgoingMessage</a>
                 </li>
               
                 <li class="nav-label">
-                  <a href="#class-pluginoptions">Class: PluginOptions</a>
+                  <a href="#class-ledgerinfo">Class: LedgerInfo</a>
                 </li>
               
                 <li>
@@ -135,11 +143,19 @@
                 </li>
               
                 <li class="nav-label">
+                  <a href="#class-pluginoptions">Class: PluginOptions</a>
+                </li>
+              
+                <li>
+                  <a href="#fields-6">Fields</a>
+                </li>
+              
+                <li class="nav-label">
                   <a href="#class-connectorinfo">Class: ConnectorInfo</a>
                 </li>
               
                 <li>
-                  <a href="#fields-7">Fields</a>
+                  <a href="#fields-8">Fields</a>
                 </li>
               
             </ul>
@@ -200,15 +216,15 @@
 </tr>
 <tr>
 <td style="text-align:left"></td>
-<td style="text-align:left"><a href="#send"><strong>send</strong></a> ( transfer ) <code>&#x21D2; Promise.&lt;null&gt;</code></td>
+<td style="text-align:left"><a href="#sendTransfer"><strong>sendTransfer</strong></a> ( transfer ) <code>&#x21D2; Promise.&lt;null&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><a href="#sendMessage"><strong>sendMessage</strong></a> ( message ) <code>&#x21D2; Promise.&lt;null&gt;</code></td>
 </tr>
 <tr>
 <td style="text-align:left"></td>
 <td style="text-align:left"><a href="#fulfillcondition"><strong>fulfillCondition</strong></a> ( transferId, fulfillment ) <code>&#x21D2; Promise.&lt;null&gt;</code></td>
-</tr>
-<tr>
-<td style="text-align:left"></td>
-<td style="text-align:left"><a href="#replytotransfer"><strong>replyToTransfer</strong></a> ( transferId, replyMessage ) <code>&#x21D2; Promise.&lt;null&gt;</code></td>
 </tr>
 <tr>
 <td style="text-align:left"></td>
@@ -256,6 +272,10 @@
 <tr>
 <td style="text-align:left"><a href="#event-*_cancel-"><strong>incoming_cancel</strong></a></td>
 <td style="text-align:left"><code>( transfer:<a href="#incomingtransfer">IncomingTransfer</a>, cancellationReason:Buffer ) &#x21D2;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="#event-*_message-"><strong>incoming_message</strong></a></td>
+<td style="text-align:left"><code>( message:<a href="#incomingmessage">IncomingMessage</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><a href="#event-*_transfer-"><strong>outgoing_transfer</strong></a></td>
@@ -404,7 +424,7 @@
 <p>For a detailed description of these properties, please see <a href="#class-ledgerinfo"><code>LedgerInfo</code></a>.</p>
 <h4 id="getprefix">getPrefix</h4>
 <p><code>ledgerPlugin.getPrefix() &#x21D2; Promise.&lt;String&gt;</code></p>
-<p>Get the ledger plugin&apos;s ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin&apos;s <code>send</code> method.</p>
+<p>Get the ledger plugin&apos;s ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin&apos;s <code>sendTransfer</code> method.</p>
 <p>The prefix may be configured, automatically detected, or hard-coded, depending on the ledger. For example, a Bitcoin ledger plugin may have the address hard-coded, while a <a href="https://github.com/interledger/five-bells-ledger"><code>five-bells-ledger</code></a> would use an API call to get the prefix.</p>
 <h6 id="example-return-value-2">Example Return Value</h6>
 <p><code>us.fed.some-bank</code></p>
@@ -436,11 +456,11 @@ conditional.</p>
 <p>General event for fatal exceptions. Emitted when the plugin experienced an unexpected unrecoverable condition. Once triggered, this instance of the plugin MUST NOT be used anymore.</p>
 <h3 id="ledger-transfers">Ledger Transfers</h3>
 <p>Note that all transfers will have <code>transferId</code>&apos;s to allow the plugin user to correlate actions related to a single transfer. The <code>transferId</code> will be the same as the ID used by the underlying ledger wherever possible or applicable. If the ledger does not have transfer IDs, the plugin may generate one and use the <code>store</code> passed in to the constructor to persist them.</p>
-<h4 id="send">send</h4>
-<p><code>ledgerPlugin.send( <strong>transfer</strong>:<a href="#outgoingtransfer">OutgoingTransfer</a> ) &#x21D2; Promise.&lt;null&gt;</code></p>
+<h4 id="sendtransfer">sendTransfer</h4>
+<p><code>ledgerPlugin.sendTransfer( <strong>transfer</strong>:<a href="#outgoingtransfer">OutgoingTransfer</a> ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Plugin must be connected, otherwise the promise should reject. Initiates a ledger-local transfer. A transfer can
 contain money and/or information. If there is a problem with the structure or
-validity of the transfer, then <code>send</code> should throw an error in the form of a
+validity of the transfer, then <code>sendTransfer</code> should throw an error in the form of a
 rejected promise. If the transfer is accepted by the ledger, however, then
 further errors will be in the form of <code>&quot;reject&quot;</code> events.</p>
 <p>All plugins MUST implement zero-amount transfers, but some ledger plugins MAY
@@ -462,13 +482,13 @@ implement zero-amount transfers differently than other transfers.</p>
 </tr>
 </tbody>
 </table>
-<h6 id="returns">Returns</h6>
+<h6 id="returns-1">Returns</h6>
 <p><strong><code>Promise.&lt;null&gt;</code></strong> A promise which resolves when the transfer has been submitted (but not necessarily accepted.)</p>
 <p>Throws <code>InvalidFieldsError</code> if required fields are missing from the transfer or malformed. Throws <code>DuplicateIdError</code> if a transfer with
 the given ID and different already exists. Throws <code>NotAcceptedError</code> if the transfer is rejected by the ledger due to insufficient balance or
 a nonexistant destination account.</p>
 <h6 id="example-2">Example</h6>
-<pre><code class="lang-js">p.send({
+<pre><code class="lang-js">p.sendTransfer({
   id: &apos;d86b0299-e2fa-4713-833a-96a6a75271b8&apos;,
   account: &apos;example.ledger.connector&apos;,
   amount: &apos;10&apos;,
@@ -479,6 +499,40 @@ a nonexistant destination account.</p>
 })
 </code></pre>
 <p>For a detailed description of these properties, please see <a href="#outgoingtransfer"><code>OutgoingTransfer</code></a>.</p>
+<h4 id="sendmessage">sendMessage</h4>
+<p><code>ledgerPlugin.sendMessage( <strong>message</strong>:<a href="#outgoingmessage">OutgoingMessage</a> ) &#x21D2; Promise.&lt;null&gt;</code></p>
+<p>Plugin must be connected, otherwise the promise should reject. Send a ledger-local message.
+If there is a problem with the structure or validity of the message, then <code>sendMessage</code> should throw an error in the form of a rejected promise.</p>
+<p>Messaging is used by connectors for <a href="../0008-interledger-quoting-protocol/">quoting</a> and broadcasting routes.</p>
+<h6 id="parameters-3">Parameters</h6>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Name</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">message</td>
+<td style="text-align:left"><code><a href="#outgoingmessage">OutgoingMessage</a></code></td>
+<td style="text-align:left">Properties of the message to be created</td>
+</tr>
+</tbody>
+</table>
+<h6 id="returns-2">Returns</h6>
+<p><strong><code>Promise.&lt;null&gt;</code></strong> A promise which resolves when the message has been submitted (but not necessarily delivered). To ensure delivery, you must build a mechanism for that on top.</p>
+<p>Throws <code>InvalidFieldsError</code> if required fields are missing from the message or malformed.
+Throws <code>NotAcceptedError</code> if the message is rejected by the ledger.</p>
+<h6 id="example-3">Example</h6>
+<pre><code class="lang-js">p.sendMessage({
+  ledger: &apos;example.ledger.&apos;,
+  account: &apos;example.ledger.connector&apos;,
+  data: { foo: &apos;bar&apos; }
+})
+</code></pre>
+<p>For a detailed description of these properties, please see <a href="#outgoingmessage"><code>OutgoingMessage</code></a>.</p>
 <h4 id="fulfillcondition">fulfillCondition</h4>
 <p><code>ledgerPlugin.fulfillCondition( <strong>transferId</strong>:String, <strong>fulfillment</strong>:Buffer ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Submit a fulfillment to a ledger. Plugin must be connected, otherwise the promise should reject.</p>
@@ -486,10 +540,6 @@ a nonexistant destination account.</p>
 if no conditional transfer with the given ID exists. Throws <code>AlreadyRolledBackError</code> if the transfer has already been
 rolled back. Throws <code>NotAcceptedError</code> if the fulfillment is formatted correctly, but does not match the condition
 of the specified transfer. Throws <code>TransferNotConditionalError</code> if transfer is not conditional.</p>
-<h4 id="replytotransfer">replyToTransfer</h4>
-<p><code>ledgerPlugin.replyToTransfer( <strong>transferId</strong>:String, <strong>replyMessage</strong>:Buffer ) &#x21D2; Promise.&lt;null&gt;</code></p>
-<p><strong>TODO</strong>: Define what the message format is.  Plugin must be connected, otherwise the promise should reject.</p>
-<p>Throws <code>TransferNotFoundError</code> if no transfer with the given ID exists.</p>
 <h4 id="rejectincomingtransfer">rejectIncomingTransfer</h4>
 <p><code>ledgerPlugin.rejectIncomingTransfer( <strong>transferId</strong>:String, <strong>rejectMessage</strong>:Buffer ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Reject an incoming transfer that is held pending the fulfillment of its <code>executionCondition</code> before the <code>expiresAt</code> time. <code>rejectMessage</code> MAY be supplied to provide details on why the transfer was rejected.</p>
@@ -558,6 +608,13 @@ the receiver of your outgoing transfer has rejected it.</p>
 <p>This will happen on a timeout, triggered by the ledger and not by the receiver.</p>
 <p>If the event is <code>incoming_cancel</code>, an incoming transfer was timed out by the ledger. <code>outgoing_cancel</code>
 means that a transfer you created has timed out.</p>
+<h3 id="event-incoming_message">Event: <code>incoming_message</code></h3>
+<p><code style="">ledgerPlugin.on(&apos;incoming_message&apos;,
+  (
+    <strong>message</strong>:<a href="#incomingmessage">IncomingMessage</a>,
+  ) &#x21D2;
+)</code></p>
+<p>Emitted when an incoming message arrives from the ledger.</p>
 <h2 id="class-transfer">Class: Transfer</h2>
 <p><code>class Transfer</code></p>
 <p>The <code>Transfer</code> class is used to describe local ledger transfers. Only
@@ -665,7 +722,7 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <h4 id="custom">custom</h4>
 <p><code><strong>custom</strong>:Object</code></p>
 <p>Ledger plugins MAY use this object to accept and/or set additional fields for other features they support. The object MUST be serializable, i.e. only plain JSON types are allowed anywhere in the object or sub-objects.</p>
-<h6 id="example-3">Example</h6>
+<h6 id="example-4">Example</h6>
 <pre><code class="lang-js">{
   id: &apos;94adc29e-26cd-471b-987e-8d41e8773864&apos;,
   account: &apos;example.ledger.bob&apos;,
@@ -679,10 +736,55 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
   }
 }
 </code></pre>
+<h2 id="class-message">Class: Message</h2>
+<p><code>class Message</code></p>
+<p>The <code>Message</code> class is used to describe local ledger message. All fields are required.</p>
+<h6 id="fields-3">Fields</h6>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Name</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left">account</td>
+<td style="text-align:left">ILP Address of the source or destination account</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left">ledger</td>
+<td style="text-align:left">ILP Address prefix of the ledger</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Object</code></td>
+<td style="text-align:left">data</td>
+<td style="text-align:left">Data packet to be sent with the message</td>
+</tr>
+</tbody>
+</table>
+<h3 id="incomingmessage">IncomingMessage</h3>
+<p><code>class IncomingMessage extends <a href="#class-message">Message</a></code></p>
+<p><code>IncomingMessage</code> objects describe messages which are <strong>received</strong> by the ledger plugin. The <code>account</code> field refers to the local source account that the message originated from.</p>
+<p>See <a href="#class-message"><code>Message</code></a> for more information.</p>
+<h3 id="outgoingmessage">OutgoingMessage</h3>
+<p><code>class OutgoingMessage extends <a href="#class-message">Message</a></code></p>
+<p><code>OutgoingMessage</code> objects describe messages which have been <strong>sent</strong> by the ledger plugin. The <code>account</code> field refers to the local destination account on the underlying ledger.</p>
+<p>See <a href="#class-message"><code>Message</code></a> for more information.</p>
+<h6 id="example-5">Example</h6>
+<pre><code class="lang-js">{
+  account: &apos;example.ledger.bob&apos;,
+  ledger: &apos;example.ledger.&apos;,
+  data: { /* ... */ }
+}
+</code></pre>
 <h2 id="class-ledgerinfo">Class: LedgerInfo</h2>
 <p><code>class LedgerInfo</code></p>
 <p>Metadata describing the ledger. This data is returned by the <a href="#getinfo"><code>getInfo</code></a> method.</p>
-<h6 id="fields-3">Fields</h6>
+<h6 id="fields-4">Fields</h6>
 <table class="table table-striped">
 <thead>
 <tr>
@@ -719,7 +821,7 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 </tr>
 </tbody>
 </table>
-<h3 id="fields-4">Fields</h3>
+<h3 id="fields-5">Fields</h3>
 <h4 id="precision">precision</h4>
 <p><code><strong>precision</strong>:Number</code></p>
 <p>The total number of digits (base 10) of precision allowed by the ledger.</p>
@@ -758,13 +860,13 @@ an underscore, and listed in the table below.</p>
 </tr>
 </tbody>
 </table>
-<h3 id="fields-5">Fields</h3>
+<h3 id="fields-6">Fields</h3>
 <h4 id="_store">_store</h4>
 <p><code><strong>_store</strong>:Object</code></p>
 <p>Provides callback hooks to the host&apos;s persistence layer.</p>
 <p>Persistence MAY be required for internal use by some ledger plugins. For this purpose hosts MAY be configured with a persistence layer.</p>
 <p>Method names are based on the popular LevelUP/LevelDOWN packages.</p>
-<h6 id="example-4">Example</h6>
+<h6 id="example-6">Example</h6>
 <pre><code class="lang-js">{
   // Store a value under a key
   put: (key, value) =&gt; {
@@ -783,7 +885,7 @@ an underscore, and listed in the table below.</p>
 <h2 id="class-connectorinfo">Class: ConnectorInfo</h2>
 <p><code>class ConnectorInfo</code></p>
 <p>Data about recommended connectors included in <a href="#class-ledgerinfo"><code>LedgerInfo</code></a>.</p>
-<h6 id="fields-6">Fields</h6>
+<h6 id="fields-7">Fields</h6>
 <table class="table table-striped">
 <thead>
 <tr>
@@ -810,7 +912,7 @@ an underscore, and listed in the table below.</p>
 </tr>
 </tbody>
 </table>
-<h3 id="fields-7">Fields</h3>
+<h3 id="fields-8">Fields</h3>
 <h4 id="id-2">id</h4>
 <p><code><strong>id</strong>:String</code></p>
 <p>The connector&apos;s account URI on the ledger.</p>
@@ -820,7 +922,7 @@ an underscore, and listed in the table below.</p>
 <h4 id="connector">connector</h4>
 <p><code><strong>connector</strong>:String</code></p>
 <p>The URI of the connector.</p>
-<h6 id="example-5">Example</h6>
+<h6 id="example-7">Example</h6>
 <pre><code class="lang-js">{
     &quot;id&quot;: &quot;http://usd-ledger.example/accounts/chloe&quot;,
     &quot;name&quot;: &quot;chloe&quot;,
