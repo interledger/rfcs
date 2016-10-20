@@ -481,10 +481,30 @@ RSA-SHA-256 is assigned the type ID 3. It relies on the SHA-256 and RSA-PSS feat
 
 The signature algorithm used is RSASSA-PSS as defined in PKCS#1 v2.2. [RFC3447](#RFC3447)  
 
+Implementations MUST NOT use the default RSASSA-PSS-params. Implementations should use the SHA-256 hash algorithm and therefor, the same algorithm in the mask generation algorithm, as recommended in [RFC3447](#RFC3447). Implementations MUST also use a salt length of 32 bytes (equal to the size of the output from the SHA-256 algorithm). Therefore the algorithm identifier will have the following value:
+
+    rSASSA-PSS-Crypto-Conditions-Identifier  RSASSA-AlgorithmIdentifier ::= {
+        algorithm   id-RSASSA-PSS,
+        parameters  RSASSA-PSS-params : {
+            hashAlgorithm       sha256,
+            maskGenAlgorithm    mgf1SHA256,
+            saltLength          32,
+            trailerField        trailerFieldBC
+        }
+    }
+   
+    sha256 HashAlgorithm ::= {
+        algorithm   id-sha256,
+        parameters  NULL
+    }
+    
+    mgf1SHA256 MaskGenAlgorithm ::= {
+        algorithm   id-mgf1,
+        parameters  HashAlgorithm : sha256
+    }
+
 ### Condition {#rsa-sha-256-condition-type-condition}
 The fingerprint of a RSA-SHA-256 condition is the SHA-256 digest of the fingerprint contents given below:
-
-The salt length for PSS is 32 bytes.
 
     RsaSha256FingerprintContents ::= SEQUENCE {
       modulus OCTET STRING (SIZE(128..512))
