@@ -743,7 +743,7 @@ The following initial entries should be added to the Crypto-Condition Type regis
 
 The following feature suite bits are registered:
 
-| Type Bit | Exp. | Hex  | Condition Types |
+| Type Bit | Exp. | Hex  | Feature         |
 |----------|------|------|-----------------|
 | 1        | 2^0  | 0x01 | SHA-256         |
 | 10       | 2^1  | 0x02 | PREIMAGE        |
