@@ -337,7 +337,7 @@ PREIMAGE-SHA-256 is assigned the type ID 0. It relies on the SHA-256 and PREIMAG
 
 This type of condition is also called a "hashlock". By creating a hash of a difficult-to-guess 256-bit random or pseudo-random integer it is possible to create a condition which the creator can trivially fulfill by publishing the random value. However, for anyone else, the condition is cryptographically hard to fulfill, because they would have to find a preimage for the given condition hash.
 
-Bitcoin supports this type of condition via the OP_HASH256 operator.
+Implementations MUST ignore any input message when validating a PREIMAGE-SHA-256 fulfillment.
 
 ### Condition {#preimage-sha-256-condition-type-condition}
 The fingerprint of a PREIMAGE-SHA-256 condition is the SHA-256 hash of the preimage.
