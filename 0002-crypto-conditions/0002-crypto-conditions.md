@@ -481,7 +481,7 @@ RSA-SHA-256 is assigned the type ID 3. It relies on the SHA-256 and RSA-PSS feat
 
 The signature algorithm used is RSASSA-PSS as defined in PKCS#1 v2.2. [RFC3447](#RFC3447)  
 
-Implementations MUST NOT use the default RSASSA-PSS-params. Implementations should use the SHA-256 hash algorithm and therefor, the same algorithm in the mask generation algorithm, as recommended in [RFC3447](#RFC3447). Implementations MUST also use a salt length of 32 bytes (equal to the size of the output from the SHA-256 algorithm). Therefore the algorithm identifier will have the following value:
+Implementations MUST NOT use the default RSASSA-PSS-params. Implementations MUST use the SHA-256 hash algorithm and therefor, the same algorithm in the mask generation algorithm, as recommended in [RFC3447](#RFC3447). Implementations MUST also use a salt length of 32 bytes (equal to the size of the output from the SHA-256 algorithm). Therefore the algorithm identifier will have the following value:
 
     rSASSA-PSS-Crypto-Conditions-Identifier  RSASSA-AlgorithmIdentifier ::= {
         algorithm   id-RSASSA-PSS,
