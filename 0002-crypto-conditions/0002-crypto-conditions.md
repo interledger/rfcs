@@ -195,7 +195,7 @@ Conditions are binary encoded as:
 
     Condition ::= SEQUENCE {
       type ConditionType,
-      featureBitmask OCTET STRING,
+      featureBitmask INTEGER (0..MAX),
       fingerprint OCTET STRING,
       maxFulfillmentLength INTEGER (0..MAX)
     }
@@ -214,10 +214,10 @@ type
 : is the numeric type identifier representing the condition type.
 
 featureBitmask
-: is an octet string encoding the set of feature suites an implementation must support in order to be able to successfully parse the fulfillment to this condition. This is the boolean OR of the featureBitmask values of the top-level condition type and all subcondition types, recursively.
+: is an unsigned integer encoding the set of feature suites an implementation must support in order to be able to successfully parse the fulfillment to this condition. This is the boolean OR of the featureBitmask values of the top-level condition type and all subcondition types, recursively.
 
 fingerprint
-: is an octet string uniquely representing the condition with respect to other conditions of the same type. Implementations which index conditions MUST use the entire string or binary encoded condition as the key, not just the fingerprint - as different conditions of different types may have the same fingerprint. The length and contents of the fingerprint are defined by the condition type. For most condition types, the fingerprint is a cryptographically secure hash of the data which defines the condition, such as a public key.
+: is an octet string uniquely representing the condition with respect to other conditions of the same type. Implementations which index conditions MUST use the entire string or binary encoded condition as the key, not just the fingerprint - as different conditions of different types may have the same fingerprint. The length and contents of the fingerprint are defined by the condition type. For most condition types, the fingerprint is a cryptographically secure hash of the data which defines the condition, such as a public key. This is encoded as a variable length octet string as different condition types may use different functions to produce the fingerprint which may therefore have different lengths. While it would be possible to determine the expected length of the fingerprint based on the type it is useful to be able to decode a condition even if the type is not recognized.
 
 maxFulfillmentLength
 : is the maximum length of the fulfillment payload that can fulfill this condition, in bytes. The payload size is measured unencoded. (The size of the payload is larger in BASE64URL format.) When a crypto-condition is submitted to an implementation, this implementation MUST verify that it will be able to process a fulfillment with a payload of size maxFulfillmentLength.
@@ -337,7 +337,7 @@ PREIMAGE-SHA-256 is assigned the type ID 0. It relies on the SHA-256 and PREIMAG
 
 This type of condition is also called a "hashlock". By creating a hash of a difficult-to-guess 256-bit random or pseudo-random integer it is possible to create a condition which the creator can trivially fulfill by publishing the random value. However, for anyone else, the condition is cryptographically hard to fulfill, because they would have to find a preimage for the given condition hash.
 
-Bitcoin supports this type of condition via the OP_HASH256 operator.
+Implementations MUST ignore any input message when validating a PREIMAGE-SHA-256 fulfillment.
 
 ### Condition {#preimage-sha-256-condition-type-condition}
 The fingerprint of a PREIMAGE-SHA-256 condition is the SHA-256 hash of the preimage.
