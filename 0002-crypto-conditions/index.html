@@ -399,7 +399,7 @@ OPENSSL-X509-CERT-EXAMPLES:
 <p>Conditions are binary encoded as:</p>
 <pre><code>Condition ::= SEQUENCE {
   type ConditionType,
-  featureBitmask OCTET STRING,
+  featureBitmask INTEGER (0..MAX),
   fingerprint OCTET STRING,
   maxFulfillmentLength INTEGER (0..MAX)
 }
@@ -415,7 +415,7 @@ ConditionType ::= INTEGER {
 <p>type
 : is the numeric type identifier representing the condition type.</p>
 <p>featureBitmask
-: is an octet string encoding the set of feature suites an implementation must support in order to be able to successfully parse the fulfillment to this condition. This is the boolean OR of the featureBitmask values of the top-level condition type and all subcondition types, recursively.</p>
+: is an unsigned integer encoding the set of feature suites an implementation must support in order to be able to successfully parse the fulfillment to this condition. This is the boolean OR of the featureBitmask values of the top-level condition type and all subcondition types, recursively.</p>
 <p>fingerprint
 : is an octet string uniquely representing the condition with respect to other conditions of the same type. Implementations which index conditions MUST use the entire string or binary encoded condition as the key, not just the fingerprint - as different conditions of different types may have the same fingerprint. The length and contents of the fingerprint are defined by the condition type. For most condition types, the fingerprint is a cryptographically secure hash of the data which defines the condition, such as a public key.</p>
 <p>maxFulfillmentLength
@@ -668,9 +668,28 @@ ThresholdSubfulfillment ::= SEQUENCE {
 </code></pre><h2 id="rsa-sha-256-rsa-sha-256-condition-type">RSA-SHA-256 {#rsa-sha-256-condition-type}</h2>
 <p>RSA-SHA-256 is assigned the type ID 3. It relies on the SHA-256 and RSA-PSS feature suites which corresponds to a feature bitmask of 0x11.</p>
 <p>The signature algorithm used is RSASSA-PSS as defined in PKCS#1 v2.2. <a href="#RFC3447">RFC3447</a>  </p>
-<h3 id="condition-rsa-sha-256-condition-type-condition">Condition {#rsa-sha-256-condition-type-condition}</h3>
+<p>Implementations MUST NOT use the default RSASSA-PSS-params. Implementations MUST use the SHA-256 hash algorithm and therefor, the same algorithm in the mask generation algorithm, as recommended in <a href="#RFC3447">RFC3447</a>. Implementations MUST also use a salt length of 32 bytes (equal to the size of the output from the SHA-256 algorithm). Therefore the algorithm identifier will have the following value:</p>
+<pre><code>rSASSA-PSS-Crypto-Conditions-Identifier  RSASSA-AlgorithmIdentifier ::= {
+    algorithm   id-RSASSA-PSS,
+    parameters  RSASSA-PSS-params : {
+        hashAlgorithm       sha256,
+        maskGenAlgorithm    mgf1SHA256,
+        saltLength          32,
+        trailerField        trailerFieldBC
+    }
+}
+
+sha256 HashAlgorithm ::= {
+    algorithm   id-sha256,
+    parameters  NULL
+}
+
+mgf1SHA256 MaskGenAlgorithm ::= {
+    algorithm   id-mgf1,
+    parameters  HashAlgorithm : sha256
+}
+</code></pre><h3 id="condition-rsa-sha-256-condition-type-condition">Condition {#rsa-sha-256-condition-type-condition}</h3>
 <p>The fingerprint of a RSA-SHA-256 condition is the SHA-256 digest of the fingerprint contents given below:</p>
-<p>The salt length for PSS is 32 bytes.</p>
 <pre><code>RsaSha256FingerprintContents ::= SEQUENCE {
   modulus OCTET STRING (SIZE(128..512))
 }
