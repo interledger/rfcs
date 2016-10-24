@@ -195,7 +195,7 @@ Conditions are binary encoded as:
 
     Condition ::= SEQUENCE {
       type ConditionType,
-      featureBitmask INTEGER (0..MAX),
+      featureBitmask OCTET STRING,
       fingerprint OCTET STRING,
       maxFulfillmentLength INTEGER (0..MAX)
     }
@@ -214,10 +214,10 @@ type
 : is the numeric type identifier representing the condition type.
 
 featureBitmask
-: is an unsigned integer encoding the set of feature suites an implementation must support in order to be able to successfully parse the fulfillment to this condition. This is the boolean OR of the featureBitmask values of the top-level condition type and all subcondition types, recursively.
+: is an octet string encoding the set of feature suites an implementation must support in order to be able to successfully parse the fulfillment to this condition. This is the boolean OR of the featureBitmask values of the top-level condition type and all subcondition types, recursively.
 
 fingerprint
-: is an octet string uniquely representing the condition with respect to other conditions of the same type. Implementations which index conditions MUST use the entire string or binary encoded condition as the key, not just the fingerprint - as different conditions of different types may have the same fingerprint. The length and contents of the fingerprint are defined by the condition type. For most condition types, the fingerprint is a cryptographically secure hash of the data which defines the condition, such as a public key. This is encoded as a variable length octet string as different condition types may use different functions to produce the fingerprint which may therefore have different lengths. While it would be possible to determine the expected length of the fingerprint based on the type it is useful to be able to decode a condition even if the type is not recognized.
+: is an octet string uniquely representing the condition with respect to other conditions of the same type. Implementations which index conditions MUST use the entire string or binary encoded condition as the key, not just the fingerprint - as different conditions of different types may have the same fingerprint. The length and contents of the fingerprint are defined by the condition type. For most condition types, the fingerprint is a cryptographically secure hash of the data which defines the condition, such as a public key.
 
 maxFulfillmentLength
 : is the maximum length of the fulfillment payload that can fulfill this condition, in bytes. The payload size is measured unencoded. (The size of the payload is larger in BASE64URL format.) When a crypto-condition is submitted to an implementation, this implementation MUST verify that it will be able to process a fulfillment with a payload of size maxFulfillmentLength.
