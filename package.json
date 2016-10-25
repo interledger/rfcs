@@ -8,6 +8,9 @@
     "cheerio": "^0.20.0",
     "ejs": "^2.4.1",
     "glob": "^7.0.3",
+    "grunt": "^1.0.1",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-kramdown-rfc2629": "0.0.2",
     "marked": "^0.3.5"
   },
   "scripts": {
