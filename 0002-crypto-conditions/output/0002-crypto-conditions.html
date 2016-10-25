@@ -439,9 +439,9 @@
 
   <meta name="dct.creator" content="Thomas, S. and R. Reginelli" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-thomas-crypto-conditions-01" />
-  <meta name="dct.issued" scheme="ISO8601" content="2016-9-14" />
-  <meta name="dct.abstract" content="Crypto-conditions provide a mechanism to describe a signed message such that multiple actors in a distributed system can all verify the same signed message and agree on whether it matches the description. This provides a useful primitive for event-based systems that are distributed on the Internet since we can describe events in a standard deterministic manner (represented by signed messages) and therefore define generic authenticated event handlers." />
-  <meta name="description" content="Crypto-conditions provide a mechanism to describe a signed message such that multiple actors in a distributed system can all verify the same signed message and agree on whether it matches the description. This provides a useful primitive for event-based systems that are distributed on the Internet since we can describe events in a standard deterministic manner (represented by signed messages) and therefore define generic authenticated event handlers." />
+  <meta name="dct.issued" scheme="ISO8601" content="2016-10-25" />
+  <meta name="dct.abstract" content="Crypto-conditions provide a mechanism to describe a signed message such that multiple actors in a distributed system can all verify the same signed message and agree on whether it matches the description. This provides a useful primitive for event-based systems that are distributed on the Internet since we can describe events in a standard deterministic manner (represented by a fingerprint and some meta-data, called the condition) and therefore define distiributed event handlers which evaluate the proof of the event occuring (represented by a public key and signature, called the fulfillment) with deterministic outcomes." />
+  <meta name="description" content="Crypto-conditions provide a mechanism to describe a signed message such that multiple actors in a distributed system can all verify the same signed message and agree on whether it matches the description. This provides a useful primitive for event-based systems that are distributed on the Internet since we can describe events in a standard deterministic manner (represented by a fingerprint and some meta-data, called the condition) and therefore define distiributed event handlers which evaluate the proof of the event occuring (represented by a public key and signature, called the fulfillment) with deterministic outcomes." />
 
 </head>
 
@@ -463,8 +463,8 @@
   <td class="right">Ripple</td>
 </tr>
 <tr>
-  <td class="left">Expires: March 18, 2017</td>
-  <td class="right">September 14, 2016</td>
+  <td class="left">Expires: April 28, 2017</td>
+  <td class="right">October 25, 2016</td>
 </tr>
 
     	
@@ -477,18 +477,19 @@
   <h1 id="rfc.abstract">
   <a href="#rfc.abstract">Abstract</a>
 </h1>
-<p>Crypto-conditions provide a mechanism to describe a signed message such that multiple actors in a distributed system can all verify the same signed message and agree on whether it matches the description. This provides a useful primitive for event-based systems that are distributed on the Internet since we can describe events in a standard deterministic manner (represented by signed messages) and therefore define generic authenticated event handlers.</p>
+<p>Crypto-conditions provide a mechanism to describe a signed message such that multiple actors in a distributed system can all verify the same signed message and agree on whether it matches the description. This provides a useful primitive for event-based systems that are distributed on the Internet since we can describe events in a standard deterministic manner (represented by a fingerprint and some meta-data, called the condition) and therefore define distiributed event handlers which evaluate the proof of the event occuring (represented by a public key and signature, called the fulfillment) with deterministic outcomes.</p>
+<p>This specification describes a message format for conditions and fulfillments and the canonical binary encodings for each. It also describes alternate string encodings in both a compact URI form and extended JSON form.</p>
 <h1>
   <a>Feedback</a>
 </h1>
-<p>This specification is a part of the <a href="https://interledger.org/">Interledger Protocol</a> work. Feedback related to this specification should be sent to <a href="mailto:public-interledger@w3.org">public-interledger@w3.org</a>.</p>
+<p>This specification is a part of the <a href="https://interledger.org/">Interledger Protocol</a> work. Feedback related to this specification should be sent to <a href="mailto:ledger@ietf.org">ledger@ietf.org</a>.</p>
 <h1 id="rfc.status">
   <a href="#rfc.status">Status of This Memo</a>
 </h1>
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on March 18, 2017.</p>
+<p>This Internet-Draft will expire on April 28, 2017.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -563,11 +564,22 @@
   </ul>
 
   <h1 id="rfc.section.1"><a href="#rfc.section.1">1.</a> <a href="#introduction" id="introduction">Introduction</a></h1>
-<p id="rfc.section.1.p.1">This specification describes a message format for crypto-conditions and fulfillments, with binary and string-based encodings for each.</p>
-<p id="rfc.section.1.p.2">Crypto-conditions are <strong>distributable event descriptions</strong>. This means crypto-conditions say how to recognize a message without saying exactly what the message is. You can transmit a crypto-condition freely, but you cannot forge the message it describes. For convenience, we hash the description so that the crypto-condition can be a fixed size.</p>
-<p id="rfc.section.1.p.3">Fulfillments are <strong>cryptographically verifiable messages</strong> that prove an event occurred. If you transmit a fulfillment, then everyone who has the condition can agree that the condition has been met.</p>
-<p id="rfc.section.1.p.4">In the Interledger protocol, crypto-conditions and fulfillments provide irrepudiable proof that a transfer occurred in one ledger, as messages that can be easily shared with other ledgers. This allows ledgers to escrow funds or hold a transfer conditionally, then execute the transfer automatically when the ledger sees the fulfillment of the stated condition.</p>
-<p id="rfc.section.1.p.5">Crypto-conditions may also be useful in other contexts where a system needs to make a decision based on predefined criteria, such as smart contracts.</p>
+<p id="rfc.section.1.p.1">One of the challenges facing a distributed system is achieving atomic execution of a transaction across the system. A common pattern for solving this problem is two-phase commit in which the most time-consuming aspects of the transaction are prepared across all participants and a simple trigger is sufficient to either commit or abort the transaction. Described in more abstract terms, the system consist of a number of participants that have prepared a transaction pending the fulfillment of a predefined condition.</p>
+<p id="rfc.section.1.p.2">This document specifies a mechanism for defining these triggers as pairs of trigger descriptions (conditions) and cryptographically verifiable triggers (fulfillments) that can be deterministically verified by all participants.</p>
+<p id="rfc.section.1.p.3">The crypto-conditions specification defines two message types, a condition is a <strong>distributable event description</strong> in the form of an a <em>fingerprint</em>, and <em>event meta-data</em> that allows the event verification systems to determine if they have the necessary capabilities (such as required crypto-algorithms) and resources (such as heap or memory) to verify the event later.</p>
+<p id="rfc.section.1.p.4">The second message type, fulfillments are <strong>cryptographically verifiable event notifications</strong> in the form of one or more public keys and signatures that can be used to verify that the event occurred and matches the description.</p>
+<p id="rfc.section.1.p.5">Validation of a fulfillment (F) against a condition (C) and a message (M), in the majority of cases, involves two steps.</p>
+<p/>
+
+<ol>
+  <li>The implementation must derive a condition from the fulfillment and ensure that the derived condition (D) matches the given condition (C).</li>
+  <li>Any signatures in the fulfillment (F) must be verified, using the appropriate signature verification algorithm, against the corresponding public key, also provided in the fulfillment and the message (M), which may be empty.</li>
+</ol>
+<p id="rfc.section.1.p.7">This property of crypto-conditions, makes them suitable as a replacement for other signature schemes where the condition (C) takes the place of the signature validation key, the fulfillment (F) takes the place of the signature and the message (M) is simply the message.</p>
+<p id="rfc.section.1.p.8">Since the condition is just a fingerprint and meta-data it can be transmitted freely. It's not possible to derive the fulfillment from the condition. Also, because the fingerprint is a digest it is a fixed size which makes it very efficient to encode and decode.</p>
+<p id="rfc.section.1.p.9">In the Interledger protocol, crypto-conditions and fulfillments provide irrepudiable proof that a transaction has been completed on a ledger. They are simple messages that can be easily shared with other ledgers. This allows ledgers to escrow funds or hold a transfer conditionally, then execute the transfer automatically when the ledger sees the fulfillment of the stated condition. In this way the Interledger protocol synchoronizes multiple transfers on distinct ledgers in an almost atomic transaction.</p>
+<p id="rfc.section.1.p.10">Crypto-conditions may also be useful in other contexts where a system needs to make a decision based on predefined criteria, and the proof from a trusted oracle(s) that the criteria have been met, such as smart contracts.</p>
+<p id="rfc.section.1.p.11">The advantage of using crypto-conditions for such use cases as opposed to a turing complete contract scripting language is the fact that the outcome of a crypto-condition validation is deterministic across platforms as long as the underlying crypto-primitives are correctly implemented.</p>
 <h1 id="rfc.section.1.1"><a href="#rfc.section.1.1">1.1.</a> <a href="#terminology" id="terminology">Terminology</a></h1>
 <p id="rfc.section.1.1.p.1">The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <a href="#RFC2119">[RFC2119]</a>.</p>
 <p id="rfc.section.1.1.p.2">Within this specification, the term "condition" refers to the hash of a description of a signed message. The hash function must be preimage-resistant.</p>
@@ -619,7 +631,7 @@
 <pre>
 Condition ::= SEQUENCE {
   type ConditionType,
-  featureBitmask OCTET STRING,
+  featureBitmask INTEGER (0..MAX),
   fingerprint OCTET STRING,
   maxFulfillmentLength INTEGER (0..MAX)
 }
@@ -639,9 +651,9 @@ ConditionType ::= INTEGER {
   <dt>type</dt>
   <dd style="margin-left: 8">is the numeric type identifier representing the condition type.</dd>
   <dt>featureBitmask</dt>
-  <dd style="margin-left: 8">is an octet string encoding the set of feature suites an implementation must support in order to be able to successfully parse the fulfillment to this condition. This is the boolean OR of the featureBitmask values of the top-level condition type and all subcondition types, recursively.</dd>
+  <dd style="margin-left: 8">is an unsigned integer encoding the set of feature suites an implementation must support in order to be able to successfully parse the fulfillment to this condition. This is the boolean OR of the featureBitmask values of the top-level condition type and all subcondition types, recursively.</dd>
   <dt>fingerprint</dt>
-  <dd style="margin-left: 8">is an octet string uniquely representing the condition with respect to other conditions of the same type. Implementations which index conditions MUST use the entire string or binary encoded condition as the key, not just the fingerprint - as different conditions of different types may have the same fingerprint. The length and contents of the fingerprint are defined by the condition type. For most condition types, the fingerprint is a cryptographically secure hash of the data which defines the condition, such as a public key.</dd>
+  <dd style="margin-left: 8">is an octet string uniquely representing the condition with respect to other conditions of the same type. Implementations which index conditions MUST use the entire string or binary encoded condition as the key, not just the fingerprint - as different conditions of different types may have the same fingerprint. The length and contents of the fingerprint are defined by the condition type. For most condition types, the fingerprint is a cryptographically secure hash of the data which defines the condition, such as a public key. This is encoded as a variable length octet string as different condition types may use different functions to produce the fingerprint which may therefore have different lengths. While it would be possible to determine the expected length of the fingerprint based on the type it is useful to be able to decode a condition even if the type is not recognized.</dd>
   <dt>maxFulfillmentLength</dt>
   <dd style="margin-left: 8">is the maximum length of the fulfillment payload that can fulfill this condition, in bytes. The payload size is measured unencoded. (The size of the payload is larger in BASE64URL format.) When a crypto-condition is submitted to an implementation, this implementation MUST verify that it will be able to process a fulfillment with a payload of size maxFulfillmentLength.</dd>
 </dl>
@@ -832,7 +844,7 @@ cf:0:VGhlIG9ubHkgYmFzaXMgZm9yIGdvb2QgU29jaWV0eSBpcyB1bmxpbWl0ZWQgY3JlZGl0LuKAlE9
 <h1 id="rfc.section.4.1"><a href="#rfc.section.4.1">4.1.</a> <a href="#preimage-sha-256-condition-type" id="preimage-sha-256-condition-type">PREIMAGE-SHA-256</a></h1>
 <p id="rfc.section.4.1.p.1">PREIMAGE-SHA-256 is assigned the type ID 0. It relies on the SHA-256 and PREIMAGE feature suites which corresponds to a feature bitmask of 0x03.</p>
 <p id="rfc.section.4.1.p.2">This type of condition is also called a "hashlock". By creating a hash of a difficult-to-guess 256-bit random or pseudo-random integer it is possible to create a condition which the creator can trivially fulfill by publishing the random value. However, for anyone else, the condition is cryptographically hard to fulfill, because they would have to find a preimage for the given condition hash.</p>
-<p id="rfc.section.4.1.p.3">Bitcoin supports this type of condition via the OP_HASH256 operator.</p>
+<p id="rfc.section.4.1.p.3">Implementations MUST ignore any input message when validating a PREIMAGE-SHA-256 fulfillment.</p>
 <h1 id="rfc.section.4.1.1"><a href="#rfc.section.4.1.1">4.1.1.</a> <a href="#preimage-sha-256-condition-type-condition" id="preimage-sha-256-condition-type-condition">Condition</a></h1>
 <p id="rfc.section.4.1.1.p.1">The fingerprint of a PREIMAGE-SHA-256 condition is the SHA-256 hash of the preimage.</p>
 <h1 id="rfc.section.4.1.2"><a href="#rfc.section.4.1.2">4.1.2.</a> <a href="#preimage-sha-256-condition-type-fulfillment" id="preimage-sha-256-condition-type-fulfillment">Fulfillment</a></h1>
@@ -957,9 +969,30 @@ cf:2:AQEBAgEBAwAAAAABAQAnAAQBICDsFyuTrV5WO_STLHDhJFA0w1Rn7y79TWTr-BloNGfivwFg
 <h1 id="rfc.section.4.4"><a href="#rfc.section.4.4">4.4.</a> <a href="#rsa-sha-256-condition-type" id="rsa-sha-256-condition-type">RSA-SHA-256</a></h1>
 <p id="rfc.section.4.4.p.1">RSA-SHA-256 is assigned the type ID 3. It relies on the SHA-256 and RSA-PSS feature suites which corresponds to a feature bitmask of 0x11.</p>
 <p id="rfc.section.4.4.p.2">The signature algorithm used is RSASSA-PSS as defined in PKCS#1 v2.2. <a href="#RFC3447">[RFC3447]</a></p>
+<p id="rfc.section.4.4.p.3">Implementations MUST NOT use the default RSASSA-PSS-params. Implementations MUST use the SHA-256 hash algorithm and therefor, the same algorithm in the mask generation algorithm, as recommended in <a href="#RFC3447">[RFC3447]</a>. Implementations MUST also use a salt length of 32 bytes (equal to the size of the output from the SHA-256 algorithm). Therefore the algorithm identifier will have the following value:</p>
+<pre>
+rSASSA-PSS-Crypto-Conditions-Identifier  RSASSA-AlgorithmIdentifier ::= {
+    algorithm   id-RSASSA-PSS,
+    parameters  RSASSA-PSS-params : {
+        hashAlgorithm       sha256,
+        maskGenAlgorithm    mgf1SHA256,
+        saltLength          32,
+        trailerField        trailerFieldBC
+    }
+}
+   
+sha256 HashAlgorithm ::= {
+    algorithm   id-sha256,
+    parameters  NULL
+}
+
+mgf1SHA256 MaskGenAlgorithm ::= {
+    algorithm   id-mgf1,
+    parameters  HashAlgorithm : sha256
+}
+</pre>
 <h1 id="rfc.section.4.4.1"><a href="#rfc.section.4.4.1">4.4.1.</a> <a href="#rsa-sha-256-condition-type-condition" id="rsa-sha-256-condition-type-condition">Condition</a></h1>
 <p id="rfc.section.4.4.1.p.1">The fingerprint of a RSA-SHA-256 condition is the SHA-256 digest of the fingerprint contents given below:</p>
-<p id="rfc.section.4.4.1.p.2">The salt length for PSS is 32 bytes.</p>
 <pre>
 RsaSha256FingerprintContents ::= SEQUENCE {
   modulus OCTET STRING (SIZE(128..512))
@@ -1268,7 +1301,7 @@ END
       <th class="left">Type Bit</th>
       <th class="left">Exp.</th>
       <th class="left">Hex</th>
-      <th class="left">Condition Types</th>
+      <th class="left">Feature</th>
     </tr>
   </thead>
   <tbody>

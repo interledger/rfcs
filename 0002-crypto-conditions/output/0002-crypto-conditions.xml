@@ -52,7 +52,7 @@
       </address>
     </author>
 
-    <date year="2016" month="September" day="14"/>
+    <date year="2016" month="October" day="25"/>
 
     <area>security</area>
     
@@ -61,7 +61,9 @@
     <abstract>
 
 
-<t>Crypto-conditions provide a mechanism to describe a signed message such that multiple actors in a distributed system can all verify the same signed message and agree on whether it matches the description. This provides a useful primitive for event-based systems that are distributed on the Internet since we can describe events in a standard deterministic manner (represented by signed messages) and therefore define generic authenticated event handlers.</t>
+<t>Crypto-conditions provide a mechanism to describe a signed message such that multiple actors in a distributed system can all verify the same signed message and agree on whether it matches the description. This provides a useful primitive for event-based systems that are distributed on the Internet since we can describe events in a standard deterministic manner (represented by a fingerprint and some meta-data, called the condition) and therefore define distiributed event handlers which evaluate the proof of the event occuring (represented by a public key and signature, called the fulfillment) with deterministic outcomes.</t>
+
+<t>This specification describes a message format for conditions and fulfillments and the canonical binary encodings for each. It also describes alternate string encodings in both a compact URI form and extended JSON form.</t>
 
 
 
@@ -71,7 +73,7 @@
     <note title="Feedback">
 
 
-<t>This specification is a part of the <eref target="https://interledger.org/">Interledger Protocol</eref> work. Feedback related to this specification should be sent to <eref target="mailto:public-interledger@w3.org">public-interledger@w3.org</eref>.</t>
+<t>This specification is a part of the <eref target="https://interledger.org/">Interledger Protocol</eref> work. Feedback related to this specification should be sent to <eref target="mailto:ledger@ietf.org">ledger@ietf.org</eref>.</t>
 
 
     </note>
@@ -83,15 +85,30 @@
 
 
 <section anchor="introduction" title="Introduction">
-<t>This specification describes a message format for crypto-conditions and fulfillments, with binary and string-based encodings for each.</t>
+<t>One of the challenges facing a distributed system is achieving atomic execution of a transaction across the system. A common pattern for solving this problem is two-phase commit in which the most time-consuming aspects of the transaction are prepared across all participants and a simple trigger is sufficient to either commit or abort the transaction. Described in more abstract terms, the system consist of a number of participants that have prepared a transaction pending the fulfillment of a predefined condition.</t>
 
-<t>Crypto-conditions are <spanx style="strong">distributable event descriptions</spanx>. This means crypto-conditions say how to recognize a message without saying exactly what the message is. You can transmit a crypto-condition freely, but you cannot forge the message it describes. For convenience, we hash the description so that the crypto-condition can be a fixed size.</t>
+<t>This document specifies a mechanism for defining these triggers as pairs of trigger descriptions (conditions) and cryptographically verifiable triggers (fulfillments) that can be deterministically verified by all participants.</t>
 
-<t>Fulfillments are <spanx style="strong">cryptographically verifiable messages</spanx> that prove an event occurred. If you transmit a fulfillment, then everyone who has the condition can agree that the condition has been met.</t>
+<t>The crypto-conditions specification defines two message types, a condition is a <spanx style="strong">distributable event description</spanx> in the form of an a <spanx style="emph">fingerprint</spanx>, and <spanx style="emph">event meta-data</spanx> that allows the event verification systems to determine if they have the necessary capabilities (such as required crypto-algorithms) and resources (such as heap or memory) to verify the event later.</t>
 
-<t>In the Interledger protocol, crypto-conditions and fulfillments provide irrepudiable proof that a transfer occurred in one ledger, as messages that can be easily shared with other ledgers. This allows ledgers to escrow funds or hold a transfer conditionally, then execute the transfer automatically when the ledger sees the fulfillment of the stated condition.</t>
+<t>The second message type, fulfillments are <spanx style="strong">cryptographically verifiable event notifications</spanx> in the form of one or more public keys and signatures that can be used to verify that the event occurred and matches the description.</t>
 
-<t>Crypto-conditions may also be useful in other contexts where a system needs to make a decision based on predefined criteria, such as smart contracts.</t>
+<t>Validation of a fulfillment (F) against a condition (C) and a message (M), in the majority of cases, involves two steps.</t>
+
+<t><list style="numbers">
+  <t>The implementation must derive a condition from the fulfillment and ensure that the derived condition (D) matches the given condition (C).</t>
+  <t>Any signatures in the fulfillment (F) must be verified, using the appropriate signature verification algorithm, against the corresponding public key, also provided in the fulfillment and the message (M), which may be empty.</t>
+</list></t>
+
+<t>This property of crypto-conditions, makes them suitable as a replacement for other signature schemes where the condition (C) takes the place of the signature validation key, the fulfillment (F) takes the place of the signature and the message (M) is simply the message.</t>
+
+<t>Since the condition is just a fingerprint and meta-data it can be transmitted freely. It's not possible to derive the fulfillment from the condition. Also, because the fingerprint is a digest it is a fixed size which makes it very efficient to encode and decode.</t>
+
+<t>In the Interledger protocol, crypto-conditions and fulfillments provide irrepudiable proof that a transaction has been completed on a ledger. They are simple messages that can be easily shared with other ledgers. This allows ledgers to escrow funds or hold a transfer conditionally, then execute the transfer automatically when the ledger sees the fulfillment of the stated condition. In this way the Interledger protocol synchoronizes multiple transfers on distinct ledgers in an almost atomic transaction.</t>
+
+<t>Crypto-conditions may also be useful in other contexts where a system needs to make a decision based on predefined criteria, and the proof from a trusted oracle(s) that the criteria have been met, such as smart contracts.</t>
+
+<t>The advantage of using crypto-conditions for such use cases as opposed to a turing complete contract scripting language is the fact that the outcome of a crypto-condition validation is deterministic across platforms as long as the underlying crypto-primitives are correctly implemented.</t>
 
 <section anchor="terminology" title="Terminology">
 <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target="RFC2119"></xref>.</t>
@@ -181,7 +198,7 @@
 <figure><artwork><![CDATA[
 Condition ::= SEQUENCE {
   type ConditionType,
-  featureBitmask OCTET STRING,
+  featureBitmask INTEGER (0..MAX),
   fingerprint OCTET STRING,
   maxFulfillmentLength INTEGER (0..MAX)
 }
@@ -202,9 +219,9 @@ ConditionType ::= INTEGER {
   <t hangText='type'>
   is the numeric type identifier representing the condition type.</t>
   <t hangText='featureBitmask'>
-  is an octet string encoding the set of feature suites an implementation must support in order to be able to successfully parse the fulfillment to this condition. This is the boolean OR of the featureBitmask values of the top-level condition type and all subcondition types, recursively.</t>
+  is an unsigned integer encoding the set of feature suites an implementation must support in order to be able to successfully parse the fulfillment to this condition. This is the boolean OR of the featureBitmask values of the top-level condition type and all subcondition types, recursively.</t>
   <t hangText='fingerprint'>
-  is an octet string uniquely representing the condition with respect to other conditions of the same type. Implementations which index conditions MUST use the entire string or binary encoded condition as the key, not just the fingerprint - as different conditions of different types may have the same fingerprint. The length and contents of the fingerprint are defined by the condition type. For most condition types, the fingerprint is a cryptographically secure hash of the data which defines the condition, such as a public key.</t>
+  is an octet string uniquely representing the condition with respect to other conditions of the same type. Implementations which index conditions MUST use the entire string or binary encoded condition as the key, not just the fingerprint - as different conditions of different types may have the same fingerprint. The length and contents of the fingerprint are defined by the condition type. For most condition types, the fingerprint is a cryptographically secure hash of the data which defines the condition, such as a public key. This is encoded as a variable length octet string as different condition types may use different functions to produce the fingerprint which may therefore have different lengths. While it would be possible to determine the expected length of the fingerprint based on the type it is useful to be able to decode a condition even if the type is not recognized.</t>
   <t hangText='maxFulfillmentLength'>
   is the maximum length of the fulfillment payload that can fulfill this condition, in bytes. The payload size is measured unencoded. (The size of the payload is larger in BASE64URL format.) When a crypto-condition is submitted to an implementation, this implementation MUST verify that it will be able to process a fulfillment with a payload of size maxFulfillmentLength.</t>
 </list></t>
@@ -385,7 +402,7 @@ cf:0:VGhlIG9ubHkgYmFzaXMgZm9yIGdvb2QgU29jaWV0eSBpcyB1bmxpbWl0ZWQgY3JlZGl0LuKAlE9
 
 <t>This type of condition is also called a "hashlock". By creating a hash of a difficult-to-guess 256-bit random or pseudo-random integer it is possible to create a condition which the creator can trivially fulfill by publishing the random value. However, for anyone else, the condition is cryptographically hard to fulfill, because they would have to find a preimage for the given condition hash.</t>
 
-<t>Bitcoin supports this type of condition via the OP_HASH256 operator.</t>
+<t>Implementations MUST ignore any input message when validating a PREIMAGE-SHA-256 fulfillment.</t>
 
 <section anchor="preimage-sha-256-condition-type-condition" title="Condition">
 <t>The fingerprint of a PREIMAGE-SHA-256 condition is the SHA-256 hash of the preimage.</t>
@@ -551,10 +568,32 @@ cf:2:AQEBAgEBAwAAAAABAQAnAAQBICDsFyuTrV5WO_STLHDhJFA0w1Rn7y79TWTr-BloNGfivwFg
 
 <t>The signature algorithm used is RSASSA-PSS as defined in PKCS#1 v2.2. <xref target="RFC3447"></xref></t>
 
+<t>Implementations MUST NOT use the default RSASSA-PSS-params. Implementations MUST use the SHA-256 hash algorithm and therefor, the same algorithm in the mask generation algorithm, as recommended in <xref target="RFC3447"></xref>. Implementations MUST also use a salt length of 32 bytes (equal to the size of the output from the SHA-256 algorithm). Therefore the algorithm identifier will have the following value:</t>
+
+<figure><artwork><![CDATA[
+rSASSA-PSS-Crypto-Conditions-Identifier  RSASSA-AlgorithmIdentifier ::= {
+    algorithm   id-RSASSA-PSS,
+    parameters  RSASSA-PSS-params : {
+        hashAlgorithm       sha256,
+        maskGenAlgorithm    mgf1SHA256,
+        saltLength          32,
+        trailerField        trailerFieldBC
+    }
+}
+   
+sha256 HashAlgorithm ::= {
+    algorithm   id-sha256,
+    parameters  NULL
+}
+
+mgf1SHA256 MaskGenAlgorithm ::= {
+    algorithm   id-mgf1,
+    parameters  HashAlgorithm : sha256
+}
+]]></artwork></figure>
+
 <section anchor="rsa-sha-256-condition-type-condition" title="Condition">
 <t>The fingerprint of a RSA-SHA-256 condition is the SHA-256 digest of the fingerprint contents given below:</t>
-
-<t>The salt length for PSS is 32 bytes.</t>
 
 <figure><artwork><![CDATA[
 RsaSha256FingerprintContents ::= SEQUENCE {
@@ -934,7 +973,7 @@ END
       <ttcol align='left'>Type Bit</ttcol>
       <ttcol align='left'>Exp.</ttcol>
       <ttcol align='left'>Hex</ttcol>
-      <ttcol align='left'>Condition Types</ttcol>
+      <ttcol align='left'>Feature</ttcol>
       <c>1</c>
       <c>2^0</c>
       <c>0x01</c>
