@@ -51,8 +51,23 @@
         <uri>https://www.ripple.com</uri>
       </address>
     </author>
+    <author initials="A." surname="Hope-Bailie" fullname="Adrian Hope-Bailie">
+      <organization>Ripple</organization>
+      <address>
+        <postal>
+          <street>300 Montgomery Street</street>
+          <city>San Francisco</city>
+          <region>CA</region>
+          <code>94104</code>
+          <country>US</country>
+        </postal>
+        <phone>-----------------</phone>
+        <email>adrian@ripple.com</email>
+        <uri>https://www.ripple.com</uri>
+      </address>
+    </author>
 
-    <date year="2016" month="September" day="14"/>
+    <date year="2016" month="October" day="24"/>
 
     <area>security</area>
     
@@ -181,7 +196,7 @@
 <figure><artwork><![CDATA[
 Condition ::= SEQUENCE {
   type ConditionType,
-  featureBitmask OCTET STRING,
+  featureBitmask INTEGER (0..MAX),
   fingerprint OCTET STRING,
   maxFulfillmentLength INTEGER (0..MAX)
 }
@@ -202,9 +217,9 @@ ConditionType ::= INTEGER {
   <t hangText='type'>
   is the numeric type identifier representing the condition type.</t>
   <t hangText='featureBitmask'>
-  is an octet string encoding the set of feature suites an implementation must support in order to be able to successfully parse the fulfillment to this condition. This is the boolean OR of the featureBitmask values of the top-level condition type and all subcondition types, recursively.</t>
+  is an unsigned integer encoding the set of feature suites an implementation must support in order to be able to successfully parse the fulfillment to this condition. This is the boolean OR of the featureBitmask values of the top-level condition type and all subcondition types, recursively.</t>
   <t hangText='fingerprint'>
-  is an octet string uniquely representing the condition with respect to other conditions of the same type. Implementations which index conditions MUST use the entire string or binary encoded condition as the key, not just the fingerprint - as different conditions of different types may have the same fingerprint. The length and contents of the fingerprint are defined by the condition type. For most condition types, the fingerprint is a cryptographically secure hash of the data which defines the condition, such as a public key.</t>
+  is an octet string uniquely representing the condition with respect to other conditions of the same type. Implementations which index conditions MUST use the entire string or binary encoded condition as the key, not just the fingerprint - as different conditions of different types may have the same fingerprint. The length and contents of the fingerprint are defined by the condition type. For most condition types, the fingerprint is a cryptographically secure hash of the data which defines the condition, such as a public key. This is encoded as a variable length octet string as different condition types may use different functions to produce the fingerprint which may therefore have different lengths. While it would be possible to determine the expected length of the fingerprint based on the type it is useful to be able to decode a condition even if the type is not recognized.</t>
   <t hangText='maxFulfillmentLength'>
   is the maximum length of the fulfillment payload that can fulfill this condition, in bytes. The payload size is measured unencoded. (The size of the payload is larger in BASE64URL format.) When a crypto-condition is submitted to an implementation, this implementation MUST verify that it will be able to process a fulfillment with a payload of size maxFulfillmentLength.</t>
 </list></t>
@@ -385,7 +400,7 @@ cf:0:VGhlIG9ubHkgYmFzaXMgZm9yIGdvb2QgU29jaWV0eSBpcyB1bmxpbWl0ZWQgY3JlZGl0LuKAlE9
 
 <t>This type of condition is also called a "hashlock". By creating a hash of a difficult-to-guess 256-bit random or pseudo-random integer it is possible to create a condition which the creator can trivially fulfill by publishing the random value. However, for anyone else, the condition is cryptographically hard to fulfill, because they would have to find a preimage for the given condition hash.</t>
 
-<t>Bitcoin supports this type of condition via the OP_HASH256 operator.</t>
+<t>Implementations MUST ignore any input message when validating a PREIMAGE-SHA-256 fulfillment.</t>
 
 <section anchor="preimage-sha-256-condition-type-condition" title="Condition">
 <t>The fingerprint of a PREIMAGE-SHA-256 condition is the SHA-256 hash of the preimage.</t>
@@ -551,10 +566,32 @@ cf:2:AQEBAgEBAwAAAAABAQAnAAQBICDsFyuTrV5WO_STLHDhJFA0w1Rn7y79TWTr-BloNGfivwFg
 
 <t>The signature algorithm used is RSASSA-PSS as defined in PKCS#1 v2.2. <xref target="RFC3447"></xref></t>
 
+<t>Implementations MUST NOT use the default RSASSA-PSS-params. Implementations MUST use the SHA-256 hash algorithm and therefor, the same algorithm in the mask generation algorithm, as recommended in <xref target="RFC3447"></xref>. Implementations MUST also use a salt length of 32 bytes (equal to the size of the output from the SHA-256 algorithm). Therefore the algorithm identifier will have the following value:</t>
+
+<figure><artwork><![CDATA[
+rSASSA-PSS-Crypto-Conditions-Identifier  RSASSA-AlgorithmIdentifier ::= {
+    algorithm   id-RSASSA-PSS,
+    parameters  RSASSA-PSS-params : {
+        hashAlgorithm       sha256,
+        maskGenAlgorithm    mgf1SHA256,
+        saltLength          32,
+        trailerField        trailerFieldBC
+    }
+}
+   
+sha256 HashAlgorithm ::= {
+    algorithm   id-sha256,
+    parameters  NULL
+}
+
+mgf1SHA256 MaskGenAlgorithm ::= {
+    algorithm   id-mgf1,
+    parameters  HashAlgorithm : sha256
+}
+]]></artwork></figure>
+
 <section anchor="rsa-sha-256-condition-type-condition" title="Condition">
 <t>The fingerprint of a RSA-SHA-256 condition is the SHA-256 digest of the fingerprint contents given below:</t>
-
-<t>The salt length for PSS is 32 bytes.</t>
 
 <figure><artwork><![CDATA[
 RsaSha256FingerprintContents ::= SEQUENCE {
@@ -934,7 +971,7 @@ END
       <ttcol align='left'>Type Bit</ttcol>
       <ttcol align='left'>Exp.</ttcol>
       <ttcol align='left'>Hex</ttcol>
-      <ttcol align='left'>Condition Types</ttcol>
+      <ttcol align='left'>Feature</ttcol>
       <c>1</c>
       <c>2^0</c>
       <c>0x01</c>
