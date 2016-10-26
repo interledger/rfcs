@@ -36,6 +36,19 @@ author:
     email: rome@ripple.com
     uri: https://www.ripple.com
 
+  -
+    ins: A. Hope-Bailie
+    name: Adrian Hope-Bailie
+    org: Ripple
+    street: 300 Montgomery Street
+    city: San Francisco
+    region: CA
+    code: 94104
+    country: US
+    phone: -----------------
+    email: adrian@ripple.com
+    uri: https://www.ripple.com
+
 normative:
     RFC3447:
     RFC4648:
