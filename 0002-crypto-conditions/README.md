@@ -4,12 +4,23 @@ See [here](https://interledger.org/five-bells-condition/spec.html) for the rende
 
 ## Rendering
 
-    kramdown-rfc2629 0002-crypto-conditions.md > generated.xml && xml2rfc generated.xml --html
+Uses [kramdown-rfc2629](https://github.com/cabo/kramdown-rfc2629/), [xml2rfc](http://xml2rfc.ietf.org/) and [Grunt](http://gruntjs.com/) with [Grunt kramdown_rfc2629 task](https://github.com/hildjj/grunt-kramdown-rfc2629/)
 
-Uses [kramdown-rfc2629](https://github.com/cabo/kramdown-rfc2629/) and [xml2rfc](http://xml2rfc.ietf.org/).
+
+From root directory of the repo run:
+
+    npm install
+    grunt kramdown-rfc2629
+   
+To watch edits to 0002-crypto-conditions.md and auto-generate output when changes are saved run:
+
+    grunt watch
+    
 
 ## Files
 
 * [README.md](README.md) - this file
 * [0002-crypto-conditions.md](0002-crypto-conditions.md) - canonical (mostly) markdown format file
-* [0002-crypto-conditions.xml](0002-crypto-conditions.xml) - deprecated RFC2629 file, to be removed (kept for comparison w/ generated version)
+* [output/0002-crypto-conditions.xml](output/0002-crypto-conditions.xml) - RFC in XML format
+* [output/0002-crypto-conditions.txt](output/0002-crypto-conditions.txt) - RFC in text format
+* [output/0002-crypto-conditions.html](output/0002-crypto-conditions.html) - RFC in html format
