@@ -50,11 +50,11 @@ The message formats described here are the `data` properties of an `OutgoingMess
 |:------------------------------|:------------|:------------|
 | `source_address`              | ILP Address | Address of the source's account in the source ledger. |
 | `destination_address`         | ILP Address | Address of the destination's account in the destination ledger. |
-| `source_amount`               | Number      | Fixed amount to debit from the source's account. (Required unless `destination_amount` specified.) |
-| `destination_amount`          | Number      | Fixed amount to credit to the destination's account. (Required unless `source_amount` specified.) |
-| `destination_expiry_duration` | Number      | (Optional) Number of milliseconds before the transfer in the destination ledger expires. |
-| `source_expiry_duration`      | Number      | (Optional) Number of milliseconds before the transfer in the source ledger expires. |
-| `slippage`                    | Number      | (Optional) Custom slippage to assume for the exchange between ledgers, as a decimal proportion. Lower slippage means the payment is cheaper but more likely to fail due to market movement. |
+| `source_amount`               | String      | Fixed amount to debit from the source's account. (Required unless `destination_amount` specified.) |
+| `destination_amount`          | String      | Fixed amount to credit to the destination's account. (Required unless `source_amount` specified.) |
+| `destination_expiry_duration` | String      | (Optional) Number of milliseconds before the transfer in the destination ledger expires. |
+| `source_expiry_duration`      | String      | (Optional) Number of milliseconds before the transfer in the source ledger expires. |
+| `slippage`                    | String      | (Optional) Custom slippage to assume for the exchange between ledgers, as a decimal proportion. Lower slippage means the payment is cheaper but more likely to fail due to market movement. |
 
 The request must specify either `source_amount` or `destination_amount` but not both.
 
