@@ -43,6 +43,7 @@ Interledger Payment Requests are intended to be used in higher-level protocols a
 {
     "address": "ilpdemo.red.bob.b9c4ceba-51e4-4a80-b1a7-2972383e98af",
     "amount": "10.25",
+    "condition": "cc:0:3:hd5x8kpaDDLQu-KqMyCrlsg5QJ9g9qaFr9ytTwqyCsw:32",
     "expires_at": "2016-08-16T12:00:00Z",
     "data": {
         "re": "dinner the other night"
@@ -60,7 +61,7 @@ Interledger Payment Requests are intended to be used in higher-level protocols a
 | `data` | Object | Data to be included in the ILP Packet |
 | `additional_headers` | Base64 String | Additional headers for the ILP Packet |
 
-#### address 
+#### address
 
 The ILP Address the payment is to be routed to. This SHOULD be a request-specific address in the form `<account address>.<request ID>`, such as `ilpdemo.red.bob.b9c4ceba-51e4-4a80-b1a7-2972383e98af`.
 
@@ -132,5 +133,8 @@ const cryptoCondition = new cc.PreimageSha256()
 cryptoCondition.setPreimage(hmac.digest())
 
 const condition = cryptoCondition.getConditionUri()
+console.log(condition) // Prints cc:0:3:BC-mUTFsZYXd89QQDiocToUWbQ-XYTh5H5lFQNwhDWE:32
+
 const fulfillment = cryptoCondition.serializeUri()
+console.log(fulfillment) // Prints cf:0:aW9EFFuRmltvYcs2ESExvf-0pbzBhUGgpqKT-oUBuuU
 ```
