@@ -139,6 +139,7 @@
 <pre><code class="lang-json">{
     &quot;address&quot;: &quot;ilpdemo.red.bob.b9c4ceba-51e4-4a80-b1a7-2972383e98af&quot;,
     &quot;amount&quot;: &quot;10.25&quot;,
+    &quot;condition&quot;: &quot;cc:0:3:hd5x8kpaDDLQu-KqMyCrlsg5QJ9g9qaFr9ytTwqyCsw:32&quot;,
     &quot;expires_at&quot;: &quot;2016-08-16T12:00:00Z&quot;,
     &quot;data&quot;: {
         &quot;re&quot;: &quot;dinner the other night&quot;
@@ -236,7 +237,10 @@ const cryptoCondition = new cc.PreimageSha256()
 cryptoCondition.setPreimage(hmac.digest())
 
 const condition = cryptoCondition.getConditionUri()
+console.log(condition) // Prints cc:0:3:BC-mUTFsZYXd89QQDiocToUWbQ-XYTh5H5lFQNwhDWE:32
+
 const fulfillment = cryptoCondition.serializeUri()
+console.log(fulfillment) // Prints cf:0:aW9EFFuRmltvYcs2ESExvf-0pbzBhUGgpqKT-oUBuuU
 </code></pre>
 
         </div>
