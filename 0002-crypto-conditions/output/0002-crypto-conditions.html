@@ -391,12 +391,15 @@
 <link href="#rfc.section.6" rel="Chapter" title="6 Deriving the Condition"/>
 <link href="#rfc.section.6.1" rel="Chapter" title="6.1 Conditions as Public Keys"/>
 <link href="#rfc.section.7" rel="Chapter" title="7 Format"/>
-<link href="#rfc.section.7.1" rel="Chapter" title="7.1 Condition"/>
-<link href="#rfc.section.7.1.1" rel="Chapter" title="7.1.1 Type"/>
-<link href="#rfc.section.7.1.2" rel="Chapter" title="7.1.2 Fingerprint"/>
-<link href="#rfc.section.7.1.3" rel="Chapter" title="7.1.3 MaxFulfillmentLength"/>
-<link href="#rfc.section.7.1.4" rel="Chapter" title="7.1.4 Subtypes"/>
-<link href="#rfc.section.7.2" rel="Chapter" title="7.2 Fulfillment"/>
+<link href="#rfc.section.7.1" rel="Chapter" title="7.1 Encoding Rules"/>
+<link href="#rfc.section.7.2" rel="Chapter" title="7.2 Condition"/>
+<link href="#rfc.section.7.2.1" rel="Chapter" title="7.2.1 Type"/>
+<link href="#rfc.section.7.2.2" rel="Chapter" title="7.2.2 Subtypes"/>
+<link href="#rfc.section.7.2.3" rel="Chapter" title="7.2.3 Fingerprint"/>
+<link href="#rfc.section.7.2.4" rel="Chapter" title="7.2.4 MaxFulfillmentLength"/>
+<link href="#rfc.section.7.3" rel="Chapter" title="7.3 Fulfillment"/>
+<link href="#rfc.section.7.3.1" rel="Chapter" title="7.3.1 Type"/>
+<link href="#rfc.section.7.3.2" rel="Chapter" title="7.3.2 Payload"/>
 <link href="#rfc.section.8" rel="Chapter" title="8 Crypto-Condition Types"/>
 <link href="#rfc.section.8.1" rel="Chapter" title="8.1 PREIMAGE-SHA-256"/>
 <link href="#rfc.section.8.1.1" rel="Chapter" title="8.1.1 Condition Format"/>
@@ -533,13 +536,16 @@
 </ul><li>6.   <a href="#rfc.section.6">Deriving the Condition</a></li>
 <ul><li>6.1.   <a href="#rfc.section.6.1">Conditions as Public Keys</a></li>
 </ul><li>7.   <a href="#rfc.section.7">Format</a></li>
-<ul><li>7.1.   <a href="#rfc.section.7.1">Condition</a></li>
-<ul><li>7.1.1.   <a href="#rfc.section.7.1.1">Type</a></li>
-<li>7.1.2.   <a href="#rfc.section.7.1.2">Fingerprint</a></li>
-<li>7.1.3.   <a href="#rfc.section.7.1.3">MaxFulfillmentLength</a></li>
-<li>7.1.4.   <a href="#rfc.section.7.1.4">Subtypes</a></li>
-</ul><li>7.2.   <a href="#rfc.section.7.2">Fulfillment</a></li>
-</ul><li>8.   <a href="#rfc.section.8">Crypto-Condition Types</a></li>
+<ul><li>7.1.   <a href="#rfc.section.7.1">Encoding Rules</a></li>
+<li>7.2.   <a href="#rfc.section.7.2">Condition</a></li>
+<ul><li>7.2.1.   <a href="#rfc.section.7.2.1">Type</a></li>
+<li>7.2.2.   <a href="#rfc.section.7.2.2">Subtypes</a></li>
+<li>7.2.3.   <a href="#rfc.section.7.2.3">Fingerprint</a></li>
+<li>7.2.4.   <a href="#rfc.section.7.2.4">MaxFulfillmentLength</a></li>
+</ul><li>7.3.   <a href="#rfc.section.7.3">Fulfillment</a></li>
+<ul><li>7.3.1.   <a href="#rfc.section.7.3.1">Type</a></li>
+<li>7.3.2.   <a href="#rfc.section.7.3.2">Payload</a></li>
+</ul></ul><li>8.   <a href="#rfc.section.8">Crypto-Condition Types</a></li>
 <ul><li>8.1.   <a href="#rfc.section.8.1">PREIMAGE-SHA-256</a></li>
 <ul><li>8.1.1.   <a href="#rfc.section.8.1.1">Condition Format</a></li>
 <li>8.1.2.   <a href="#rfc.section.8.1.2">MaxFulfillmentLength</a></li>
@@ -659,85 +665,59 @@
 <h1 id="rfc.section.6.1"><a href="#rfc.section.6.1">6.1.</a> <a href="#conditions-as-public-keys" id="conditions-as-public-keys">Conditions as Public Keys</a></h1>
 <p id="rfc.section.6.1.p.1">Since the condition is just a fingerprint and meta-data about the crypto-condition it can be transmitted freely in the same way a public key is shared publicly. It's not possible to derive the fulfillment from the condition.</p>
 <h1 id="rfc.section.7"><a href="#rfc.section.7">7.</a> <a href="#format" id="format">Format</a></h1>
-<p id="rfc.section.7.p.1">A description of crypto-conditions is provided in this document using Abstract Syntax Notation One (ASN.1) as defined in <a href="#itu.X680.2015">[itu.X680.2015]</a>. Implementations of this spec MUST support encoding and decoding using Octet Encoding Rules (OER) as defined in <a href="#itu.X696.2015">[itu.X696.2015]</a>.</p>
-<h1 id="rfc.section.7.1"><a href="#rfc.section.7.1">7.1.</a> <a href="#condition-format" id="condition-format">Condition</a></h1>
-<p id="rfc.section.7.1.p.1">The binary encoding of conditions is dependant on their type. The overall size of conditions is not fixed as some types (compound conditions) contain additional fields (subtypes) and the algorithm for deriving the fingerprint differs by type therefor the fingerprint size also differs.</p>
-<p id="rfc.section.7.1.p.2">Conditions are encoded as follows:</p>
+<p id="rfc.section.7.p.1">A description of crypto-conditions is provided in this document using Abstract Syntax Notation One (ASN.1) as defined in <a href="#itu.X680.2015">[itu.X680.2015]</a>.</p>
+<h1 id="rfc.section.7.1"><a href="#rfc.section.7.1">7.1.</a> <a href="#encoding-rules" id="encoding-rules">Encoding Rules</a></h1>
+<p id="rfc.section.7.1.p.1">Implementations of this spec MUST support encoding and decoding using Octet Encoding Rules (OER) as defined in <a href="#itu.X696.2015">[itu.X696.2015]</a>. This is the canonical encoding format. Where alternate encoding rules are defined and used these should be applied through to all ASN.1 defined data structures.</p>
+<p id="rfc.section.7.1.p.2">For example, implementations that choose to use DER encoding should also use DER encoding when assembling the content of a condition fingerprint before it is hashed.</p>
+<h1 id="rfc.section.7.2"><a href="#rfc.section.7.2">7.2.</a> <a href="#condition-format" id="condition-format">Condition</a></h1>
+<p id="rfc.section.7.2.p.1">The binary encoding of conditions is dependant on their type. The overall size of conditions is not fixed as some types (compound conditions) contain additional fields (subtypes) and the algorithm for deriving the fingerprint differs by type therefor the fingerprint size also differs.</p>
+<p id="rfc.section.7.2.p.2">Conditions are encoded as follows:</p>
 <pre>
 Condition ::= SEQUENCE {
-  type ConditionType,
+  type BIT STRING,
+  subtypes BIT STRING
   fingerprint OCTET STRING,
   maxFulfillmentLength INTEGER (0..MAX),
-  subtypes OCTET STRING
 }
-
-ConditionType ::= INTEGER {
-  preimageSha256(0),
-  prefixSha256(1),
-  thresholdSha256(2),
-  rsaSha256(3),
-  ed25519(4)
-} (0..255)
 </pre>
-<h1 id="rfc.section.7.1.1"><a href="#rfc.section.7.1.1">7.1.1.</a> <a href="#type" id="type">Type</a></h1>
-<p id="rfc.section.7.1.1.p.1">Type is the numeric type identifier representing the condition type. In future new types may introduce new formats.</p>
-<h1 id="rfc.section.7.1.2"><a href="#rfc.section.7.1.2">7.1.2.</a> <a href="#fingerprint" id="fingerprint">Fingerprint</a></h1>
-<p id="rfc.section.7.1.2.p.1">The fingerprint is an octet string uniquely representing the condition with respect to other conditions of the same type.</p>
-<p id="rfc.section.7.1.2.p.2">Implementations which index conditions MUST use the entire encoded condition as the key, not just the fingerprint - as different conditions of different types may have the same fingerprint.</p>
-<p id="rfc.section.7.1.2.p.3">For most condition types, the fingerprint is a cryptographically secure hash of the data which defines the condition, such as a public key.</p>
-<p id="rfc.section.7.1.2.p.4">For types that use PKI signature schemes, the signature is intentionally not included in the content that is used to compose the fingerprint. This meansthe fingerprint can be calculated without needing to know the message or having access to the private key.</p>
-<p id="rfc.section.7.1.2.p.5">Future types may use different functions to produce the fingerprint which may have different lengths therefor the filed is encoded as a variable length string.</p>
-<h1 id="rfc.section.7.1.3"><a href="#rfc.section.7.1.3">7.1.3.</a> <a href="#maxfulfillmentlength" id="maxfulfillmentlength">MaxFulfillmentLength</a></h1>
-<p id="rfc.section.7.1.3.p.1">This is the maximum length of the essential fulfillment payload for a fulfillment that can fulfill this condition.</p>
-<p id="rfc.section.7.1.3.p.2">For each crypto-condition type, a formula is provided for calculating the maximum fulfillment length to ensure that implementations produce consistent output.</p>
-<p id="rfc.section.7.1.3.p.3">When a crypto-condition is submitted to an implementation, this implementation MUST verify that it will be able to process a fulfillment with a payload of size maxFulfillmentLength plus any additional encoding bytes.</p>
-<h1 id="rfc.section.7.1.4"><a href="#rfc.section.7.1.4">7.1.4.</a> <a href="#subtypes" id="subtypes">Subtypes</a></h1>
-<p id="rfc.section.7.1.4.p.1">It must be possible to verify that all types used in a crypto-condition are supported (including the types and subtypes of any sub-crypto-conditions) even if the fulfillment is not available yet. Therefore, all compound conditions popluate a bitmap to indicate the set of types and subtypes of all sub-crypto-conditions. The subtypes field is only used in the compound conditions (THRESHOLD-SHA-256 and PREFIX-SHA-256), for simple conditions this field should be an empty string.</p>
-<p id="rfc.section.7.1.4.p.2">Implementations that encounter a condition with any of the simple types (PREIMAGE-SHA-256, RSA-SHA-256 or ED25519) and a sutypes field that is not an emtpty string MUST reject the condition.</p>
-<p id="rfc.section.7.1.4.p.3">The field is encoded as a variable length octet string. It specifies the set of types an implementation must support in order to be able to successfully validate the fulfillment of this condition. This is the set of types and subtypes of the top-level condition and all sub-crypto-conditions, recursively.</p>
-<p id="rfc.section.7.1.4.p.4">Each bit in the bitmap represents a type. The list of known types is the IANA-maintained <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite> and the bit corresponding to each type is the bit at position X where X is the type ID of the type. The presence of one of more sub-crypto-conditions of a specific type is indicated by setting the numbered bit corresponding to the type ID of that type.</p>
-<p id="rfc.section.7.1.4.p.5">For example, a compound condition that contains an ED25519 crypto-condition as a sub-crypto-condition will set the bit at position 4.</p>
-<p id="rfc.section.7.1.4.p.6">Bits are numbered from the least significant bit of the first byte (position 0) to the most significant bit (position 7) and then again from the least significant bit of the next byte (position 8) to the most significant bit (position 15) an so on for all bytes in the bitmap.</p>
-<h1 id="rfc.section.7.1.4.1"><a href="#rfc.section.7.1.4.1">7.1.4.1.</a> <a href="#examples" id="examples">Examples</a></h1>
-<p id="rfc.section.7.1.4.1.p.1">The following bitmap indicates the presence of the subtypes PREIMAGE-SHA-256 (type number 0) and RSA-SHA-256 (type number 3)</p>
-<pre>
-Hex
-1       
-0x09
-
-Binary
-7       0          
-0000 1001   
-</pre>
-<p id="rfc.section.7.1.4.1.p.2">The following bitmap indicates the presence of the subtype ED25519 (type number 4)</p>
-<pre>
-Hex
-1        
-0x10 
-
-Binary
-7       0            
-0001 0000  
-</pre>
-<p id="rfc.section.7.1.4.1.p.3">The following bitmap indicates the presence of an unknown subtype with type number 10.</p>
-<pre>
-Hex
-1    2       
-0x00 0x04
-
-Binary
-7       0  15       8            
-0000 0000   0000 0100   
-</pre>
-<h1 id="rfc.section.7.2"><a href="#rfc.section.7.2">7.2.</a> <a href="#fulfillment-format" id="fulfillment-format">Fulfillment</a></h1>
-<p id="rfc.section.7.2.p.1">Like conditions, the binary encoding of fulfillments is dependant on their type.  Unlike conditions there is little commonality between types, the only common field being the type which is encoded in the first byte.</p>
-<p id="rfc.section.7.2.p.2">Therefor the ASN.1 definition for fulfillments is defined as follows and the format of the payload is defined per type:</p>
+<h1 id="rfc.section.7.2.1"><a href="#rfc.section.7.2.1">7.2.1.</a> <a href="#type" id="type">Type</a></h1>
+<p id="rfc.section.7.2.1.p.1">Type is a bitmap that indicates the type of the crypto-condition.</p>
+<p id="rfc.section.7.2.1.p.2">Each bit in the bitmap represents a type. The list of known types is the IANA-maintained <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite> and the bit corresponding to each type is the bit at position X where X is the type ID of the type.</p>
+<p id="rfc.section.7.2.1.p.3">A bitmap is used (even though only a single bit should be set) for consistency with the subtypes field. Implementations that encounter a type bitmap with zero, or more than one, bit(s) set MUST reject the condition.</p>
+<p id="rfc.section.7.2.1.p.4">In future new types may introduce new formats so this field is variable length and can expand as required.</p>
+<h1 id="rfc.section.7.2.2"><a href="#rfc.section.7.2.2">7.2.2.</a> <a href="#subtypes" id="subtypes">Subtypes</a></h1>
+<p id="rfc.section.7.2.2.p.1">Subtypes is a bitmap that indicates the set of types an implementation must support in order to be able to successfully validate the fulfillment of this condition. This is the set of types and subtypes of the top-level condition and all sub-crypto-conditions, recursively.</p>
+<p id="rfc.section.7.2.2.p.2">It must be possible to verify that all types used in a crypto-condition are supported (including the types and subtypes of any sub-crypto-conditions) even if the fulfillment is not available to be analysed yet. Therefore, all compound conditions set the bits in this bitmap that correspond to the set of types and subtypes of all sub-crypto-conditions and the bit corresponding to their own type.</p>
+<p id="rfc.section.7.2.2.p.3">For compound conditions multiple bits will be set however for simple conditions this field should be equal to the types field.</p>
+<p id="rfc.section.7.2.2.p.4">Implementations that encounter a condition with any of the simple types (PREIMAGE-SHA-256, RSA-SHA-256 or ED25519) and a subtypes field that is not equal to the types field MUSt reject the condition.</p>
+<p id="rfc.section.7.2.2.p.5">The field is encoded as a variable length BIT STRING as defined in ASN.1 to accommodate new types that may be defined.</p>
+<p id="rfc.section.7.2.2.p.6">As with the types field, each bit in the bitmap represents a type for the list of known types in the IANA-maintained <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite> and the bit corresponding to each type is the bit at position X where X is the type ID of the type.</p>
+<p id="rfc.section.7.2.2.p.7">The presence of one of more sub-crypto-conditions of a specific type is indicated by setting the numbered bit corresponding to the type ID of that type.</p>
+<p id="rfc.section.7.2.2.p.8">For example, a compound condition that contains an ED25519 crypto-condition as a sub-crypto-condition will set the bit at position 4.</p>
+<p id="rfc.section.7.2.2.p.9">Bits are numbered per the encoding rules for the ASN.1 BIT STRING type.</p>
+<h1 id="rfc.section.7.2.3"><a href="#rfc.section.7.2.3">7.2.3.</a> <a href="#fingerprint" id="fingerprint">Fingerprint</a></h1>
+<p id="rfc.section.7.2.3.p.1">The fingerprint is an octet string uniquely representing the condition with respect to other conditions of the same type.</p>
+<p id="rfc.section.7.2.3.p.2">Implementations which index conditions MUST use the entire encoded condition as the key, not just the fingerprint - as different conditions of different types may have the same fingerprint.</p>
+<p id="rfc.section.7.2.3.p.3">For most condition types, the fingerprint is a cryptographically secure hash of the data which defines the condition, such as a public key.</p>
+<p id="rfc.section.7.2.3.p.4">For types that use PKI signature schemes, the signature is intentionally not included in the content that is used to compose the fingerprint. This meansthe fingerprint can be calculated without needing to know the message or having access to the private key.</p>
+<p id="rfc.section.7.2.3.p.5">Future types may use different functions to produce the fingerprint which may have different lengths therefor the filed is encoded as a variable length string.</p>
+<h1 id="rfc.section.7.2.4"><a href="#rfc.section.7.2.4">7.2.4.</a> <a href="#maxfulfillmentlength" id="maxfulfillmentlength">MaxFulfillmentLength</a></h1>
+<p id="rfc.section.7.2.4.p.1">This is the maximum length of the essential fulfillment payload for a fulfillment that can fulfill this condition.</p>
+<p id="rfc.section.7.2.4.p.2">For each crypto-condition type, a formula is provided for calculating the maximum fulfillment length to ensure that implementations produce consistent output.</p>
+<p id="rfc.section.7.2.4.p.3">When a crypto-condition is submitted to an implementation, this implementation MUST verify that it will be able to process a fulfillment with a payload of size maxFulfillmentLength plus any additional encoding bytes.</p>
+<h1 id="rfc.section.7.3"><a href="#rfc.section.7.3">7.3.</a> <a href="#fulfillment-format" id="fulfillment-format">Fulfillment</a></h1>
+<p id="rfc.section.7.3.p.1">Like conditions, the binary encoding of fulfillments is dependant on their type.  Unlike conditions there is little commonality between types, the only common field being the type which is encoded in the first byte.</p>
+<p id="rfc.section.7.3.p.2">Therefor the ASN.1 definition for fulfillments is defined as follows and the format of the payload is defined per type:</p>
 <pre>
 Fulfillment ::= SEQUENCE {
-  type ConditionType,
+  type BIT STRING,
   payload OCTET STRING,
 }
 </pre>
+<h1 id="rfc.section.7.3.1"><a href="#rfc.section.7.3.1">7.3.1.</a> <a href="#type-1" id="type-1">Type</a></h1>
+<p id="rfc.section.7.3.1.p.1">Type is a bitmap that indicates the type of the crypto-condition. The type field of a fulfillment is identical to the type field for the corresponding condition.</p>
+<h1 id="rfc.section.7.3.2"><a href="#rfc.section.7.3.2">7.3.2.</a> <a href="#payload" id="payload">Payload</a></h1>
+<p id="rfc.section.7.3.2.p.1">The paylod of a fulfillment varies greatly by crypto-condition type therefor a fulfillment has a generic payload field which is a variable length octet string the sub-field of which are defined for each crypto-condition type.</p>
 <h1 id="rfc.section.8"><a href="#rfc.section.8">8.</a> <a href="#crypto-condition-types" id="crypto-condition-types">Crypto-Condition Types</a></h1>
 <p id="rfc.section.8.p.1">The following condition types are defined in this version of the specification. Future versions of this spec MAY introduce new feature suites and condition types, which SHALL be registered in the IANA maintained <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite>.</p>
 <h1 id="rfc.section.8.1"><a href="#rfc.section.8.1">8.1.</a> <a href="#preimage-sha-256-condition-type" id="preimage-sha-256-condition-type">PREIMAGE-SHA-256</a></h1>
@@ -823,11 +803,11 @@ ThresholdSha256FingerprintContents ::= SEQUENCE {
   <dd style="margin-left: 8">is the set of sub-conditions either provided in the fulfillment or derived from the sub-fulfillments provided.</dd>
 </dl>
 <h1 id="rfc.section.8.3.2"><a href="#rfc.section.8.3.2">8.3.2.</a> <a href="#threshold-sha-256-condition-type-maxfulfillmentlength" id="threshold-sha-256-condition-type-maxfulfillmentlength">MaxFulfillmentLength</a></h1>
-<p id="rfc.section.8.3.2.p.1">The maxFulfillmentLength is sum of the maxFulfillmentLength of all sub-conditions and sub-fulfillments.</p>
+<p id="rfc.section.8.3.2.p.1">The maxFulfillmentLength is the sum of the maxFulfillmentLength of all sub-conditions and sub-fulfillments.</p>
 <h1 id="rfc.section.8.3.3"><a href="#rfc.section.8.3.3">8.3.3.</a> <a href="#threshold-sha-256-condition-type-fulfillment" id="threshold-sha-256-condition-type-fulfillment">Fulfillment Format</a></h1>
 <pre>
 ThresholdSha256FulfillmentPayload ::= SEQUENCE {
-  threshold INTEGER (0..255),
+  threshold INTEGER (1..255),
   subfulfillments SEQUENCE OF Fulfillment
   subconditions SEQUENCE OF Condition
 }
@@ -1038,24 +1018,16 @@ BEGIN
 */
 
 Condition ::= SEQUENCE {
-    type ConditionType,
+    type BIT STRING,
+    subtypes BIT STRING,
     fingerprint OCTET STRING,
-    maxFulfillmentLength INTEGER (0..MAX),
-    subtypes OCTET STRING
+    maxFulfillmentLength INTEGER (0..MAX)
 }
 
 Fulfillment ::= SEQUENCE {
-    type ConditionType,
+    type BIT STRING,
     payload OCTET STRING
 }
-
-ConditionType ::= INTEGER {
-    preimageSha256(0),
-    prefixSha256(1),
-    thresholdSha256(2),
-    rsaSha256(3),
-    ed25519(4)
-} (0..255)
     
 /**
 * FULFILLMENT PAYLOADS
@@ -1122,17 +1094,17 @@ RsaSha256FingerprintContents ::= SEQUENCE {
 
 exampleCondition Condition ::=
 {
-    type preimageSha256,
+    type '1'B,
+    subtypes '1'B,
     fingerprint '
     E3B0C442 98FC1C14 9AFBF4C8 996FB924 27AE41E4 649B934C A495991B 7852B855
     'H,
     maxFulfillmentLength 2,
-    subtypes ''B
 }
 
 exampleFulfillment Fulfillment ::=
 {
-    type preimageSha256,
+    type '1'B,
     payload '00'H
 }
 

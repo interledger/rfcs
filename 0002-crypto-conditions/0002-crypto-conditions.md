@@ -252,7 +252,13 @@ Since the condition is just a fingerprint and meta-data about the crypto-conditi
 
 # Format
 
-A description of crypto-conditions is provided in this document using Abstract Syntax Notation One (ASN.1) as defined in [ITU.X680.2015](#itu.X680.2015). Implementations of this spec MUST support encoding and decoding using Octet Encoding Rules (OER) as defined in [ITU.X696.2015](#itu.X696.2015).
+A description of crypto-conditions is provided in this document using Abstract Syntax Notation One (ASN.1) as defined in [ITU.X680.2015](#itu.X680.2015).
+
+## Encoding Rules
+
+Implementations of this spec MUST support encoding and decoding using Octet Encoding Rules (OER) as defined in [ITU.X696.2015](#itu.X696.2015). This is the canonical encoding format. Where alternate encoding rules are defined and used these should be applied through to all ASN.1 defined data structures.
+
+For example, implementations that choose to use DER encoding should also use DER encoding when assembling the content of a condition fingerprint before it is hashed.
 
 ## Condition {#condition-format}
 
@@ -261,23 +267,41 @@ The binary encoding of conditions is dependant on their type. The overall size o
 Conditions are encoded as follows:
 
     Condition ::= SEQUENCE {
-      type ConditionType,
+      type BIT STRING,
+      subtypes BIT STRING
       fingerprint OCTET STRING,
       maxFulfillmentLength INTEGER (0..MAX),
-      subtypes OCTET STRING
     }
-
-    ConditionType ::= INTEGER {
-      preimageSha256(0),
-      prefixSha256(1),
-      thresholdSha256(2),
-      rsaSha256(3),
-      ed25519(4)
-    } (0..255)
 
 ### Type
 
-Type is the numeric type identifier representing the condition type. In future new types may introduce new formats.
+Type is a bitmap that indicates the type of the crypto-condition.
+
+Each bit in the bitmap represents a type. The list of known types is the IANA-maintained [Crypto-Condition Type Registry](#crypto-conditions-type-registry) and the bit corresponding to each type is the bit at position X where X is the type ID of the type.
+
+A bitmap is used (even though only a single bit should be set) for consistency with the subtypes field. Implementations that encounter a type bitmap with zero, or more than one, bit(s) set MUST reject the condition.
+
+In future new types may introduce new formats so this field is variable length and can expand as required.
+    
+### Subtypes
+
+Subtypes is a bitmap that indicates the set of types an implementation must support in order to be able to successfully validate the fulfillment of this condition. This is the set of types and subtypes of the top-level condition and all sub-crypto-conditions, recursively. 
+
+It must be possible to verify that all types used in a crypto-condition are supported (including the types and subtypes of any sub-crypto-conditions) even if the fulfillment is not available to be analysed yet. Therefore, all compound conditions set the bits in this bitmap that correspond to the set of types and subtypes of all sub-crypto-conditions and the bit corresponding to their own type.
+
+For compound conditions multiple bits will be set however for simple conditions this field should be equal to the types field.
+ 
+Implementations that encounter a condition with any of the simple types (PREIMAGE-SHA-256, RSA-SHA-256 or ED25519) and a subtypes field that is not equal to the types field MUSt reject the condition.
+
+The field is encoded as a variable length BIT STRING as defined in ASN.1 to accommodate new types that may be defined. 
+
+As with the types field, each bit in the bitmap represents a type for the list of known types in the IANA-maintained [Crypto-Condition Type Registry](#crypto-conditions-type-registry) and the bit corresponding to each type is the bit at position X where X is the type ID of the type. 
+
+The presence of one of more sub-crypto-conditions of a specific type is indicated by setting the numbered bit corresponding to the type ID of that type.
+
+For example, a compound condition that contains an ED25519 crypto-condition as a sub-crypto-condition will set the bit at position 4. 
+
+Bits are numbered per the encoding rules for the ASN.1 BIT STRING type.
     
 ### Fingerprint
 
@@ -299,52 +323,6 @@ For each crypto-condition type, a formula is provided for calculating the maximu
 
 When a crypto-condition is submitted to an implementation, this implementation MUST verify that it will be able to process a fulfillment with a payload of size maxFulfillmentLength plus any additional encoding bytes.
 
-### Subtypes
-
-It must be possible to verify that all types used in a crypto-condition are supported (including the types and subtypes of any sub-crypto-conditions) even if the fulfillment is not available yet. Therefore, all compound conditions popluate a bitmap to indicate the set of types and subtypes of all sub-crypto-conditions. The subtypes field is only used in the compound conditions (THRESHOLD-SHA-256 and PREFIX-SHA-256), for simple conditions this field should be an empty string.
- 
-Implementations that encounter a condition with any of the simple types (PREIMAGE-SHA-256, RSA-SHA-256 or ED25519) and a sutypes field that is not an emtpty string MUST reject the condition.
-
-The field is encoded as a variable length octet string. It specifies the set of types an implementation must support in order to be able to successfully validate the fulfillment of this condition. This is the set of types and subtypes of the top-level condition and all sub-crypto-conditions, recursively. 
-
-Each bit in the bitmap represents a type. The list of known types is the IANA-maintained [Crypto-Condition Type Registry](#crypto-conditions-type-registry) and the bit corresponding to each type is the bit at position X where X is the type ID of the type. The presence of one of more sub-crypto-conditions of a specific type is indicated by setting the numbered bit corresponding to the type ID of that type.
-
-For example, a compound condition that contains an ED25519 crypto-condition as a sub-crypto-condition will set the bit at position 4. 
-
-Bits are numbered from the least significant bit of the first byte (position 0) to the most significant bit (position 7) and then again from the least significant bit of the next byte (position 8) to the most significant bit (position 15) an so on for all bytes in the bitmap.
-
-#### Examples
-
-The following bitmap indicates the presence of the subtypes PREIMAGE-SHA-256 (type number 0) and RSA-SHA-256 (type number 3)
-
-    Hex
-    1       
-    0x09
-    
-    Binary
-    7       0          
-    0000 1001   
-    
-The following bitmap indicates the presence of the subtype ED25519 (type number 4)
-
-    Hex
-    1        
-    0x10 
-    
-    Binary
-    7       0            
-    0001 0000  
-    
-The following bitmap indicates the presence of an unknown subtype with type number 10.
-
-    Hex
-    1    2       
-    0x00 0x04
-    
-    Binary
-    7       0  15       8            
-    0000 0000   0000 0100   
-
 ## Fulfillment {#fulfillment-format}
 
 Like conditions, the binary encoding of fulfillments is dependant on their type. 
@@ -353,9 +331,17 @@ Unlike conditions there is little commonality between types, the only common fie
 Therefor the ASN.1 definition for fulfillments is defined as follows and the format of the payload is defined per type:
 
     Fulfillment ::= SEQUENCE {
-      type ConditionType,
+      type BIT STRING,
       payload OCTET STRING,
     }
+    
+### Type
+
+Type is a bitmap that indicates the type of the crypto-condition. The type field of a fulfillment is identical to the type field for the corresponding condition.
+
+### Payload
+
+The paylod of a fulfillment varies greatly by crypto-condition type therefor a fulfillment has a generic payload field which is a variable length octet string the sub-field of which are defined for each crypto-condition type.
 
 # Crypto-Condition Types {#crypto-condition-types}
 The following condition types are defined in this version of the specification. Future versions of this spec MAY introduce new feature suites and condition types, which SHALL be registered in the IANA maintained [Crypto-Condition Type Registry](#crypto-conditions-type-registry).
@@ -465,12 +451,12 @@ subconditions
 
 ### MaxFulfillmentLength {#threshold-sha-256-condition-type-maxfulfillmentlength}
 
-The maxFulfillmentLength is sum of the maxFulfillmentLength of all sub-conditions and sub-fulfillments.
+The maxFulfillmentLength is the sum of the maxFulfillmentLength of all sub-conditions and sub-fulfillments.
 
 ### Fulfillment Format {#threshold-sha-256-condition-type-fulfillment}
 
     ThresholdSha256FulfillmentPayload ::= SEQUENCE {
-      threshold INTEGER (0..255),
+      threshold INTEGER (1..255),
       subfulfillments SEQUENCE OF Fulfillment
       subconditions SEQUENCE OF Condition
     }
@@ -630,24 +616,16 @@ This section to be expanded in a later draft.  <!-- TODO --> For now, see the te
     */
 
     Condition ::= SEQUENCE {
-        type ConditionType,
+        type BIT STRING,
+        subtypes BIT STRING,
         fingerprint OCTET STRING,
-        maxFulfillmentLength INTEGER (0..MAX),
-        subtypes OCTET STRING
+        maxFulfillmentLength INTEGER (0..MAX)
     }
 
     Fulfillment ::= SEQUENCE {
-        type ConditionType,
+        type BIT STRING,
         payload OCTET STRING
     }
-
-    ConditionType ::= INTEGER {
-        preimageSha256(0),
-        prefixSha256(1),
-        thresholdSha256(2),
-        rsaSha256(3),
-        ed25519(4)
-    } (0..255)
         
     /**
     * FULFILLMENT PAYLOADS
@@ -714,17 +692,17 @@ This section to be expanded in a later draft.  <!-- TODO --> For now, see the te
 
     exampleCondition Condition ::=
     {
-        type preimageSha256,
+        type '1'B,
+        subtypes '1'B,
         fingerprint '
         E3B0C442 98FC1C14 9AFBF4C8 996FB924 27AE41E4 649B934C A495991B 7852B855
         'H,
         maxFulfillmentLength 2,
-        subtypes ''B
     }
 
     exampleFulfillment Fulfillment ::=
     {
-        type preimageSha256,
+        type '1'B,
         payload '00'H
     }
 

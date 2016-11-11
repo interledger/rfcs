@@ -88,24 +88,24 @@ Table of Contents
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   4
    2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   4
    3.  Types . . . . . . . . . . . . . . . . . . . . . . . . . . . .   4
-     3.1.  Simple and Compound Types . . . . . . . . . . . . . . . .   4
+     3.1.  Simple and Compound Types . . . . . . . . . . . . . . . .   5
      3.2.  Defining and supporting New types . . . . . . . . . . . .   5
-   4.  Features  . . . . . . . . . . . . . . . . . . . . . . . . . .   5
+   4.  Features  . . . . . . . . . . . . . . . . . . . . . . . . . .   6
      4.1.  Multi-Algorithm . . . . . . . . . . . . . . . . . . . . .   6
      4.2.  Multi-Signature . . . . . . . . . . . . . . . . . . . . .   6
      4.3.  Multi-Level . . . . . . . . . . . . . . . . . . . . . . .   6
      4.4.  Crypto-conditions as a signature scheme . . . . . . . . .   7
      4.5.  Crypto-conditions as a trigger in distributed systems . .   7
      4.6.  Smart signatures  . . . . . . . . . . . . . . . . . . . .   8
-   5.  Validation of a fulfillment . . . . . . . . . . . . . . . . .   8
+   5.  Validation of a fulfillment . . . . . . . . . . . . . . . . .   9
      5.1.  Subfulfillments . . . . . . . . . . . . . . . . . . . . .   9
-   6.  Deriving the Condition  . . . . . . . . . . . . . . . . . . .   9
+   6.  Deriving the Condition  . . . . . . . . . . . . . . . . . . .  10
      6.1.  Conditions as Public Keys . . . . . . . . . . . . . . . .  10
    7.  Format  . . . . . . . . . . . . . . . . . . . . . . . . . . .  10
-     7.1.  Condition . . . . . . . . . . . . . . . . . . . . . . . .  10
-       7.1.1.  Type  . . . . . . . . . . . . . . . . . . . . . . . .  11
-       7.1.2.  Fingerprint . . . . . . . . . . . . . . . . . . . . .  11
-       7.1.3.  MaxFulfillmentLength  . . . . . . . . . . . . . . . .  11
+     7.1.  Encoding Rules  . . . . . . . . . . . . . . . . . . . . .  10
+     7.2.  Condition . . . . . . . . . . . . . . . . . . . . . . . .  11
+       7.2.1.  Type  . . . . . . . . . . . . . . . . . . . . . . . .  11
+       7.2.2.  Subtypes  . . . . . . . . . . . . . . . . . . . . . .  11
 
 
 
@@ -114,24 +114,27 @@ Thomas, et al.            Expires May 15, 2017                  [Page 2]
 Internet-Draft              Crypto-Conditions              November 2016
 
 
-       7.1.4.  Subtypes  . . . . . . . . . . . . . . . . . . . . . .  12
-     7.2.  Fulfillment . . . . . . . . . . . . . . . . . . . . . . .  13
-   8.  Crypto-Condition Types  . . . . . . . . . . . . . . . . . . .  14
+       7.2.3.  Fingerprint . . . . . . . . . . . . . . . . . . . . .  12
+       7.2.4.  MaxFulfillmentLength  . . . . . . . . . . . . . . . .  13
+     7.3.  Fulfillment . . . . . . . . . . . . . . . . . . . . . . .  13
+       7.3.1.  Type  . . . . . . . . . . . . . . . . . . . . . . . .  13
+       7.3.2.  Payload . . . . . . . . . . . . . . . . . . . . . . .  13
+   8.  Crypto-Condition Types  . . . . . . . . . . . . . . . . . . .  13
      8.1.  PREIMAGE-SHA-256  . . . . . . . . . . . . . . . . . . . .  14
        8.1.1.  Condition Format  . . . . . . . . . . . . . . . . . .  14
        8.1.2.  MaxFulfillmentLength  . . . . . . . . . . . . . . . .  14
        8.1.3.  Fulfillment Format  . . . . . . . . . . . . . . . . .  14
        8.1.4.  Validating  . . . . . . . . . . . . . . . . . . . . .  14
-       8.1.5.  Example . . . . . . . . . . . . . . . . . . . . . . .  15
-     8.2.  PREFIX-SHA-256  . . . . . . . . . . . . . . . . . . . . .  15
+       8.1.5.  Example . . . . . . . . . . . . . . . . . . . . . . .  14
+     8.2.  PREFIX-SHA-256  . . . . . . . . . . . . . . . . . . . . .  14
        8.2.1.  Condition Format  . . . . . . . . . . . . . . . . . .  15
        8.2.2.  MaxFulfillmentLength  . . . . . . . . . . . . . . . .  15
-       8.2.3.  Fulfillment Format  . . . . . . . . . . . . . . . . .  16
+       8.2.3.  Fulfillment Format  . . . . . . . . . . . . . . . . .  15
        8.2.4.  Validating  . . . . . . . . . . . . . . . . . . . . .  16
        8.2.5.  Example . . . . . . . . . . . . . . . . . . . . . . .  16
      8.3.  THRESHOLD-SHA-256 . . . . . . . . . . . . . . . . . . . .  16
        8.3.1.  Condition Format  . . . . . . . . . . . . . . . . . .  16
-       8.3.2.  MaxFulfillmentLength  . . . . . . . . . . . . . . . .  17
+       8.3.2.  MaxFulfillmentLength  . . . . . . . . . . . . . . . .  16
        8.3.3.  Fulfillment Format  . . . . . . . . . . . . . . . . .  17
        8.3.4.  Validating  . . . . . . . . . . . . . . . . . . . . .  17
        8.3.5.  Example . . . . . . . . . . . . . . . . . . . . . . .  17
@@ -159,9 +162,6 @@ Internet-Draft              Crypto-Conditions              November 2016
      E.1.  Condition URI Format  . . . . . . . . . . . . . . . . . .  26
        E.1.1.  Example Condition . . . . . . . . . . . . . . . . . .  27
        E.1.2.  Fulfillment URI Format  . . . . . . . . . . . . . . .  27
-       E.1.3.  Example Fulfillment . . . . . . . . . . . . . . . . .  27
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  28
-
 
 
 
@@ -169,6 +169,9 @@ Thomas, et al.            Expires May 15, 2017                  [Page 3]
 
 Internet-Draft              Crypto-Conditions              November 2016
 
+
+       E.1.3.  Example Fulfillment . . . . . . . . . . . . . . . . .  27
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  28
 
 1.  Introduction
 
@@ -213,11 +216,8 @@ Internet-Draft              Crypto-Conditions              November 2016
    algorithms they employ is defined by the type of the crypto-
    condition.
 
-3.1.  Simple and Compound Types
 
-   Two categories of crypto-condition type exist.  Simple crypto-
-   conditions provide a standard encoding for existing primitives such
-   as RSA and ED25519 signatures, or SHA256 hash digests where many of
+
 
 
 
@@ -226,6 +226,11 @@ Thomas, et al.            Expires May 15, 2017                  [Page 4]
 Internet-Draft              Crypto-Conditions              November 2016
 
 
+3.1.  Simple and Compound Types
+
+   Two categories of crypto-condition type exist.  Simple crypto-
+   conditions provide a standard encoding for existing primitives such
+   as RSA and ED25519 signatures, or SHA256 hash digests where many of
    the scheme parameters have hardcoded values.  As such multiple simple
    types maybe be defined to encode the same underlying scheme but where
    the parameters differ.
@@ -266,11 +271,6 @@ Internet-Draft              Crypto-Conditions              November 2016
    indicating the set of types and subtypes of all sub-crypto-
    conditions.
 
-4.  Features
-
-   Crypto-conditions offer many of the features required of a regular
-   signature scheme but also others which make them useful in a variety
-   of new use cases.
 
 
 
@@ -281,6 +281,12 @@ Thomas, et al.            Expires May 15, 2017                  [Page 5]
 
 Internet-Draft              Crypto-Conditions              November 2016
 
+
+4.  Features
+
+   Crypto-conditions offer many of the features required of a regular
+   signature scheme but also others which make them useful in a variety
+   of new use cases.
 
 4.1.  Multi-Algorithm
 
@@ -323,12 +329,6 @@ Internet-Draft              Crypto-Conditions              November 2016
 
    Multi-level signatures allow more complex relationships than simple
    M-of-N signing.  For example, a weighted condition can support an
-   arrangement of subconditions such as, "Either Ron, Mac, and Ped must
-   approve; or Smithers must approve."
-
-
-
-
 
 
 
@@ -337,6 +337,9 @@ Thomas, et al.            Expires May 15, 2017                  [Page 6]
 
 Internet-Draft              Crypto-Conditions              November 2016
 
+
+   arrangement of subconditions such as, "Either Ron, Mac, and Ped must
+   approve; or Smithers must approve."
 
 4.4.  Crypto-conditions as a signature scheme
 
@@ -383,9 +386,6 @@ Internet-Draft              Crypto-Conditions              November 2016
    useless if validation of the trigger requires algorithms or resources
    that are not available to all participants.
 
-   Therefor conditions may be used as *distributable event descriptions*
-   in the form of a _fingerprint_, but also _event meta-data_ that
-   allows the event verification system to determine if they have the
 
 
 
@@ -394,6 +394,9 @@ Thomas, et al.            Expires May 15, 2017                  [Page 7]
 Internet-Draft              Crypto-Conditions              November 2016
 
 
+   Therefor conditions may be used as *distributable event descriptions*
+   in the form of a _fingerprint_, but also _event meta-data_ that
+   allows the event verification system to determine if they have the
    necessary capabilities (such as required crypto-algorithms) and
    resources (such as heap size or memory) to verify the event
    notification later.
@@ -437,10 +440,7 @@ Internet-Draft              Crypto-Conditions              November 2016
    across platforms as long as the underlying cryptographic primitives
    are correctly implemented.
 
-5.  Validation of a fulfillment
 
-   Validation of a fulfillment (F) against a condition (C) and a message
-   (M), in the majority of cases, the following steps.
 
 
 
@@ -449,6 +449,11 @@ Thomas, et al.            Expires May 15, 2017                  [Page 8]
 
 Internet-Draft              Crypto-Conditions              November 2016
 
+
+5.  Validation of a fulfillment
+
+   Validation of a fulfillment (F) against a condition (C) and a message
+   (M), in the majority of cases, the following steps.
 
    1.  The implementation must derive a condition from the fulfillment
        and ensure that the derived condition (D) matches the given
@@ -493,11 +498,6 @@ Internet-Draft              Crypto-Conditions              November 2016
    this is prefixed with F.prefix before validation of the sub-
    fulfillment is performed.
 
-6.  Deriving the Condition
-
-   Since conditions provide a unique fingerprint for fulfillments it is
-   important that a determinisitic algorithm is used to derive a
-
 
 
 
@@ -506,6 +506,10 @@ Thomas, et al.            Expires May 15, 2017                  [Page 9]
 Internet-Draft              Crypto-Conditions              November 2016
 
 
+6.  Deriving the Condition
+
+   Since conditions provide a unique fingerprint for fulfillments it is
+   important that a determinisitic algorithm is used to derive a
    condition.  For each crypto-condition type details are provided on
    how to:
 
@@ -535,22 +539,18 @@ Internet-Draft              Crypto-Conditions              November 2016
 
    A description of crypto-conditions is provided in this document using
    Abstract Syntax Notation One (ASN.1) as defined in [itu.X680.2015].
+
+7.1.  Encoding Rules
+
    Implementations of this spec MUST support encoding and decoding using
-   Octet Encoding Rules (OER) as defined in [itu.X696.2015].
+   Octet Encoding Rules (OER) as defined in [itu.X696.2015].  This is
+   the canonical encoding format.  Where alternate encoding rules are
+   defined and used these should be applied through to all ASN.1 defined
+   data structures.
 
-7.1.  Condition
-
-   The binary encoding of conditions is dependant on their type.  The
-   overall size of conditions is not fixed as some types (compound
-   conditions) contain additional fields (subtypes) and the algorithm
-   for deriving the fingerprint differs by type therefor the fingerprint
-   size also differs.
-
-   Conditions are encoded as follows:
-
-
-
-
+   For example, implementations that choose to use DER encoding should
+   also use DER encoding when assembling the content of a condition
+   fingerprint before it is hashed.
 
 
 
@@ -562,27 +562,88 @@ Thomas, et al.            Expires May 15, 2017                 [Page 10]
 Internet-Draft              Crypto-Conditions              November 2016
 
 
+7.2.  Condition
+
+   The binary encoding of conditions is dependant on their type.  The
+   overall size of conditions is not fixed as some types (compound
+   conditions) contain additional fields (subtypes) and the algorithm
+   for deriving the fingerprint differs by type therefor the fingerprint
+   size also differs.
+
+   Conditions are encoded as follows:
+
    Condition ::= SEQUENCE {
-     type ConditionType,
+     type BIT STRING,
+     subtypes BIT STRING
      fingerprint OCTET STRING,
      maxFulfillmentLength INTEGER (0..MAX),
-     subtypes OCTET STRING
    }
 
-   ConditionType ::= INTEGER {
-     preimageSha256(0),
-     prefixSha256(1),
-     thresholdSha256(2),
-     rsaSha256(3),
-     ed25519(4)
-   } (0..255)
+7.2.1.  Type
 
-7.1.1.  Type
+   Type is a bitmap that indicates the type of the crypto-condition.
 
-   Type is the numeric type identifier representing the condition type.
-   In future new types may introduce new formats.
+   Each bit in the bitmap represents a type.  The list of known types is
+   the IANA-maintained Crypto-Condition Type Registry (Appendix D.1) and
+   the bit corresponding to each type is the bit at position X where X
+   is the type ID of the type.
 
-7.1.2.  Fingerprint
+   A bitmap is used (even though only a single bit should be set) for
+   consistency with the subtypes field.  Implementations that encounter
+   a type bitmap with zero, or more than one, bit(s) set MUST reject the
+   condition.
+
+   In future new types may introduce new formats so this field is
+   variable length and can expand as required.
+
+7.2.2.  Subtypes
+
+   Subtypes is a bitmap that indicates the set of types an
+   implementation must support in order to be able to successfully
+   validate the fulfillment of this condition.  This is the set of types
+   and subtypes of the top-level condition and all sub-crypto-
+   conditions, recursively.
+
+   It must be possible to verify that all types used in a crypto-
+   condition are supported (including the types and subtypes of any sub-
+   crypto-conditions) even if the fulfillment is not available to be
+   analysed yet.  Therefore, all compound conditions set the bits in
+   this bitmap that correspond to the set of types and subtypes of all
+   sub-crypto-conditions and the bit corresponding to their own type.
+
+
+
+Thomas, et al.            Expires May 15, 2017                 [Page 11]
+
+Internet-Draft              Crypto-Conditions              November 2016
+
+
+   For compound conditions multiple bits will be set however for simple
+   conditions this field should be equal to the types field.
+
+   Implementations that encounter a condition with any of the simple
+   types (PREIMAGE-SHA-256, RSA-SHA-256 or ED25519) and a subtypes field
+   that is not equal to the types field MUSt reject the condition.
+
+   The field is encoded as a variable length BIT STRING as defined in
+   ASN.1 to accommodate new types that may be defined.
+
+   As with the types field, each bit in the bitmap represents a type for
+   the list of known types in the IANA-maintained Crypto-Condition Type
+   Registry (Appendix D.1) and the bit corresponding to each type is the
+   bit at position X where X is the type ID of the type.
+
+   The presence of one of more sub-crypto-conditions of a specific type
+   is indicated by setting the numbered bit corresponding to the type ID
+   of that type.
+
+   For example, a compound condition that contains an ED25519 crypto-
+   condition as a sub-crypto-condition will set the bit at position 4.
+
+   Bits are numbered per the encoding rules for the ASN.1 BIT STRING
+   type.
+
+7.2.3.  Fingerprint
 
    The fingerprint is an octet string uniquely representing the
    condition with respect to other conditions of the same type.
@@ -604,19 +665,19 @@ Internet-Draft              Crypto-Conditions              November 2016
    which may have different lengths therefor the filed is encoded as a
    variable length string.
 
-7.1.3.  MaxFulfillmentLength
-
-   This is the maximum length of the essential fulfillment payload for a
-   fulfillment that can fulfill this condition.
 
 
 
 
-
-Thomas, et al.            Expires May 15, 2017                 [Page 11]
+Thomas, et al.            Expires May 15, 2017                 [Page 12]
 
 Internet-Draft              Crypto-Conditions              November 2016
 
+
+7.2.4.  MaxFulfillmentLength
+
+   This is the maximum length of the essential fulfillment payload for a
+   fulfillment that can fulfill this condition.
 
    For each crypto-condition type, a formula is provided for calculating
    the maximum fulfillment length to ensure that implementations produce
@@ -627,89 +688,7 @@ Internet-Draft              Crypto-Conditions              November 2016
    fulfillment with a payload of size maxFulfillmentLength plus any
    additional encoding bytes.
 
-7.1.4.  Subtypes
-
-   It must be possible to verify that all types used in a crypto-
-   condition are supported (including the types and subtypes of any sub-
-   crypto-conditions) even if the fulfillment is not available yet.
-   Therefore, all compound conditions popluate a bitmap to indicate the
-   set of types and subtypes of all sub-crypto-conditions.  The subtypes
-   field is only used in the compound conditions (THRESHOLD-SHA-256 and
-   PREFIX-SHA-256), for simple conditions this field should be an empty
-   string.
-
-   Implementations that encounter a condition with any of the simple
-   types (PREIMAGE-SHA-256, RSA-SHA-256 or ED25519) and a sutypes field
-   that is not an emtpty string MUST reject the condition.
-
-   The field is encoded as a variable length octet string.  It specifies
-   the set of types an implementation must support in order to be able
-   to successfully validate the fulfillment of this condition.  This is
-   the set of types and subtypes of the top-level condition and all sub-
-   crypto-conditions, recursively.
-
-   Each bit in the bitmap represents a type.  The list of known types is
-   the IANA-maintained Crypto-Condition Type Registry (Appendix D.1) and
-   the bit corresponding to each type is the bit at position X where X
-   is the type ID of the type.  The presence of one of more sub-crypto-
-   conditions of a specific type is indicated by setting the numbered
-   bit corresponding to the type ID of that type.
-
-   For example, a compound condition that contains an ED25519 crypto-
-   condition as a sub-crypto-condition will set the bit at position 4.
-
-   Bits are numbered from the least significant bit of the first byte
-   (position 0) to the most significant bit (position 7) and then again
-   from the least significant bit of the next byte (position 8) to the
-   most significant bit (position 15) an so on for all bytes in the
-   bitmap.
-
-
-
-
-
-
-Thomas, et al.            Expires May 15, 2017                 [Page 12]
-
-Internet-Draft              Crypto-Conditions              November 2016
-
-
-7.1.4.1.  Examples
-
-   The following bitmap indicates the presence of the subtypes PREIMAGE-
-   SHA-256 (type number 0) and RSA-SHA-256 (type number 3)
-
-   Hex
-   1
-   0x09
-
-   Binary
-   7       0
-   0000 1001
-
-   The following bitmap indicates the presence of the subtype ED25519
-   (type number 4)
-
-   Hex
-   1
-   0x10
-
-   Binary
-   7       0
-   0001 0000
-
-   The following bitmap indicates the presence of an unknown subtype
-   with type number 10.
-
-   Hex
-   1    2
-   0x00 0x04
-
-   Binary
-   7       0  15       8
-   0000 0000   0000 0100
-
-7.2.  Fulfillment
+7.3.  Fulfillment
 
    Like conditions, the binary encoding of fulfillments is dependant on
    their type.  Unlike conditions there is little commonality between
@@ -719,21 +698,23 @@ Internet-Draft              Crypto-Conditions              November 2016
    Therefor the ASN.1 definition for fulfillments is defined as follows
    and the format of the payload is defined per type:
 
-
-
-
-
-
-
-Thomas, et al.            Expires May 15, 2017                 [Page 13]
-
-Internet-Draft              Crypto-Conditions              November 2016
-
-
    Fulfillment ::= SEQUENCE {
-     type ConditionType,
+     type BIT STRING,
      payload OCTET STRING,
    }
+
+7.3.1.  Type
+
+   Type is a bitmap that indicates the type of the crypto-condition.
+   The type field of a fulfillment is identical to the type field for
+   the corresponding condition.
+
+7.3.2.  Payload
+
+   The paylod of a fulfillment varies greatly by crypto-condition type
+   therefor a fulfillment has a generic payload field which is a
+   variable length octet string the sub-field of which are defined for
+   each crypto-condition type.
 
 8.  Crypto-Condition Types
 
@@ -741,6 +722,13 @@ Internet-Draft              Crypto-Conditions              November 2016
    specification.  Future versions of this spec MAY introduce new
    feature suites and condition types, which SHALL be registered in the
    IANA maintained Crypto-Condition Type Registry (Appendix D.1).
+
+
+
+Thomas, et al.            Expires May 15, 2017                 [Page 13]
+
+Internet-Draft              Crypto-Conditions              November 2016
+
 
 8.1.  PREIMAGE-SHA-256
 
@@ -778,14 +766,6 @@ Internet-Draft              Crypto-Conditions              November 2016
    A PREIMAGE-SHA-256 fulfillment is valid iff C.fingerprint is equal to
    the SHA-256 hash digest of F.preimage.
 
-
-
-
-Thomas, et al.            Expires May 15, 2017                 [Page 14]
-
-Internet-Draft              Crypto-Conditions              November 2016
-
-
 8.1.5.  Example
 
    TODO
@@ -798,6 +778,13 @@ Internet-Draft              Crypto-Conditions              November 2016
 
    Prefix crypto-conditions provide a way to effectively narrow the
    scope of other crypto-conditions.
+
+
+
+Thomas, et al.            Expires May 15, 2017                 [Page 14]
+
+Internet-Draft              Crypto-Conditions              November 2016
+
 
    A condition is the fingerprint of a public key used to sign an
    arbitrary message.  By creating a prefix crypto-condition that wraps
@@ -834,14 +821,6 @@ Internet-Draft              Crypto-Conditions              November 2016
    The maxFulfillmentLength is the size, in bytes, of the prefix plus
    the maxFulfillmentLength of the sub-crypto-condition.
 
-
-
-
-Thomas, et al.            Expires May 15, 2017                 [Page 15]
-
-Internet-Draft              Crypto-Conditions              November 2016
-
-
 8.2.3.  Fulfillment Format
 
    PrefixSha256FulfillmentPayload ::= SEQUENCE {
@@ -853,6 +832,15 @@ Internet-Draft              Crypto-Conditions              November 2016
       message during validation.
 
    subfulfillment  is the fulfilled subcondition.
+
+
+
+
+
+Thomas, et al.            Expires May 15, 2017                 [Page 15]
+
+Internet-Draft              Crypto-Conditions              November 2016
+
 
 8.2.4.  Validating
 
@@ -891,6 +879,18 @@ Internet-Draft              Crypto-Conditions              November 2016
       order to fulfill a threshold condition, the number of valid sub-
       fulfillments MUST be greater than or equal to the threshold.
 
+   subconditions  is the set of sub-conditions either provided in the
+      fulfillment or derived from the sub-fulfillments provided.
+
+8.3.2.  MaxFulfillmentLength
+
+   The maxFulfillmentLength is the sum of the maxFulfillmentLength of
+   all sub-conditions and sub-fulfillments.
+
+
+
+
+
 
 
 Thomas, et al.            Expires May 15, 2017                 [Page 16]
@@ -898,18 +898,10 @@ Thomas, et al.            Expires May 15, 2017                 [Page 16]
 Internet-Draft              Crypto-Conditions              November 2016
 
 
-   subconditions  is the set of sub-conditions either provided in the
-      fulfillment or derived from the sub-fulfillments provided.
-
-8.3.2.  MaxFulfillmentLength
-
-   The maxFulfillmentLength is sum of the maxFulfillmentLength of all
-   sub-conditions and sub-fulfillments.
-
 8.3.3.  Fulfillment Format
 
    ThresholdSha256FulfillmentPayload ::= SEQUENCE {
-     threshold INTEGER (0..255),
+     threshold INTEGER (1..255),
      subfulfillments SEQUENCE OF Fulfillment
      subconditions SEQUENCE OF Condition
    }
@@ -946,6 +938,14 @@ Internet-Draft              Crypto-Conditions              November 2016
 
    Implementations MUST NOT use the default RSASSA-PSS-params.
    Implementations MUST use the SHA-256 hash algorithm and therefor, the
+   same algorithm in the mask generation algorithm, as recommended in
+   [RFC3447].  Implementations MUST also use a salt length of 32 bytes
+   (equal to the size of the output from the SHA-256 algorithm).
+   Therefore the algorithm identifier will have the following value:
+
+
+
+
 
 
 
@@ -953,11 +953,6 @@ Thomas, et al.            Expires May 15, 2017                 [Page 17]
 
 Internet-Draft              Crypto-Conditions              November 2016
 
-
-   same algorithm in the mask generation algorithm, as recommended in
-   [RFC3447].  Implementations MUST also use a salt length of 32 bytes
-   (equal to the size of the output from the SHA-256 algorithm).
-   Therefore the algorithm identifier will have the following value:
 
 rSASSA-PSS-Crypto-Conditions-Identifier  RSASSA-AlgorithmIdentifier ::= {
     algorithm   id-RSASSA-PSS,
@@ -1001,6 +996,11 @@ mgf1SHA256 MaskGenAlgorithm ::= {
       Implementations MUST reject moduli smaller than 128 bytes (1017
       bits) or greater than 512 bytes (4096 bits.)  Large moduli slow
       down signature verification which can be a denial-of-service
+      vector.  DNSSEC also limits the modulus to 4096 bits [RFC3110] .
+      OpenSSL supports up to 16384 bits [OPENSSL-X509-CERT-EXAMPLES] .
+
+
+
 
 
 
@@ -1009,9 +1009,6 @@ Thomas, et al.            Expires May 15, 2017                 [Page 18]
 
 Internet-Draft              Crypto-Conditions              November 2016
 
-
-      vector.  DNSSEC also limits the modulus to 4096 bits [RFC3110] .
-      OpenSSL supports up to 16384 bits [OPENSSL-X509-CERT-EXAMPLES] .
 
 8.4.2.  MaxFulfillmentLength
 
@@ -1058,6 +1055,9 @@ Internet-Draft              Crypto-Conditions              November 2016
        derived using a modulus of F.modulus and an exponent of 65537.
 
    2.  D is equal to C.
+
+
+
 
 
 
@@ -1235,24 +1235,16 @@ Internet-Draft              Crypto-Conditions              November 2016
 
 
 Condition ::= SEQUENCE {
-    type ConditionType,
+    type BIT STRING,
+    subtypes BIT STRING,
     fingerprint OCTET STRING,
-    maxFulfillmentLength INTEGER (0..MAX),
-    subtypes OCTET STRING
+    maxFulfillmentLength INTEGER (0..MAX)
 }
 
 Fulfillment ::= SEQUENCE {
-    type ConditionType,
+    type BIT STRING,
     payload OCTET STRING
 }
-
-ConditionType ::= INTEGER {
-    preimageSha256(0),
-    prefixSha256(1),
-    thresholdSha256(2),
-    rsaSha256(3),
-    ed25519(4)
-} (0..255)
 
 /**
 * FULFILLMENT PAYLOADS
@@ -1282,14 +1274,6 @@ Ed25519FulfillmentPayload ::= SEQUENCE {
 }
 
 /**
-
-
-
-Thomas, et al.            Expires May 15, 2017                 [Page 23]
-
-Internet-Draft              Crypto-Conditions              November 2016
-
-
 * FINGERPRINTS
 */
 
@@ -1298,6 +1282,13 @@ Sha256Fingerprint ::= OCTET STRING (SIZE(32)) -- digest
 
 -- 32-byte Ed25519 public key
 Ed25519Fingerprint ::= OCTET STRING (SIZE(32)) -- publicKey
+
+
+
+Thomas, et al.            Expires May 15, 2017                 [Page 23]
+
+Internet-Draft              Crypto-Conditions              November 2016
+
 
 /**
 * FINGERPRINT CONTENTS
@@ -1327,25 +1318,17 @@ RsaSha256FingerprintContents ::= SEQUENCE {
 
 exampleCondition Condition ::=
 {
-    type preimageSha256,
+    type '1'B,
+    subtypes '1'B,
     fingerprint '
     E3B0C442 98FC1C14 9AFBF4C8 996FB924 27AE41E4 649B934C A495991B 7852B855
     'H,
     maxFulfillmentLength 2,
-    subtypes ''B
 }
 
 exampleFulfillment Fulfillment ::=
 {
-    type preimageSha256,
-
-
-
-Thomas, et al.            Expires May 15, 2017                 [Page 24]
-
-Internet-Draft              Crypto-Conditions              November 2016
-
-
+    type '1'B,
     payload '00'H
 }
 
@@ -1355,6 +1338,14 @@ exampleRsaSha256FulfillmentPayload RsaSha256FulfillmentPayload ::=
     B30E7A93 8783BABF 836850FF 49E14F87 E3F92D5C 46E33FEC A3E4F0B2 2358580B
     11765995 F4B8EEA7 FB4712C2 E1E316F7 F775A953 D232216A 169D9A64 DDC00712
     0A400B37 F2AFC077 B62FE304 DE74DE6A 119EC407 6B529C4F 6096B0BA AD4F533D
+
+
+
+Thomas, et al.            Expires May 15, 2017                 [Page 24]
+
+Internet-Draft              Crypto-Conditions              November 2016
+
+
     F0173B9B 822FD85D 65FA4BEF A92D8F52 4F69CBCA 0136BD80 D095C169 AEC0E095
     'H,
     signature '
@@ -1391,6 +1382,15 @@ D.1.  Crypto-Condition Type Registry
    http://www.iana.org/assignments/crypto-condition-types :
 
    The following types are registered:
+
+
+
+
+
+
+
+
+
 
 
 
