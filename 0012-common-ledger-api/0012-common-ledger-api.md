@@ -19,7 +19,7 @@ The core operations of the API are:
     - If the transfer is unconditional, it executes immediately.
     - If the transfer is conditional, it waits for a matching fulfillment.
 - [Submit Fulfillment][]
-    - Can execute or cancel the transfer, depending on the fulfillment.
+    - Executes a conditional transfer, if the fulfillment matches the condition.
 - [Reject Transfer][]
 - [Get Transfer][] and check its status
 - [Get Transfer Fulfillment][]
@@ -54,24 +54,37 @@ The Common Ledger API represents numeric currency amounts as strings rather than
 
 `^[-+]?[0-9]*[.]?[0-9]+([eE][-+]?[0-9]+)?$`
 
-Client applications can decode numeric strings to whatever representation provides sufficient precision for their specific needs. The ledger should report information about the precision it uses in the [ledger metadata][Get Ledger Metadata] response.
+Client applications can decode numeric strings to whatever representation provides sufficient precision for their specific needs. The ledger MUST report information about the precision it uses in the [Get Ledger Metadata][] response.
 
 
 ### Assets and Currency
 
 The Common Ledger API provides access to a ledger containing a single currency or asset. The [Get Ledger Metadata][] method reports the type of asset or currency used, as an [Asset resource][].
 
-If a provider supports multiple currencies, the provider can server Common Ledger APIs separately for each currency. For each method described in this document, there would be a version of it prefixed by a different currency code. For example, the [Prepare Transfer][] method could be available for different currencies at the following locations:
+If a provider supports multiple currencies or assets, the provider can serve Common Ledger APIs separately for each such asset by serving it from a different prefix. For example, the [Prepare Transfer][] method could be available at all the following locations:
 
 - `POST https://ledger.example.com/TZS/transfers`
 - `POST https://ledger.example.com/KES/transfers`
+- `POST https://ledger.example.com/stocks/MSFT/transfers`
+
+Any valid URL is a suitable prefix. However, only the same asset served by the same underlying ledger can be directly transferred.
 
 These instances could be served by the same underlying software and share infrastructure, but it would not be possible to transfer directly from one to the other, since the currency denominations are different. An **ILP Connector** could facilitate cross-currency payments.
 
 
 ### Scope
 
-The Common Ledger API does not define the full range of functionality needed by a functional ledger. This API defines the parts the ILP Client needs, and leaves other parts to the discretion of the ledger implementer. For a fully-functional reference implementation, see the [five-bells-ledger](https://github.com/interledgerjs/five-bells-ledger).
+The Common Ledger API does not define the full range of functionality needed by a functional ledger. This API defines the parts the ILP Client needs, and leaves other parts to the discretion of the ledger implementer.
+
+Some things not included in this specification:
+
+- Account creation and management
+- Permissions management and delegation
+- A way to increase or decrease the net sum of balances in the ledger
+- Transfers that execute automatically, dependent on other transfers
+- Transfers that can credit or debit more than one account atomically
+
+For a fully-functional reference implementation, see the [five-bells-ledger](https://github.com/interledgerjs/five-bells-ledger).
 
 
 ### Authorization and Authentication
@@ -94,9 +107,9 @@ The ledger MUST support authenticating a client as the owner of a specific accou
 ### Transfer Resource
 [Transfer resource]: #transfer-resource
 
-A transfer represents money being moved around _within a single ledger_. A transfer debits one account and credits another account for the exact same amount. The Common Ledger API does not define a way to add or remove money from the ledger; the methods defined here always maintain a zero sum across all account balances. However, you can effectively add money to a ledger by transferring it from an "issuer" account whose balance is allowed to go negative.
+A transfer represents money being moved around _within a single ledger_. A transfer debits one account and credits another account for the exact same amount. A transfer can be conditional upon a supplied [Crypto-Condition][], in which case it executes automatically when presented with the fulfillment for the condition. (Assuming the transfer has not expired or been rejected first.) If no Crypto-Condition is specified, the transfer is unconditional, and executes as soon as it is prepared.
 
-A transfer can be conditional upon a supplied [Crypto-Condition][], in which case it executes automatically when presented with the fulfillment for the condition. (Assuming the transfer has not expired or been canceled first.) If no crypto-condition is specified, the transfer is unconditional, and executes as soon as it is prepared.
+The Common Ledger API does not define a way to add or remove money from the ledger; the methods defined here always maintain a zero sum across all account balances. However, you can effectively add money to a ledger by transferring it from an "issuer" account whose balance is allowed to go negative.
 
 A transfer object contains the fields from the following table. Some fields are _Server-provided_, meaning they cannot be set directly by clients. Fields that are "Optional" or "Server-provided" in the following table may be omitted by clients submitting transfer objects to the API, but **those fields are not optional to implement**. All fields, including the `memo` fields, must be implemented for the Common Ledger API to work properly. Fields of nested objects are indicated with a dot (`.`) character; no field names contain a dot literal.
 
@@ -137,10 +150,12 @@ Depending on what algorithm clients use to generate UUIDs, it may be possible fo
 
 An account resource contains the fields in the following table. Some fields are _Server-provided_, meaning they cannot be set directly by clients. Fields that are "Optional" or "Server-provided" in the following table may be omitted by clients submitting objects to the API, but those fields are not optional to implement. Fields of nested objects are indicated with a dot (`.`) character; no fields contain a dot literal.
 
+An account resource usually has an owner who can [authenticate](#authorization-and-authentication) to the ledger. A ledger MUST serve all the following fields to clients authenticated as the account owner. A ledger MAY serve a subset of fields, containing at least the `name` and `id` of the account, to clients not authenticated as the account owner.
+
 | Name                      | Type    | Description                            |
 |:--------------------------|:--------|:---------------------------------------|
 | `name`                    | String  | Name of the account. A ledger MAY require this to be unique. MUST match the regular expression `^[a-zA-Z0-9._~-]{1,256}$`. |
-| `fingerprint`             | String  | _(Optional)_ A fingerprint of the account's client certificate. This field MUST be available if and only if the ledger supports client certificate authentication. MUST match the regular expression `^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){19,127}$`. |
+| `fingerprint`             | String  | _(Optional)_ A fingerprint of the account owner's client certificate. This field MUST be available if and only if the ledger supports client certificate authentication. MUST match the regular expression `^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){19,127}$`. |
 | `ledger`                  | [URL][] | _(Optional)_ The path to the ledger containing this account. MUST be an HTTP(S) URL where the client can [Get Ledger Metadata][]. |
 | `minimum_allowed_balance` | String  | _(Optional)_ The minimum balance permitted on this account. The special value `"-infinity"` indicates no minimum balance. This is a string so that no precision is lost in JSON encoding/decoding. The default value SHOULD be `"0"`. |
 | `id`                      | [URL][] | _(Server-provided)_ The primary, unique identifier for this account. MUST be an HTTP(S) [URL][] where the client can [get this resource][Get Account]. |
@@ -157,7 +172,7 @@ Messages are sent through the ledger's [Send Message][] method and received in a
 | Field    | Value   | Description                                             |
 |:---------|:--------|:--------------------------------------------------------|
 | `ledger` | [URL][] | The base [URL][] of this ledger. MUST be an HTTP(S) URL where the client can [Get Ledger Metadata][]. |
-| `from`   | [URL][] | Resource identifier of the account sending the message. MUST be an HTTP(S) URL where the client can [get account information][Get Account]. |
+| `from`   | [URL][] | Resource identifier of the account sending the message. MUST be an HTTP(S) URL where the client can [get account information][Get Account]. The sender of a message MUST be authenticated as the owner of this account. |
 | `to`     | [URL][] | Resource identifier of the account receiving the message. MUST be an HTTP(S) URL where the client can [get account information][Get Account]. |
 | `data`   | Object  | The message to send, containing arbitrary data. A ledger MAY set a maximum length on messages, but that limit MUST NOT be less than 510 UTF-8 characters or 2,048 bytes. |
 
@@ -241,8 +256,8 @@ All dates and times should be expressed in [ISO 8601](https://en.wikipedia.org/w
 
 | Precision   | Format                     |
 |:------------|:---------------------------|
-| Second      | `YYYY-MM-DDTHH:mm:ss.sssZ` |
-| Millisecond | `YYYY-MM-DDTHH:mm:ssZ`     |
+| Second      | `YYYY-MM-DDTHH:mm:ssZ`     |
+| Millisecond | `YYYY-MM-DDTHH:mm:ss.sssZ` |
 
 
 ## API Methods
@@ -293,8 +308,8 @@ Response:
 HTTP/1.1 200 OK
 
 {
-  "currency_code": null,
-  "currency_symbol": null,
+  "currency_code": "EUR",
+  "currency_symbol": "€",
   "connectors": [{
     "id": "https://red.ilpdemo.org/ledger/accounts/connie",
     "name": "connie"
@@ -512,7 +527,7 @@ HTTP/1.1 200 OK
   "state": "rejected",
   "timeline": {
     "prepared_at": "2016-10-21T22:45:01.000Z",
-    "cancelled_at": "2016-10-22T21:33:34.867Z"
+    "rejected_at": "2016-10-22T21:33:34.867Z"
   },
   "rejection_reason": "BlacklistedSender"
 }
@@ -579,7 +594,7 @@ HTTP/1.1 200 OK
   "state": "rejected",
   "timeline": {
     "prepared_at": "2016-10-21T22:45:01.000Z",
-    "cancelled_at": "2016-10-22T21:33:34.867Z"
+    "rejected_at": "2016-10-22T21:33:34.867Z"
   },
   "rejection_reason": "BlacklistedSender"
 }
@@ -594,7 +609,7 @@ HTTP/1.1 200 OK
 ### Get Transfer Fulfillment
 [Get Transfer Fulfillment]: #get-transfer-fulfillment
 
-Retrieve the fulfillment for a transfer that has been executed or canceled. This is separate from the [Transfer resource][] because it can be very large.
+Retrieve the fulfillment for a transfer that has been executed or rejected. This is separate from the [Transfer resource][] because it can be very large.
 
 **Authorization:** The ledger MUST allow owners of the `credit_account` and `debit_account` to get the transfer's fulfillment. A ledger MAY allow other account owners or unauthorized users to get a transfer's fulfillment.
 
@@ -692,7 +707,9 @@ Content-Type: application/json
 ### Send Message
 [Send Message]: #send-message
 
-Try to send a notification to another account. The message is only delivered if the other account is subscribed to [account notifications](#subscribe-to-account) on a WebSocket connection. ILP Connectors use this method to share quote information.
+Try to send a notification to another account. The message is only delivered if the other account is subscribed to [account notifications](#subscribe-to-account) on a WebSocket connection. ILP Clients and ILP Connectors use this method to request and send quotes.
+
+**Authorization:** The `from` field of the message MUST match the account owner. Unauthenticated users MUST NOT be able to send messages. A ledger MAY allow admin connections to send messages whose `from` value matches the ledger's base [URL][].
 
 #### Request Format
 
@@ -852,7 +869,7 @@ The ledger acknowledges the request immediately by sending a JSON object with th
 |:----------|:-----------------|:----------------------------------------------|
 | `id`      | String or Number | The `id` value from the request. This helps distinguish responses from other messages. |
 | `jsonrpc` | String           | MUST have the value `"2.0"` to indicate this is a JSON-RPC 2.0 message. |
-| `result`  | Number           | Updated number of active account subscriptions on this WebSocket connection. In practice, this is usually the length of the `params` array from the request. |
+| `result`  | Number           | Updated number of active account subscriptions on this WebSocket connection. In practice, this is usually the length of the `params.accounts` array from the request. |
 
 Later, the ledger responds with [notifications](#websocket-notifications) whenever any of the following occurs:
 
@@ -867,7 +884,9 @@ Example:
 --> {
       "jsonrpc": "2.0",
       "method": "subscribe_account",
-      "params": ["https://ledger.example/accounts/alice"],
+      "params": {
+        "accounts": ["https://ledger.example/accounts/alice"]
+      },
       "id": 1
     }
 <-- {
@@ -882,12 +901,13 @@ Example:
 
 The client sends a JSON object to the ledger with the following fields:
 
-| Field     | Value            | Description                                   |
-|:----------|:-----------------|:----------------------------------------------|
-| `id`      | String or Number | An arbitrary identifier for this request. MUST NOT be `null`. |
-| `jsonrpc` | String           | MUST have the value `"2.0"` to indicate this is a JSON-RPC 2.0 request. |
-| `method`  | String           | MUST be the value `"subscribe_transfer"`.      |
-| `params`  | Array            | Each member of this array must be the [URL][] of a transfer to subscribe to, as a string. This array replaces any existing transfer subscriptions on this WebSocket connection. If the array length is zero, the client is unsubscribed from all transfer notifications. |
+| Field              | Value            | Description                          |
+|:-------------------|:-----------------|:-------------------------------------|
+| `id`               | String or Number | An arbitrary identifier for this request. MUST NOT be `null`. |
+| `jsonrpc`          | String           | MUST have the value `"2.0"` to indicate this is a JSON-RPC 2.0 request. |
+| `method`           | String           | MUST be the value `"subscribe_transfer"`. |
+| `params`           | Object           | Information on what subscriptions to open. |
+| `params.transfers` | Array            | Each member of this array must be the [URL][] of a transfer to subscribe to, as a string. This array replaces any existing transfer subscriptions on this WebSocket connection. If the array length is zero, the client is unsubscribed from all transfer notifications. |
 
 ##### Response
 The ledger acknowledges the request immediately by sending a JSON object with the following fields:
@@ -896,7 +916,7 @@ The ledger acknowledges the request immediately by sending a JSON object with th
 |:----------|:-----------------|:----------------------------------------------|
 | `id`      | String or Number | The `id` value from the request. This helps distinguish responses from other messages. |
 | `jsonrpc` | String           | MUST have the value `"2.0"` to indicate this is a JSON-RPC 2.0 request. |
-| `result`  | Number           | Updated number of active transfer subscriptions on this WebSocket connection. In practice, this is usually the length of the `params` array from the request. |
+| `result`  | Number           | Updated number of active transfer subscriptions on this WebSocket connection. In practice, this is usually the length of the `params.transfers` array from the request. |
 
 Later, the ledger responds with [notifications](#websocket-notifications) whenever any of the following occurs:
 
@@ -929,7 +949,7 @@ A ledger MAY define custom `event` types. A ledger MUST support at least the fol
 |:------------------|:----------------------|:---------------------------------|
 | `transfer.create` | [Transfer resource][] | Occurs when a new transfer is prepared. Sent to clients subscribed to the `debit_account` and/or the `credit_account`. If the transfer is unconditional, this notification indicates the state of the transaction after execution. The `related_resources` field is omitted. |
 | `transfer.update` | [Transfer resource][] | Occurs when a transfer changes state from `prepared` to `executed` or `rejected`. If the transfer was executed, the `execution_condition_fulfillment` field of `related_resources` MUST contain the fulfillment. If the transfer was rejected, the `related_resources` field is empty. |
-| `message.sent`    | [Message resource][]  | Occurs when someone else sends a message. |
+| `message.send`    | [Message resource][]  | Occurs when someone else sends a message. |
 
 If a ledger creates custom event types, their values should follow the convention `{resource}.{event}`.
 
