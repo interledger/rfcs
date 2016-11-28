@@ -58,6 +58,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**AlreadyFulfilledError**]() | A requested transfer has already been fulfilled and cannot be modified |
 | [**TransferNotConditionalError**]() | A requested transfer is not conditional and cannot be rejected/fulfilled/etc. |
 | [**NotAcceptedError**]() | An operation has been rejected due to ledger-side logic |
+| [**NoSubscriptionsError**]() | A transfer or message cannot be delivered because there are no active websockets |
 
 ### Instance Management
 
@@ -255,6 +256,8 @@ Messaging is used by connectors for [quoting](../0008-interledger-quoting-protoc
 
 Throws `InvalidFieldsError` if required fields are missing from the message or malformed.
 Throws `NotAcceptedError` if the message is rejected by the ledger.
+Throws `NoSubscriptionsError` if the message cannot be delivered because there is nobody listening to messages addressed to the given account.
+
 
 ###### Example
 ```js
