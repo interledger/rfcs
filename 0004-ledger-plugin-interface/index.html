@@ -344,6 +344,10 @@
 <td style="text-align:left"><a href=""><strong>NotAcceptedError</strong></a></td>
 <td style="text-align:left">An operation has been rejected due to ledger-side logic</td>
 </tr>
+<tr>
+<td style="text-align:left"><a href=""><strong>NoSubscriptionsError</strong></a></td>
+<td style="text-align:left">A transfer or message cannot be delivered because there are no active websockets</td>
+</tr>
 </tbody>
 </table>
 <h3 id="instance-management">Instance Management</h3>
@@ -524,7 +528,8 @@ If there is a problem with the structure or validity of the message, then <code>
 <h6 id="returns-2">Returns</h6>
 <p><strong><code>Promise.&lt;null&gt;</code></strong> A promise which resolves when the message has been submitted (but not necessarily delivered). To ensure delivery, you must build a mechanism for that on top.</p>
 <p>Throws <code>InvalidFieldsError</code> if required fields are missing from the message or malformed.
-Throws <code>NotAcceptedError</code> if the message is rejected by the ledger.</p>
+Throws <code>NotAcceptedError</code> if the message is rejected by the ledger.
+Throws <code>NoSubscriptionsError</code> if the message cannot be delivered because there is nobody listening to messages addressed to the given account.</p>
 <h6 id="example-3">Example</h6>
 <pre><code class="lang-js">p.sendMessage({
   ledger: &apos;example.ledger.&apos;,
