@@ -15,7 +15,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | Name |
 |:--|:--|
 | `new` | [**LedgerPlugin**](#new-ledgerplugin) ( opts ) |
-| | [**connect**](#connect) ( ) `⇒ Promise.<null>` |
+| | [**connect**](#connect) ( options ) `⇒ Promise.<null>` |
 | | [**disconnect**](#disconnect) ( ) `⇒ Promise.<null>` |
 | | [**isConnected**](#isconnected) ( ) `⇒ Boolean` |
 | | [**getInfo**](#getinfo) ( ) <code>⇒ Promise.&lt;[LedgerInfo](#class-ledgerinfo)></code> |
@@ -104,11 +104,14 @@ For a detailed description of these properties, please see [`PluginOptions`](#cl
 ### Connection Management
 
 #### connect
-<code>ledgerPlugin.connect() ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.connect( options:[ConnectOptions](#class-connectoptions ) ⇒ Promise.&lt;null></code>
+
+`options` is optional.
 
 Initiate ledger event subscriptions. Once `connect` is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the [`connect`](#event-connect-) event. If the connection is lost, the ledger plugin SHOULD emit the [`disconnect`](#event-disconnect-) event.
 
 Throws `InvalidFieldsError` if credentials are missing, and `NotAcceptedError` if credentials are rejected.
+Throws `TypeError` if `options.timeout` is passed but is not a `Number`.
 
 #### disconnect
 <code>ledgerPlugin.disconnect() ⇒ Promise.&lt;null></code>
@@ -655,3 +658,21 @@ The URI of the connector.
     "connector": "http://usd-eur-connector.example"
 }
 ```
+
+## Class: ConnectOptions
+<code>class ConnectOptions</code>
+
+###### Fields
+| Type | Name | Description |
+|:--|:--|:--|
+| `Number` | timeout | milliseconds |
+
+### Fields
+
+#### id
+<code>**timeout**:Number</code>
+
+The number of milliseconds that the plugin should spend trying to connect before giving up.
+
+If falsy, use the plugin's default timeout.
+If `Infinity`, there is no timeout.
