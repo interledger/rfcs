@@ -158,6 +158,14 @@
                   <a href="#fields-8">Fields</a>
                 </li>
               
+                <li class="nav-label">
+                  <a href="#class-connectoptions">Class: ConnectOptions</a>
+                </li>
+              
+                <li>
+                  <a href="#fields-10">Fields</a>
+                </li>
+              
             </ul>
           </nav>
         </div>
@@ -184,7 +192,7 @@
 </tr>
 <tr>
 <td style="text-align:left"></td>
-<td style="text-align:left"><a href="#connect"><strong>connect</strong></a> ( ) <code>&#x21D2; Promise.&lt;null&gt;</code></td>
+<td style="text-align:left"><a href="#connect"><strong>connect</strong></a> ( options ) <code>&#x21D2; Promise.&lt;null&gt;</code></td>
 </tr>
 <tr>
 <td style="text-align:left"></td>
@@ -398,9 +406,11 @@
 <p>For a detailed description of these properties, please see <a href="#class-pluginoptions"><code>PluginOptions</code></a>.</p>
 <h3 id="connection-management">Connection Management</h3>
 <h4 id="connect">connect</h4>
-<p><code>ledgerPlugin.connect() &#x21D2; Promise.&lt;null&gt;</code></p>
+<p><code>ledgerPlugin.connect( options:<a href="#class-connectoptions">ConnectOptions</a> &#x21D2; Promise.&lt;null&gt;</code></p>
+<p><code>options</code> is optional.</p>
 <p>Initiate ledger event subscriptions. Once <code>connect</code> is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the <a href="#event-connect-"><code>connect</code></a> event. If the connection is lost, the ledger plugin SHOULD emit the <a href="#event-disconnect-"><code>disconnect</code></a> event.</p>
-<p>Throws <code>InvalidFieldsError</code> if credentials are missing, and <code>NotAcceptedError</code> if credentials are rejected.</p>
+<p>Throws <code>InvalidFieldsError</code> if credentials are missing, and <code>NotAcceptedError</code> if credentials are rejected.
+Throws <code>TypeError</code> if <code>options.timeout</code> is passed but is not a <code>Number</code>.</p>
 <h4 id="disconnect">disconnect</h4>
 <p><code>ledgerPlugin.disconnect() &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Unsubscribe from ledger events.</p>
@@ -934,6 +944,31 @@ an underscore, and listed in the table below.</p>
     &quot;connector&quot;: &quot;http://usd-eur-connector.example&quot;
 }
 </code></pre>
+<h2 id="class-connectoptions">Class: ConnectOptions</h2>
+<p><code>class ConnectOptions</code></p>
+<h6 id="fields-9">Fields</h6>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Name</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>Number</code></td>
+<td style="text-align:left">timeout</td>
+<td style="text-align:left">milliseconds</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fields-10">Fields</h3>
+<h4 id="id-3">id</h4>
+<p><code><strong>timeout</strong>:Number</code></p>
+<p>The number of milliseconds that the plugin should spend trying to connect before giving up.</p>
+<p>If falsy, use the plugin&apos;s default timeout.
+If <code>Infinity</code>, there is no timeout.</p>
 
         </div>
       </div>
