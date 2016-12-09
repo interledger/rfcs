@@ -28,7 +28,7 @@ The Interledger is a network of independent and diverse ledgers. Each account is
 
 We assume that all assets within one ledger are fungible. Within one ledger transfers can happen directly from sender to recipient and do not require a third party exchanger.
 
-When a single organization such as a bank has accounts in multiple different assets of different types, we treat each asset as belonging to its own ledger.
+When a single organization such as a bank manages accounts in multiple different assets of different types, we treat each asset as belonging to its own ledger.
 
 #### Connectors do not keep transfer state information.
 
@@ -92,7 +92,7 @@ In order to facilitate transfers between accounts, ledgers must implement some A
 
 ### Introduction
 
-Ledger protocols are responsible for executing the individual transfers that constitute an Interledger transaction. They are also used by connectors to communicate with each other. Ledger layer protocols can differ widely depending on the type of ledger. For example, a central ledger will likely use a very different protocol than a blockchain.
+Ledger protocols are responsible for executing the individual transfers that constitute an Interledger transaction. They are also used by connectors to communicate with each other. Ledger layer protocols can differ widely depending on the type of ledger. For example, a central ledger will likely use a very different protocol than a blockchain, but for interledger purposes they are both ledgers and may be accessed using the same primitive operations as defined in this architecture.
 
 ### Requirements
 
@@ -144,7 +144,7 @@ A reference implementation of a ledger using SLP can be found [here](https://git
 
 Blockchains are distributed, peer-to-peer systems that provide consensus over a single shared state. Any blockchain that supports escrowed funds transfers is in principle capable of acting as a ledger connected to the Interledger.
 
-Bitcoin for instance supports multiple credits and debits as well as SHA-256 hashlocked escrow transfers which means it can participate in OTP/ILP and UTP/ILP Interledger transactions.
+Bitcoin for instance supports multiple credits and debits as well as SHA-256 hashlocked escrow transfers which means it can participate in OTP/ILP and UTP/ILP Interledger transactions. Bitcoin's BIP-65 enhancement proposal provides the timeouts required for Basic level support.
 
 #### Legacy Protocols (e.g. ACH, ISO 20022)
 
