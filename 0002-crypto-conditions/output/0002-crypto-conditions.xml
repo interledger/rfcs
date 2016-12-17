@@ -4,9 +4,10 @@
 
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
 <!ENTITY RFC3280 SYSTEM "https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.3280.xml">
-<!ENTITY RFC8017 SYSTEM "https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8017.xml">
 <!ENTITY RFC4055 SYSTEM "https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.4055.xml">
 <!ENTITY RFC4648 SYSTEM "https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.4648.xml">
+<!ENTITY RFC6920 SYSTEM "https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.6920.xml">
+<!ENTITY RFC8017 SYSTEM "https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8017.xml">
 <!ENTITY I-D.draft-irtf-cfrg-eddsa-08 SYSTEM "https://xml2rfc.tools.ietf.org/public/rfc/bibxml3/reference.I-D.draft-irtf-cfrg-eddsa-08.xml">
 <!ENTITY RFC2119 SYSTEM "https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC3110 SYSTEM "https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.3110.xml">
@@ -69,7 +70,7 @@
       </address>
     </author>
 
-    <date year="2016" month="December" day="13"/>
+    <date year="2016" month="December" day="16"/>
 
     <area>security</area>
     
@@ -169,16 +170,22 @@
 </section>
 <section anchor="crypto-conditions-as-a-signature-scheme" title="Crypto-conditions as a signature scheme">
 
-<t>Crypto-conditions is a signature scheme for compound signatures which has similar properties to most other signature schemes, such as:
-  1. Validation of the signature (the fulfillment) is done using a public key (the condition) and a message as input
-  2. The same public key can be used to validate multiple different signatures, each against a different message
-  3. It is not possible to derive the signature from the public key</t>
+<t>Crypto-conditions is a signature scheme for compound signatures which has similar properties to most other signature schemes, such as:</t>
 
-<t>However, the scheme also has a number of features that make it unique such as:
-  1. It is possible to derive the same public key from any valid signature without the message
-  2. It is possible for the same public key and message to be used to validate multiple signatures. For example, the fulfillment of an m-of-n condition will be different for each combination of n signatures.
-  3. Composite signatures use one or more other signatures as components allowing for recursive signature validation logic to be defined.<vspace />
-  4. A valid signature can be produced using different combinations of private keys if the structure of the compound signature requires only specific combinations of internal signatures to be valid  (m of n signature scheme).</t>
+<t><list style="numbers">
+  <t>Validation of the signature (the fulfillment) is done using a public key (the condition) and a message as input</t>
+  <t>The same public key can be used to validate multiple different signatures, each against a different message</t>
+  <t>It is not possible to derive the signature from the public key</t>
+</list></t>
+
+<t>However, the scheme also has a number of features that make it unique such as:</t>
+
+<t><list style="numbers">
+  <t>It is possible to derive the same public key from any valid signature without the message</t>
+  <t>It is possible for the same public key and message to be used to validate multiple signatures. For example, the fulfillment of an m-of-n condition will be different for each combination of n signatures.</t>
+  <t>Composite signatures use one or more other signatures as components allowing for recursive signature validation logic to be defined.</t>
+  <t>A valid signature can be produced using different combinations of private keys if the structure of the compound signature requires only specific combinations of internal signatures to be valid  (m of n signature scheme).</t>
+</list></t>
 
 </section>
 <section anchor="crypto-conditions-as-a-trigger-in-distributed-systems" title="Crypto-conditions as a trigger in distributed systems">
@@ -235,8 +242,8 @@
 <t>Since conditions provide a unique fingerprint for fulfillments it is important that a determinisitic algorithm is used to derive a condition. For each crypto-condition type details are provided on how to:</t>
 
 <t><list style="numbers">
-  <t>Assemble the fingerprint content and if neccessary calculate the hash digest of this data.</t>
-  <t>Calculate the maximum fulfillment length of a fulfillment</t>
+  <t>Assemble the fingerprint content and calculate the hash digest of this data.</t>
+  <t>Calculate the maximum cost of validating a fulfillment</t>
 </list></t>
 
 <t>For compound types the fingerprint content will contain the complete, encoded, condition for all sub-crypto-conditions. Implementations MUST abide by the ordering rules provided when assembling the fingerprint content.</t>
@@ -257,12 +264,14 @@
 
 <t>Implementations of this specificiation MUST support encoding and decoding using Distinguished Encoding Rules (DER) as defined in <xref target="itu.X690.2015"></xref>. This is the canonical encoding format.</t>
 
-<t>Alternative encodings may be used to represent top-level conditions and fulfillments but to ensure a determinisitic outcome in producing the condition fingerprint content, including any sub-conditions, MUST be DER encoded prior to hashing (if hashing is required).</t>
+<t>Alternative encodings may be used to represent top-level conditions and fulfillments but to ensure a determinisitic outcome in producing the condition fingerprint content, including any sub-conditions, MUST be DER encoded prior to hashing.</t>
+
+<t>The excpetion is the PREIMAGE-SHA-256 condition where the fingerprint content is the raw preimage which is not encoded prior to hashing. This is to allow a PREIMAGE-SHA-256 crypto-condition to be used in systems where "hash-locks" are already in use.</t>
 
 </section>
 <section anchor="condition-format" title="Condition">
 
-<t>The binary encoding of conditions differs based on their type. All types define at least a fingerprint and maxFulfillmentLength sub-field. Some types, such as the compound condition types, define additional sub-fields that are required to convey essential properties of the crypto-condition (such as the sub-types used by sub-conditions in the case of the compound types).</t>
+<t>The binary encoding of conditions differs based on their type. All types define at least a fingerprint and maxCost sub-field. Some types, such as the compound condition types, define additional sub-fields that are required to convey essential properties of the crypto-condition (such as the sub-types used by sub-conditions in the case of the compound types).</t>
 
 <t>Each crypto-condition type has a type ID. The list of known types is the IANA-maintained <xref target="crypto-conditions-type-registry">Crypto-Condition Type Registry</xref>.</t>
 
@@ -270,21 +279,21 @@
 
 <figure><artwork><![CDATA[
 Condition ::= CHOICE {
-      preimageSha256 SimpleCondition,
-      prefixSha256 CompoundCondition,
-      thresholdSha256 CompoundCondition,
-      rsaSha256 SimpleCondition,
-      ed25519 SimpleCondition
+  preimageSha256Condition  [0] Simple256Condition,
+  prefixSha256Condition    [1] Compound256Condition,
+  thresholdSha256Condition [2] Compound256Condition,
+  rsaSha256Condition       [3] Simple256Condition,
+  ed25519Sha256Condition   [4] Simple256Condition
 }
 
-SimpleCondition ::= SEQUENCE {
+Simple256Condition ::= SEQUENCE {
   fingerprint OCTET STRING (SIZE(32)),
-  maxFulfillmentLength INTEGER (0..MAX)
+  cost INTEGER (0..4294967295)
 }
 
-CompoundCondition ::= SEQUENCE {
+Compound256Condition ::= SEQUENCE {
   fingerprint OCTET STRING (SIZE(32)),
-  maxFulfillmentLength INTEGER (0..MAX),
+  cost INTEGER (0..4294967295),
   subtypes ConditionTypes
 }
 
@@ -293,7 +302,7 @@ ConditionTypes ::= BIT STRING {
   prefixSha256    (1),
   thresholdSha256 (2),
   rsaSha256       (3),
-  ed25519         (4)
+  ed25519Sha256   (4)
 }
 ]]></artwork></figure>
 
@@ -307,16 +316,24 @@ ConditionTypes ::= BIT STRING {
 
 <t>For types that use PKI signature schemes, the signature is intentionally not included in the content that is used to compose the fingerprint. This means the fingerprint can be calculated without needing to know the message or having access to the private key.</t>
 
-<t>Future types may use different functions to produce the fingerprint which may have different lengths therefore the field is encoded as a variable length string.</t>
+<t>Future types may use different functions to produce the fingerprint, which may have different lengths, therefore the field is encoded as a variable length string.</t>
 
 </section>
-<section anchor="maxfulfillmentlength" title="MaxFulfillmentLength">
+<section anchor="cost" title="Cost">
 
-<t>This is the maximum length of the fulfillment payload for a fulfillment that can fulfill this condition.</t>
+<t>For each type, a cost function is defined which produces a determinsitic cost value based on the properties of the condition.</t>
 
-<t>For each crypto-condition type, an algorithm is provided for consistently calculating the maximum fulfillment length to ensure that implementations produce deterministic output.</t>
+<t>The cost functions are designed to produce a number that will increase rapidly if the structure and properties of a crypto-condition are such that they increase the resource requirements of a system that must validate the fulfillment.</t>
 
-<t>When a crypto-condition is submitted to an implementation, this implementation MUST verify that it will be able to process a fulfillment with a payload of size maxFulfillmentLength.</t>
+<t>The constants used in the cost functions are selected in order to provide some consistency across types for the cost value and the expected "real cost" of validation. This is not an exact science given that some validations will require signature verification (such as RSA and ED25519) and others will simply require hashing and storage of large values therefore the cost functions are roughly configured (through selection of constants) to be the number of bytes that would need to be processed by the SHA-256 hash digest algorithm to produce the equivalent amount of work.</t>
+
+<t>The goal is to produce an indicative number that implementations can use to protect themselves from attacks involving crypto-conditions that would require massive resources to validate (denial of service type attacks).</t>
+
+<t>Since dynamic heuristic measures can't be used to acheive this a deterministic value is required that can be produced consistently by any implementation, therefore for each crypto-condition type, an algorithm is provided for consistently calculating the cost.</t>
+
+<t>Implementations MUST determine a safe cost ceiling based on the expected cost value of crypto-conditions they will need to process. When a crypto-condition is submitted to an implementation, the implementation MUST verify that it will be able to process a fulfillment with the given cost (i.e. the cost is lower than the allowed ceiling) and reject it if not.</t>
+
+<t>Cost function constants have been rounded to numbers that have an efficient base-2 representation to facilitate efficient arithmetic operations.</t>
 
 </section>
 <section anchor="subtypes" title="Subtypes">
@@ -331,9 +348,7 @@ ConditionTypes ::= BIT STRING {
 
 <t>The presence of one or more sub-crypto-conditions of a specific type is indicated by setting the numbered bit corresponding to the type ID of that type.</t>
 
-<t>For example, a compound condition that contains an ED25519 crypto-condition as a sub-crypto-condition will set the bit at position 4.</t>
-
-<t>Bits are numbered per the encoding rules for the ASN.1 BIT STRING type.</t>
+<t>For example, a compound condition that contains an ED25519-SHA-256 crypto-condition as a sub-crypto-condition will set the bit at position 4.</t>
 
 </section>
 </section>
@@ -342,41 +357,44 @@ ConditionTypes ::= BIT STRING {
 <t>The ASN.1 definition for fulfillments is defined as follows:</t>
 
 <figure><artwork><![CDATA[
-Fulfillment ::= CHOICE {
-      preimage PreimageFulfillment ,
-      prefix PrefixFulfillment,
-  threshold ThresholdFulfillment,
-      rsaSha256 RsaSha256Fulfillment,
-      ed25519 Ed25519Fulfillment
+Fulfillment ::= SET OF Subfulfillment
+
+Subfulfillment ::= CHOICE {
+  preimageSubfulfillment   [0] PreimageSubfulfillment,
+  prefixSubfulfillment     [1] PrefixSubfulfillment,
+  thresholdSubfulfillment  [2] ThresholdSubfulfillment,
+  rsaSha256Subfulfillment  [3] RsaSha256Subfulfillment,
+  ed25519Subfulfillment    [4] Ed25519Subfulfillment
 }
 
-PreimageFulfillment ::= OCTET STRING
+PreimageSubfulfillment ::= SEQUENCE {
+  preimage OCTET STRING
+}
 
-PrefixFulfillment ::= SEQUENCE {
+PrefixSubfulfillment ::= SEQUENCE {
   prefix OCTET STRING,
-  subfulfillment Fulfillment
+  subcondition Condition
 }
 
-ThresholdFulfillment ::= SEQUENCE {
+ThresholdSubfulfillment ::= SEQUENCE {
   threshold INTEGER (1..65535),
-  subfulfillments SEQUENCE OF Fulfillment,
   subconditions SEQUENCE OF Condition
 }
 
-RsaSha256Fulfillment ::= SEQUENCE {
+RsaSha256Subfulfillment ::= SEQUENCE {
   publicKey RSAPublicKey,
   signature OCTET STRING
 }
 
-Ed25519Fulfillment ::= SEQUENCE {
+Ed25519Subfulfillment ::= SEQUENCE {
   publicKey OCTET STRING (SIZE(32)),
   signature OCTET STRING (SIZE(64))
 }
 
 -- IMPORTS from [RFC8017]{#8017}
 RSAPublicKey ::= SEQUENCE {
-      modulus INTEGER,  -- n
-      publicExponent INTEGER -- e
+  modulus INTEGER,  -- n
+  publicExponent INTEGER -- e
 }
 ]]></artwork></figure>
 
@@ -393,21 +411,37 @@ RSAPublicKey ::= SEQUENCE {
 
 <t>Implementations MUST ignore any input message when validating a PREIMAGE-SHA-256 fulfillment as the validation of this crypto-condition type only requires that the SHA-256 digest of the preimage, taken from the fulfillment, matches the fingerprint, taken from the condition.</t>
 
-<section anchor="preimage-sha-256-condition-type-condition" title="Condition Format">
+<section anchor="preimage-sha-256-condition-type-maxcost" title="Cost">
 
-<t>The fingerprint of a PREIMAGE-SHA-256 condition is the SHA-256 hash of the unencoded preimage.</t>
+<t>The cost is the size, in bytes, of the <spanx style="strong">unencoded</spanx> preimage, plus the constant 32. The constant is added to ensure that even a zero length fulfillment reflects some processing cost. This prevents a large number of very small PREIMAGE-SHA-256 sub-fulfillments being used to construct a fulfillment that has a low calculated cost but a large real cost to process.</t>
+
+<figure><artwork><![CDATA[
+cost = preimage + 32
+]]></artwork></figure>
 
 </section>
-<section anchor="preimage-sha-256-condition-type-maxfulfillmentlength" title="MaxFulfillmentLength">
+<section anchor="preimage-sha-256-condition-asn1" title="ASN.1">
 
-<t>The maxFulfillmentLength is the size, in bytes, of the preimage.</t>
+<figure><artwork><![CDATA[
+-- Condition Fingerprint
+-- The PREIMAGE-SHA-256 condition fingerprint content is not DER encoded
+-- The fingerprint content is the preimage
+
+-- Fulfillment 
+PreimageSubfulfillment ::= SEQUENCE {
+  preimage OCTET STRING
+}
+]]></artwork></figure>
+
+</section>
+<section anchor="preimage-sha-256-condition-type-condition" title="Condition Format">
+
+<t>The fingerprint of a PREIMAGE-SHA-256 condition is the SHA-256 hash of the <spanx style="strong">unencoded</spanx> preimage.</t>
 
 </section>
 <section anchor="preimage-sha-256-condition-type-fulfillment" title="Fulfillment Format">
 
-<figure><artwork><![CDATA[
-PreimageFulfillment ::= OCTET STRING (SIZE (32))
-]]></artwork></figure>
+<t>The fulfillment simply contains the preimage.</t>
 
 </section>
 <section anchor="preimage-sha-256-condition-type-validating" title="Validating">
@@ -417,26 +451,7 @@ PreimageFulfillment ::= OCTET STRING (SIZE (32))
 </section>
 <section anchor="preimage-sha-256-example" title="Example">
 
-<t>examplePreimageCondition Condition ::= 
-  preimageSha256 : 
-  {
-    fingerprint '7F83B165 7FF1FC53 B92DC181 48A1D65D FC2D4B1F A3D67728 4ADDD200 126D9069'H,
-    maxFulfillmentLength 12
-  }</t>
-
-<t>DER Encoded 
-A025 - CHOICE: preimageSha256 SimpleCondition SEQUENCE: tag = [0] constructed; length 37 bytes;
-  8020 - fingerprint OCTET STRING: tag = [0] primitive; length = 32 bytes;
-    7F83B165 7FF1FC53 B92DC181 48A1D65D FC2D4B1F A3D67728 4ADDD200 126D9069 - fingerprint value;
-  8101 - maxFulfillmentLength INTEGER: tag = [1] primitive; length = 1 byte;
-    0C - maxFulfillmentLength value = 12;</t>
-
-<t>examplePreimageFulfillment Fulfillment ::= 
-  preimage '48 65 6C 6C 6F 20 57 6F 72 6C 64 21'H</t>
-
-<t>DER Encoded 
-  800C - CHOICE: preimage PreimageFulfillment OCTET STRING: tag = [0] primitive; length = 12 bytes;
-    4865 6C6C6F20 576F726C 6421 - preimage value: "Hello World!"</t>
+<t>TODO</t>
 
 </section>
 </section>
@@ -451,44 +466,42 @@ A025 - CHOICE: preimageSha256 SimpleCondition SEQUENCE: tag = [0] constructed; l
 
 <t>Implementations MUST prepend the prefix to the provided message and will use the resulting value as the message to validate the sub-fulfillment.</t>
 
-<section anchor="prefix-sha-256-condition-type-condition" title="Condition Format">
+<section anchor="prefix-sha-256-condition-type-cost" title="Cost">
 
-<t>The fingerprint of a PREFIX-SHA-256 condition is the SHA-256 digest of the DER encoded fingerprint contents as defined below:</t>
+<t>The cost is the size, in bytes, of the <spanx style="strong">unencoded</spanx> prefix plus the cost of the sub-condition multiplied by 1.25.</t>
 
 <figure><artwork><![CDATA[
-PrefixSha256ConditionFingerprintContents ::= SEQUENCE {
+cost = prefix.length + ( subcondition.cost * 1.25 )
+]]></artwork></figure>
+
+</section>
+<section anchor="prefix-sha-256-condition-asn1" title="ASN.1">
+
+<figure><artwork><![CDATA[
+-- Condition Fingerprint
+PrefixSha256FingerprintContents ::= PrefixSubfulfillment
+
+-- Fulfillment 
+PrefixSubfulfillment ::= SEQUENCE {
   prefix OCTET STRING,
   subcondition Condition
 }
 ]]></artwork></figure>
 
-<t><list style="hanging">
-  <t hangText='prefix'>
-  is an arbitrary octet string which will be prepended to the message during validation.</t>
-  <t hangText='subcondition'>
-  is the sub-condition derived from the sub-fulfillment.</t>
-</list></t>
-
 </section>
-<section anchor="prefix-sha-256-condition-type-maxfulfillmentlength" title="MaxFulfillmentLength">
+<section anchor="prefix-sha-256-condition-type-condition" title="Condition Format">
 
-<t>The maxFulfillmentLength is the size, in bytes, of the DER encoded prefix, including the tag and length indicator byte(s), plus the maxFulfillmentLength of the sub-crypto-condition.</t>
+<t>The fingerprint of a PREFIX-SHA-256 condition is the SHA-256 digest of the DER encoded fingerprint contents which are identical 
+to contents of the PrefixSubfulfillment.</t>
 
 </section>
 <section anchor="prefix-sha-256-condition-type-fulfillment" title="Fulfillment Format">
 
-<figure><artwork><![CDATA[
-PrefixFulfillment ::= SEQUENCE {
-  prefix OCTET STRING,
-  subfulfillment Fulfillment
-}
-]]></artwork></figure>
-
 <t><list style="hanging">
   <t hangText='prefix'>
-  is an arbitrary octet string which will be prepended to the message during validation.</t>
-  <t hangText='subfulfillment'>
-  is the fulfilled subcondition.</t>
+  is an arbitrary octet string which will be prepended to the message during validation of the sub-fulfillment.</t>
+  <t hangText='subcondition'>
+  is the condition derived from the sub-fulfillment of this parent fulfillment.</t>
 </list></t>
 
 </section>
@@ -497,7 +510,7 @@ PrefixFulfillment ::= SEQUENCE {
 <t>A PREFIX-SHA-256 fulfillment is valid iff:</t>
 
 <t><list style="numbers">
-  <t>F.subfulfillment is valid, where the message used for validation of F.subfulfillment is M prefixed by F.prefix AND</t>
+  <t>The fulfillment (f) that satisfies F.subcondition is valid, where the message used for validation of f is M prefixed by F.prefix AND</t>
   <t>D is equal to C.</t>
 </list></t>
 
@@ -511,52 +524,48 @@ PrefixFulfillment ::= SEQUENCE {
 <section anchor="threshold-sha-256-condition-type" title="THRESHOLD-SHA-256">
 <t>THRESHOLD-SHA-256 is assigned the type ID 2. It relies on the availability of the SHA-256 digest algorithm and any other algorithms required by any of its sub-crypto-conditions as it is a compound crypto-condition type.</t>
 
-<section anchor="threshold-sha-256-condition-type-condition" title="Condition Format">
+<section anchor="threshold-sha-256-condition-type-cost" title="Cost">
 
-<t>The fingerprint of a THRESHOLD-SHA-256 condition is the SHA-256 digest of the DER encoded fingerprint contents given below:</t>
+<t>The cost is the sum of the F.threshold largest cost values of all sub-conditions, added to 32 times the difference between the total sub-conditions and F.threshold.</t>
 
 <figure><artwork><![CDATA[
-ThresholdSha256FingerprintContents ::= SEQUENCE {
-  threshold INTEGER (0..65535),
-  subconditions SEQUENCE OF Condition
-}
+cost = (sum of largest F.threshold subcondition.cost values) + 32 * (F.subconditions.count - F.threshold)
 ]]></artwork></figure>
 
-<t><list style="hanging">
-  <t hangText='threshold'>
-  threshold MUST be an integer in the range 0 … 65535. In order to fulfill a threshold condition, the number of valid sub-fulfillments MUST be greater than or equal to the threshold.</t>
-  <t hangText='subconditions'>
-  is the set of sub-conditions.</t>
-  <t>The list of DER encoded sub-conditions is sorted first based on encoded length, shortest first. Elements of the same length are sorted in lexicographic (big-endian) order, smallest first.</t>
-</list></t>
+<t>For example, if a threshold crypto-condition contains 5 sub-conditions with costs of 64, 64, 82, 84 and 84 and has a threshold of 3, the cost is equal to the sum of the largest three sub-condition costs (82 + 84 + 84 = 250) plus 32 times the number of remaining conditions (32 * (5 - 3) = 64): 314</t>
+
+<t>Implementations MUST accept THRESHOLD-SHA-256 fulfillments with more sub-fulfillments provided that satisfy the sub-conditions than required by the threshold. In a complex multi-layer fulfillment, sub-fulfillments may be provided that satisfy sub-conditions within multiple compound conditions therefor it is impossible to avoid providing more sub-fulfillments than are required in some cases.</t>
+
+<t>Implementations SHOULD only validate as many sub-fulfillments as are required to meet the threshold, favouring those with lower cost where possible.</t>
 
 </section>
-<section anchor="threshold-sha-256-condition-type-maxfulfillmentlength" title="MaxFulfillmentLength">
+<section anchor="threshold-sha-256-condition-asn1" title="ASN.1">
 
-<t>The maxFulfillmentLength is the the sum of the F.threshold largest maxFulfillmentLength values of all sub-conditions where, added to the size of the encoded length of the remaining sub-conditions and the encoded length of the threshold value.</t>
+<figure><artwork><![CDATA[
+-- Condition Fingerprint
+ThresholdSubfulfillment ::= SEQUENCE {
+  threshold INTEGER (1..65535),
+  subconditions SEQUENCE OF Condition
+}
 
-<t>For example, if a threshold crypto-condition contains 5 sub-conditions with maxFulfillment lengths of 64 bytes, 64 bytes, 82 bytes, 84 bytes and 84 bytes and encoded sizes of 34 bytes, 34 bytes, 34 bytes, 68 bytes and 68 bytes respectively and has a threshold of 3, the maxfulfillmentlength is equal to the sum of the largest three sub-condition maxfulfillmentlengths (82 + 84 + 84) plus the lengths of the remaining conditions (34 + 34) plus the encoded lenght of the threshold (3): 321 bytes</t>
+-- Fulfillment 
+ThresholdSha256FingerprintContents ::= ThresholdSubfulfillment    
+]]></artwork></figure>
 
-<t>Implementations SHOULD provide only the number of sub-fulfillments required by the threshold as providing more may result in the fulfillment length exceeding the stated maxFulfillmentLength.</t>
+</section>
+<section anchor="threshold-sha-256-condition-type-condition" title="Condition Format">
+
+<t>The fingerprint of a THRESHOLD-SHA-256 condition is the SHA-256 digest of the DER encoded fingerprint contents which are identical 
+to the contents of the ThresholdSubfulfillment.</t>
 
 </section>
 <section anchor="threshold-sha-256-condition-type-fulfillment" title="Fulfillment Format">
 
-<figure><artwork><![CDATA[
-ThresholdFulfillment ::= SEQUENCE {
-  threshold INTEGER (1..65535),
-  subfulfillments SEQUENCE OF Fulfillment,
-  subconditions SEQUENCE OF Condition
-}
-]]></artwork></figure>
-
 <t><list style="hanging">
   <t hangText='threshold'>
-  is a number and MUST be an integer in the range 1 … 65535. In order to fulfill a threshold condition, the count of the provided fulfillments MUST be greater than or equal to the threshold.</t>
-  <t hangText='subfulfillments'>
-  is the set of sub-fulfillments.</t>
+  is a number and MUST be an integer in the range 1 … 65535. In order to fulfill a threshold condition, the count of the sub-conditions that are satisfied by one of the provided fulfillments MUST be greater than or equal to the threshold.</t>
   <t hangText='subconditions'>
-  is the set of sub-conditions provided in place of any unfulfilled sub-fulfillment.</t>
+  is the set of sub-conditions, F.threshold of which MUST be satisfied by provided fulfillments. The list of DER encoded sub-conditions is sorted first based on encoded length, shortest first and then elements of the same length are sorted in lexicographic (big-endian) order, smallest first.</t>
 </list></t>
 
 </section>
@@ -565,11 +574,9 @@ ThresholdFulfillment ::= SEQUENCE {
 <t>A THRESHOLD-SHA-256 fulfillment is valid iff :</t>
 
 <t><list style="numbers">
-  <t>The number of valid F.subfulfillments is equal to or greater than F.threshold.</t>
+  <t>The number of F.subconditions, satisfied by provided fulfillments, is equal to or greater than F.threshold.</t>
   <t>D is equal to C.</t>
 </list></t>
-
-<t>For each subfulfillment the subfulfillment is validated against the message, and the subcondition for that fulfillment is derived. When all subfulfillments have been processed the derived subconditions and the provided subconditions are combined and sorted as defined by the condition formatting rules and the fingerprint and condition (D) is derived from the sequence of these subconditions.</t>
 
 </section>
 <section anchor="threshold-sha-256-example" title="Example">
@@ -610,11 +617,26 @@ rSASSA-PSS-SHA256-Params RSASSA-PSS-params ::=  {
 }
 ]]></artwork></figure>
 
-<section anchor="rsa-sha-256-condition-type-condition" title="Condition Format">
-<t>The fingerprint of a RSA-SHA-256 condition is the SHA-256 digest of the DER encoded fingerprint contents given below:</t>
+<section anchor="rsa-sha-256-condition-type-cost" title="Cost">
+
+<t>The cost is the square of RSA key modulus size (in bits) divided by the constant 64.</t>
 
 <figure><artwork><![CDATA[
+cost = ( (modulus size in bits) ^ 2 ) / 64 
+]]></artwork></figure>
+
+</section>
+<section anchor="rsa-sha-256-condition-asn1" title="ASN.1">
+
+<figure><artwork><![CDATA[
+-- Condition Fingerprint
 RSASha256FingerprintContents ::= RSAPublicKey
+
+-- Fulfillment 
+RsaSha256Subfulfillment ::= SEQUENCE {
+  publicKey RSAPublicKey,
+  signature OCTET STRING
+}
 
 -- IMPORTS from [RFC8017]{#8017}
 RSAPublicKey ::= SEQUENCE {
@@ -623,35 +645,20 @@ RSAPublicKey ::= SEQUENCE {
 }
 ]]></artwork></figure>
 
-<t><list style="hanging">
-  <t hangText='modulus'>
-  the RSA public modulus n.</t>
-  <t>Implementations MUST reject moduli smaller than 128 bytes (1017 bits) or greater than 512 bytes (4096 bits.) Large moduli slow down signature verification which can be a denial-of-service vector. DNSSEC also limits the modulus to 4096 bits <xref target="RFC3110"></xref>. OpenSSL supports up to 16384 bits <xref target="OPENSSL-X509-CERT-EXAMPLES"></xref>.</t>
-  <t hangText='publicExponent'>
-  The corresponding publicExponent e is constrained to be the value 65537 as recommended in <xref target="RFC4871"></xref>. Very large exponents can be a DoS vector <xref target="LARGE-RSA-EXPONENTS"></xref> and 65537 is the largest Fermat prime, which has some nice properties <xref target="USING-RSA-EXPONENT-OF-65537"></xref>. This constraint is not reflected in the ASN.1 definition as this would affect the encoding but MUST be enforced by implementations.</t>
-</list></t>
-
 </section>
-<section anchor="rsa-sha-256-condition-type-maxfulfillmentlength" title="MaxFulfillmentLength">
-
-<t>The MaxFulfillmentLength is the sum of the encoded length of the publicKey and the signature. The signature MUST be the same encoded length as the publicKey.modulus (even if this means adding leading zeros) therefor it is possible to calculate the MaxFulfillmentLength using just the public key.</t>
+<section anchor="rsa-sha-256-condition-type-condition" title="Condition Format">
+<t>The fingerprint of a RSA-SHA-256 condition is the SHA-256 digest of the DER encoded RSA Public Key encoded per the rules in <xref target="RFC8017"></xref>{#8017}.</t>
 
 </section>
 <section anchor="rsa-sha-256-condition-type-fulfillment" title="Fulfillment Format">
 
-<figure><artwork><![CDATA[
-RsaSha256FulfillmentPayload ::= SEQUENCE {
-  publicKey RSAPublicKey,
-  signature OCTET STRING
-}
-]]></artwork></figure>
-
 <t><list style="hanging">
   <t hangText='publicKey'>
-  is the DER encoded RSA public key</t>
+  Implementations MUST use moduli greater than 128 bytes (1017 bits) and smaller than or equal to 512 bytes (4096 bits.) Large moduli slow down signature verification which can be a denial-of-service vector. DNSSEC also limits the modulus to 4096 bits <xref target="RFC3110"></xref>. OpenSSL supports up to 16384 bits <xref target="OPENSSL-X509-CERT-EXAMPLES"></xref>.</t>
+  <t>Implementations MUST use the value 65537 for the publicExponent e as recommended in <xref target="RFC4871"></xref>. Very large exponents can be a DoS vector <xref target="LARGE-RSA-EXPONENTS"></xref> and 65537 is the largest Fermat prime, which has some nice properties <xref target="USING-RSA-EXPONENT-OF-65537"></xref>. This constraint is not reflected in the ASN.1 definition as this would affect the encoding but MUST be enforced by implementations.</t>
   <t hangText='signature'>
-  is an octet string representing the RSA signature. It MUST be encoded in big-endian byte order. with the exact same number of octets as the modulus of the public key, even if this means adding leading zeros. This ensures that the fulfillment size is constant and known ahead of time. Note that the field is still binary encoded with a length prefix for consistency.</t>
-  <t>Implementations MUST verify that the signature and modulus consist of the same number of octets and that the signature is numerically less than the modulus.</t>
+  is an octet string representing the RSA signature.</t>
+  <t>Implementations MUST verify that the signature is numerically less than the modulus.</t>
 </list></t>
 
 <t>The message to be signed is provided separately. If no message is provided, the message is assumed to be an octet string of length zero.</t>
@@ -677,31 +684,42 @@ RsaSha256FulfillmentPayload ::= SEQUENCE {
 
 </section>
 </section>
-<section anchor="ed25519-condition-type" title="ED25519">
-<t>ED25519 is assigned the type ID 4. It relies on the SHA-512 digest algorithm and the ED25519 signature scheme as the condition fingerprint is not a digest.</t>
+<section anchor="ed25519-sha-256-condition-type" title="ED25519-SHA256">
+<t>ED25519-SHA-256 is assigned the type ID 4. It relies on the SHA-256 and SHA-512 digest algorithms and the ED25519 signature scheme.</t>
 
 <t>The exact algorithm and encodings used for the public key and signature are defined in <xref target="I-D.irtf-cfrg-eddsa"></xref> as Ed25519. SHA-512 is used as the hashing function for this signature scheme.</t>
 
-<section anchor="ed25519-condition-type-condition" title="Condition Format">
+<section anchor="ed25519-sha-256-condition-type-cost" title="Cost">
 
-<t>The fingerprint of an ED25519 condition is the 32 byte Ed25519 public key. Since the public key is already very small and constant size, we do not hash it.</t>
-
-<t>Ed25519FingerprintContents ::= OCTET STRING (SIZE(32))</t>
-
-</section>
-<section anchor="ed25519-condition-type-maxfulfillmentlength" title="MaxFulfillmentLength">
-
-<t>The public key and signature are a fixed size therefore the max fulfillment length for an ED25519 crypto-condition is fixed at .</t>
-
-</section>
-<section anchor="ed25519-condition-type-fulfillment" title="Fulfillment">
+<t>The public key and signature are a fixed size therefore the cost for an ED25519 crypto-condition is fixed at 131072.</t>
 
 <figure><artwork><![CDATA[
-Ed25519Fulfillment ::= SEQUENCE {
+cost = 131072
+]]></artwork></figure>
+
+</section>
+<section anchor="ed25519-sha-256-condition-asn1" title="ASN.1">
+
+<figure><artwork><![CDATA[
+-- Condition Fingerprint
+Ed25519Subfulfillment ::= SEQUENCE {
   publicKey OCTET STRING (SIZE(32)),
   signature OCTET STRING (SIZE(64))
 }
+
+-- Fulfillment 
+Ed25519Sha256FingerprintContents ::= SEQUENCE {
+  publicKey OCTET STRING (SIZE(32))
+}
 ]]></artwork></figure>
+
+</section>
+<section anchor="ed25519-sha-256-condition-type-condition" title="Condition Format">
+
+<t>The fingerprint of an ED25519-SHA-256 condition is the SHA-256 digest of the DER encoded Ed25519 public key. While the public key is already very small and constant size, we hash it for consistency with the other types.</t>
+
+</section>
+<section anchor="ed25519-sha-256-condition-type-fulfillment" title="Fulfillment">
 
 <t><list style="hanging">
   <t hangText='publicKey'>
@@ -713,7 +731,7 @@ Ed25519Fulfillment ::= SEQUENCE {
 </section>
 <section anchor="ed25519-sha-256-condition-type-validating" title="Validating">
 
-<t>An ED25519 fulfillment is valid iff :</t>
+<t>An ED25519-SHA-256 fulfillment is valid iff :</t>
 
 <t><list style="numbers">
   <t>F.signature is valid for the message M, given the ED25519 public key F.publicKey.</t>
@@ -723,41 +741,47 @@ Ed25519Fulfillment ::= SEQUENCE {
 </section>
 <section anchor="example" title="Example">
 
+<t>TODO</t>
+
 </section>
 </section>
 </section>
 <section anchor="uri-encoding-rules" title="URI Encoding Rules">
 
-<t>Implementations MUST support these encoding rules for encoding conditions and fulfillments as URIs. The URI encoding is only used to encode top-level conditions and fulfillments and never for sub-conditions and sub-fulfillments. The binary encoding is considered the canonical encoding.</t>
+<t>Conditions can be encoded as URIs per the rules defined in the Named Information specification, <xref target="RFC6920"></xref>. There are no URI encoding rules for fulfillments.</t>
 
-<t>The following types are defined for the URI encoding:</t>
+<t>Applications that require a string encoding for fulfillments MUST use an appropriate string encoding of the DER encoded binary representation of the fulfillment. No string encoding is defined in this specification. For consistency with the URI encoding of conditions, BASE64URL is recommended as described in <xref target="RFC4648"></xref>, Section 5.</t>
 
-<t><list style="hanging">
-  <t hangText='BASE10'>
-  Variable-length integer encoded as a base-10 (decimal) number. Implementations MUST reject encoded values that are too large for them to parse. Implementations MUST be tested for overflows.</t>
-  <t hangText='BASE16'>
-  Variable-length integer encoded as a base-16 (hexadecimal) number. Implementations MUST reject encoded values that are too large for them to parse. Implementations MUST be tested for overflows. Encodings may have an odd number of characters as the encoding excludes leading zeros.</t>
-  <t hangText='BASE64URL'>
-  Base64-URL encoding. See <xref target="RFC4648"></xref>, Section 5.</t>
-</list></t>
+<t>The URI encoding is only used to encode top-level conditions and never for sub-conditions. The binary encoding is considered the canonical encoding.</t>
 
 <section anchor="string-condition-format" title="Condition URI Format">
 
-<t>Conditions are ASCII encoded as per the ASN.1 data structure with a URI scheme of "cc" and the following encoding rules for invidual fields, whicha re each separated by the colon (":") character:</t>
+<t>Conditions are represented as URIs using the rules defined in <xref target="RFC6920"></xref> where the object being hashed is the DER encoded fingerprint content of the condition as described for the specific condition type.</t>
 
-<t><list style="numbers">
-  <t>The CHOICE ASN.1 type is represented by the type name from the <xref target="crypto-conditions-type-registry">Crypto-Condition Type Registry</xref>. The convention is to encode this value in lowercase but since URIs are not case sensitive this is not a normative requirement and implementations MUST accept values in any case.</t>
-  <t>The fingerprint field, defined as an OCTET STRING in ASN.1 is encoded as a BASE64URL string for the URI.</t>
-  <t>The maxFulfillmentLength field, defined as an INTEGER in ASN.1 is encoded as a BASE10 string representation of the number.</t>
-  <t>The subtypes field, present for compound crypto-condition types, is represented as a comma separated list of the type names of all sub-types.</t>
-</list></t>
+<t>While <xref target="RFC6920"></xref> allows for truncated hashes, implementations using the Named Information URI schemes for crypto-conditions MUST only use untruncated SHA-256 hashes (Hash Name: sha-256, ID: 1 from the "Named Information Hash Algorithm Registry" defined in <xref target="RFC6920"></xref>).</t>
 
-<t>The resulting encoding looks as follows for a simple condition:
-    "cc:" type-name ":" BASE64URL(fingerprint) ":" BASE10(maxFulfillmentLength)</t>
+</section>
+<section anchor="new-uri-parameter-definitions" title="New URI Parameter Definitions">
 
-<t>And as follows for a compound condition:  <vspace />
-    "cc:" type-name ":" BASE64URL(fingerprint) ":" BASE10(maxFulfillmentLength) ":" subtype-name1,subtype-name2,subtype-nameN</t>
+<t><xref target="RFC6920"></xref> established the IANA registry of "Named Information URI Parameter Definitions". This specification defines three new definitions that are added to that registry and passed in URI encoded conditions as query string parameters.</t>
 
+<section anchor="parameter-type" title="Parameter: type">
+
+<t>The type parameter indicates the type of condition that is represented by the URI. The value MUST be one of the names from the <xref target="crypto-conditions-type-registry">Crypto-Condition Type Registry</xref>.</t>
+
+</section>
+<section anchor="parameter-cost" title="Parameter: cost">
+
+<t>The cost parameter is the cost of the condition that is represented by the URI.</t>
+
+</section>
+<section anchor="parameter-subtypes" title="Parameter: subtypes">
+
+<t>The subtypes parameter indicates the types of conditions that are subtypes of the condition represented by the URI. The value MUST be a comma seperated list of names from the <xref target="crypto-conditions-type-registry">Crypto-Condition Type Registry</xref>.</t>
+
+</section>
+</section>
+</section>
 <section anchor="example-condition" title="Example Condition">
 
 <t>An example condition (PREIMAGE-SHA-256):</t>
@@ -767,7 +791,7 @@ Ed25519Fulfillment ::= SEQUENCE {
 0x00000010 48 A1 D6 5D FC 2D 4B 1F A3 D6 77 28 4A DD D2 00 H..].-K...w(J...
 0x00000020 12 6D 90 69 81 01 0C                            .m.i...
 
-cc:preimage-sha-256:f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk:12
+ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?type=preimage-sha-256&cost=44
 ]]></artwork></figure>
 
 <t>The example has the following attributes:</t>
@@ -776,54 +800,23 @@ cc:preimage-sha-256:f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk:12
       <ttcol align='left'>Field</ttcol>
       <ttcol align='left'>Value</ttcol>
       <ttcol align='left'>Description</ttcol>
-      <c>preface</c>
-      <c><spanx style="verb">cc</spanx></c>
-      <c>Constant. Indicates this is a condition.</c>
-      <c>type</c>
-      <c><spanx style="verb">preimage-sha-256</spanx></c>
-      <c>This is a [PREIMAGE-SHA-256][] condition.</c>
+      <c>scheme</c>
+      <c><spanx style="verb">ni://</spanx></c>
+      <c>The named information scheme.</c>
+      <c>hash function name</c>
+      <c><spanx style="verb">sha-256</spanx></c>
+      <c>The fingerprint is hashed with the SHA-256 digest function</c>
       <c>fingerprint</c>
       <c><spanx style="verb">f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk</spanx></c>
       <c>The fingerprint for this condition.</c>
-      <c>maxFulfillmentLength</c>
-      <c><spanx style="verb">12</spanx></c>
-      <c>The fulfillment payload is 12 bytes long, before being BASE64URL-encoded.</c>
+      <c>type</c>
+      <c><spanx style="verb">preimage-sha-256</spanx></c>
+      <c>This is a [PREIMAGE-SHA-256][] condition.</c>
+      <c>cost</c>
+      <c><spanx style="verb">44</spanx></c>
+      <c>The fulfillment payload is 12 bytes long, therefor the cost is (32 + 12): 44.</c>
 </texttable>
 
-</section>
-<section anchor="string-fulfillment-format" title="Fulfillment URI Format">
-
-<t>Fulfillments are ASCII encoded as:</t>
-
-<figure><artwork><![CDATA[
-"cf:" BASE64URL(DER encoded fulfillment)
-]]></artwork></figure>
-
-</section>
-<section anchor="example-fulfillment" title="Example Fulfillment">
-
-<t>The following is an example fulfillment in string format, for the <xref target="example-condition">example condition</xref>:</t>
-
-<figure><artwork><![CDATA[
-cf:gAxIZWxsbyBXb3JsZCE
-]]></artwork></figure>
-
-<t>The example has the following attributes:</t>
-
-<texttable>
-      <ttcol align='left'>Field</ttcol>
-      <ttcol align='left'>Value</ttcol>
-      <ttcol align='left'>Description</ttcol>
-      <c>preface</c>
-      <c><spanx style="verb">cf</spanx></c>
-      <c>Constant. Indicates this is a fulfillment.</c>
-      <c>fulfillment</c>
-      <c><spanx style="verb">gAxIZWxsbyBXb3JsZCE</spanx></c>
-      <c>The BASE64URL-encoded fulfillment.</c>
-</texttable>
-
-</section>
-</section>
 </section>
 
 
@@ -834,9 +827,10 @@ cf:gAxIZWxsbyBXb3JsZCE
     <references title='Normative References'>
 
 &RFC3280;
-&RFC8017;
 &RFC4055;
 &RFC4648;
+&RFC6920;
+&RFC8017;
 &I-D.draft-irtf-cfrg-eddsa-08;
 <reference anchor="itu.X680.2015" target="http://handle.itu.int/11.1002/1000/12479">
   <front>
@@ -929,9 +923,9 @@ cf:gAxIZWxsbyBXb3JsZCE
 
 <section anchor="security-considerations" title="Security Considerations">
 
-<t>This specification has a normative dependency on a number of other specifications with extensive security considerations therefore the consideratons defined for SHA-256 hashing and RSA signatures in <xref target="RFC8017"></xref>{#RFC8017} and <xref target="RFC4055"></xref>{#RFC4055} and for ED25519 signatures in [I-D.irtf-cfrg-eddsa]{#I-D.irtf-cfrg-eddsa} must be considered.</t>
+<t>This specification has a normative dependency on a number of other specifications with extensive security considerations therefore the consideratons defined for SHA-256 hashing and RSA signatures in <xref target="RFC8017"></xref> and <xref target="RFC4055"></xref> and for ED25519 signatures in <xref target="I-D.irtf-cfrg-eddsa"></xref> must be considered.</t>
 
-<t>The MaxFulfillmentLength and subtypes values of conditions are provided to allow implementations to evaluate their ability to validate a fulfillment for the given condition later. Implementations must ensure that processing a fulfillment of the specified size will not result in any overflow errors that may introduce security risks.</t>
+<t>The cost and subtypes values of conditions are provided to allow implementations to evaluate their ability to validate a fulfillment for the given condition later.</t>
 
 </section>
 <section anchor="test-values" title="Test Values">
@@ -945,41 +939,40 @@ cf:gAxIZWxsbyBXb3JsZCE
 
 <figure><artwork><![CDATA[
 --<ASN1.PDU CryptoConditions.Condition, CryptoConditions.Fulfillment>--
+]]></artwork></figure>
 
-CryptoConditions
-DEFINITIONS
-AUTOMATIC TAGS ::=
-BEGIN
+<t>Crypto-Conditions DEFINITIONS EXPLICIT TAGS ::= BEGIN</t>
 
-IMPORTS
+<figure><artwork><![CDATA[
+-- IMPORTS from [RFC8017]{#8017}
+RSAPublicKey ::= SEQUENCE {
+  modulus INTEGER,  -- n
+  publicExponent INTEGER -- e
+}
 
-AlgorithmIdentifier
-  FROM PKIX1Explicit88 -- Found in [RFC3280](#RFC3280)
-    { iso(1) identified-organization(3) dod(6) internet(1) security(5) mechanisms(5) pkix(7) id-mod(0) id-pkix1-explicit(18) } ;
+-- CORE STRUCTURES
 
+Crypto-Condition ::= Condition
+Crypto-Fulfillment ::= Fulfillment
 
-IMPORTS
-
-pkcs-1, id-sha256, sha256Identifier, id-mgf1, mgf1SHA256Identifier, RSAPublicKey, rSASSA-PSS-SHA256-Identifier, rSASSA-PSS-SHA256-Params
-  FROM PKIX1-PSS-OAEP-Algorithms -- Found in [RFC4055](#RFC4055)
-    { iso(1) identified-organization(3) dod(6) internet(1) security(5) mechanisms(5) pkix(7) id-mod(0) id-mod-pkix1-rsa-pkalgs(33) } ;
+-- Conditions
 
 Condition ::= CHOICE {
-      preimageSha256 SimpleCondition,
-      prefixSha256 CompoundCondition,
-      thresholdSha256 CompoundCondition,
-      rsaSha256Condition SimpleCondition,
-      ed25519Condition SimpleCondition
+  preimageSha256Condition     [0] Simple256Condition,
+  prefixSha256Condition       [1] Compound256Condition,
+  thresholdSha256Condition    [2] Compound256Condition,
+  rsaSha256Condition          [3] Simple256Condition,
+  ed25519Sha256Condition      [4] Simple256Condition
 }
 
-SimpleCondition ::= SEQUENCE {
+Simple256Condition ::= SEQUENCE {
   fingerprint OCTET STRING (SIZE(32)),
-  maxFulfillmentLength INTEGER (0..MAX)
+  maxCost INTEGER (0..4294967295)
 }
 
-CompoundCondition ::= SEQUENCE {
+Compound256Condition ::= SEQUENCE {
   fingerprint OCTET STRING (SIZE(32)),
-  maxFulfillmentLength INTEGER (0..MAX),
+  maxCost INTEGER (0..4294967295),
   subtypes ConditionTypes
 }
 
@@ -988,98 +981,61 @@ ConditionTypes ::= BIT STRING {
   prefixSha256    (1),
   thresholdSha256 (2),
   rsaSha256       (3),
-  ed25519         (4)
+  ed25519Sha256   (4)
 }
 
-Fulfillment ::= CHOICE {
-      preimage PreimageFulfillment ,
-      prefix PrefixFulfillment,
-  threshold ThresholdFulfillment,
-      rsaSha256 RsaSha256Fulfillment,
-      ed25519 Ed25519Fulfillment
+-- Fulfillments
+
+Fulfillment ::= SET OF Subfulfillment
+
+Subfulfillment ::= CHOICE {
+  preimageSubfulfillment   [0] PreimageSubfulfillment,
+  prefixSubfulfillment     [1] PrefixSubfulfillment,
+  thresholdSubfulfillment  [2] ThresholdSubfulfillment,
+  rsaSha256Subfulfillment  [3] RsaSha256Subfulfillment,
+  ed25519Subfulfillment    [4] Ed25519Subfulfillment
 }
 
-PreimageFulfillment ::= OCTET STRING
+PreimageSubfulfillment ::= SEQUENCE {
+  preimage OCTET STRING
+}
 
-PrefixFulfillment ::= SEQUENCE {
+PrefixSubfulfillment ::= SEQUENCE {
   prefix OCTET STRING,
-  subfulfillment Fulfillment
+  subcondition Condition
 }
 
-ThresholdFulfillment ::= SEQUENCE {
+ThresholdSubfulfillment ::= SEQUENCE {
   threshold INTEGER (1..65535),
-  subfulfillments SEQUENCE OF Fulfillment,
   subconditions SEQUENCE OF Condition
 }
 
-RsaSha256Fulfillment ::= SEQUENCE {
+RsaSha256Subfulfillment ::= SEQUENCE {
   publicKey RSAPublicKey,
   signature OCTET STRING
 }
 
-Ed25519Fulfillment ::= SEQUENCE {
+Ed25519Subfulfillment ::= SEQUENCE {
   publicKey OCTET STRING (SIZE(32)),
   signature OCTET STRING (SIZE(64))
 }
 
+-- Fingerprint Content
 
-/**
-* FINGERPRINT CONTENTS
-*
-* The content that will be hashed to arrive at the fingerprint.
-*/
+-- The PreimageSha256 fingerprint is the SHA256 hash of the raw preimage
 
--- The preimage type hashes the raw contents of the preimage
+PrefixSha256FingerprintContents ::= PrefixSubfulfillment
 
-PrefixSha256FingerprintContents ::= SEQUENCE {
-  prefix OCTET STRING,
-  condition Condition
-}
-
-ThresholdSha256FingerprintContents ::= SEQUENCE {
-  threshold INTEGER (0..65535),
-  subconditions SEQUENCE OF Condition,
-}
+ThresholdSha256FingerprintContents ::= ThresholdSubfulfillment    
 
 RsaSha256FingerprintContents ::= RSAPublicKey
 
-
-
-/**
-* EXAMPLES
-*/
-
-examplePreimageCondition Condition ::= 
-  preimageSha256 : 
-  {
-    fingerprint '7F83B165 7FF1FC53 B92DC181 48A1D65D FC2D4B1F A3D67728 4ADDD200 126D9069'H,
-    maxFulfillmentLength 12
-  }
-
-
-/**
-* DER Encoded 
-*
-* A0 25 - CHOICE: preimageSha256 SimpleCondition SEQUENCE: tag = [0] constructed; length 37 bytes;
-*    80 20 - fingerprint OCTET STRING: tag = [0] primitive; length = 32 bytes;
-*      7F83B165 7FF1FC53 B92DC181 48A1D65D FC2D4B1F A3D67728 4ADDD200 126D9069 - fingerprint value;
-*    81 01 - maxFulfillmentLength INTEGER: tag = [1] primitive; length = 1 byte;
-*      0C - maxFulfillmentLength value = 12;
-*
-*/
-
-examplePreimageFulfillment Fulfillment ::= 
-  preimage '48 65 6C 6C 6F 20 57 6F 72 6C 64 21'H
-
-/**
-* DER Encoded 
-*
-* 80 0C - CHOICE: preimage PreimageFulfillment OCTET STRING: tag = [0] primitive; length = 12 bytes;
-*    4865 6C6C6F20 576F726C 6421 - preimage value: "Hello World!"
-
-
-END
+Ed25519Sha256FingerprintContents ::= SEQUENCE {
+  publicKey OCTET STRING (SIZE(32))
+}
 ]]></artwork></figure>
+
+<t>END</t>
 
 </section>
 <section anchor="appendix-e" title="IANA Considerations">
@@ -1113,310 +1069,307 @@ END
   </back>
 
 <!-- ##markdown-source:
-H4sIAMoDUFgAA+19a3PbRpbod/6KXrm2QvoSFEk9rcxMLS1RtibWY0U58Ywr
-lYBkU8IYBDgAKInjuGr/w/2H95fc8+gnAFJKJpmd3RrtTkwSjX6cPn3e53QQ
-BI1JOo2S2yOxLGbBYaNRREUsj8RxtloUaXCcJtOoiNIkb0zTSRLO4dE0C2dF
-UNyl8zAPJtxuYtoF3X5jEhbyNs1WRyIvpo3GIjoSH4t00hZ5mhWZnOXwaTXn
-D5N0PpdJkX/fyOdhVvzw12VayPxIpLNZoxFmMoRO5GSZRcWqES5h1OyoIUQA
-/xMiSqDhqCNuaC70E09xVMhZmLi/pxks8TpaLGJJ33OYhyyOxE63K87TpLhN
-5zJbwYv4M7WYwIjQE3RzmoXJJMonKf2eyVtYJ0BowM3SKQz4arfX3VXfl0mB
-S38/ou+LuzSBBkH5jx7KeRjFCCWc7n9kNL0OQIQewpqPxF1RLPKj7e2Hh4eO
-89wHwXVHXMOsEhnHkQOFa1hT6cE/NRgyGPyXA2HQEW/ThQxeQ1+RdMAwmGYR
-TL/88J8aFCHN+WcBI0mzeVhE9/KI2l6fHu/0D7vmy2G3d2C+7Hb39uyX/d1D
-/nIWnHT4dEcZUIPJLLsN5HSah0FXtYiKZefD/mG30+/2VA/4p4jG1lky41mk
-iSjk5C5J4/R2Jf7ff/1fMRgDgMNJIUarpAgfxUVacLvLRIrmYHTR6bUAuAs5
-iWbRhB+lMzEO82giEtV4y44YZre4WwgNAMZdmEwBEDi9KCm2e71Or9vtb8N/
-utu9/u7BK/OipSH2D1AhTKK/0RBH4iwpZJbQlzAWNzKWSKOWiZpVLt4n8I/p
-YArE7kggPABK5tdcZpHMER7+UIySW2c374ObLe/JfRgv8dG1ZJI4ZRhQS/Gh
-A0Bvi8HydpkXNNiWsx+vfsl+IMSFTJj8i2wZI9WtwP81wX+om11jM9F8Pbxu
-tcVxmKQIlbjy/BieC9gScRLlBfy+jPI7Oa00O4Fmv3RLD3f+52/pq/KWNiK9
-Yc4x7vd6r+yZ7vXsmd49POjxl3eD6zfD4Ho0CIYfri4vhhc3owo2nM0XsAJY
-/7dRGstCBOJbJHAxgl3Aq2KxHMew2fJxAQQKWLJo9g7EeZjh5Pqt2n3ShChS
-fd9T1x2A/ja+tN3d2e4dbGd5OE3zzl0xjzdu2mwZx5pmh3PxLkxuY7mqbks/
-6O4EvQN68H50dvHGW3lweRrs7+3tHFQgwELNbRYu7law/FERTj4NHyeAaQCB
-AAEEBCpHtAeCI5Y5oSoARkMEn1DPa2HB4lAnx56l6hnJ8/ZflzInVNvGHdyO
-eKggnQUwVEBDBQCmQA+FT/yhNgNMHZq14y8Be/Ptvb297dktoPGyCtTdoNcL
-eozu3wz/9G548ebmbXA9PL48Px9enAxuzi4vKhB9DQj+DY4J4HOgC1j0jVyJ
-dzK5Le6Ej/4b8eiTXMX0Ek1aJtvwzwKkwO1nguEknEcyEW+irAZt4DS/0mhz
-cTa6CWCZ54OLwZshLPCmsjZsAssqHV44n7S28zAJbyWKrtDmCiRX0YMPb2Qi
-MzhizWt5H+XYfqf+4OBe5dmkkwCB7Nym99t8+JgcbeOv8EO+fdjtBnsH2/mC
-P/wAsCh6P2TyfueHWx6qs5jOak/IZswJHKAN4xBERCD12SeZrW31XQRCJJzK
-5zZbZk83ukrjT2sbnUfIJEbzaEpNLq+GF6PRu+DDHuwiMJgbOPCD86t3wyql
-u1zIBJpCb9hYTGRWMFOTcJTD+QL7xX0sJHEn4lT3QL8041u3Y7P57nRKmAmy
-ZJLn8TZ2rbtE+vZMND093z05WbNrDRAFkf7IH06lnI7hIDcaN3dRLnKPN8MP
-oUB0QKJU3EnxkZhcLKe3MhNXWQoKVxp/39SnK7JPiTy3xEOafeoIPQhIsTHM
-YyqKFLqrDJffpct4KsYS2CCgPDT6HXf2H5EsZtjjHzo89VAJejhrKSr6Yanf
-qZwB7uFacklLMRIJM8KcNgcgFKKAvpwUy0xt3suXttOXL6nZy5cA4hngFmmU
-L192hBgI00oAvwcyHK9ENIXnMAcaFyQikmG2xinwLhDuJ1E2WUbFFr7JYwJU
-ZqCcCKDMIFiIeZpJfk3cAshAiZXI6Ql645WQEWxHhsw/QpqB+KXAoGljHt2C
-MAIrwd4I8VbYDHdxkcloDoQFQRGKuzC/E9PoFvC0A0txVsf778PFws6d6Jqh
-GbDOAGboHCYSFmpnaFJ2BIVrCkTUxSJL7wGgoIQtlrBdhD4eeEQYx+mD2lJ6
-CKMv46LcGbwJ6GVACehUWbGCqYIzt2TIwYTdvtIl0E965eb6/VCM4XMY56lt
-qGY99UYAfJvc0fptTwAEwPJFBuenzQ80PsEER1EyMVNWEnOOWrdamguFKPH6
-bQJ9yCVPCBicszEtNdXwk4Qtnss8R3wIc4YwdeKPSL8AQkMv7mqwA9xlkS6U
-4Msd6B4fAB/uEESLMM/54MsQfrGTxkEz+dcl9DwF/IOzu4TnOFwY36YZ4Pkc
-39K7ArN1xw9vga0AXoXOEUSEsWuy8A4JG1I6OPZ05PB0rjA1rJASMYG1gVhz
-T/OEc5AChgNBnxCC4DuzWD5G4xgRbhGHE+bWiITQOEKa7Yz1AENLf4MRNkuE
-TMgooeRjkFGod/zJWy+3Ml0qegj8C/SYRuMFaiFZOoWThCymcVyhjHSkec00
-S5R9UhJCTZ9BHH2SHiUs0yVYMTO1MhixhX/co3mEikbeEWeFQ4jnEuXGKJ/r
-85o7vdq31HmFSY7hRQb4bZYuF4xKk0wiSuAaYBec2YRZhlIpkWg6mNBxHAMu
-wAkL1SEBqANk8ZAukHfLnMlhedPasGRYCVoHxvGqrQ4TLAVY3TxKCBkcVKVF
-0LyZ5vrb5eCrxs9bWGeCbNZsPOzpe9qRCl9r18KIDgwgBmoRCKDhSX9vr/dq
-DY6P3g76e/t6g8zEc8L0sTTI6JIVBLXmUwbaJVaWq7OO3cCavb5CRrMlDG8x
-VyDr1gwMhd5lMjHSL2NE9a1cUxyXUjnks0Tv2zCdOJZT/8y1PSJJSGkpB+7p
-fDk3NMkDxAOACl+OMsWKvAGcg9r2qVCHBRWzxEzCYhIEjIZiBHObMKOJ1BIq
-izfcCY8ZICSCEEkrY/AK114VhebQOxGNlbfDcAgIr/OJTMIsSnPepzIRW3vS
-9XY7bERtSdtDZuRBDuhbbTpiuq9mCWytEtzoGwPLgRWz9g6Suxs6hGRxIgjj
-iCBzTnOxdf5+dLPV5n/FxSV9vh7+5/uz6+EJfoaD8O6d+aBbjN5evn93Yj/Z
-N5WOyi+fD/60xXPdurxCrXXwbou5L2zINJ0smVojtScKRpIxCD8FH4ipzCdZ
-NOZ9+KjsL99//J7XtFrIvIZ0Y28oicGoYTZVsqvaJeg6Z5rhtE88ySPnE6de
-y5eLRZrBqZ0DKCOkeJYUtGFWk3hJUt40ms2AacFiiK5rDObeq2IfoQojSEdU
-l6AwEHhAoXBQjx7LexnDyHTCWETAXwQwpxzY6wqGv8fOzQuWJKjDZWdaIADr
-TwP1DF25zSM23MXE8qzYKoHMpSunnb9ah3KGucvoYAtfiBFzEeznWJ9j3tfG
-zQNQU3ZeRfXTpAXw0evonqpL0TKxgxJWNp+RzwvlF2/SDtcgQN/BW+hKmKKW
-B1ojAAKZTOd2AzMBfFM8xOH0uRHd2pqD8i4Qu1zmSsaHIUBDmoKSuLKYIpow
-YAc7bfGsLMjtrFQjHBYmsNfrizHwnBYdCuRNAAkk1uXdKgEVd2dA8qpSqJkV
-8FRZOpmaYwwMPHekX1+nBKpvlgUzD+p4Kp59tqAUZanPYVkgGc1IqiXo6kEf
-JNOOSMlzPAquO6T5h7GyNt9Lnu0D6c6KazHYE/mglgZnTq+O6AWeAkPaCdvo
-hTlaiel0ID+3s9WLmCp7pZoKANMgdxU/4SPJWq7gmC/HVW8u06XJup4AJwDW
-WmVDmJC6BV2eDt6Nhui9gYmlLNQpnUwrLBUVZs0EztSWP4Sr9RNhCrxUaowV
-iMboqLvT8mNJLELi5Gkv69eJKFU7PxrXKJNKfHW1AlfprBOGzJCeWgNIYTYW
-/ZoPQHCztqtb5msABoL0isw08NDlMEQx6H2ngSu+TuVCJsp6YE6e1vAdMbzY
-hBDVM6zVXsAE2gTgK2T1rkgtbRgXeMm8ZuYZsiU55c01+1UviLVJp2ArA+oU
-uKAkmJeWy8eJNY+xs4F+/9qoQFJ1IdfaCoCk3EbApWD6picLEpYEIwILkF/g
-7CFKcJIXj2eeGGeAxryV5tRtVEgT8kMg7uEzMldluK5wusKZai7jTmsl/Rd4
-iSDTlK0DaifTezQix67Siza4dHl7x45rmQW6r2ntkMxUT0hSV7bUEQsw+PVC
-07l15kAl8wC/go2QCU31FomhPjigBqgTAaIU9I4H4pQEK4Vhq3RJLcLplMjq
-OlubFo61HmzkJbtDdnvGchIiDwmn90BB2Hwzcd1HMyTnsHzYc+BpwOFECjTe
-kTxAl8S4FSKwUXKPMIfZ4SlmPR2Y4YRYhH0HQHmGa0Kwhpa8IBIYlQf2XcmH
-wt83zdOBOc1wgIjMX4mcoLierZhhTdkKzvoBv8FY6QyqzoYaBLlEhstba+jh
-7SAaDaiZow5XpWq8EhKCYBEkSvCWRco2NYtkPG3jMaVptV2ti7gDm4f1nKem
-JVGVdeQZkfOUT1peZ3JJUSSBs5ys9IFQ59Iavph1ZPJ2GYdV45Q1LZLxSqte
-c9S64Ie5NmVEqCTdgzYnWRlEREX8Qrqo5NJzogIDjQ2NxhBFgZLkCe/kG8y7
-NaYHJfmk7twdlLMyMENzTmyWxYN6BkNUfGXZg8EqZ5scQZK7VWzAbBptt2Un
-qnNmyNo4Q8YctsGUMBSPu2rm2xzZuMfvODaFqHSqSO+USb5kk9+K9Te0FLpY
-7jEhhWV6NVNlZly7rrDmELA4WVkNngqitHQYl8mnJH1Q2w2HmOaayb8AtSgJ
-qqjVFyyChTFZDNAdBRsXE4NfJpUVlYQTF+9GGjlqTglRVx2/E6Ig5p6YqYQx
-Y4IQMzLEs4747o5tZ8TVFN/IXWNwW9l7NXsh6xRaDXFV6SJkXw25f1KigSgD
-4HIQPjCfFA38Re7riBNtvwoL9jvkpn94U/k0wgwUlAyJop2wOtSyWC5YAcPu
-xzCdT6y6zxewWeMojoqV6j4PIyBYTGYt42CeVcI3oqjAEBZ6E+upGMC0etwI
-Pw2KkJXeQVwFGjTho9zm2trpOWEHthg7CK5ODh4v9PllqKWSIQxkbdpZtIMy
-21soR6LmyxnvE5GuqixMPimQFoMoqZirHLtTHSFi4xKw8MqWKEbEjqUoM1Oy
-24RshESPlctRlDEUN8zB83douqjBcRnL25DYuR7wQUa3d3jGSzPiqfKPbAhx
-7B1iALOED3coDdi9uCPQJMv5GAWFGW67K3uzYY29zfb9jiAO4LbVolDoK/1h
-wkepZmhriOQDyD4RwmMkXih+aQRHy7HHOj0xS2vyONGaFRLeU5ucqWXxkJaX
-iXyL9FvyWnwXrhLmIIN41sH/fJVX1SB3pY7eeRcBLlMP3kvkQqmZXluxc1zq
-GGAljuNwOeXRT5DupDQMIepdNIe1n9fuL9MUxXkVyMhxjgu8ixZkVEm0meUc
-NZ0LLdKXxNbQIljJpaXFu8T1lVSwRjP4ttgassf5Gtd5Hk4Yn64Ic9HmscDN
-l1+TdWgesZjiPulsNeiA1Jg1cw/+LPKsd12VZSPjxCr5CVhGwjMBgIpQrHJU
-TNgK4mVrnIFtvW6Mreh1xLfWS6HtCOtN2IIswIlUtpJNxvCysVtZ0GHQPhtF
-yGDmvO9a8F2ea6yi1v5lQdHm82BdT7aRGhkG3CEHHQrzSOnZ6CqZnWVsY3IX
-TWfLd1dCHw1jQ6DWvD8kt5ZJkxGA2eyEgizwOI6dKMGeZ7VuRiX40LyQRLOb
-xPG8KiqOL9lF9yvd6+iBcsdEjdU2sUV//R64lNo7jWWzjWeqKNm7xu5eGpsd
-O0INJiaeFZw28Zj9uYU7DeKkrjxfQns6g3SGOCTTi6XIUMHMEeAWmo7Xjr1j
-DBJlYuwAJgixi2yqvA0Kfxds0tTmRMdoa9dH9B1UjXuELWxBrv1i1UCRqqNM
-6VU5m3u05bbSvZXqHP8iLYUnLprzEpgVVrcQ2hvIWZFFtxgiBcxvCrwqi0CD
-Q3PDKi/kHJREjEfXs79DB2KCITGzcMIUo/oOEb/JXSTJCRIW6ZyCaGFvNC7g
-oGGSh+xgDCcZoDTDizroUJQSuQRAyMRl0+7maXzP2i/zbzgDNBYw1mBxF7IP
-dh6Riq4UejxBSDuLaK79c3m6zCYSoZAvidOHJIUaU543M7JlSgy4pAgbY0ia
-RIsQsW+WavRTHkbjUNBARbY0g/2MVJSYCoZSM0VRZUzCnD9yR5y4Xjc6CEbh
-QGd+3nbg5YkZLuny5krkiwzmZkn+PmhzZ93Rx3e0Vd41blZxal3chOP3Y2ut
-AhG7pMIoy1lPJrJqwKcD09CpYgdpVT16ZGzkmEUW63XvTVdrbSmxjI+2Fxfh
-dFC/2agOcJgZcomSglPBDLIWEEbUHBBXu9bOgjYSkDTT8WIaAmNJxA0NL21j
-gV0ZujsJF9QRgM6Pm1PvIyLpRc5V/E4M24AE6r4iKehBDUly1BEir3x4chul
-RfbYe1B39XJqoHZjTHBVq7yOunj50oCJepJkH2TX80KHNGpvAojojJQvHQfC
-y7Y1Pb3k1+egiAcYEvjSbBLqv+xtwQZujKveG2LaDDKpyPiKjw2+Z82HBHlU
-G1BGa2rjkjGSKWXQArDl0R/nlTsZLoBs/I1ZnoSzvmqVYnJ4tgBrO1vSU1El
-KTsGrMHz5cuNJ6TaKcLYPR9GbCjPJJ0AnyWa6MURRr4XgK1Ozh7CdMkIsqyP
-GCqxI2XJSWeFTFjsykHRt2KPEXFoaBWZhg8dvFYhlPNFQfZeml1JPCyhPvCV
-iSJTjBCgTg2uzpTWOKeAnjr/IZtDYpbeNPO0HmXFFtDOHsTp5BMtVtMopCyI
-zlffnFV1hihXNMCsz5luXudPDcmYipIgklUrkOklmjhHmBMyFEQNEuEV3mD/
-V9fD07MPVlwh49sDIBLpNTVmUGXCNrsCxH4WPZrNAc0qjnQwtd27MY9YJ635
-js5Qc4aKPswS9rS6TEl20pkVkQ1EyDAfEDy14Z1RxEZAYVgEpt860hZZg7Az
-N65c217avnFUu4WSNAmA2S6nfOTgZ0I3sjS5rNd4e7RrbcrGKxWfjpuzUlGx
-hEdqorl3XGWYRyhB3hFvp5Wx8My9aLeOooLqR2JBcEJBiZ/BRrM3iDw3PMEZ
-CSuJNiJxVKFMlDwnreCCDcMlCHuhZqbksKOoX4ZVLhVhqHG75UVY+E5Cd/fX
-QR3OWTK5y9IEqKcTHaTnQxbAKUUOgNikF4yeh0QbiLV0mkwDwGaJmO5IYXXy
-DTIuInlj6fgyUiXVwSQfKbxQcgAU8xQ01LIizzHMU5DxKXLCxAO44hXwC8wd
-a5ugWkYb1hdhfksKSErh6MayqUUaEs/Vm8yuCJ+ABRoDgaCEcpokHnsdi0Qe
-vUKF2K8jzSR/YzfGR4MdpgvQ3/hUw8SWmTWcUaQrjyMU/YdncZjcLnGkSCEC
-ibN6+qDzTpQ/vya42aHqaLTwQ1pZg1gAU0ThIOeYUJLtqWfH+7LWPcTBOcDV
-JmjzNAZrirt/UbKqeD6WRmPDQ9E8bdUGfjePyxaV5nnLRAfMw7+g2MBhkgjt
-tlI1ch3qUMhFfiQajR4bX+o8lsr24I5qbCFenDYGkGkTutoLTVWdCZ+0ari7
-t6AOzKdPPp3yEMocVhsdJgYXJ8Tl6CwsF0T4Kmyw6UQOB1ejEdIpFe/VYoqE
-phRHN64JPcG9IMiMpZH02wrlsS2Z/wAlwsJjSa6QaOS5ttlVVusBcfJFygqU
-tcW0mVRsiofRh9xBA9HUTtOVEV9Ai2/srIft+kidQlPhShgJO/2QZY6lzSRR
-lNdGqFhxINDBYyoKq9Ind2lMEkg0Tj0jBbtHK93fvL0ejt5evjupjmCVWWWf
-Ka9CbygIP2GMWHFLgfYZG56JPRnztxM1d8pC1/NwncO3/cOLWIvPSjFUZozx
-qrJTWtXLTWCY2ZwymqrvecnDiYcM04DIIMB+RhjKIY02ns/a4WojNq0LZGoi
-xV3PpQl4YodYOVyYsIS7D1Vkoa5JAKB9xH047jAZBf3oa9U7BztQFrgJLyD/
-MGYBTsWj+bHmfDz5tvG/mhotqG0tOKgkVj6v0XLsYg/JdF5iWtV5vv5o1USU
-GAtrOZLQFw/JxSgXYgfNP/fSSjva0Vjad5yJZxR1Q968rqNcaUy+Zq49D2EW
-5VpYr8X9jihH3NCZzj9FCwXxDM6bCyUH+2hNoY1OpcXRDpJtE5ZNujsxL9Gn
-Bzt61xzJn+USlyBWDNh16zaC/sY3T0G8Jct/HSGqp3McC8UajT4upx2l4SgV
-pmpMKdPGKNcAIJmigTFiAHzNfAzW6iy62vBppQW5gZO4tT4o6jzwbhZQ5KcB
-ad3ZuitCFx9ONxMSTTO8uE9UaUCjKNKjBntGBnku52QiKoV9ksisjnmEYUAT
-a2CJJ8tYR2m4mVoEYCRGYRF22DVy7DWeh4+UF+OCn9Poq9KbEOTWnfhRP+um
-SSYJHQ6kDfoo7rZ1LFe7dGzXh2LVn7RwjDutuAdFmplyJA7FJoGHYWpMttXp
-aoOLBmVd01JoToXG1c2RiYDj26pfciXcllM1pKJdDoI/fz3ox/AsRlcsbH0j
-V7k+Of6MAFH+Qs5dr0d2kin7oAqeKWoCMp1wS9IMQV3g9GdJidOJpTpspnD8
-cGj7Z12cfwQeJM6Krza6LT32o4V11+D+As8jyCYoBTimtfoMEpfJVxJ+WO59
-Thkil6RjDtDZzXtb9Oj75guvCFKLN8kvbVON49RnWPu7Ih6VmY1y+JsUEYp5
-kuoLz/vpQjr1s35VmvUrPWsT88o8QVfyKaXfo/TlZDPop749G7Y0k+jtYJ/P
-QkVNbEh34hhtE8lUIdZaNY4S5Y/Uh6Q2S0MfFzc3irSjUoS7ltYBWiYS1Tgh
-kODii02gyvpzZA3crdJZFJ9fmK4DhtUX5uPoxcxWpXwf6y4if2ruZUZEGVFh
-DIGJvXwXDNECYbv+MIePji1cVVohKoQyYkeMEH4qlFbrkp5HthQ53DZj2ggq
-053jAXEDkaGLewxOy3HnsbJQTaZAmb403cngALxgQqRxec/qZBafc+G+DNdz
-aw5uoI9nJ2w6iCNmqTbK0hyDs8HFINCJyDCfj+UqiJQnRiX1gIqs4FBVyx9i
-h0GmWrQoDac2BDrU3tScZAbhoNbR0e/F8dvLs+Oh+OwUENH1GUZ3IQprnHxm
-3mr7LUFUU+10fG9tS6MrPqdxlodPjy2nnJRWakItvvBKS49ovaPhf74fXjgr
-dvH98vhmeCNGN9dnF29Ec3T252Fzp99q6WFrj8LZxc3wDRz0ZrfTOR98aLkT
-qKzyHzMF3djEfJrxOf3Qm6H7hKb3+syMrycI+3zmYAQMZMbwUAD+mj3zqLzn
-zb55ZHeY/5o75pHeV/3X3NUgxf8CbQRObeGlcqodAHL+SzopJObdkJBn6rEY
-7lEl86R8KL0WSY4xPOsz9fJl6vg8EK5Y96XKgJUXKJl6QY7ME3SyoLHl6kPq
-xVpjC7JxoTxDIlZZbAs43t5GzLgx8+UcWOSgxs9Kk/cSDzn6kqO6y5S6PC6b
-xCrOT5V/QqqEjtVG6Y9BoQMXPHhbXuFVPVCzKaWN1vnvdKCGmxcfEXdW/hSC
-nhKMrXFMqRueb5MYDEZMVbQo7Z3U6fO+MMDSq1GnpibADN0ShGEqhNw1Q1JS
-EAfwkEamPXdOlBN5n2lNdgMRDE4smMnA5uwsyg0tz8/aOku5zqyxuSk81uQD
-q3UYB2eSkKFDqXl8okhGeSHOa4iRqiGlGJ1WGK2SWBbGF+EqTsOpsgl5ZWW0
-C079yHKtK7Nv1qDb7I5ytHFbi4cUU4rt4cyqsiK3QdF14+JrIvD1bviOFE5J
-1WpjjReG4pnGSglCt09ZQ2wre4nvjyCq4uaxaO++E4WvPO8l6Cq3sgY/Bv1i
-qEQdf1G7PVLcBLRBzVeIHoyjYh4u1PAqX0VJXX4q1bPTv5zJA5XAyWNFs9Xa
-9BKj9NTkQtbM45kpXW0b9hgTZTorjFHc1TK9NCIjWOsCGzV7HdpkA2jTtLqE
-tg3XZ2zUTrLlueNLZrFKEBECFojjCue2koUTnNBWSX7VdLpcMv8ZcwoMA9rd
-c+uj0bTsF6fQ3TybDlkhpV3SR7neLB6hCcU6EsLYLHgVbLzyYlWVaD/mGEe1
-WlygERiMdG+MB7XiffIbiffGWo9T9J1iupqW9j7oViHZQni4D8px/kE3UIqK
-65BAKNwQI8IFT0gNejJtX5VL0rG1eg42bQ01LVkYuspeJ/y9bh2VmYUsw5Qz
-ROpS3jQuEsyJ2uiqFdXztyHWBpHTIrwHxF2E0OtI54nrlSwkRw75FY5NQBGj
-oyNTqwWhGOuc1s8vnLPr6/ncg1OhqGqYdjwDZW3PHeQJfU9cqQ/uO1V1D5vB
-P06jisAPdEV9qmnly//X+tOallodGPK/p56F2agxdTPH1bralGnpT75eJVNL
-dd93tCqXzq6ZUR0E6oeyUDN6XK/TwZq8e636MXPbyeWpqAGcn7/jNq7Vk+v2
-YA1YSFTHsrTXo8GV/mKGNcK4B3dnpOouPjXOE/pw/ZCq4f5uy1PHg0CcnV9d
-Xt+MmIx/VOXqv//8Av9hDdNdWP3k8A/4yjJe5nrL2tR54p4V6mOoCzrrrYVW
-0lNnKxdgcIkgNPuVqBMbsL4wkzTx8SWdjWjTzylig/mzmOKm5TCSw53cxtoK
-OpqBQkM3+IIzLZOpEUGZfxGZdFij+FVZI6rJSlu3ELDiFTl8ylVmmf5eXQ/P
-zgdvhsYt+fmFJoVBfhfiTyXoAx5VXkIZOFelJFwG1qW8okzGZKTk1SthjJMi
-1W6sKxzUUZoU9efadk2ovKo6F4ot1Lwx+nWrI16vuCIie921Ss75XhHoOAXG
-490uUSHA9SGTy2DLsLhjJha5XE7TQP2A6rSKGC5lX6mai24ElE0MoYeoYFGa
-dXQfkTaulTjYDzoabPjG9mo0ij9wStAQIiYrSuWMc1mqiYozqhoisJQVzk8N
-1jbVNQqK7adoXjaFpKgqTzn/gpmfZtjl+CsEYU29DNK8YNcpg4Qymf2Sp7IU
-/1DBm5qKnmVfd1QNiVbokJAxSyUTmOCyEiopBNMrbFOJvvpYtbYXluOXovVf
-8nxmnqOC/WdPHyL79UvVeke4WoGVt+3uSl2T0zKxvhaeAAps6+wUz5gn6MIO
-iFjxUFOuNcNqbRP0aAo4HK+oZnNpGxTcXBb4bMg50/kZgg9zQ0F8kwf/1mLm
-04NaNP6CztGNiGyKUwK1Ecedku2QQ8mUoO9tocXYUwWfIQv7dfNTegDMRn3S
-QLC46BvcGxWfxhH+xvzcneNXB6eHO697+3vi4PS0d3q8tyNev+qfHPcOe2L3
-cNA72d87EafH/ZPd171TMdg52T846B+K3cHJyUm/2xW9/v7Jq+7+q6/esnxS
-iya9foMkEvQODhXGNgbd/h5ebUDS+dETLhgjkhzB6bwVvxcfu9/bWmRy+rXW
-kncOGAm/hhEPu/0ulr1f42twuzLRu6aj34udvu1KiF8JTqX5EAugufa6eMnB
-JmeHmW+vfr49mi7Ptnu8rjMOeoPW/a8r2HRaL+SXMUp8tXsoABL7x/T/pwLA
-vHeAHw769Muu6Pe+elvab9wPmlZ5x2tP9M/ZqJ63UbuHNDX4v1Oa1/7pQZ8m
-1UcAm0H1BTJvJciV4rs0i6f/tqWFJDdyi44jaEZrBaRS+3XSUe/vlI44xhtr
-w5Dk5+TTGb8xSBqorNcq+qGO5toY4cuaOmuMG4tvUi5FKpIwy5S5P5+kLLYp
-P1JNtRXl51aGQix5oflE3XDrrRZkltBVxKqsssJd3SjqsSctrhua5qqSlJL6
-BYkHTuyugIAEB10VlipNmJI4NpXePLcCFJunjWWJp4YGdB6HBGDtTtPztktP
-yikj5OtQvkEvJ6k2va3GT6Fz8dQ6M+nVM/WSwky+TF3tbjTVqcU5JU5pASYx
-RXllTNnQmiStUqCLMgFGc7lOVMXcZGnyXjiHTHuelFfErbdMGpxeItdaxg1i
-eqnEVWcDPct8KURto6C4npQ8S0x0Sc1aIdEXh92gnJrYntw1J48laNlHruGI
-GbJZi+OJPtbv/wJ70qQquGi7Bb/YOFK4a4+P5+Fm7Uur3Wqvq2mBU04l8kKC
-3eF5GL2HdlYmF1BrAfVbvF7O3rDNv66U7Ydc8akqOVhCjntTDFOZquHYYkfN
-vNUWCzTsFOvG31BE9gnRfgMQagX739xO+Y/ALTck2GCX+lFOPeTv1CsnG8BW
-VU1cgrBOMTlqCA6ePu2UYKRbtZ1bOp7gE3V9nNuYdmCwJqIdM1s4qvrE04aO
-tZ7q6Tzusq3Gc3N5cklyWTW15/MLY0leK51V31onoPX/IQKaqu63Tk7Lf5ag
-tobLPAWVpxlNFWq/Fq9hY5PLZm78oKlnM5gaL0K3xovwXLeA6Q4Ore1aB7bS
-XRXKOJhoIx6cka7odDp0c+Eepd4Yj762/q2pmWZdgxsS0vTgXh4augVdq4Kt
-aedzttxhbVLXOPOdz0de1Ka7deVY0Zzul6Y9xXh9E2Kr2zNraeNdZhle/cbt
-OmIYS1Pj04iOig+R1Zp7BZBi7byJyaZtjqNbzKGOwqTFMG1jzjEQUNu3aGzk
-wU8egl/IhpkVzvWKTjt2f+m+z7zYoHj78QBe1gJFJEwdNsOFPPQdVC6c9a+2
-DHepO+07r3/NTpgt0CVfczTzkbZyN5T2OO9VVoFSvr94E3oFY+/vatHFfjrs
-m0/qN5q898UgJeXmQ0c75vW6T/uHzrvmi5vAp+9n89aJ/ba1EFRBjIoxz0EB
-ve3YV1mOrOsrF01Y9v/BReJ/Wlb8coDl768D5OYOvrbjvuZu811R3ebmTutI
-7PTZQFSTQaHufNHaPdnafQJVIU0uS/MHC7WZgO4tQa0OXWfqXrqarGUFX/k4
-0TGEd6aIw4bYrFqR88kzX5U6/6d4rV32FDllBRGVn2JSvb+DSVFxXGvRr17t
-98vYlJc6W8eo3AY/k7N5mUpUKVcHlC0TTw6vUeg8UfxJdCpJ41Wpaa2nwEjk
-NzWCQFnCzj3qU05MdzhQp17YduJGS6K70uvqpslX/TmVCZRaYIuJeGo8OxPD
-orxkpUjrotXM+ry12RIjKm5T6jRtVsH9Q+JUMuE9Lj3OSvfmKQnDNXGsSo5V
-jj0qbCSTuYKwlBhkX8G0frs4x0pANxdM/LRqT+bytZ4qhtUoPlinwqo8eJX1
-OmXHbblOzdmpUXM2qjTYQJfKKMekqwjGmqrTyspLVTZG6m0/bPHqm+PRi564
-73cAZU1gSvOF+tQSNakG+lYzY6iD/kJkLHaUgG5PWpcTW768iHxxlfXqCFEj
-sjpB1bqsSv5JmyujUjUP5I7qYmtprjorLY4Pvu3WufKpIDNvOcgT+9jt7u1x
-H/iJboFSOtTi0yQPeuLy9R+Hxzewy8OLm7PTM2BRxMrEZ9iItNlrYVE4oDTB
-OJ2umn1MaW8e7nZbGJw2zaNmr7ezt/uqRb1h654OI4oIPxFe60f4SwrHJIBx
-gqhYBgV2T7wjWzV7+3aoNLsNk+hvBDUc4za9b/a68GECJxUEFYHx4wYuTRBz
-cIvghxx77OkoIuKeNKUzU9hRmAsenN/U9BTDdfZRL8mk9dgdSJZxfGW/Cid8
-af2fBtT8drZpI9ROHYovT3T1xGMchi8k++UAwD5qll+Bqxu+hf/J7GHjKQQE
-rbx6Cv3BcSfNFCvD2ISv/NMbmdiGdUs1ElQYawWr3zVRmRlWM8lOKa66pyWo
-NcaS9fTUNZPUWklccvvb2UcQqBstI2783j9j2F9D9UGGFeIl2iOnO0/IGFFL
-sNX1HNQyUjYAJfj0+lq5QwpyoK7GK4tHe9o9LJq73Vf71KrTEu9QaTPdYuX5
-KUa1rynWZC95HXNOdRKFMVawxkuSowm2nhQp1ki9GI2Gx+ysi9FVrezqaqFA
-280kaFd2er0uk3T8BGzhciGT0eidvalyucC3evs7qBPTa5dXQxjlXfBhr/sq
-OB5e3wTDD4Pzq3fDEfS0/iFmzPqbpQxAdSWnzH6SC5EjLTh+kZMqVPDWUpJa
-cbCG6e0eHvQUw4JPsLpvZbZifRmr+KrC2wasJ+lIAVJ8fDe4fjMM8IQNP1xd
-XgAdxdXV/MqZAjwLdfS0Qn4q6YxjzIBsu6XxMYE7wW1zsqo/vh+dXbzx+g4u
-TwPqGEbe8FRn/BsomVQUkCNiOXEus6lEtode3c2Qbq6yOj3dqbC0xbBkAnLJ
-RHn6/dOy2SG1gchtMIPVdmbcZfPNxikb0Gz0Bf8SZHvU9PKMuFXq0bskHHrs
-6OPUtKlAJmlR3VgSy5D+/ZvMUqpsyEJdXWinV/Clds1cKMIkpnqXVq81RmyA
-edUMUReQfqUy1X71uHTzrlWkXb7kEGj08oPybS4w0o4zz11WyTHGDpzNPnMR
-mIdAL6ax8BJ5ZqNEx9aTAkUIKz4iOlj9mMbNjTteoYGHcRzm8UzEUCeX0xud
-uFIvDgLtsPp4h0oV5Byo8E5yJiHFIWDFE6fwoUnrUnchOsUrTLlYjeHKX+Zl
-aU5W67mim4HnHS0uYKHgorryjO9VWNLprPSDFGw5h2E4zpgqfZs6eGqAUnkt
-5gxK5XSTT3MsEg8HjMrWzDB6Xb/itGp7vkfWXpdzw3DKSAcLULDDjVTn0IfV
-5jPo00+W8FwWpoFI2x8SkvW7PdKr+93dQ8WLvxn+6d3w4s3N28BclT3Ai7GB
-Y6x71DJ1EVX+wAOujsucF7TQ5eI2C6cE0J3uAd/5q9iXve0LK0w+RnMCK4tC
-EftZKDcd/ZUfL85GNwFM43xwMXgzhAncwLSqP7ZEc9ER+7t4DbmpXqQ8NVht
-Jsy1MFtnJNsAYt88lnjy8tOWsdNOzRXw5ZLd520lMZckSyRcpx3LMZ7phXYX
-U2OJ0Ql2n1+oJK2KBUa3WGd92V1jfUEpda31pXobtb5lplzVsRR+TOmwql91
-WJms+mPY2kNeZfDSRTAOjfEzbj6eBSedKCtmwWSWAVGfTvMQEK3mV6qkpDKi
-OmbduiqBWo0uEaRT/tV8kJBWrU9rlLr67XnS7+2kUJbVORUNrGfvlXCwtcL8
-ml1hzBfK3qPUS6qLNiMyI+GIHjj+6qo5MkbR5ck6a2yNxrcmRWyjCLgGJBvE
-v437j2WTHpVTzprMtP+szsPD6S3rk1SjXHUJO1gjV61dQVWY+u/LuStJVmWm
-pVynWk6qwaUnha01XVhxq4ZEa8A9k0zrHfotSLTu++8g01i57v31WblS2+cX
-wPUCTcoCsuR/WWNBNhcfkom+Jo/Z/FTyPPh1CHOch7rIHWdk3orUFUy62AoL
-fc8s4IY/JFRWlEulVzz7FfcYTaBcHE1JrHivoOJB1VJ0ugCBya2sZlTq3XTX
-d9RovB6Mhr0uoOi3qkxBYKIL2QHp1TLAeJGg1xVNLFcPdLClxNA1Rnpl89Fd
-qMgJEz9epKmyIajJ0VUrIGLmck2HqFtKqnVP5W8BtjNMGO+odez/vHXsi+Yd
-sNF/srWY8+DUP0LigVd3G5l/chdiiUZ1V5JnZ5CPVDgoLylIDKL93ffX7wBK
-rwEA+7sBfLE4JEZSsrVnf/dQWXvgE0iTI8kMfK9c4Q+RyfBqJmwOUTK1AI59
-v95gdHx25m6ILkSgrCpYgMlek6YULBxKSUuw/q3JZMu69wza11CAKAE5e6lv
-z86V+Qhvq1aOVKXTOP7EGB2DW0dbLQtmXbQWT5mqQ6Cqdai6EUZ3dkIp8FFC
-Vau0W/FXqJanLH10W7oWayxhumPqvaS6kAAUmVFdQLQ95STcIKEz1zTRM7xC
-hzJxhC5rzNJmQruHv6sYEc73xJqttUVqJxO5KPS5iLj4Pg7QaTTMhZBekWK+
-zdwp/wBY7rFlUxKlXFLFYLJmpg5xo+F2eLja+K3acbW1e+OQQPjKlhIv6ULR
-D5zArjKNeXdet4WuAOrd+lmfqN4uY1WoIknnoYOzsWMWMPjmBadRZ4o/2GwI
-c1DiNOWbh/RlElzNSl/MoOd0RIIRnLqjLRonILyGM2L3oulsbss86nWbdbvQ
-QgFlWh23Wh3lyHirfsXRqYHaHOqs13a/9b1vFyXt0ob0oJCltEs3pqCcZ9pS
-DqDuY1f9iUFX9PfEYRdT7g5OxeGOeN0TlJQoTnvi9FhQXqLon4jjnjjsic6/
-d/BPwv9GnaDT8foDvNw9FIOeONkXlL2I7+2+FpTAiD8eHAjKYRQnJ+KkL2D8
-t53O953gG+juofnHTqm/PqY5iv0T8aor9l/h8N0eZiJu+OvMO5Huhv4De1XO
-fj2a7V4+/vnDD48/nF7uvZu8eT365u13H2YPxegx+EsPEHJU7IwGr/9YfHrz
-6ajXN2quviarROvDQt2hh/VifhLsJCz9/YTyMxDDn9TliVwY+afGT0Ht30+l
-f5/5B/2R4Q8DlErD/ziZ/Ij/HitVEU1Gts5YlOv4cJMQh33RQa4u5ccyQH+k
-n29MNx/LiPf9x+/LfbsU2O37Z+zNjzRoteJ8uY4ZDldLgWG4Xv9HobupKakH
-HRlvH97a09Y19fneM3PqA0WjcbCKolknnNSWKjr1pPYaAUWd363JzCM5ng/Y
-9tHyyYWbvVKS0lVSn2roqWmJw9pglm3D4j5WCA5IDeo3y0M0yYEZ3w4ez/78
-3WM+Xr3+MN75Y/7n4+HfdbSee6Z+tcOEp2j2jFPkBgEyrjsApW5qQKGRuYJS
-5e4aMDfQGyafUG0dadPssdLMWBJSdU+8gi368mgjTU05CymZrPhCN8eQX9C9
-xu7bKhZbPhYopeEtxnrkiTdyyXJjH9r7V1nPcOOlIlVH3XPz5F6g02cd6PSF
-Wprgpc86eIl/n9mrl8o91dkUP9fZFL+YEoVW3e1s8F961flsUH4phtD4Lvgi
-0vShIr06F64i7CK8f5fzhNzs0Oo1MAjncsUVvoKzou/RwtzSm86Vkn7Hfp0j
-bZajDDb2Q+voa0o/UjqjkFmWZk6BQKDIqpanQZcsyj+Rb1ncoG2ajrDBV6Xe
-qasxHxeh9v2H6q6faRbOMFPjd/8GhwCt6CII/qAq3ibpQxsv8mMZFDvny+A0
-jAAtMVV4Ur6R7Ej87q4oFvnR9vYt4Phy3AHhbzuyd/ptzwC6wVjGcW4J23aR
-Sbk9D7E20zaO9gdcE8vs5+jpQet/uKCLix+DiSmf9Tto0utcnbxXVausStox
-H9vVZw7a/SEIVOHpUiP68WR4enZxhm6hEX0fvL+5PB/cnB2Lm8GbEZot6efX
-wzdnF1ZKUsE93G9N0JcyW55eX55jKeEPveHjIo4mUXF4iIE5pyQqq/O60z/U
-ESjwqWUie0zMoLk5eRp4wXs7LTFNp839lrpQXBbYWmNOc69lr23O8dviU/TY
-PGhR4Bm816VP+GMvkGp6zd5hS3wRX9uVVpfLAXRtJ4CvGklmgtvqY8d8l3lN
-OJvbdl2wWwXG1ORyMLwKBjb1rwztUgjnPxja8ElBHB1di08UVrmzwzBnJPXK
-yPxTl8q3U326Zv7atm6xvH8Vz/9fVTyf/vlXMdB/FQP9VzHQBg+//fIl/ftS
-gNABkL6Cxjfi+BLgfnHD8oduoKzF9uoAXQ0BFQAlFmd8w1vlsgY257zcNrHI
-5EzWp0xfHqNL72Xhg41+LlWOq9Yh+TXKj2yoPeKh7n9PPnq7HjWfFfttRSa7
-1Tr819uU55eRU7CslJLDP0tFf8uScvi3vqxcPX6XKo9ZvGYD6m9adg6HEUIZ
-aX+t8nMveaW/cRU6PXWy3P561ejU5J9XlM7ZrXpkfaJKnYuwz65U90zsgT39
-R5SwI3j9fXXsmN1cnKCWSxWIfYuTq+zKL+yd3ehirKnOXHIxfqlYKTHEnYIN
-igyj3YA2Yoy7KaKsEoPrx9W9KuMCl9+dquvZTC1l4D1NDka/vWWf+Pvrs1aD
-DARH29sPDw+dKEzCDmhS2xyOR/LDdn2h6T8crQ+HsHWdybR5o8L51KcL9Cvp
-P9ekWWfERBNjV7etFhclE2TPfe5W+OH+Rd88r+Yc4/Md89yNuTTzE7vmuTa/
-2b+fGp+PxJpa3EHBF2tERSx/v1VfyHvrS+P/AwzsQ/39vgAA
+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
+i0pu3ZuUM/nNZn2bv82vG/8XVz4WYy+6AAA=
 
 -->
 
