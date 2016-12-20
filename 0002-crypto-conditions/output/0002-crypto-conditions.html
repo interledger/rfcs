@@ -420,11 +420,11 @@
 <link href="#rfc.section.8.3.5" rel="Chapter" title="8.3.5 Validating"/>
 <link href="#rfc.section.8.3.6" rel="Chapter" title="8.3.6 Example"/>
 <link href="#rfc.section.8.4" rel="Chapter" title="8.4 RSA-SHA-256"/>
-<link href="#rfc.section.8.4.1" rel="Chapter" title="8.4.1 Cost"/>
-<link href="#rfc.section.8.4.2" rel="Chapter" title="8.4.2 ASN.1"/>
-<link href="#rfc.section.8.4.3" rel="Chapter" title="8.4.3 Condition Format"/>
-<link href="#rfc.section.8.4.4" rel="Chapter" title="8.4.4 Fulfillment Format"/>
-<link href="#rfc.section.8.4.5" rel="Chapter" title="8.4.5 Implementation"/>
+<link href="#rfc.section.8.4.1" rel="Chapter" title="8.4.1 RSA Keys"/>
+<link href="#rfc.section.8.4.2" rel="Chapter" title="8.4.2 Cost"/>
+<link href="#rfc.section.8.4.3" rel="Chapter" title="8.4.3 ASN.1"/>
+<link href="#rfc.section.8.4.4" rel="Chapter" title="8.4.4 Condition Format"/>
+<link href="#rfc.section.8.4.5" rel="Chapter" title="8.4.5 Fulfillment Format"/>
 <link href="#rfc.section.8.4.6" rel="Chapter" title="8.4.6 Validating"/>
 <link href="#rfc.section.8.4.7" rel="Chapter" title="8.4.7 Example"/>
 <link href="#rfc.section.8.5" rel="Chapter" title="8.5 ED25519-SHA256"/>
@@ -437,9 +437,9 @@
 <link href="#rfc.section.9" rel="Chapter" title="9 URI Encoding Rules"/>
 <link href="#rfc.section.9.1" rel="Chapter" title="9.1 Condition URI Format"/>
 <link href="#rfc.section.9.2" rel="Chapter" title="9.2 New URI Parameter Definitions"/>
-<link href="#rfc.section.9.2.1" rel="Chapter" title="9.2.1 Parameter: type"/>
-<link href="#rfc.section.9.2.2" rel="Chapter" title="9.2.2 Parameter: cost"/>
-<link href="#rfc.section.9.2.3" rel="Chapter" title="9.2.3 Parameter: subtypes"/>
+<link href="#rfc.section.9.2.1" rel="Chapter" title="9.2.1 Parameter: Fingerprint Type (fpt)"/>
+<link href="#rfc.section.9.2.2" rel="Chapter" title="9.2.2 Parameter: Cost (cost)"/>
+<link href="#rfc.section.9.2.3" rel="Chapter" title="9.2.3 Parameter: Subtypes (subtypes)"/>
 <link href="#rfc.section.10" rel="Chapter" title="10 Example Condition"/>
 <link href="#rfc.references" rel="Chapter" title="11 References"/>
 <link href="#rfc.references.1" rel="Chapter" title="11.1 Normative References"/>
@@ -457,7 +457,7 @@
 
   <meta name="dct.creator" content="Thomas, S., Reginelli, R., and A. Hope-Bailie" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-thomas-crypto-conditions-02" />
-  <meta name="dct.issued" scheme="ISO8601" content="2016-12-16" />
+  <meta name="dct.issued" scheme="ISO8601" content="2016-12-20" />
   <meta name="dct.abstract" content="The crypto-conditions specification defines a set of encoding formats and data structures for " />
   <meta name="description" content="The crypto-conditions specification defines a set of encoding formats and data structures for " />
 
@@ -481,12 +481,12 @@
   <td class="right">A. Hope-Bailie</td>
 </tr>
 <tr>
-  <td class="left">Expires: June 19, 2017</td>
+  <td class="left">Expires: June 23, 2017</td>
   <td class="right">Ripple</td>
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">December 16, 2016</td>
+  <td class="right">December 20, 2016</td>
 </tr>
 
     	
@@ -512,7 +512,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on June 19, 2017.</p>
+<p>This Internet-Draft will expire on June 23, 2017.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -570,11 +570,11 @@
 <li>8.3.5.   <a href="#rfc.section.8.3.5">Validating</a></li>
 <li>8.3.6.   <a href="#rfc.section.8.3.6">Example</a></li>
 </ul><li>8.4.   <a href="#rfc.section.8.4">RSA-SHA-256</a></li>
-<ul><li>8.4.1.   <a href="#rfc.section.8.4.1">Cost</a></li>
-<li>8.4.2.   <a href="#rfc.section.8.4.2">ASN.1</a></li>
-<li>8.4.3.   <a href="#rfc.section.8.4.3">Condition Format</a></li>
-<li>8.4.4.   <a href="#rfc.section.8.4.4">Fulfillment Format</a></li>
-<li>8.4.5.   <a href="#rfc.section.8.4.5">Implementation</a></li>
+<ul><li>8.4.1.   <a href="#rfc.section.8.4.1">RSA Keys</a></li>
+<li>8.4.2.   <a href="#rfc.section.8.4.2">Cost</a></li>
+<li>8.4.3.   <a href="#rfc.section.8.4.3">ASN.1</a></li>
+<li>8.4.4.   <a href="#rfc.section.8.4.4">Condition Format</a></li>
+<li>8.4.5.   <a href="#rfc.section.8.4.5">Fulfillment Format</a></li>
 <li>8.4.6.   <a href="#rfc.section.8.4.6">Validating</a></li>
 <li>8.4.7.   <a href="#rfc.section.8.4.7">Example</a></li>
 </ul><li>8.5.   <a href="#rfc.section.8.5">ED25519-SHA256</a></li>
@@ -587,9 +587,9 @@
 </ul></ul><li>9.   <a href="#rfc.section.9">URI Encoding Rules</a></li>
 <ul><li>9.1.   <a href="#rfc.section.9.1">Condition URI Format</a></li>
 <li>9.2.   <a href="#rfc.section.9.2">New URI Parameter Definitions</a></li>
-<ul><li>9.2.1.   <a href="#rfc.section.9.2.1">Parameter: type</a></li>
-<li>9.2.2.   <a href="#rfc.section.9.2.2">Parameter: cost</a></li>
-<li>9.2.3.   <a href="#rfc.section.9.2.3">Parameter: subtypes</a></li>
+<ul><li>9.2.1.   <a href="#rfc.section.9.2.1">Parameter: Fingerprint Type (fpt)</a></li>
+<li>9.2.2.   <a href="#rfc.section.9.2.2">Parameter: Cost (cost)</a></li>
+<li>9.2.3.   <a href="#rfc.section.9.2.3">Parameter: Subtypes (subtypes)</a></li>
 </ul></ul><li>10.   <a href="#rfc.section.10">Example Condition</a></li>
 <li>11.   <a href="#rfc.references">References</a></li>
 <ul><li>11.1.   <a href="#rfc.references.1">Normative References</a></li>
@@ -695,37 +695,37 @@
 <h1 id="rfc.section.7.1"><a href="#rfc.section.7.1">7.1.</a> <a href="#encoding-rules" id="encoding-rules">Encoding Rules</a></h1>
 <p id="rfc.section.7.1.p.1">Implementations of this specificiation MUST support encoding and decoding using Distinguished Encoding Rules (DER) as defined in <a href="#itu.X690.2015">[itu.X690.2015]</a>. This is the canonical encoding format.</p>
 <p id="rfc.section.7.1.p.2">Alternative encodings may be used to represent top-level conditions and fulfillments but to ensure a determinisitic outcome in producing the condition fingerprint content, including any sub-conditions, MUST be DER encoded prior to hashing.</p>
-<p id="rfc.section.7.1.p.3">The excpetion is the PREIMAGE-SHA-256 condition where the fingerprint content is the raw preimage which is not encoded prior to hashing. This is to allow a PREIMAGE-SHA-256 crypto-condition to be used in systems where "hash-locks" are already in use.</p>
+<p id="rfc.section.7.1.p.3">The exception is the PREIMAGE-SHA-256 condition where the fingerprint content is the raw preimage which is not encoded prior to hashing. This is to allow a PREIMAGE-SHA-256 crypto-condition to be used in systems where "hash-locks" are already in use.</p>
 <h1 id="rfc.section.7.2"><a href="#rfc.section.7.2">7.2.</a> <a href="#condition-format" id="condition-format">Condition</a></h1>
-<p id="rfc.section.7.2.p.1">The binary encoding of conditions differs based on their type. All types define at least a fingerprint and maxCost sub-field. Some types, such as the compound condition types, define additional sub-fields that are required to convey essential properties of the crypto-condition (such as the sub-types used by sub-conditions in the case of the compound types).</p>
+<p id="rfc.section.7.2.p.1">The binary encoding of conditions differs based on their type. All types define at least a fingerprint and cost sub-field. Some types, such as the compound condition types, define additional sub-fields that are required to convey essential properties of the crypto-condition (such as the sub-types used by sub-conditions in the case of the compound types).</p>
 <p id="rfc.section.7.2.p.2">Each crypto-condition type has a type ID. The list of known types is the IANA-maintained <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite>.</p>
 <p id="rfc.section.7.2.p.3">Conditions are encoded as follows:</p>
 <pre>
 Condition ::= CHOICE {
-  preimageSha256Condition  [0] Simple256Condition,
-  prefixSha256Condition    [1] Compound256Condition,
-  thresholdSha256Condition [2] Compound256Condition,
-  rsaSha256Condition       [3] Simple256Condition,
-  ed25519Sha256Condition   [4] Simple256Condition
+  preimageSha256   [0] SimpleSha256Condition,
+  prefixSha256     [1] CompoundSha256Condition,
+  thresholdSha256  [2] CompoundSha256Condition,
+  rsaSha256        [3] SimpleSha256Condition,
+  ed25519Sha256    [4] SimpleSha256Condition
 }
 
-Simple256Condition ::= SEQUENCE {
-  fingerprint OCTET STRING (SIZE(32)),
-  cost INTEGER (0..4294967295)
+SimpleSha256Condition ::= SEQUENCE {
+  fingerprint          OCTET STRING (SIZE(32)),
+  cost                 INTEGER (0..4294967295)
 }
 
-Compound256Condition ::= SEQUENCE {
-  fingerprint OCTET STRING (SIZE(32)),
-  cost INTEGER (0..4294967295),
-  subtypes ConditionTypes
+CompoundSha256Condition ::= SEQUENCE {
+  fingerprint          OCTET STRING (SIZE(32)),
+  cost                 INTEGER (0..4294967295),
+  subtypes             ConditionTypes
 }
 
 ConditionTypes ::= BIT STRING {
-  preImageSha256  (0),
-  prefixSha256    (1),
-  thresholdSha256 (2),
-  rsaSha256       (3),
-  ed25519Sha256   (4)
+  preImageSha256   (0),
+  prefixSha256     (1),
+  thresholdSha256  (2),
+  rsaSha256        (3),
+  ed25519Sha256    (4)
 }
 </pre>
 <h1 id="rfc.section.7.2.1"><a href="#rfc.section.7.2.1">7.2.1.</a> <a href="#fingerprint" id="fingerprint">Fingerprint</a></h1>
@@ -743,7 +743,7 @@ ConditionTypes ::= BIT STRING {
 <p id="rfc.section.7.2.2.p.6">Implementations MUST determine a safe cost ceiling based on the expected cost value of crypto-conditions they will need to process. When a crypto-condition is submitted to an implementation, the implementation MUST verify that it will be able to process a fulfillment with the given cost (i.e. the cost is lower than the allowed ceiling) and reject it if not.</p>
 <p id="rfc.section.7.2.2.p.7">Cost function constants have been rounded to numbers that have an efficient base-2 representation to facilitate efficient arithmetic operations.</p>
 <h1 id="rfc.section.7.2.3"><a href="#rfc.section.7.2.3">7.2.3.</a> <a href="#subtypes" id="subtypes">Subtypes</a></h1>
-<p id="rfc.section.7.2.3.p.1">Subtypes is a bitmap that indicates the set of types an implementation must support in order to be able to successfully validate the fulfillment of this condition. This is the set of types and subtypes of all sub-crypto-conditions, recursively.</p>
+<p id="rfc.section.7.2.3.p.1">Subtypes is a bitmap that indicates the set of types an implementation must support in order to be able to successfully validate the fulfillment of this condition. This is the set of types and subtypes of all sub-crypto-conditions, recursively excluding the type of the root crypto-condition.</p>
 <p id="rfc.section.7.2.3.p.2">It must be possible to verify that all types used in a crypto-condition are supported (including the types and subtypes of any sub-crypto-conditions) even if the fulfillment is not available to be analysed yet. Therefore, all compound conditions set the bits in this bitmap that correspond to the set of types and subtypes of all sub-crypto-conditions.</p>
 <p id="rfc.section.7.2.3.p.3">The field is encoded as a variable length BIT STRING, as defined in ASN.1 to accommodate new types that may be defined.</p>
 <p id="rfc.section.7.2.3.p.4">Each bit in the bitmap represents a type from the list of known types in the IANA-maintained <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite> and the bit corresponding to each type is the bit at position X where X is the type ID of the type.</p>
@@ -752,44 +752,37 @@ ConditionTypes ::= BIT STRING {
 <h1 id="rfc.section.7.3"><a href="#rfc.section.7.3">7.3.</a> <a href="#fulfillment-format" id="fulfillment-format">Fulfillment</a></h1>
 <p id="rfc.section.7.3.p.1">The ASN.1 definition for fulfillments is defined as follows:</p>
 <pre>
-Fulfillment ::= SET OF Subfulfillment
-
-Subfulfillment ::= CHOICE {
-  preimageSubfulfillment   [0] PreimageSubfulfillment,
-  prefixSubfulfillment     [1] PrefixSubfulfillment,
-  thresholdSubfulfillment  [2] ThresholdSubfulfillment,
-  rsaSha256Subfulfillment  [3] RsaSha256Subfulfillment,
-  ed25519Subfulfillment    [4] Ed25519Subfulfillment
+Fulfillment ::= CHOICE {
+  preimageSha256   [0] PreimageFulfillment ,
+  prefixSha256     [1] PrefixFulfillment,
+  thresholdSha256  [2] ThresholdFulfillment,
+  rsaSha256        [3] RsaSha256Fulfillment,
+  ed25519Sha256    [4] Ed25519Sha512Fulfillment
 }
 
-PreimageSubfulfillment ::= SEQUENCE {
-  preimage OCTET STRING
+PreimageFulfillment ::= SEQUENCE {
+  preimage             OCTET STRING
 }
 
-PrefixSubfulfillment ::= SEQUENCE {
-  prefix OCTET STRING,
-  subcondition Condition
+PrefixFulfillment ::= SEQUENCE {
+  prefix               OCTET STRING,
+  maxMessageLength     INTEGER (0..4294967295),
+  subfulfillment       Fulfillment
 }
 
-ThresholdSubfulfillment ::= SEQUENCE {
-  threshold INTEGER (1..65535),
-  subconditions SEQUENCE OF Condition
+ThresholdFulfillment ::= SEQUENCE {
+  subfulfillments      SEQUENCE OF Fulfillment,
+  subconditions        SEQUENCE OF Condition
 }
 
-RsaSha256Subfulfillment ::= SEQUENCE {
-  publicKey RSAPublicKey,
-  signature OCTET STRING
+RsaSha256Fulfillment ::= SEQUENCE {
+  modulus              OCTET STRING,
+  signature            OCTET STRING
 }
 
-Ed25519Subfulfillment ::= SEQUENCE {
-  publicKey OCTET STRING (SIZE(32)),
-  signature OCTET STRING (SIZE(64))
-}
-
--- IMPORTS from [RFC8017]{#8017}
-RSAPublicKey ::= SEQUENCE {
-  modulus INTEGER,  -- n
-  publicExponent INTEGER -- e
+Ed25519Sha512Fulfillment ::= SEQUENCE {
+  publicKey            OCTET STRING (SIZE(32)),
+  signature            OCTET STRING (SIZE(64))
 }
 </pre>
 <h1 id="rfc.section.8"><a href="#rfc.section.8">8.</a> <a href="#crypto-condition-types" id="crypto-condition-types">Crypto-Condition Types</a></h1>
@@ -799,9 +792,9 @@ RSAPublicKey ::= SEQUENCE {
 <p id="rfc.section.8.1.p.2">This type of condition is also called a "hashlock". By creating a hash of a difficult-to-guess 256-bit random or pseudo-random integer it is possible to create a condition which the creator can trivially fulfill by publishing the random value. However, for anyone else, the condition is cryptographically hard to fulfill, because they would have to find a preimage for the given condition hash.</p>
 <p id="rfc.section.8.1.p.3">Implementations MUST ignore any input message when validating a PREIMAGE-SHA-256 fulfillment as the validation of this crypto-condition type only requires that the SHA-256 digest of the preimage, taken from the fulfillment, matches the fingerprint, taken from the condition.</p>
 <h1 id="rfc.section.8.1.1"><a href="#rfc.section.8.1.1">8.1.1.</a> <a href="#preimage-sha-256-condition-type-maxcost" id="preimage-sha-256-condition-type-maxcost">Cost</a></h1>
-<p id="rfc.section.8.1.1.p.1">The cost is the size, in bytes, of the <strong>unencoded</strong> preimage, plus the constant 32. The constant is added to ensure that even a zero length fulfillment reflects some processing cost. This prevents a large number of very small PREIMAGE-SHA-256 sub-fulfillments being used to construct a fulfillment that has a low calculated cost but a large real cost to process.</p>
+<p id="rfc.section.8.1.1.p.1">The cost is the size, in bytes, of the <strong>unencoded</strong> preimage.</p>
 <pre>
-cost = preimage + 32
+cost = preimage length
 </pre>
 <h1 id="rfc.section.8.1.2"><a href="#rfc.section.8.1.2">8.1.2.</a> <a href="#preimage-sha-256-condition-asn1" id="preimage-sha-256-condition-asn1">ASN.1</a></h1>
 <pre>
@@ -810,18 +803,29 @@ cost = preimage + 32
 -- The fingerprint content is the preimage
 
 -- Fulfillment 
-PreimageSubfulfillment ::= SEQUENCE {
-  preimage OCTET STRING
+PreimageFulfillment ::= SEQUENCE {
+  preimage             OCTET STRING
 }
 </pre>
 <h1 id="rfc.section.8.1.3"><a href="#rfc.section.8.1.3">8.1.3.</a> <a href="#preimage-sha-256-condition-type-condition" id="preimage-sha-256-condition-type-condition">Condition Format</a></h1>
 <p id="rfc.section.8.1.3.p.1">The fingerprint of a PREIMAGE-SHA-256 condition is the SHA-256 hash of the <strong>unencoded</strong> preimage.</p>
 <h1 id="rfc.section.8.1.4"><a href="#rfc.section.8.1.4">8.1.4.</a> <a href="#preimage-sha-256-condition-type-fulfillment" id="preimage-sha-256-condition-type-fulfillment">Fulfillment Format</a></h1>
-<p id="rfc.section.8.1.4.p.1">The fulfillment simply contains the preimage.</p>
+<p id="rfc.section.8.1.4.p.1">The fulfillment simply contains the preimage (encoded into a SEQUENCE of one element for consistency).</p>
 <h1 id="rfc.section.8.1.5"><a href="#rfc.section.8.1.5">8.1.5.</a> <a href="#preimage-sha-256-condition-type-validating" id="preimage-sha-256-condition-type-validating">Validating</a></h1>
 <p id="rfc.section.8.1.5.p.1">A PREIMAGE-SHA-256 fulfillment is valid iff C.fingerprint is equal to the SHA-256 hash digest of F.</p>
 <h1 id="rfc.section.8.1.6"><a href="#rfc.section.8.1.6">8.1.6.</a> <a href="#preimage-sha-256-example" id="preimage-sha-256-example">Example</a></h1>
-<p id="rfc.section.8.1.6.p.1">TODO</p>
+<pre>
+examplePreimageCondition Condition ::= 
+  preimageSha256 : {
+    fingerprint '7F83B165 7FF1FC53 B92DC181 48A1D65D FC2D4B1F A3D67728 4ADDD200 126D9069'H,
+    cost         12
+  }
+
+examplePreimageFulfillment Fulfillment ::= 
+  preimageSha256 : { 
+    preimage '48656C6C 6F20576F 726C6421'H 
+  }
+</pre>
 <h1 id="rfc.section.8.2"><a href="#rfc.section.8.2">8.2.</a> <a href="#prefix-sha-256-condition-type" id="prefix-sha-256-condition-type">PREFIX-SHA-256</a></h1>
 <p id="rfc.section.8.2.p.1">PREFIX-SHA-256 is assigned the type ID 1. It relies on the availability of the SHA-256 digest algorithm and any other algorithms required by its sub-crypto-condition as it is a compound crypto-condition type.</p>
 <p id="rfc.section.8.2.p.2">Prefix crypto-conditions provide a way to narrow the scope of other crypto-conditions that are used inside the prefix crypto-condition as a sub-crypto-condition.</p>
@@ -829,84 +833,197 @@ PreimageSubfulfillment ::= SEQUENCE {
 <p id="rfc.section.8.2.p.4">We can also use the prefix condition in contexts where there is an empty message used for validation of the fulfillment so that we can reuse the same key pair for multiple crypto-conditions, each with a different prefix, and therefore generate a unique condition and fulfillment each time.</p>
 <p id="rfc.section.8.2.p.5">Implementations MUST prepend the prefix to the provided message and will use the resulting value as the message to validate the sub-fulfillment.</p>
 <h1 id="rfc.section.8.2.1"><a href="#rfc.section.8.2.1">8.2.1.</a> <a href="#prefix-sha-256-condition-type-cost" id="prefix-sha-256-condition-type-cost">Cost</a></h1>
-<p id="rfc.section.8.2.1.p.1">The cost is the size, in bytes, of the <strong>unencoded</strong> prefix plus the cost of the sub-condition multiplied by 1.25.</p>
+<p id="rfc.section.8.2.1.p.1">The cost is the size, in bytes, of the <strong>unencoded</strong> prefix, plus the maximum message that will be accepted to be prefixed and validated by the subcondition, plus the cost of the sub-condition, plus the constant 1024.</p>
 <pre>
-cost = prefix.length + ( subcondition.cost * 1.25 )
+cost = prefix.length (in bytes) + max_message_length + subcondition_cost + 1024
 </pre>
 <h1 id="rfc.section.8.2.2"><a href="#rfc.section.8.2.2">8.2.2.</a> <a href="#prefix-sha-256-condition-asn1" id="prefix-sha-256-condition-asn1">ASN.1</a></h1>
 <pre>
 -- Condition Fingerprint
-PrefixSha256FingerprintContents ::= PrefixSubfulfillment
+PrefixFingerprintContents ::= SEQUENCE {
+  prefix               OCTET STRING,
+  maxMessageLength     INTEGER (0..4294967295),
+  subcondition         Condition
+}
 
 -- Fulfillment 
-PrefixSubfulfillment ::= SEQUENCE {
-  prefix OCTET STRING,
-  subcondition Condition
+PrefixFulfillment ::= SEQUENCE {
+  prefix               OCTET STRING,
+  maxMessageLength     INTEGER (0..4294967295),
+  subfulfillment       Fulfillment
 }
 </pre>
 <h1 id="rfc.section.8.2.3"><a href="#rfc.section.8.2.3">8.2.3.</a> <a href="#prefix-sha-256-condition-type-condition" id="prefix-sha-256-condition-type-condition">Condition Format</a></h1>
-<p id="rfc.section.8.2.3.p.1">The fingerprint of a PREFIX-SHA-256 condition is the SHA-256 digest of the DER encoded fingerprint contents which are identical to contents of the PrefixSubfulfillment.</p>
-<h1 id="rfc.section.8.2.4"><a href="#rfc.section.8.2.4">8.2.4.</a> <a href="#prefix-sha-256-condition-type-fulfillment" id="prefix-sha-256-condition-type-fulfillment">Fulfillment Format</a></h1>
+<p id="rfc.section.8.2.3.p.1">The fingerprint of a PREFIX-SHA-256 condition is the SHA-256 digest of the DER encoded fingerprint contents which are a SEQUENCE of:</p>
 <p/>
 
 <dl>
   <dt>prefix</dt>
-  <dd style="margin-left: 8">is an arbitrary octet string which will be prepended to the message during validation of the sub-fulfillment.</dd>
+  <dd style="margin-left: 8">An arbitrary octet string which will be prepended to the message during validation of the sub-fulfillment.</dd>
+  <dt>maxMessageLength</dt>
+  <dd style="margin-left: 8">The maximum size, in bytes, of the message that will be accepted during validation of the fulfillment of this condition.</dd>
   <dt>subcondition</dt>
-  <dd style="margin-left: 8">is the condition derived from the sub-fulfillment of this parent fulfillment.</dd>
+  <dd style="margin-left: 8">The condition derived from the sub-fulfillment of this crypto-condition.</dd>
+</dl>
+<h1 id="rfc.section.8.2.4"><a href="#rfc.section.8.2.4">8.2.4.</a> <a href="#prefix-sha-256-condition-type-fulfillment" id="prefix-sha-256-condition-type-fulfillment">Fulfillment Format</a></h1>
+<p id="rfc.section.8.2.4.p.1">The fulfillment of a PREFIX-SHA-256 crypto-condition is a PrefixFulfillment which is a SEQUENCE of:</p>
+<p/>
+
+<dl>
+  <dt>prefix</dt>
+  <dd style="margin-left: 8">An arbitrary octet string which will be prepended to the message during validation of the sub-fulfillment.</dd>
+  <dt>maxMessageLength</dt>
+  <dd style="margin-left: 8">The maximum size, in bytes, of the message that will be accepted during validation of the fulfillment of this condition.</dd>
+  <dt>subfulfillment</dt>
+  <dd style="margin-left: 8">A fulfillment that will be verified against the prefixed message.</dd>
 </dl>
 <h1 id="rfc.section.8.2.5"><a href="#rfc.section.8.2.5">8.2.5.</a> <a href="#prefix-sha-256-condition-type-validating" id="prefix-sha-256-condition-type-validating">Validating</a></h1>
 <p id="rfc.section.8.2.5.p.1">A PREFIX-SHA-256 fulfillment is valid iff:</p>
 <p/>
 
 <ol>
-  <li>The fulfillment (f) that satisfies F.subcondition is valid, where the message used for validation of f is M prefixed by F.prefix AND</li>
-  <li>D is equal to C.</li>
+  <li>The size of M, in bytes, is less than or equal to F.maxMessageLength AND</li>
+  <li>F.subfulfillment is valid, where the message used for validation of f is M prefixed by F.prefix AND</li>
+  <li>D is equal to C</li>
 </ol>
 <h1 id="rfc.section.8.2.6"><a href="#rfc.section.8.2.6">8.2.6.</a> <a href="#prefix-sha-256-example" id="prefix-sha-256-example">Example</a></h1>
-<p id="rfc.section.8.2.6.p.1">TODO</p>
+<pre>
+examplePrefixCondition Condition ::=
+  prefixSha256 : {
+    fingerprint 'BB1AC526 0C0141B7 E54B26EC 2330637C 5597BF81 1951AC09 E744AD20 FF77E287'H,
+    cost         1024,
+    subtypes    { preimageSha256 }
+  }
+
+examplePrefixFulfillment Fulfillment ::= 
+  prefixSha256 : {
+    prefix           ''H,
+    maxMessageLength  0,
+    subfulfillment    preimageSha256 : { preimage ''H }
+  }
+
+examplePrefixFingerprintContents PrefixFingerprintContents ::= {
+  prefix           ''H,
+  maxMessageLength  0,
+  subcondition      preimageSha256 : {
+    fingerprint      'E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855'H,
+    cost              0
+  }
+}
+</pre>
+<p id="rfc.section.8.2.6.p.1">Note that the example given, while useful to demonstrate the structure, has less practical security value that the use of an RSA-SHA-256 or ED25519-SHA-256 subfulfillment. Since the subfulfillment is a PREIMAGE-SHA-256, the validation of which ignores the incoming message, as long as the prefix, maxMessagelength and preimage provided in the subfulfillment are correct, the parent PREFIX-SHA-256 fulfillment will validate.</p>
+<p id="rfc.section.8.2.6.p.2">In this case, wrapping the PREIMAGE-SHA-256 crypto-condition in the PREFIX-SHA-256 crypto-condition, has the effect of enforcing a message length of 0 bytes.</p>
+<p id="rfc.section.8.2.6.p.3">Note also, any change to the PREFIX-SHA-256 crypto-condition's prefix and maxMessageLength values result in a different fingerprint value, effectively namespacing the underlying preimage and re-hashing it. The result is a new crypto-condition with a new and unique fingerprint with no change to the underlying sub-crypto-condition.</p>
 <h1 id="rfc.section.8.3"><a href="#rfc.section.8.3">8.3.</a> <a href="#threshold-sha-256-condition-type" id="threshold-sha-256-condition-type">THRESHOLD-SHA-256</a></h1>
 <p id="rfc.section.8.3.p.1">THRESHOLD-SHA-256 is assigned the type ID 2. It relies on the availability of the SHA-256 digest algorithm and any other algorithms required by any of its sub-crypto-conditions as it is a compound crypto-condition type.</p>
 <h1 id="rfc.section.8.3.1"><a href="#rfc.section.8.3.1">8.3.1.</a> <a href="#threshold-sha-256-condition-type-cost" id="threshold-sha-256-condition-type-cost">Cost</a></h1>
-<p id="rfc.section.8.3.1.p.1">The cost is the sum of the F.threshold largest cost values of all sub-conditions, added to 32 times the difference between the total sub-conditions and F.threshold.</p>
+<p id="rfc.section.8.3.1.p.1">The cost is the sum of the F.threshold largest cost values of all sub-conditions, added to 1024 times the total number of sub-conditions.</p>
 <pre>
-cost = (sum of largest F.threshold subcondition.cost values) + 32 * (F.subconditions.count - F.threshold)
+cost = (sum of largest F.threshold subcondition.cost values) + 1024 * F.subconditions.count
 </pre>
-<p id="rfc.section.8.3.1.p.2">For example, if a threshold crypto-condition contains 5 sub-conditions with costs of 64, 64, 82, 84 and 84 and has a threshold of 3, the cost is equal to the sum of the largest three sub-condition costs (82 + 84 + 84 = 250) plus 32 times the number of remaining conditions (32 * (5 - 3) = 64): 314</p>
-<p id="rfc.section.8.3.1.p.3">Implementations MUST accept THRESHOLD-SHA-256 fulfillments with more sub-fulfillments provided that satisfy the sub-conditions than required by the threshold. In a complex multi-layer fulfillment, sub-fulfillments may be provided that satisfy sub-conditions within multiple compound conditions therefor it is impossible to avoid providing more sub-fulfillments than are required in some cases.</p>
-<p id="rfc.section.8.3.1.p.4">Implementations SHOULD only validate as many sub-fulfillments as are required to meet the threshold, favouring those with lower cost where possible.</p>
+<p id="rfc.section.8.3.1.p.2">For example, if a threshold crypto-condition contains 5 sub-conditions with costs of 64, 64, 82, 84 and 84 and has a threshold of 3, the cost is equal to the sum of the largest three sub-condition costs (82 + 84 + 84 = 250) plus 1024 times the number of sub-conditions (1024 * 5 = 5120): 5370</p>
 <h1 id="rfc.section.8.3.2"><a href="#rfc.section.8.3.2">8.3.2.</a> <a href="#threshold-sha-256-condition-asn1" id="threshold-sha-256-condition-asn1">ASN.1</a></h1>
 <pre>
 -- Condition Fingerprint
-ThresholdSubfulfillment ::= SEQUENCE {
-  threshold INTEGER (1..65535),
-  subconditions SEQUENCE OF Condition
+ThresholdFingerprintContents ::= SEQUENCE {
+  threshold            INTEGER (1..65535),
+  subconditions        SET OF Condition
 }
 
 -- Fulfillment 
-ThresholdSha256FingerprintContents ::= ThresholdSubfulfillment    
+ThresholdFulfillment ::= SEQUENCE {
+  subfulfillments      SEQUENCE OF Fulfillment,
+  subconditions        SEQUENCE OF Condition
+}
 </pre>
 <h1 id="rfc.section.8.3.3"><a href="#rfc.section.8.3.3">8.3.3.</a> <a href="#threshold-sha-256-condition-type-condition" id="threshold-sha-256-condition-type-condition">Condition Format</a></h1>
-<p id="rfc.section.8.3.3.p.1">The fingerprint of a THRESHOLD-SHA-256 condition is the SHA-256 digest of the DER encoded fingerprint contents which are identical to the contents of the ThresholdSubfulfillment.</p>
-<h1 id="rfc.section.8.3.4"><a href="#rfc.section.8.3.4">8.3.4.</a> <a href="#threshold-sha-256-condition-type-fulfillment" id="threshold-sha-256-condition-type-fulfillment">Fulfillment Format</a></h1>
+<p id="rfc.section.8.3.3.p.1">The fingerprint of a THRESHOLD-SHA-256 condition is the SHA-256 digest of the DER encoded fingerprint contents which are a SEQUENCE of:</p>
 <p/>
 
 <dl>
   <dt>threshold</dt>
-  <dd style="margin-left: 8">is a number and MUST be an integer in the range 1 &#8230; 65535. In order to fulfill a threshold condition, the count of the sub-conditions that are satisfied by one of the provided fulfillments MUST be greater than or equal to the threshold.</dd>
+  <dd style="margin-left: 8">A number that MUST be an integer in the range 1 &#8230; 65535. In order to fulfill a threshold condition, the count of the sub-fulfillments MUST be equal to the threshold.</dd>
   <dt>subconditions</dt>
-  <dd style="margin-left: 8">is the set of sub-conditions, F.threshold of which MUST be satisfied by provided fulfillments. The list of DER encoded sub-conditions is sorted first based on encoded length, shortest first and then elements of the same length are sorted in lexicographic (big-endian) order, smallest first.</dd>
+  <dd style="margin-left: 8">The set of sub-conditions, F.threshold of which MUST be satisfied by valid sub-fulfillments provided in the fulfillment. The SET of DER encoded sub-conditions is sorted according to the DER encoding rules for a SET, in lexicographic (big-endian) order, smallest first as defined in section 11.6 of <a href="#itu.X690.2015">[itu.X690.2015]</a>.</dd>
 </dl>
+<h1 id="rfc.section.8.3.4"><a href="#rfc.section.8.3.4">8.3.4.</a> <a href="#threshold-sha-256-condition-type-fulfillment" id="threshold-sha-256-condition-type-fulfillment">Fulfillment Format</a></h1>
+<p id="rfc.section.8.3.4.p.1">The fulfillment of a THRESHOLD-SHA-256 crypto-condition is a ThresholdFulfillment which is a SEQUENCE of:</p>
+<p/>
+
+<dl>
+  <dt>subfulfillments</dt>
+  <dd style="margin-left: 8">A SEQUENCE of fulfillments. The number of elements in this set is equal to the threshold therefore implementations must use the length of this SEQUENCE as the threshold value when deriving the fingerprint of this crypto-condition.</dd>
+  <dt>subconditions</dt>
+  <dd style="margin-left: 8">A SEQUENCE of conditions. This is the list of unfulfilled sub-conditions. This list must be combined with the list of conditions derived from the subfulfillments and the combined list, sorted, and used as the subconditions value when deriving the fingerprint of this crypto-condition.</dd>
+  <dt></dt>
+  <dd style="margin-left: 8">This may be an empty list.</dd>
+</dl>
+<p id="rfc.section.8.3.4.p.3">SEQUENCE OF is used instead of SET OF, because a correct DER decoder should reject SET OF values that aren't in canonical order, but most don't, so there is a risk of inconsistent behavior. By using SEQUENCE OF it is possible to ensure that all implementations consistently accept any arbitrary ordering.</p>
 <h1 id="rfc.section.8.3.5"><a href="#rfc.section.8.3.5">8.3.5.</a> <a href="#threshold-sha-256-condition-type-validating" id="threshold-sha-256-condition-type-validating">Validating</a></h1>
 <p id="rfc.section.8.3.5.p.1">A THRESHOLD-SHA-256 fulfillment is valid iff :</p>
 <p/>
 
 <ol>
-  <li>The number of F.subconditions, satisfied by provided fulfillments, is equal to or greater than F.threshold.</li>
+  <li>All F.subfulfillments are valid.</li>
   <li>D is equal to C.</li>
 </ol>
 <h1 id="rfc.section.8.3.6"><a href="#rfc.section.8.3.6">8.3.6.</a> <a href="#threshold-sha-256-example" id="threshold-sha-256-example">Example</a></h1>
-<p id="rfc.section.8.3.6.p.1">TODO</p>
+<pre>
+exampleThresholdCondition Condition ::=
+  thresholdSha256 : {
+    fingerprint 'B4B84136 DF48A71D 73F4985C 04C6767A 778ECB65 BA7023B4 506823BE EE7631B9'H,
+    cost         1024,
+    subtypes    { preimageSha256 }
+  }
+
+exampleThresholdFulfillment Fulfillment ::=
+  thresholdSha256 : {
+    subfulfillments { preimageSha256 : { preimage ''H } },
+    subconditions   { }
+  }
+
+exampleThresholdFingerprintContents ThresholdFingerprintContents ::= {
+  threshold 1,
+  subconditions {
+    preimageSha256 : {
+      fingerprint 'E3B0C442 98FC1C14 9AFBF4C8 996FB924 27AE41E4 649B934C A495991B 7852B855'H,
+      cost         0
+    }
+  }
+}
+
+exampleThresholdCondition2 Condition ::=
+  thresholdSha256 : {
+    fingerprint '5A218ECE 7AC4BC77 157F04CB 4BC8DFCD 5C9D225A 55BD0AA7 60BCA2A4 F1773DC6'H,
+    cost         2060,
+    subtypes    { preimageSha256 }
+  }
+
+exampleThresholdFulfillment2 Fulfillment ::=
+  thresholdSha256 : {
+    subfulfillments { preimageSha256 : { preimage ''H } },
+    subconditions {
+      preimageSha256 : { 
+        fingerprint '7F83B165 7FF1FC53 B92DC181 48A1D65D FC2D4B1F A3D67728 4ADDD200 126D9069'H,
+        cost         12
+      }
+    }
+  }
+
+exampleThresholdFingerprintContents2 ThresholdFingerprintContents ::= {
+  threshold 1,
+  subconditions {
+    preimageSha256 : {
+      fingerprint 'E3B0C442 98FC1C14 9AFBF4C8 996FB924 27AE41E4 649B934C A495991B 7852B855'H,
+      cost         0
+    },
+    preimageSha256 : {
+      fingerprint '7F83B165 7FF1FC53 B92DC181 48A1D65D FC2D4B1F A3D67728 4ADDD200 126D9069'H,
+      cost         12
+    }
+  }
+}
+</pre>
 <h1 id="rfc.section.8.4"><a href="#rfc.section.8.4">8.4.</a> <a href="#rsa-sha-256-condition-type" id="rsa-sha-256-condition-type">RSA-SHA-256</a></h1>
 <p id="rfc.section.8.4.p.1">RSA-SHA-256 is assigned the type ID 3. It relies on the SHA-256 digest algorithm and the RSA-PSS signature scheme.</p>
 <p id="rfc.section.8.4.p.2">The signature algorithm used is RSASSA-PSS as defined in PKCS#1 v2.2. <a href="#RFC8017">[RFC8017]</a></p>
@@ -917,74 +1034,110 @@ pkcs-1 OBJECT IDENTIFIER  ::=  { iso(1) member-body(2) us(840) rsadsi(113549) pk
 id-sha256 OBJECT IDENTIFIER  ::=  { joint-iso-itu-t(2) country(16) us(840) organization(1) gov(101) csor(3) nistalgorithm(4) hashalgs(2) 1 }
 
 sha256Identifier AlgorithmIdentifier  ::=  {
-  algorithm id-sha256,
-  parameters nullParameters  
+  algorithm            id-sha256,
+  parameters           nullParameters  
 }
                           
 id-mgf1 OBJECT IDENTIFIER  ::=  { pkcs-1 8 }                          
                           
 mgf1SHA256Identifier AlgorithmIdentifier  ::=  {
-  algorithm id-mgf1,
-  parameters sha256Identifier 
+  algorithm            id-mgf1,
+  parameters           sha256Identifier 
 }
 
 rSASSA-PSS-SHA256-Params RSASSA-PSS-params ::=  {
-  hashAlgorithm sha256Identifier,
-  maskGenAlgorithm mgf1SHA256Identifier,
-  saltLength 20,
-  trailerField 1
+  hashAlgorithm        sha256Identifier,
+  maskGenAlgorithm     mgf1SHA256Identifier,
+  saltLength           20,
+  trailerField         1
 }
 </pre>
-<h1 id="rfc.section.8.4.1"><a href="#rfc.section.8.4.1">8.4.1.</a> <a href="#rsa-sha-256-condition-type-cost" id="rsa-sha-256-condition-type-cost">Cost</a></h1>
-<p id="rfc.section.8.4.1.p.1">The cost is the square of RSA key modulus size (in bits) divided by the constant 64.</p>
+<h1 id="rfc.section.8.4.1"><a href="#rfc.section.8.4.1">8.4.1.</a> <a href="#rsa-keys" id="rsa-keys">RSA Keys</a></h1>
+<p id="rfc.section.8.4.1.p.1">To optimize the RsaFulfillment, and enforce a public exponent value of 65537, only the RSA Public Key modulus is stored in the RsaFingerprintContents and RsaFulfillment.</p>
+<p id="rfc.section.8.4.1.p.2">The modulus is stored as an OCTET STRING representing an unsigned integer (i.e. no sign byte) in big-endian byte-order, the most significant byte being the first in the string.</p>
+<p id="rfc.section.8.4.1.p.3">Implementations MUST use moduli greater than 128 bytes (1017 bits) and smaller than or equal to 512 bytes (4096 bits.) Large moduli slow down signature verification which can be a denial-of-service vector. DNSSEC also limits the modulus to 4096 bits <a href="#RFC3110">[RFC3110]</a>. OpenSSL supports up to 16384 bits <a href="#OPENSSL-X509-CERT-EXAMPLES">[OPENSSL-X509-CERT-EXAMPLES]</a>.</p>
+<p id="rfc.section.8.4.1.p.4">Implementations MUST use the value 65537 for the public exponent e as recommended in <a href="#RFC4871">[RFC4871]</a>. Very large exponents can be a DoS vector <a href="#LARGE-RSA-EXPONENTS">[LARGE-RSA-EXPONENTS]</a> and 65537 is the largest Fermat prime, which has some nice properties <a href="#USING-RSA-EXPONENT-OF-65537">[USING-RSA-EXPONENT-OF-65537]</a>.</p>
+<p id="rfc.section.8.4.1.p.5">The recommended modulus size as of 2016 is 2048 bits <a href="#KEYLENGTH-RECOMMENDATION">[KEYLENGTH-RECOMMENDATION]</a>. In the future we anticipate an upgrade to 3072 bits which provides approximately 128 bits of security <a href="#NIST-KEYMANAGEMENT">[NIST-KEYMANAGEMENT]</a> (p. 64), about the same level as SHA-256.</p>
+<h1 id="rfc.section.8.4.2"><a href="#rfc.section.8.4.2">8.4.2.</a> <a href="#rsa-sha-256-condition-type-cost" id="rsa-sha-256-condition-type-cost">Cost</a></h1>
+<p id="rfc.section.8.4.2.p.1">The cost is the square of the RSA key modulus size (in bits) divided by the constant 64.</p>
 <pre>
 cost = ( (modulus size in bits) ^ 2 ) / 64 
 </pre>
-<h1 id="rfc.section.8.4.2"><a href="#rfc.section.8.4.2">8.4.2.</a> <a href="#rsa-sha-256-condition-asn1" id="rsa-sha-256-condition-asn1">ASN.1</a></h1>
+<h1 id="rfc.section.8.4.3"><a href="#rfc.section.8.4.3">8.4.3.</a> <a href="#rsa-sha-256-condition-asn1" id="rsa-sha-256-condition-asn1">ASN.1</a></h1>
 <pre>
 -- Condition Fingerprint
-RSASha256FingerprintContents ::= RSAPublicKey
+RsaFingerprintContents ::= SEQUENCE {
+  modulus              OCTET STRING
+}
 
 -- Fulfillment 
-RsaSha256Subfulfillment ::= SEQUENCE {
-  publicKey RSAPublicKey,
-  signature OCTET STRING
-}
-
--- IMPORTS from [RFC8017]{#8017}
-RSAPublicKey ::= SEQUENCE {
-      modulus INTEGER,  -- n
-      publicExponent INTEGER -- e
+RsaSha256Fulfillment ::= SEQUENCE {
+  modulus              OCTET STRING,
+  signature            OCTET STRING
 }
 </pre>
-<h1 id="rfc.section.8.4.3"><a href="#rfc.section.8.4.3">8.4.3.</a> <a href="#rsa-sha-256-condition-type-condition" id="rsa-sha-256-condition-type-condition">Condition Format</a></h1>
-<p id="rfc.section.8.4.3.p.1">The fingerprint of a RSA-SHA-256 condition is the SHA-256 digest of the DER encoded RSA Public Key encoded per the rules in <a href="#RFC8017">[RFC8017]</a>{#8017}.</p>
-<h1 id="rfc.section.8.4.4"><a href="#rfc.section.8.4.4">8.4.4.</a> <a href="#rsa-sha-256-condition-type-fulfillment" id="rsa-sha-256-condition-type-fulfillment">Fulfillment Format</a></h1>
+<h1 id="rfc.section.8.4.4"><a href="#rfc.section.8.4.4">8.4.4.</a> <a href="#rsa-sha-256-condition-type-condition" id="rsa-sha-256-condition-type-condition">Condition Format</a></h1>
+<p id="rfc.section.8.4.4.p.1">The fingerprint of an RSA-SHA-256 condition is the SHA-256 digest of the DER encoded fingerprint contents which is a SEQUENCE of a single element, the modulus of the RSA Key Pair.</p>
+<h1 id="rfc.section.8.4.5"><a href="#rfc.section.8.4.5">8.4.5.</a> <a href="#rsa-sha-256-condition-type-fulfillment" id="rsa-sha-256-condition-type-fulfillment">Fulfillment Format</a></h1>
+<p id="rfc.section.8.4.5.p.1">The fulfillment of an RSA-SHA-256 crypto-condition is an RsaSha256Fulfillment which is a SEQUENCE of:</p>
 <p/>
 
 <dl>
-  <dt>publicKey</dt>
-  <dd style="margin-left: 8">Implementations MUST use moduli greater than 128 bytes (1017 bits) and smaller than or equal to 512 bytes (4096 bits.) Large moduli slow down signature verification which can be a denial-of-service vector. DNSSEC also limits the modulus to 4096 bits <a href="#RFC3110">[RFC3110]</a>. OpenSSL supports up to 16384 bits <a href="#OPENSSL-X509-CERT-EXAMPLES">[OPENSSL-X509-CERT-EXAMPLES]</a>.</dd>
-  <dt></dt>
-  <dd style="margin-left: 8">Implementations MUST use the value 65537 for the publicExponent e as recommended in <a href="#RFC4871">[RFC4871]</a>. Very large exponents can be a DoS vector <a href="#LARGE-RSA-EXPONENTS">[LARGE-RSA-EXPONENTS]</a> and 65537 is the largest Fermat prime, which has some nice properties <a href="#USING-RSA-EXPONENT-OF-65537">[USING-RSA-EXPONENT-OF-65537]</a>. This constraint is not reflected in the ASN.1 definition as this would affect the encoding but MUST be enforced by implementations.</dd>
+  <dt>modulus</dt>
+  <dd style="margin-left: 8">The modulus of the RSA key pair used to sign and verify the signature provided.</dd>
   <dt>signature</dt>
-  <dd style="margin-left: 8">is an octet string representing the RSA signature.</dd>
+  <dd style="margin-left: 8">An octet string representing the RSA signature on the message M.</dd>
   <dt></dt>
   <dd style="margin-left: 8">Implementations MUST verify that the signature is numerically less than the modulus.</dd>
 </dl>
-<p id="rfc.section.8.4.4.p.2">The message to be signed is provided separately. If no message is provided, the message is assumed to be an octet string of length zero.</p>
-<h1 id="rfc.section.8.4.5"><a href="#rfc.section.8.4.5">8.4.5.</a> <a href="#rsa-sha-256-condition-type-implementation" id="rsa-sha-256-condition-type-implementation">Implementation</a></h1>
-<p id="rfc.section.8.4.5.p.1">The recommended modulus size as of 2016 is 2048 bits <a href="#KEYLENGTH-RECOMMENDATION">[KEYLENGTH-RECOMMENDATION]</a>. In the future we anticipate an upgrade to 3072 bits which provides approximately 128 bits of security <a href="#NIST-KEYMANAGEMENT">[NIST-KEYMANAGEMENT]</a> (p. 64), about the same level as SHA-256.</p>
+<p id="rfc.section.8.4.5.p.3">Note that the message that has been signed is provided separately. If no message is provided, the message is assumed to be an octet string of length zero.</p>
 <h1 id="rfc.section.8.4.6"><a href="#rfc.section.8.4.6">8.4.6.</a> <a href="#rsa-sha-256-condition-type-validating" id="rsa-sha-256-condition-type-validating">Validating</a></h1>
 <p id="rfc.section.8.4.6.p.1">An RSA-SHA-256 fulfillment is valid iff :</p>
 <p/>
 
 <ol>
-  <li>F.signature is valid for the message M, given the RSA public key F.publicKey.</li>
+  <li>F.signature is valid for the message M, using the RSA public key with modulus = F.modulus and exponent = 65537 for verification.</li>
   <li>D is equal to C.</li>
 </ol>
 <h1 id="rfc.section.8.4.7"><a href="#rfc.section.8.4.7">8.4.7.</a> <a href="#rsa-sha-256-example" id="rsa-sha-256-example">Example</a></h1>
-<p id="rfc.section.8.4.7.p.1">TODO</p>
+<pre>
+exampleRsaCondition Condition ::=
+  rsaSha256 : {
+    fingerprint 'B31FA820 6E4EA7E5 15337B3B 33082B87 76518010 85ED84FB 4DAEB247 BF698D7F'H,
+    cost         65536
+  }
+
+exampleRsaSha256Fulfillment Fulfillment ::=
+  rsaSha256 : {
+    modulus   'E1EF8B24 D6F76B09 C81ED775 2AA262F0 44F04A87 4D43809D 31CEA612 F99B0C97 A8B43741 
+               53E3EEF3 D6661684 3E0E41C2 93264B71 B6173DB1 CF0D6CD5 58C58657 706FCF09 7F704C48 
+               3E59CBFD FD5B3EE7 BC80D740 C5E0F047 F3E85FC0 D7581577 6A6F3F23 C5DC5E79 7139A688 
+               2E38336A 4A5FB361 37620FF3 663DBAE3 28472801 862F72F2 F87B202B 9C89ADD7 CD5B0A07 
+               6F7C53E3 5039F67E D17EC815 E5B4305C C6319706 8D5E6E57 9BA6DE5F 4E3E57DF 5E4E072F 
+               F2CE4C66 EB452339 73875275 9639F025 7BF57DBD 5C443FB5 158CCE0A 3D36ADC7 BA01F33A 
+               0BB6DBB2 BF989D60 7112F234 4D993E77 E563C1D3 61DEDF57 DA96EF2C FC685F00 2B638246
+               A5B309B9'H,
+    signature '48E8945E FE007556 D5BF4D5F 249E4808 F7307E29 511D3262 DAEF61D8 8098F9AA 4A8BC062 
+               3A8C9757 38F65D6B F459D543 F289D73C BC7AF4EA 3A33FBF3 EC444044 7911D722 94091E56 
+               1833628E 49A772ED 608DE6C4 4595A91E 3E17D6CF 5EC3B252 8D63D2AD D6463989 B12EEC57 
+               7DF64709 60DF6832 A9D84C36 0D1C217A D64C8625 BDB594FB 0ADA086C DECBBDE5 80D424BF 
+               9746D2F0 C312826D BBB00AD6 8B52C4CB 7D47156B A35E3A98 1C973863 792CC80D 04A18021 
+               0A524158 65B64B3A 61774B1D 3975D78A 98B0821E E55CA0F8 6305D425 29E10EB0 15CEFD40 
+               2FB59B2A BB8DEEE5 2A6F2447 D2284603 D219CD4E 8CF9CFFD D5498889 C3780B59 DD6A57EF 
+               7D732620'H
+  }
+
+exampleRsaFingerprintContents RsaFingerprintContents ::= {
+  modulus     'E1EF8B24 D6F76B09 C81ED775 2AA262F0 44F04A87 4D43809D 31CEA612 F99B0C97 A8B43741 
+               53E3EEF3 D6661684 3E0E41C2 93264B71 B6173DB1 CF0D6CD5 58C58657 706FCF09 7F704C48 
+               3E59CBFD FD5B3EE7 BC80D740 C5E0F047 F3E85FC0 D7581577 6A6F3F23 C5DC5E79 7139A688 
+               2E38336A 4A5FB361 37620FF3 663DBAE3 28472801 862F72F2 F87B202B 9C89ADD7 CD5B0A07 
+               6F7C53E3 5039F67E D17EC815 E5B4305C C6319706 8D5E6E57 9BA6DE5F 4E3E57DF 5E4E072F 
+               F2CE4C66 EB452339 73875275 9639F025 7BF57DBD 5C443FB5 158CCE0A 3D36ADC7 BA01F33A 
+               0BB6DBB2 BF989D60 7112F234 4D993E77 E563C1D3 61DEDF57 DA96EF2C FC685F00 2B638246
+               A5B309B9'H
+}
+</pre>
 <h1 id="rfc.section.8.5"><a href="#rfc.section.8.5">8.5.</a> <a href="#ed25519-sha-256-condition-type" id="ed25519-sha-256-condition-type">ED25519-SHA256</a></h1>
 <p id="rfc.section.8.5.p.1">ED25519-SHA-256 is assigned the type ID 4. It relies on the SHA-256 and SHA-512 digest algorithms and the ED25519 signature scheme.</p>
 <p id="rfc.section.8.5.p.2">The exact algorithm and encodings used for the public key and signature are defined in <a href="#I-D.irtf-cfrg-eddsa">[I-D.irtf-cfrg-eddsa]</a> as Ed25519. SHA-512 is used as the hashing function for this signature scheme.</p>
@@ -996,26 +1149,27 @@ cost = 131072
 <h1 id="rfc.section.8.5.2"><a href="#rfc.section.8.5.2">8.5.2.</a> <a href="#ed25519-sha-256-condition-asn1" id="ed25519-sha-256-condition-asn1">ASN.1</a></h1>
 <pre>
 -- Condition Fingerprint
-Ed25519Subfulfillment ::= SEQUENCE {
-  publicKey OCTET STRING (SIZE(32)),
-  signature OCTET STRING (SIZE(64))
+Ed25519Sha512Fulfillment ::= SEQUENCE {
+  publicKey            OCTET STRING (SIZE(32)),
+  signature            OCTET STRING (SIZE(64))
 }
 
 -- Fulfillment 
-Ed25519Sha256FingerprintContents ::= SEQUENCE {
-  publicKey OCTET STRING (SIZE(32))
+Ed25519FingerprintContents ::= SEQUENCE {
+  publicKey            OCTET STRING (SIZE(32))
 }
 </pre>
 <h1 id="rfc.section.8.5.3"><a href="#rfc.section.8.5.3">8.5.3.</a> <a href="#ed25519-sha-256-condition-type-condition" id="ed25519-sha-256-condition-type-condition">Condition Format</a></h1>
-<p id="rfc.section.8.5.3.p.1">The fingerprint of an ED25519-SHA-256 condition is the SHA-256 digest of the DER encoded Ed25519 public key. While the public key is already very small and constant size, we hash it for consistency with the other types.</p>
+<p id="rfc.section.8.5.3.p.1">The fingerprint of an ED25519-SHA-256 condition is the SHA-256 digest of the DER encoded Ed25519 public key included as the only value within a SEQUENCE. While the public key is already very small and constant size, we wrap it in a SEQUENCE type and hash it for consistency with the other types.</p>
 <h1 id="rfc.section.8.5.4"><a href="#rfc.section.8.5.4">8.5.4.</a> <a href="#ed25519-sha-256-condition-type-fulfillment" id="ed25519-sha-256-condition-type-fulfillment">Fulfillment</a></h1>
+<p id="rfc.section.8.5.4.p.1">The fulfillment of an ED25519-SHA-256 crypto-condition is an Ed25519Sha512Fulfillment which is a SEQUENCE of:</p>
 <p/>
 
 <dl>
   <dt>publicKey</dt>
-  <dd style="margin-left: 8">is an octet string containing the Ed25519 public key.</dd>
+  <dd style="margin-left: 8">An octet string containing the Ed25519 public key.</dd>
   <dt>signature</dt>
-  <dd style="margin-left: 8">is an octet string containing the Ed25519 signature.</dd>
+  <dd style="margin-left: 8">An octet string containing the Ed25519 signature.</dd>
 </dl>
 <h1 id="rfc.section.8.5.5"><a href="#rfc.section.8.5.5">8.5.5.</a> <a href="#ed25519-sha-256-condition-type-validating" id="ed25519-sha-256-condition-type-validating">Validating</a></h1>
 <p id="rfc.section.8.5.5.p.1">An ED25519-SHA-256 fulfillment is valid iff :</p>
@@ -1026,7 +1180,24 @@ Ed25519Sha256FingerprintContents ::= SEQUENCE {
   <li>D is equal to C.</li>
 </ol>
 <h1 id="rfc.section.8.5.6"><a href="#rfc.section.8.5.6">8.5.6.</a> <a href="#example" id="example">Example</a></h1>
-<p id="rfc.section.8.5.6.p.1">TODO</p>
+<pre>
+exampleEd25519Condition Condition ::=
+  ed25519Sha256 : {
+    fingerprint '799239AB A8FC4FF7 EABFBC4C 44E69E8B DFED9933 24E12ED6 4792ABE2 89CF1D5F'H,
+    cost 131072
+  }
+
+exampleEd25519Fulfillment Fulfillment ::=
+  ed25519Sha256 : {
+    publicKey  'D75A9801 82B10AB7 D54BFED3 C964073A 0EE172F3 DAA62325 AF021A68 F707511A'H,
+    signature  'E5564300 C360AC72 9086E2CC 806E828A 84877F1E B8E5D974 D873E065 22490155 
+                5FB88215 90A33BAC C61E3970 1CF9B46B D25BF5F0 595BBE24 65514143 8E7A100B'H
+  }
+
+exampleEd25519FingerprintContents Ed25519FingerprintContents ::= {
+  publicKey    'D75A9801 82B10AB7 D54BFED3 C964073A 0EE172F3 DAA62325 AF021A68 F707511A'H
+}
+</pre>
 <h1 id="rfc.section.9"><a href="#rfc.section.9">9.</a> <a href="#uri-encoding-rules" id="uri-encoding-rules">URI Encoding Rules</a></h1>
 <p id="rfc.section.9.p.1">Conditions can be encoded as URIs per the rules defined in the Named Information specification, <a href="#RFC6920">[RFC6920]</a>. There are no URI encoding rules for fulfillments.</p>
 <p id="rfc.section.9.p.2">Applications that require a string encoding for fulfillments MUST use an appropriate string encoding of the DER encoded binary representation of the fulfillment. No string encoding is defined in this specification. For consistency with the URI encoding of conditions, BASE64URL is recommended as described in <a href="#RFC4648">[RFC4648]</a>, Section 5.</p>
@@ -1036,12 +1207,12 @@ Ed25519Sha256FingerprintContents ::= SEQUENCE {
 <p id="rfc.section.9.1.p.2">While <a href="#RFC6920">[RFC6920]</a> allows for truncated hashes, implementations using the Named Information URI schemes for crypto-conditions MUST only use untruncated SHA-256 hashes (Hash Name: sha-256, ID: 1 from the "Named Information Hash Algorithm Registry" defined in <a href="#RFC6920">[RFC6920]</a>).</p>
 <h1 id="rfc.section.9.2"><a href="#rfc.section.9.2">9.2.</a> <a href="#new-uri-parameter-definitions" id="new-uri-parameter-definitions">New URI Parameter Definitions</a></h1>
 <p><a href="#RFC6920">[RFC6920]</a> established the IANA registry of "Named Information URI Parameter Definitions". This specification defines three new definitions that are added to that registry and passed in URI encoded conditions as query string parameters.</p>
-<h1 id="rfc.section.9.2.1"><a href="#rfc.section.9.2.1">9.2.1.</a> <a href="#parameter-type" id="parameter-type">Parameter: type</a></h1>
+<h1 id="rfc.section.9.2.1"><a href="#rfc.section.9.2.1">9.2.1.</a> <a href="#parameter-fingerprint-type-fpt" id="parameter-fingerprint-type-fpt">Parameter: Fingerprint Type (fpt)</a></h1>
 <p id="rfc.section.9.2.1.p.1">The type parameter indicates the type of condition that is represented by the URI. The value MUST be one of the names from the <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite>.</p>
-<h1 id="rfc.section.9.2.2"><a href="#rfc.section.9.2.2">9.2.2.</a> <a href="#parameter-cost" id="parameter-cost">Parameter: cost</a></h1>
+<h1 id="rfc.section.9.2.2"><a href="#rfc.section.9.2.2">9.2.2.</a> <a href="#parameter-cost-cost" id="parameter-cost-cost">Parameter: Cost (cost)</a></h1>
 <p id="rfc.section.9.2.2.p.1">The cost parameter is the cost of the condition that is represented by the URI.</p>
-<h1 id="rfc.section.9.2.3"><a href="#rfc.section.9.2.3">9.2.3.</a> <a href="#parameter-subtypes" id="parameter-subtypes">Parameter: subtypes</a></h1>
-<p id="rfc.section.9.2.3.p.1">The subtypes parameter indicates the types of conditions that are subtypes of the condition represented by the URI. The value MUST be a comma seperated list of names from the <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite>.</p>
+<h1 id="rfc.section.9.2.3"><a href="#rfc.section.9.2.3">9.2.3.</a> <a href="#parameter-subtypes-subtypes" id="parameter-subtypes-subtypes">Parameter: Subtypes (subtypes)</a></h1>
+<p id="rfc.section.9.2.3.p.1">The subtypes parameter indicates the types of conditions that are subtypes of the condition represented by the URI. The value MUST be a comma seperated list of names from the <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite> and SHOULD not include the type of the root crypto-condition. i.e. The value of the fpt paramtere should not appear in the list of types provided as the value of the subtypes parameter.</p>
 <h1 id="rfc.section.10"><a href="#rfc.section.10">10.</a> <a href="#example-condition" id="example-condition">Example Condition</a></h1>
 <p id="rfc.section.10.p.1">An example condition (PREIMAGE-SHA-256):</p>
 <pre>
@@ -1049,7 +1220,7 @@ Ed25519Sha256FingerprintContents ::= SEQUENCE {
 0x00000010 48 A1 D6 5D FC 2D 4B 1F A3 D6 77 28 4A DD D2 00 H..].-K...w(J...
 0x00000020 12 6D 90 69 81 01 0C                            .m.i...
 
-ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?type=preimage-sha-256&amp;cost=44
+ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&amp;cost=12
 </pre>
 <p id="rfc.section.10.p.2">The example has the following attributes:</p>
 <table cellpadding="3" cellspacing="0" class="tt full center">
@@ -1087,14 +1258,14 @@ ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?type=preimage-sha-256&
       <td class="left">
         <samp>preimage-sha-256</samp>
       </td>
-      <td class="left">This is a [PREIMAGE-SHA-256][] condition.</td>
+      <td class="left">This is a <a href="#preimage-sha-256-condition-type">PREIMAGE-SHA-256</a> <cite title="NONE">[preimage-sha-256-condition-type]</cite> condition.</td>
     </tr>
     <tr>
       <td class="left">cost</td>
       <td class="left">
-        <samp>44</samp>
+        <samp>12</samp>
       </td>
-      <td class="left">The fulfillment payload is 12 bytes long, therefor the cost is (32 + 12): 44.</td>
+      <td class="left">The fulfillment payload is 12 bytes long, therefore the cost is 12.</td>
     </tr>
   </tbody>
 </table>
@@ -1190,96 +1361,94 @@ ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?type=preimage-sha-256&
 <pre>
 --&lt;ASN1.PDU CryptoConditions.Condition, CryptoConditions.Fulfillment&gt;--
 </pre>
-<p id="rfc.section.C.p.1">Crypto-Conditions DEFINITIONS EXPLICIT TAGS ::= BEGIN</p>
+<p id="rfc.section.C.p.1">Crypto-Conditions DEFINITIONS AUTOMATIC TAGS ::= BEGIN</p>
 <pre>
--- IMPORTS from [RFC8017]{#8017}
-RSAPublicKey ::= SEQUENCE {
-  modulus INTEGER,  -- n
-  publicExponent INTEGER -- e
-}
-
--- CORE STRUCTURES
-
-Crypto-Condition ::= Condition
-Crypto-Fulfillment ::= Fulfillment
-
 -- Conditions
 
 Condition ::= CHOICE {
-  preimageSha256Condition     [0] Simple256Condition,
-  prefixSha256Condition       [1] Compound256Condition,
-  thresholdSha256Condition    [2] Compound256Condition,
-  rsaSha256Condition          [3] Simple256Condition,
-  ed25519Sha256Condition      [4] Simple256Condition
+  preimageSha256   [0] SimpleSha256Condition,
+  prefixSha256     [1] CompoundSha256Condition,
+  thresholdSha256  [2] CompoundSha256Condition,
+  rsaSha256        [3] SimpleSha256Condition,
+  ed25519Sha256    [4] SimpleSha256Condition
 }
 
-Simple256Condition ::= SEQUENCE {
-  fingerprint OCTET STRING (SIZE(32)),
-  maxCost INTEGER (0..4294967295)
+SimpleSha256Condition ::= SEQUENCE {
+  fingerprint          OCTET STRING (SIZE(32)),
+  cost                 INTEGER (0..4294967295)
 }
 
-Compound256Condition ::= SEQUENCE {
-  fingerprint OCTET STRING (SIZE(32)),
-  maxCost INTEGER (0..4294967295),
-  subtypes ConditionTypes
+CompoundSha256Condition ::= SEQUENCE {
+  fingerprint          OCTET STRING (SIZE(32)),
+  cost                 INTEGER (0..4294967295),
+  subtypes             ConditionTypes
 }
 
 ConditionTypes ::= BIT STRING {
-  preImageSha256  (0),
-  prefixSha256    (1),
-  thresholdSha256 (2),
-  rsaSha256       (3),
-  ed25519Sha256   (4)
+  preImageSha256   (0),
+  prefixSha256     (1),
+  thresholdSha256  (2),
+  rsaSha256        (3),
+  ed25519Sha256    (4)
 }
 
 -- Fulfillments
 
-Fulfillment ::= SET OF Subfulfillment
-
-Subfulfillment ::= CHOICE {
-  preimageSubfulfillment   [0] PreimageSubfulfillment,
-  prefixSubfulfillment     [1] PrefixSubfulfillment,
-  thresholdSubfulfillment  [2] ThresholdSubfulfillment,
-  rsaSha256Subfulfillment  [3] RsaSha256Subfulfillment,
-  ed25519Subfulfillment    [4] Ed25519Subfulfillment
+Fulfillment ::= CHOICE {
+  preimageSha256   [0] PreimageFulfillment ,
+  prefixSha256     [1] PrefixFulfillment,
+  thresholdSha256  [2] ThresholdFulfillment,
+  rsaSha256        [3] RsaSha256Fulfillment,
+  ed25519Sha256    [4] Ed25519Sha512Fulfillment
 }
 
-PreimageSubfulfillment ::= SEQUENCE {
-  preimage OCTET STRING
+PreimageFulfillment ::= SEQUENCE {
+  preimage             OCTET STRING
 }
 
-PrefixSubfulfillment ::= SEQUENCE {
-  prefix OCTET STRING,
-  subcondition Condition
+PrefixFulfillment ::= SEQUENCE {
+  prefix               OCTET STRING,
+  maxMessageLength     INTEGER (0..4294967295),
+  subfulfillment       Fulfillment
 }
 
-ThresholdSubfulfillment ::= SEQUENCE {
-  threshold INTEGER (1..65535),
-  subconditions SEQUENCE OF Condition
+ThresholdFulfillment ::= SEQUENCE {
+  subfulfillments      SEQUENCE OF Fulfillment,
+  subconditions        SEQUENCE OF Condition
 }
 
-RsaSha256Subfulfillment ::= SEQUENCE {
-  publicKey RSAPublicKey,
-  signature OCTET STRING
+RsaSha256Fulfillment ::= SEQUENCE {
+  modulus              OCTET STRING,
+  signature            OCTET STRING
 }
 
-Ed25519Subfulfillment ::= SEQUENCE {
-  publicKey OCTET STRING (SIZE(32)),
-  signature OCTET STRING (SIZE(64))
+Ed25519Sha512Fulfillment ::= SEQUENCE {
+  publicKey            OCTET STRING (SIZE(32)),
+  signature            OCTET STRING (SIZE(64))
 }
 
 -- Fingerprint Content
 
--- The PreimageSha256 fingerprint is the SHA256 hash of the raw preimage
+-- The PREIMAGE-SHA-256 condition fingerprint content is not DER encoded
+-- The fingerprint content is the preimage
 
-PrefixSha256FingerprintContents ::= PrefixSubfulfillment
+PrefixFingerprintContents ::= SEQUENCE {
+  prefix               OCTET STRING,
+  maxMessageLength     INTEGER (0..4294967295),
+  subcondition         Condition
+}
 
-ThresholdSha256FingerprintContents ::= ThresholdSubfulfillment    
+ThresholdFingerprintContents ::= SEQUENCE {
+  threshold            INTEGER (1..65535),
+  subconditions        SET OF Condition
+}
 
-RsaSha256FingerprintContents ::= RSAPublicKey
+RsaFingerprintContents ::= SEQUENCE {
+  modulus              OCTET STRING
+}
 
-Ed25519Sha256FingerprintContents ::= SEQUENCE {
-  publicKey OCTET STRING (SIZE(32))
+Ed25519FingerprintContents ::= SEQUENCE {
+  publicKey            OCTET STRING (SIZE(32))
 }
 </pre>
 <p id="rfc.section.C.p.2">END</p>

@@ -55,7 +55,6 @@ normative:
     RFC4648:
     RFC6920:
     RFC8017:
-    iana-ipv6-registry:
     I-D.draft-irtf-cfrg-eddsa-08:
     itu.X680.2015:
         title: "Information technology – Abstract Syntax Notation One (ASN.1): Specification of basic notation"
@@ -271,41 +270,41 @@ Implementations of this specificiation MUST support encoding and decoding using 
 
 Alternative encodings may be used to represent top-level conditions and fulfillments but to ensure a determinisitic outcome in producing the condition fingerprint content, including any sub-conditions, MUST be DER encoded prior to hashing.
 
-The excpetion is the PREIMAGE-SHA-256 condition where the fingerprint content is the raw preimage which is not encoded prior to hashing. This is to allow a PREIMAGE-SHA-256 crypto-condition to be used in systems where "hash-locks" are already in use.
+The exception is the PREIMAGE-SHA-256 condition where the fingerprint content is the raw preimage which is not encoded prior to hashing. This is to allow a PREIMAGE-SHA-256 crypto-condition to be used in systems where "hash-locks" are already in use.
 
 ## Condition {#condition-format}
 
-The binary encoding of conditions differs based on their type. All types define at least a fingerprint and maxCost sub-field. Some types, such as the compound condition types, define additional sub-fields that are required to convey essential properties of the crypto-condition (such as the sub-types used by sub-conditions in the case of the compound types).
+The binary encoding of conditions differs based on their type. All types define at least a fingerprint and cost sub-field. Some types, such as the compound condition types, define additional sub-fields that are required to convey essential properties of the crypto-condition (such as the sub-types used by sub-conditions in the case of the compound types).
 
 Each crypto-condition type has a type ID. The list of known types is the IANA-maintained [Crypto-Condition Type Registry](#crypto-conditions-type-registry).
 
 Conditions are encoded as follows:
 
     Condition ::= CHOICE {
-      preimageSha256Condition  [0] Simple256Condition,
-      prefixSha256Condition    [1] Compound256Condition,
-      thresholdSha256Condition [2] Compound256Condition,
-      rsaSha256Condition       [3] Simple256Condition,
-      ed25519Sha256Condition   [4] Simple256Condition
+      preimageSha256   [0] SimpleSha256Condition,
+      prefixSha256     [1] CompoundSha256Condition,
+      thresholdSha256  [2] CompoundSha256Condition,
+      rsaSha256        [3] SimpleSha256Condition,
+      ed25519Sha256    [4] SimpleSha256Condition
     }
 
-    Simple256Condition ::= SEQUENCE {
-      fingerprint OCTET STRING (SIZE(32)),
-      cost INTEGER (0..4294967295)
+    SimpleSha256Condition ::= SEQUENCE {
+      fingerprint          OCTET STRING (SIZE(32)),
+      cost                 INTEGER (0..4294967295)
     }
 
-    Compound256Condition ::= SEQUENCE {
-      fingerprint OCTET STRING (SIZE(32)),
-      cost INTEGER (0..4294967295),
-      subtypes ConditionTypes
+    CompoundSha256Condition ::= SEQUENCE {
+      fingerprint          OCTET STRING (SIZE(32)),
+      cost                 INTEGER (0..4294967295),
+      subtypes             ConditionTypes
     }
 
     ConditionTypes ::= BIT STRING {
-      preImageSha256  (0),
-      prefixSha256    (1),
-      thresholdSha256 (2),
-      rsaSha256       (3),
-      ed25519Sha256   (4)
+      preImageSha256   (0),
+      prefixSha256     (1),
+      thresholdSha256  (2),
+      rsaSha256        (3),
+      ed25519Sha256    (4)
     }
 
 ### Fingerprint
@@ -338,7 +337,7 @@ Cost function constants have been rounded to numbers that have an efficient base
 
 ### Subtypes
 
-Subtypes is a bitmap that indicates the set of types an implementation must support in order to be able to successfully validate the fulfillment of this condition. This is the set of types and subtypes of all sub-crypto-conditions, recursively. 
+Subtypes is a bitmap that indicates the set of types an implementation must support in order to be able to successfully validate the fulfillment of this condition. This is the set of types and subtypes of all sub-crypto-conditions, recursively excluding the type of the root crypto-condition. 
 
 It must be possible to verify that all types used in a crypto-condition are supported (including the types and subtypes of any sub-crypto-conditions) even if the fulfillment is not available to be analysed yet. Therefore, all compound conditions set the bits in this bitmap that correspond to the set of types and subtypes of all sub-crypto-conditions.
 
@@ -354,44 +353,37 @@ For example, a compound condition that contains an ED25519-SHA-256 crypto-condit
 
 The ASN.1 definition for fulfillments is defined as follows:
 
-    Fulfillment ::= SET OF Subfulfillment
-
-    Subfulfillment ::= CHOICE {
-      preimageSubfulfillment   [0] PreimageSubfulfillment,
-      prefixSubfulfillment     [1] PrefixSubfulfillment,
-      thresholdSubfulfillment  [2] ThresholdSubfulfillment,
-      rsaSha256Subfulfillment  [3] RsaSha256Subfulfillment,
-      ed25519Subfulfillment    [4] Ed25519Subfulfillment
+    Fulfillment ::= CHOICE {
+      preimageSha256   [0] PreimageFulfillment ,
+      prefixSha256     [1] PrefixFulfillment,
+      thresholdSha256  [2] ThresholdFulfillment,
+      rsaSha256        [3] RsaSha256Fulfillment,
+      ed25519Sha256    [4] Ed25519Sha512Fulfillment
     }
 
-    PreimageSubfulfillment ::= SEQUENCE {
-      preimage OCTET STRING
+    PreimageFulfillment ::= SEQUENCE {
+      preimage             OCTET STRING
     }
 
-    PrefixSubfulfillment ::= SEQUENCE {
-      prefix OCTET STRING,
-      subcondition Condition
+    PrefixFulfillment ::= SEQUENCE {
+      prefix               OCTET STRING,
+      maxMessageLength     INTEGER (0..4294967295),
+      subfulfillment       Fulfillment
     }
 
-    ThresholdSubfulfillment ::= SEQUENCE {
-      threshold INTEGER (1..65535),
-      subconditions SEQUENCE OF Condition
+    ThresholdFulfillment ::= SEQUENCE {
+      subfulfillments      SEQUENCE OF Fulfillment,
+      subconditions        SEQUENCE OF Condition
     }
 
-    RsaSha256Subfulfillment ::= SEQUENCE {
-      publicKey RSAPublicKey,
-      signature OCTET STRING
+    RsaSha256Fulfillment ::= SEQUENCE {
+      modulus              OCTET STRING,
+      signature            OCTET STRING
     }
 
-    Ed25519Subfulfillment ::= SEQUENCE {
-      publicKey OCTET STRING (SIZE(32)),
-      signature OCTET STRING (SIZE(64))
-    }
-
-    -- IMPORTS from [RFC8017]{#8017}
-    RSAPublicKey ::= SEQUENCE {
-      modulus INTEGER,  -- n
-      publicExponent INTEGER -- e
+    Ed25519Sha512Fulfillment ::= SEQUENCE {
+      publicKey            OCTET STRING (SIZE(32)),
+      signature            OCTET STRING (SIZE(64))
     }
     
 # Crypto-Condition Types {#crypto-condition-types}
@@ -407,9 +399,9 @@ Implementations MUST ignore any input message when validating a PREIMAGE-SHA-256
 
 ### Cost {#preimage-sha-256-condition-type-maxcost}
 
-The cost is the size, in bytes, of the **unencoded** preimage, plus the constant 32. The constant is added to ensure that even a zero length fulfillment reflects some processing cost. This prevents a large number of very small PREIMAGE-SHA-256 sub-fulfillments being used to construct a fulfillment that has a low calculated cost but a large real cost to process.
+The cost is the size, in bytes, of the **unencoded** preimage.
 
-    cost = preimage + 32
+    cost = preimage length
 
 ### ASN.1 {#preimage-sha-256-condition-asn1}
 
@@ -418,8 +410,8 @@ The cost is the size, in bytes, of the **unencoded** preimage, plus the constant
     -- The fingerprint content is the preimage
 
     -- Fulfillment 
-    PreimageSubfulfillment ::= SEQUENCE {
-      preimage OCTET STRING
+    PreimageFulfillment ::= SEQUENCE {
+      preimage             OCTET STRING
     }
 
 ### Condition Format {#preimage-sha-256-condition-type-condition}
@@ -428,7 +420,7 @@ The fingerprint of a PREIMAGE-SHA-256 condition is the SHA-256 hash of the **une
 
 ### Fulfillment Format {#preimage-sha-256-condition-type-fulfillment}
 
-The fulfillment simply contains the preimage.
+The fulfillment simply contains the preimage (encoded into a SEQUENCE of one element for consistency).
 
 ### Validating {#preimage-sha-256-condition-type-validating}
 
@@ -436,7 +428,16 @@ A PREIMAGE-SHA-256 fulfillment is valid iff C.fingerprint is equal to the SHA-25
 
 ### Example {#preimage-sha-256-example}
 
-TODO
+    examplePreimageCondition Condition ::= 
+      preimageSha256 : {
+        fingerprint '7F83B165 7FF1FC53 B92DC181 48A1D65D FC2D4B1F A3D67728 4ADDD200 126D9069'H,
+        cost         12
+      }
+
+    examplePreimageFulfillment Fulfillment ::= 
+      preimageSha256 : { 
+        preimage '48656C6C 6F20576F 726C6421'H 
+      }
 
 ## PREFIX-SHA-256 {#prefix-sha-256-condition-type}
 PREFIX-SHA-256 is assigned the type ID 1. It relies on the availability of the SHA-256 digest algorithm and any other algorithms required by its sub-crypto-condition as it is a compound crypto-condition type.
@@ -451,94 +452,204 @@ Implementations MUST prepend the prefix to the provided message and will use the
 
 ### Cost {#prefix-sha-256-condition-type-cost}
 
-The cost is the size, in bytes, of the **unencoded** prefix plus the cost of the sub-condition multiplied by 1.25.
+The cost is the size, in bytes, of the **unencoded** prefix, plus the maximum message that will be accepted to be prefixed and validated by the subcondition, plus the cost of the sub-condition, plus the constant 1024.
 
-    cost = prefix.length + ( subcondition.cost * 1.25 )
+    cost = prefix.length (in bytes) + max_message_length + subcondition_cost + 1024
 
 ### ASN.1 {#prefix-sha-256-condition-asn1}
 
     -- Condition Fingerprint
-    PrefixSha256FingerprintContents ::= PrefixSubfulfillment
+    PrefixFingerprintContents ::= SEQUENCE {
+      prefix               OCTET STRING,
+      maxMessageLength     INTEGER (0..4294967295),
+      subcondition         Condition
+    }
 
     -- Fulfillment 
-    PrefixSubfulfillment ::= SEQUENCE {
-      prefix OCTET STRING,
-      subcondition Condition
+    PrefixFulfillment ::= SEQUENCE {
+      prefix               OCTET STRING,
+      maxMessageLength     INTEGER (0..4294967295),
+      subfulfillment       Fulfillment
     }
 
 ### Condition Format {#prefix-sha-256-condition-type-condition}
 
-The fingerprint of a PREFIX-SHA-256 condition is the SHA-256 digest of the DER encoded fingerprint contents which are identical 
-to contents of the PrefixSubfulfillment.
+The fingerprint of a PREFIX-SHA-256 condition is the SHA-256 digest of the DER encoded fingerprint contents which are a SEQUENCE of:
+
+prefix
+: An arbitrary octet string which will be prepended to the message during validation of the sub-fulfillment.
+
+maxMessageLength
+: The maximum size, in bytes, of the message that will be accepted during validation of the fulfillment of this condition.
+
+subcondition
+: The condition derived from the sub-fulfillment of this crypto-condition.
+
 
 ### Fulfillment Format {#prefix-sha-256-condition-type-fulfillment}
 
-prefix
-: is an arbitrary octet string which will be prepended to the message during validation of the sub-fulfillment.
+The fulfillment of a PREFIX-SHA-256 crypto-condition is a PrefixFulfillment which is a SEQUENCE of:
 
-subcondition
-: is the condition derived from the sub-fulfillment of this parent fulfillment.
+prefix
+: An arbitrary octet string which will be prepended to the message during validation of the sub-fulfillment.
+
+maxMessageLength
+: The maximum size, in bytes, of the message that will be accepted during validation of the fulfillment of this condition.
+
+subfulfillment
+: A fulfillment that will be verified against the prefixed message.
 
 ### Validating {#prefix-sha-256-condition-type-validating}
 
 A PREFIX-SHA-256 fulfillment is valid iff:
  
-  1. The fulfillment (f) that satisfies F.subcondition is valid, where the message used for validation of f is M prefixed by F.prefix AND 
-  2. D is equal to C. 
+  1. The size of M, in bytes, is less than or equal to F.maxMessageLength AND
+  2. F.subfulfillment is valid, where the message used for validation of f is M prefixed by F.prefix AND
+  3. D is equal to C
 
 ### Example {#prefix-sha-256-example}
 
-TODO
+    examplePrefixCondition Condition ::=
+      prefixSha256 : {
+        fingerprint 'BB1AC526 0C0141B7 E54B26EC 2330637C 5597BF81 1951AC09 E744AD20 FF77E287'H,
+        cost         1024,
+        subtypes    { preimageSha256 }
+      }
+
+    examplePrefixFulfillment Fulfillment ::= 
+      prefixSha256 : {
+        prefix           ''H,
+        maxMessageLength  0,
+        subfulfillment    preimageSha256 : { preimage ''H }
+      }
+
+    examplePrefixFingerprintContents PrefixFingerprintContents ::= {
+      prefix           ''H,
+      maxMessageLength  0,
+      subcondition      preimageSha256 : {
+        fingerprint      'E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855'H,
+        cost              0
+      }
+    }
+
+Note that the example given, while useful to demonstrate the structure, has less practical security value that the use of an RSA-SHA-256 or ED25519-SHA-256 subfulfillment. Since the subfulfillment is a PREIMAGE-SHA-256, the validation of which ignores the incoming message, as long as the prefix, maxMessagelength and preimage provided in the subfulfillment are correct, the parent PREFIX-SHA-256 fulfillment will validate.
+
+In this case, wrapping the PREIMAGE-SHA-256 crypto-condition in the PREFIX-SHA-256 crypto-condition, has the effect of enforcing a message length of 0 bytes.
+
+Note also, any change to the PREFIX-SHA-256 crypto-condition's prefix and maxMessageLength values result in a different fingerprint value, effectively namespacing the underlying preimage and re-hashing it. The result is a new crypto-condition with a new and unique fingerprint with no change to the underlying sub-crypto-condition.
 
 ## THRESHOLD-SHA-256 {#threshold-sha-256-condition-type}
 THRESHOLD-SHA-256 is assigned the type ID 2. It relies on the availability of the SHA-256 digest algorithm and any other algorithms required by any of its sub-crypto-conditions as it is a compound crypto-condition type.
 
 ### Cost {#threshold-sha-256-condition-type-cost}
 
-The cost is the sum of the F.threshold largest cost values of all sub-conditions, added to 32 times the difference between the total sub-conditions and F.threshold.
+The cost is the sum of the F.threshold largest cost values of all sub-conditions, added to 1024 times the total number of sub-conditions.
 
-    cost = (sum of largest F.threshold subcondition.cost values) + 32 * (F.subconditions.count - F.threshold)
+    cost = (sum of largest F.threshold subcondition.cost values) + 1024 * F.subconditions.count
 
-For example, if a threshold crypto-condition contains 5 sub-conditions with costs of 64, 64, 82, 84 and 84 and has a threshold of 3, the cost is equal to the sum of the largest three sub-condition costs (82 + 84 + 84 = 250) plus 32 times the number of remaining conditions (32 * (5 - 3) = 64): 314
-
-Implementations MUST accept THRESHOLD-SHA-256 fulfillments with more sub-fulfillments provided that satisfy the sub-conditions than required by the threshold. In a complex multi-layer fulfillment, sub-fulfillments may be provided that satisfy sub-conditions within multiple compound conditions therefor it is impossible to avoid providing more sub-fulfillments than are required in some cases.
-
-Implementations SHOULD only validate as many sub-fulfillments as are required to meet the threshold, favouring those with lower cost where possible.
+For example, if a threshold crypto-condition contains 5 sub-conditions with costs of 64, 64, 82, 84 and 84 and has a threshold of 3, the cost is equal to the sum of the largest three sub-condition costs (82 + 84 + 84 = 250) plus 1024 times the number of sub-conditions (1024 * 5 = 5120): 5370
 
 ### ASN.1 {#threshold-sha-256-condition-asn1}
 
     -- Condition Fingerprint
-    ThresholdSubfulfillment ::= SEQUENCE {
-      threshold INTEGER (1..65535),
-      subconditions SEQUENCE OF Condition
+    ThresholdFingerprintContents ::= SEQUENCE {
+      threshold            INTEGER (1..65535),
+      subconditions        SET OF Condition
     }
 
     -- Fulfillment 
-    ThresholdSha256FingerprintContents ::= ThresholdSubfulfillment    
+    ThresholdFulfillment ::= SEQUENCE {
+      subfulfillments      SEQUENCE OF Fulfillment,
+      subconditions        SEQUENCE OF Condition
+    }
     
 ### Condition Format {#threshold-sha-256-condition-type-condition}
 
-The fingerprint of a THRESHOLD-SHA-256 condition is the SHA-256 digest of the DER encoded fingerprint contents which are identical 
-to the contents of the ThresholdSubfulfillment.
+The fingerprint of a THRESHOLD-SHA-256 condition is the SHA-256 digest of the DER encoded fingerprint contents which are a SEQUENCE of:
+
+threshold
+: A number that MUST be an integer in the range 1 ... 65535. In order to fulfill a threshold condition, the count of the sub-fulfillments MUST be equal to the threshold.
+
+subconditions
+: The set of sub-conditions, F.threshold of which MUST be satisfied by valid sub-fulfillments provided in the fulfillment. The SET of DER encoded sub-conditions is sorted according to the DER encoding rules for a SET, in lexicographic (big-endian) order, smallest first as defined in section 11.6 of [itu.X690.2015](#itu.X690.2015).
 
 ### Fulfillment Format {#threshold-sha-256-condition-type-fulfillment}
 
-threshold
-: is a number and MUST be an integer in the range 1 ... 65535. In order to fulfill a threshold condition, the count of the sub-conditions that are satisfied by one of the provided fulfillments MUST be greater than or equal to the threshold.
+The fulfillment of a THRESHOLD-SHA-256 crypto-condition is a ThresholdFulfillment which is a SEQUENCE of:
+
+subfulfillments
+: A SEQUENCE of fulfillments. The number of elements in this set is equal to the threshold therefore implementations must use the length of this SEQUENCE as the threshold value when deriving the fingerprint of this crypto-condition.
 
 subconditions
-: is the set of sub-conditions, F.threshold of which MUST be satisfied by provided fulfillments. The list of DER encoded sub-conditions is sorted first based on encoded length, shortest first and then elements of the same length are sorted in lexicographic (big-endian) order, smallest first.
+: A SEQUENCE of conditions. This is the list of unfulfilled sub-conditions. This list must be combined with the list of conditions derived from the subfulfillments and the combined list, sorted, and used as the subconditions value when deriving the fingerprint of this crypto-condition.
+
+: This may be an empty list.
+
+SEQUENCE OF is used instead of SET OF, because a correct DER decoder should reject SET OF values that aren't in canonical order, but most don't, so there is a risk of inconsistent behavior. By using SEQUENCE OF it is possible to ensure that all implementations consistently accept any arbitrary ordering.
 
 ### Validating {#threshold-sha-256-condition-type-validating}
 
 A THRESHOLD-SHA-256 fulfillment is valid iff :
  
-  1. The number of F.subconditions, satisfied by provided fulfillments, is equal to or greater than F.threshold.
+  1. All F.subfulfillments are valid.
   2. D is equal to C.
 
 ### Example {#threshold-sha-256-example}
 
-TODO
+    exampleThresholdCondition Condition ::=
+      thresholdSha256 : {
+        fingerprint 'B4B84136 DF48A71D 73F4985C 04C6767A 778ECB65 BA7023B4 506823BE EE7631B9'H,
+        cost         1024,
+        subtypes    { preimageSha256 }
+      }
+
+    exampleThresholdFulfillment Fulfillment ::=
+      thresholdSha256 : {
+        subfulfillments { preimageSha256 : { preimage ''H } },
+        subconditions   { }
+      }
+
+    exampleThresholdFingerprintContents ThresholdFingerprintContents ::= {
+      threshold 1,
+      subconditions {
+        preimageSha256 : {
+          fingerprint 'E3B0C442 98FC1C14 9AFBF4C8 996FB924 27AE41E4 649B934C A495991B 7852B855'H,
+          cost         0
+        }
+      }
+    }
+
+    exampleThresholdCondition2 Condition ::=
+      thresholdSha256 : {
+        fingerprint '5A218ECE 7AC4BC77 157F04CB 4BC8DFCD 5C9D225A 55BD0AA7 60BCA2A4 F1773DC6'H,
+        cost         2060,
+        subtypes    { preimageSha256 }
+      }
+
+    exampleThresholdFulfillment2 Fulfillment ::=
+      thresholdSha256 : {
+        subfulfillments { preimageSha256 : { preimage ''H } },
+        subconditions {
+          preimageSha256 : { 
+            fingerprint '7F83B165 7FF1FC53 B92DC181 48A1D65D FC2D4B1F A3D67728 4ADDD200 126D9069'H,
+            cost         12
+          }
+        }
+      }
+
+    exampleThresholdFingerprintContents2 ThresholdFingerprintContents ::= {
+      threshold 1,
+      subconditions {
+        preimageSha256 : {
+          fingerprint 'E3B0C442 98FC1C14 9AFBF4C8 996FB924 27AE41E4 649B934C A495991B 7852B855'H,
+          cost         0
+        },
+        preimageSha256 : {
+          fingerprint '7F83B165 7FF1FC53 B92DC181 48A1D65D FC2D4B1F A3D67728 4ADDD200 126D9069'H,
+          cost         12
+        }
+      }
+    }
 
 ## RSA-SHA-256 {#rsa-sha-256-condition-type}
 RSA-SHA-256 is assigned the type ID 3. It relies on the SHA-256 digest algorithm and the RSA-PSS signature scheme.
@@ -552,77 +663,117 @@ Implementations MUST NOT use the default RSASSA-PSS-params. Implementations MUST
     id-sha256 OBJECT IDENTIFIER  ::=  { joint-iso-itu-t(2) country(16) us(840) organization(1) gov(101) csor(3) nistalgorithm(4) hashalgs(2) 1 }
     
     sha256Identifier AlgorithmIdentifier  ::=  {
-      algorithm id-sha256,
-      parameters nullParameters  
+      algorithm            id-sha256,
+      parameters           nullParameters  
     }
                               
     id-mgf1 OBJECT IDENTIFIER  ::=  { pkcs-1 8 }                          
                               
     mgf1SHA256Identifier AlgorithmIdentifier  ::=  {
-      algorithm id-mgf1,
-      parameters sha256Identifier 
+      algorithm            id-mgf1,
+      parameters           sha256Identifier 
     }
     
     rSASSA-PSS-SHA256-Params RSASSA-PSS-params ::=  {
-      hashAlgorithm sha256Identifier,
-      maskGenAlgorithm mgf1SHA256Identifier,
-      saltLength 20,
-      trailerField 1
+      hashAlgorithm        sha256Identifier,
+      maskGenAlgorithm     mgf1SHA256Identifier,
+      saltLength           20,
+      trailerField         1
     }
+
+### RSA Keys
+
+To optimize the RsaFulfillment, and enforce a public exponent value of 65537, only the RSA Public Key modulus is stored in the RsaFingerprintContents and RsaFulfillment.
+
+The modulus is stored as an OCTET STRING representing an unsigned integer (i.e. no sign byte) in big-endian byte-order, the most significant byte being the first in the string.
+
+Implementations MUST use moduli greater than 128 bytes (1017 bits) and smaller than or equal to 512 bytes (4096 bits.) Large moduli slow down signature verification which can be a denial-of-service vector. DNSSEC also limits the modulus to 4096 bits [RFC3110](#RFC3110). OpenSSL supports up to 16384 bits [OPENSSL-X509-CERT-EXAMPLES](#OPENSSL-X509-CERT-EXAMPLES).
+
+Implementations MUST use the value 65537 for the public exponent e as recommended in [RFC4871](#RFC4871). Very large exponents can be a DoS vector [LARGE-RSA-EXPONENTS](#LARGE-RSA-EXPONENTS) and 65537 is the largest Fermat prime, which has some nice properties [USING-RSA-EXPONENT-OF-65537](#USING-RSA-EXPONENT-OF-65537).
+
+The recommended modulus size as of 2016 is 2048 bits [KEYLENGTH-RECOMMENDATION](#KEYLENGTH-RECOMMENDATION). In the future we anticipate an upgrade to 3072 bits which provides approximately 128 bits of security [NIST-KEYMANAGEMENT](#NIST-KEYMANAGEMENT) (p. 64), about the same level as SHA-256.
 
 ### Cost {#rsa-sha-256-condition-type-cost}
 
-The cost is the square of RSA key modulus size (in bits) divided by the constant 64.
+The cost is the square of the RSA key modulus size (in bits) divided by the constant 64.
 
     cost = ( (modulus size in bits) ^ 2 ) / 64 
 
 ### ASN.1 {#rsa-sha-256-condition-asn1}
 
     -- Condition Fingerprint
-    RSASha256FingerprintContents ::= RSAPublicKey
-
-    -- Fulfillment 
-    RsaSha256Subfulfillment ::= SEQUENCE {
-      publicKey RSAPublicKey,
-      signature OCTET STRING
+    RsaFingerprintContents ::= SEQUENCE {
+      modulus              OCTET STRING
     }
 
-    -- IMPORTS from [RFC8017]{#8017}
-    RSAPublicKey ::= SEQUENCE {
-          modulus INTEGER,  -- n
-          publicExponent INTEGER -- e
+    -- Fulfillment 
+    RsaSha256Fulfillment ::= SEQUENCE {
+      modulus              OCTET STRING,
+      signature            OCTET STRING
     }
 
 ### Condition Format {#rsa-sha-256-condition-type-condition}
-The fingerprint of a RSA-SHA-256 condition is the SHA-256 digest of the DER encoded RSA Public Key encoded per the rules in [RFC8017]{#8017}.
+The fingerprint of an RSA-SHA-256 condition is the SHA-256 digest of the DER encoded fingerprint contents which is a SEQUENCE of a single element, the modulus of the RSA Key Pair.
 
 ### Fulfillment Format {#rsa-sha-256-condition-type-fulfillment}
 
-publicKey
-: Implementations MUST use moduli greater than 128 bytes (1017 bits) and smaller than or equal to 512 bytes (4096 bits.) Large moduli slow down signature verification which can be a denial-of-service vector. DNSSEC also limits the modulus to 4096 bits [RFC3110](#RFC3110). OpenSSL supports up to 16384 bits [OPENSSL-X509-CERT-EXAMPLES](#OPENSSL-X509-CERT-EXAMPLES).
+The fulfillment of an RSA-SHA-256 crypto-condition is an RsaSha256Fulfillment which is a SEQUENCE of:
 
-: Implementations MUST use the value 65537 for the publicExponent e as recommended in [RFC4871](#RFC4871). Very large exponents can be a DoS vector [LARGE-RSA-EXPONENTS](#LARGE-RSA-EXPONENTS) and 65537 is the largest Fermat prime, which has some nice properties [USING-RSA-EXPONENT-OF-65537](#USING-RSA-EXPONENT-OF-65537). This constraint is not reflected in the ASN.1 definition as this would affect the encoding but MUST be enforced by implementations.
+modulus
+: The modulus of the RSA key pair used to sign and verify the signature provided. 
 
 signature
-: is an octet string representing the RSA signature.
+: An octet string representing the RSA signature on the message M.
 
 : Implementations MUST verify that the signature is numerically less than the modulus.
 
-The message to be signed is provided separately. If no message is provided, the message is assumed to be an octet string of length zero.
-
-### Implementation {#rsa-sha-256-condition-type-implementation}
-The recommended modulus size as of 2016 is 2048 bits [KEYLENGTH-RECOMMENDATION](#KEYLENGTH-RECOMMENDATION). In the future we anticipate an upgrade to 3072 bits which provides approximately 128 bits of security [NIST-KEYMANAGEMENT](#NIST-KEYMANAGEMENT) (p. 64), about the same level as SHA-256.
+Note that the message that has been signed is provided separately. If no message is provided, the message is assumed to be an octet string of length zero.
 
 ### Validating {#rsa-sha-256-condition-type-validating}
 
 An RSA-SHA-256 fulfillment is valid iff :
  
-  1. F.signature is valid for the message M, given the RSA public key F.publicKey.
+  1. F.signature is valid for the message M, using the RSA public key with modulus = F.modulus and exponent = 65537 for verification.
   2. D is equal to C. 
 
 ### Example {#rsa-sha-256-example}
 
-TODO
+    exampleRsaCondition Condition ::=
+      rsaSha256 : {
+        fingerprint 'B31FA820 6E4EA7E5 15337B3B 33082B87 76518010 85ED84FB 4DAEB247 BF698D7F'H,
+        cost         65536
+      }
+
+    exampleRsaSha256Fulfillment Fulfillment ::=
+      rsaSha256 : {
+        modulus   'E1EF8B24 D6F76B09 C81ED775 2AA262F0 44F04A87 4D43809D 31CEA612 F99B0C97 A8B43741 
+                   53E3EEF3 D6661684 3E0E41C2 93264B71 B6173DB1 CF0D6CD5 58C58657 706FCF09 7F704C48 
+                   3E59CBFD FD5B3EE7 BC80D740 C5E0F047 F3E85FC0 D7581577 6A6F3F23 C5DC5E79 7139A688 
+                   2E38336A 4A5FB361 37620FF3 663DBAE3 28472801 862F72F2 F87B202B 9C89ADD7 CD5B0A07 
+                   6F7C53E3 5039F67E D17EC815 E5B4305C C6319706 8D5E6E57 9BA6DE5F 4E3E57DF 5E4E072F 
+                   F2CE4C66 EB452339 73875275 9639F025 7BF57DBD 5C443FB5 158CCE0A 3D36ADC7 BA01F33A 
+                   0BB6DBB2 BF989D60 7112F234 4D993E77 E563C1D3 61DEDF57 DA96EF2C FC685F00 2B638246
+                   A5B309B9'H,
+        signature '48E8945E FE007556 D5BF4D5F 249E4808 F7307E29 511D3262 DAEF61D8 8098F9AA 4A8BC062 
+                   3A8C9757 38F65D6B F459D543 F289D73C BC7AF4EA 3A33FBF3 EC444044 7911D722 94091E56 
+                   1833628E 49A772ED 608DE6C4 4595A91E 3E17D6CF 5EC3B252 8D63D2AD D6463989 B12EEC57 
+                   7DF64709 60DF6832 A9D84C36 0D1C217A D64C8625 BDB594FB 0ADA086C DECBBDE5 80D424BF 
+                   9746D2F0 C312826D BBB00AD6 8B52C4CB 7D47156B A35E3A98 1C973863 792CC80D 04A18021 
+                   0A524158 65B64B3A 61774B1D 3975D78A 98B0821E E55CA0F8 6305D425 29E10EB0 15CEFD40 
+                   2FB59B2A BB8DEEE5 2A6F2447 D2284603 D219CD4E 8CF9CFFD D5498889 C3780B59 DD6A57EF 
+                   7D732620'H
+      }
+
+    exampleRsaFingerprintContents RsaFingerprintContents ::= {
+      modulus     'E1EF8B24 D6F76B09 C81ED775 2AA262F0 44F04A87 4D43809D 31CEA612 F99B0C97 A8B43741 
+                   53E3EEF3 D6661684 3E0E41C2 93264B71 B6173DB1 CF0D6CD5 58C58657 706FCF09 7F704C48 
+                   3E59CBFD FD5B3EE7 BC80D740 C5E0F047 F3E85FC0 D7581577 6A6F3F23 C5DC5E79 7139A688 
+                   2E38336A 4A5FB361 37620FF3 663DBAE3 28472801 862F72F2 F87B202B 9C89ADD7 CD5B0A07 
+                   6F7C53E3 5039F67E D17EC815 E5B4305C C6319706 8D5E6E57 9BA6DE5F 4E3E57DF 5E4E072F 
+                   F2CE4C66 EB452339 73875275 9639F025 7BF57DBD 5C443FB5 158CCE0A 3D36ADC7 BA01F33A 
+                   0BB6DBB2 BF989D60 7112F234 4D993E77 E563C1D3 61DEDF57 DA96EF2C FC685F00 2B638246
+                   A5B309B9'H
+    }
 
 ## ED25519-SHA256 {#ed25519-sha-256-condition-type}
 ED25519-SHA-256 is assigned the type ID 4. It relies on the SHA-256 and SHA-512 digest algorithms and the ED25519 signature scheme.
@@ -638,27 +789,29 @@ The public key and signature are a fixed size therefore the cost for an ED25519 
 ### ASN.1 {#ed25519-sha-256-condition-asn1}
 
     -- Condition Fingerprint
-    Ed25519Subfulfillment ::= SEQUENCE {
-      publicKey OCTET STRING (SIZE(32)),
-      signature OCTET STRING (SIZE(64))
+    Ed25519Sha512Fulfillment ::= SEQUENCE {
+      publicKey            OCTET STRING (SIZE(32)),
+      signature            OCTET STRING (SIZE(64))
     }
 
     -- Fulfillment 
-    Ed25519Sha256FingerprintContents ::= SEQUENCE {
-      publicKey OCTET STRING (SIZE(32))
+    Ed25519FingerprintContents ::= SEQUENCE {
+      publicKey            OCTET STRING (SIZE(32))
     }
 
 ### Condition Format {#ed25519-sha-256-condition-type-condition}
 
-The fingerprint of an ED25519-SHA-256 condition is the SHA-256 digest of the DER encoded Ed25519 public key. While the public key is already very small and constant size, we hash it for consistency with the other types.
+The fingerprint of an ED25519-SHA-256 condition is the SHA-256 digest of the DER encoded Ed25519 public key included as the only value within a SEQUENCE. While the public key is already very small and constant size, we wrap it in a SEQUENCE type and hash it for consistency with the other types.
 
 ### Fulfillment {#ed25519-sha-256-condition-type-fulfillment}
 
+The fulfillment of an ED25519-SHA-256 crypto-condition is an Ed25519Sha512Fulfillment which is a SEQUENCE of:
+
 publicKey
-: is an octet string containing the Ed25519 public key.
+: An octet string containing the Ed25519 public key.
 
 signature
-: is an octet string containing the Ed25519 signature.
+: An octet string containing the Ed25519 signature.
 
 ### Validating {#ed25519-sha-256-condition-type-validating}
 
@@ -669,7 +822,23 @@ An ED25519-SHA-256 fulfillment is valid iff :
 
 ### Example
 
-TODO
+    exampleEd25519Condition Condition ::=
+      ed25519Sha256 : {
+        fingerprint '799239AB A8FC4FF7 EABFBC4C 44E69E8B DFED9933 24E12ED6 4792ABE2 89CF1D5F'H,
+        cost 131072
+      }
+
+    exampleEd25519Fulfillment Fulfillment ::=
+      ed25519Sha256 : {
+        publicKey  'D75A9801 82B10AB7 D54BFED3 C964073A 0EE172F3 DAA62325 AF021A68 F707511A'H,
+        signature  'E5564300 C360AC72 9086E2CC 806E828A 84877F1E B8E5D974 D873E065 22490155 
+                    5FB88215 90A33BAC C61E3970 1CF9B46B D25BF5F0 595BBE24 65514143 8E7A100B'H
+      }
+
+    exampleEd25519FingerprintContents Ed25519FingerprintContents ::= {
+      publicKey    'D75A9801 82B10AB7 D54BFED3 C964073A 0EE172F3 DAA62325 AF021A68 F707511A'H
+    }
+
 
 # URI Encoding Rules {#uri-encoding-rules}
 
@@ -689,17 +858,17 @@ While [RFC6920](#RFC6920) allows for truncated hashes, implementations using the
 
 [RFC6920](#RFC6920) established the IANA registry of "Named Information URI Parameter Definitions". This specification defines three new definitions that are added to that registry and passed in URI encoded conditions as query string parameters.
 
-### Parameter: type
+### Parameter: Fingerprint Type (fpt)
 
 The type parameter indicates the type of condition that is represented by the URI. The value MUST be one of the names from the [Crypto-Condition Type Registry](#crypto-conditions-type-registry).
 
-### Parameter: cost
+### Parameter: Cost (cost)
 
 The cost parameter is the cost of the condition that is represented by the URI.
 
-### Parameter: subtypes
+### Parameter: Subtypes (subtypes)
 
-The subtypes parameter indicates the types of conditions that are subtypes of the condition represented by the URI. The value MUST be a comma seperated list of names from the [Crypto-Condition Type Registry](#crypto-conditions-type-registry).
+The subtypes parameter indicates the types of conditions that are subtypes of the condition represented by the URI. The value MUST be a comma seperated list of names from the [Crypto-Condition Type Registry](#crypto-conditions-type-registry) and SHOULD not include the type of the root crypto-condition. i.e. The value of the fpt paramtere should not appear in the list of types provided as the value of the subtypes parameter.
 
 # Example Condition
 
@@ -709,7 +878,7 @@ An example condition (PREIMAGE-SHA-256):
     0x00000010 48 A1 D6 5D FC 2D 4B 1F A3 D6 77 28 4A DD D2 00 H..].-K...w(J...
     0x00000020 12 6D 90 69 81 01 0C                            .m.i...
     
-    ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?type=preimage-sha-256&cost=44
+    ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&cost=12
 
 The example has the following attributes:
 
@@ -718,8 +887,8 @@ The example has the following attributes:
 | scheme               | `ni://`     | The named information scheme. |
 | hash function name   | `sha-256`   | The fingerprint is hashed with the SHA-256 digest function|
 | fingerprint          | `f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk` | The fingerprint for this condition. |
-| type                 | `preimage-sha-256`   | This is a [PREIMAGE-SHA-256][] condition. |
-| cost                 | `44`  | The fulfillment payload is 12 bytes long, therefor the cost is (32 + 12): 44. |
+| type                 | `preimage-sha-256`   | This is a [PREIMAGE-SHA-256](#preimage-sha-256-condition-type) condition. |
+| cost                 | `12`  | The fulfillment payload is 12 bytes long, therefore the cost is 12. |
 
 --- back
 
@@ -739,96 +908,94 @@ For now, see the test cases for the reference implementation: <https://github.co
 
     --<ASN1.PDU CryptoConditions.Condition, CryptoConditions.Fulfillment>--
 
-Crypto-Conditions DEFINITIONS EXPLICIT TAGS ::= BEGIN
-
-    -- IMPORTS from [RFC8017]{#8017}
-    RSAPublicKey ::= SEQUENCE {
-      modulus INTEGER,  -- n
-      publicExponent INTEGER -- e
-    }
-
-    -- CORE STRUCTURES
-
-    Crypto-Condition ::= Condition
-    Crypto-Fulfillment ::= Fulfillment
+Crypto-Conditions DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 
     -- Conditions
 
     Condition ::= CHOICE {
-      preimageSha256Condition     [0] Simple256Condition,
-      prefixSha256Condition       [1] Compound256Condition,
-      thresholdSha256Condition    [2] Compound256Condition,
-      rsaSha256Condition          [3] Simple256Condition,
-      ed25519Sha256Condition      [4] Simple256Condition
+      preimageSha256   [0] SimpleSha256Condition,
+      prefixSha256     [1] CompoundSha256Condition,
+      thresholdSha256  [2] CompoundSha256Condition,
+      rsaSha256        [3] SimpleSha256Condition,
+      ed25519Sha256    [4] SimpleSha256Condition
     }
 
-    Simple256Condition ::= SEQUENCE {
-      fingerprint OCTET STRING (SIZE(32)),
-      maxCost INTEGER (0..4294967295)
+    SimpleSha256Condition ::= SEQUENCE {
+      fingerprint          OCTET STRING (SIZE(32)),
+      cost                 INTEGER (0..4294967295)
     }
 
-    Compound256Condition ::= SEQUENCE {
-      fingerprint OCTET STRING (SIZE(32)),
-      maxCost INTEGER (0..4294967295),
-      subtypes ConditionTypes
+    CompoundSha256Condition ::= SEQUENCE {
+      fingerprint          OCTET STRING (SIZE(32)),
+      cost                 INTEGER (0..4294967295),
+      subtypes             ConditionTypes
     }
 
     ConditionTypes ::= BIT STRING {
-      preImageSha256  (0),
-      prefixSha256    (1),
-      thresholdSha256 (2),
-      rsaSha256       (3),
-      ed25519Sha256   (4)
+      preImageSha256   (0),
+      prefixSha256     (1),
+      thresholdSha256  (2),
+      rsaSha256        (3),
+      ed25519Sha256    (4)
     }
     
     -- Fulfillments
 
-    Fulfillment ::= SET OF Subfulfillment
-
-    Subfulfillment ::= CHOICE {
-      preimageSubfulfillment   [0] PreimageSubfulfillment,
-      prefixSubfulfillment     [1] PrefixSubfulfillment,
-      thresholdSubfulfillment  [2] ThresholdSubfulfillment,
-      rsaSha256Subfulfillment  [3] RsaSha256Subfulfillment,
-      ed25519Subfulfillment    [4] Ed25519Subfulfillment
+    Fulfillment ::= CHOICE {
+      preimageSha256   [0] PreimageFulfillment ,
+      prefixSha256     [1] PrefixFulfillment,
+      thresholdSha256  [2] ThresholdFulfillment,
+      rsaSha256        [3] RsaSha256Fulfillment,
+      ed25519Sha256    [4] Ed25519Sha512Fulfillment
     }
 
-    PreimageSubfulfillment ::= SEQUENCE {
-      preimage OCTET STRING
+    PreimageFulfillment ::= SEQUENCE {
+      preimage             OCTET STRING
     }
 
-    PrefixSubfulfillment ::= SEQUENCE {
-      prefix OCTET STRING,
-      subcondition Condition
+    PrefixFulfillment ::= SEQUENCE {
+      prefix               OCTET STRING,
+      maxMessageLength     INTEGER (0..4294967295),
+      subfulfillment       Fulfillment
     }
 
-    ThresholdSubfulfillment ::= SEQUENCE {
-      threshold INTEGER (1..65535),
-      subconditions SEQUENCE OF Condition
+    ThresholdFulfillment ::= SEQUENCE {
+      subfulfillments      SEQUENCE OF Fulfillment,
+      subconditions        SEQUENCE OF Condition
     }
 
-    RsaSha256Subfulfillment ::= SEQUENCE {
-      publicKey RSAPublicKey,
-      signature OCTET STRING
+    RsaSha256Fulfillment ::= SEQUENCE {
+      modulus              OCTET STRING,
+      signature            OCTET STRING
     }
 
-    Ed25519Subfulfillment ::= SEQUENCE {
-      publicKey OCTET STRING (SIZE(32)),
-      signature OCTET STRING (SIZE(64))
+    Ed25519Sha512Fulfillment ::= SEQUENCE {
+      publicKey            OCTET STRING (SIZE(32)),
+      signature            OCTET STRING (SIZE(64))
     }
 
     -- Fingerprint Content
 
-    -- The PreimageSha256 fingerprint is the SHA256 hash of the raw preimage
+    -- The PREIMAGE-SHA-256 condition fingerprint content is not DER encoded
+    -- The fingerprint content is the preimage
 
-    PrefixSha256FingerprintContents ::= PrefixSubfulfillment
+    PrefixFingerprintContents ::= SEQUENCE {
+      prefix               OCTET STRING,
+      maxMessageLength     INTEGER (0..4294967295),
+      subcondition         Condition
+    }
+
+    ThresholdFingerprintContents ::= SEQUENCE {
+      threshold            INTEGER (1..65535),
+      subconditions        SET OF Condition
+    }
     
-    ThresholdSha256FingerprintContents ::= ThresholdSubfulfillment    
+    RsaFingerprintContents ::= SEQUENCE {
+      modulus              OCTET STRING
+    }
     
-    RsaSha256FingerprintContents ::= RSAPublicKey
-    
-    Ed25519Sha256FingerprintContents ::= SEQUENCE {
-      publicKey OCTET STRING (SIZE(32))
+    Ed25519FingerprintContents ::= SEQUENCE {
+      publicKey            OCTET STRING (SIZE(32))
     }
         
 END
