@@ -111,7 +111,7 @@ The ledger MUST provide cryptographic escrow. Escrow means that transfers can ha
 * Proposed -- Nothing has happened yet.
 * Prepared -- Funds are held in escrow.
 * Executed -- The transfer has completed.
-* Rejected -- The transfer has been cancaled (and funds returned to the sender.)
+* Rejected -- The transfer has been canceled (and funds returned to the sender.)
 
 <span class="show alert alert-info">**Hint:** Escrow is the financial equivalent of a [two-phase commit](http://foldoc.org/two-phase%20commit).</span>
 
