@@ -1,5 +1,7 @@
 # Interledger RFCs [![gitter][gitter-img]][gitter-url]
 
+[![Join the chat at https://gitter.im/interledger/rfcs](https://badges.gitter.im/interledger/rfcs.svg)](https://gitter.im/interledger/rfcs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [gitter-img]: https://badges.gitter.im/Join%20Chat.svg
 [gitter-url]: https://gitter.im/interledger/Lobby
 
