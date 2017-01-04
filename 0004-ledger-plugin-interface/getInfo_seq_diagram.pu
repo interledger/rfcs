@@ -1,0 +1,8 @@
+@startuml
+group getInfo() => Promise.<LedgerInfo>
+  router -> pluginA : getInfo
+  pluginA <--> ledgerA :  Promise should reject \n if disconnected
+  pluginA -> router : ledgerInfo
+end
+
+@enduml

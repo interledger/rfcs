@@ -1,0 +1,28 @@
+@startuml
+group sendTransfer and fulfill between remote ledgers
+    group sendTransfer (transfer) => Promise.<null>
+      ledgerA -> ledgerA: accept transfer from wallet
+      ledgerA -> ledgerA: prepare transfer
+      ledgerA -> pluginA: IncomingTransfer
+      alt transfer has no condition
+          pluginA ->o router : *incoming_transfer event*
+      else "transfer has condition"
+          pluginA ->o router : *incoming_prepare event*
+      end
+      router -> router : Incoming -> Outgoing\n(updateIncomingTransfer@payments.js)
+      router -> pluginB : sendTransfer(OutgoingTransfer)
+      pluginB -> ledgerB : OutgoingTransfer
+      pluginB -> router : empty||\nInvalidFieldsError: Missing malformed fields.\nDuplicateIdError:\nNotAcceptedError: ledger rejected \n(insufficient balance|nonexistant destination)
+      ledgerB <--> ledgerB : initiates\n ledger-local\n transfer
+    end
+    
+    group fulfillCondition( transferId, fulfillment ) ⇒ Promise.<null>
+      ledgerB <--> ledgerB: execute\n(add fulfillment)
+      ledgerB --> pluginB: fulfillment(transferID)
+      pluginB ->o router : *outgoing_fulfill event*
+      router -> pluginA : fulfillCondition(OutgoingTransfer)\n(Execute source transfer\n to get paid)
+      pluginA -> ledgerA: fulfillment(transferID)
+    end
+end
+
+@enduml

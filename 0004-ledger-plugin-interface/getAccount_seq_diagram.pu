@@ -1,0 +1,9 @@
+@startuml
+
+group getAccount() => Promise.<String>\nGet ledger plugin's ILP address
+  router -> pluginA : getAccount() 
+  pluginA <--> ledgerA : map local ledger address <-> ILP address
+  pluginA -> router : String ILP_address
+end
+
+@enduml

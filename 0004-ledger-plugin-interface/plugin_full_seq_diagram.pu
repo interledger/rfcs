@@ -1,119 +1,29 @@
 @startuml
+
 title https://github.com/interledger/rfcs/blob/master/0004-ledger-plugin-interface/0004-ledger-plugin-interface.md
-participant "ledger sender\n(payent)"   as ledgerA
-participant "plugin1" as pluginA
+
+!include participants_ledger1.pu
 participant "ilp-connector\n(router)" as router
-participant "plugin2" as pluginB
-participant "ledger receiver\n(payee)" as ledgerB
-group new LedgerPlugin(opts), connect(options) => Promise.<null>
-  router -> pluginA +: new LedgerPlugin
-  router -> pluginA : connect (options)
-  pluginA <--> ledgerA : set bidirectional channel
-  pluginA ->o router : *connect event*
-  ... connect other plugins, create pairs ...
-  router -> router : subscribePairs
-  note over router: listen for:\n incoming_prepare,\n incoming_transfer,\n outgoing_cancel,\n  outgoing_reject,\n outgoing_fulfill,\n incoming_message
-end
-group getInfo() => Promise.<LedgerInfo>
-  router -> pluginA : getInfo
-  pluginA <--> ledgerA :  Promise should reject if disconnected
-  pluginA -> router : ledgerInfo
-end
-group getPrefix() => Promise<String plugin's ILP address prefix>.\nIt is used to determine if a given ILP address is local to \nthis ledger and thus can be reached using this plugin's \nsendTransfer method
-  router -> pluginA : getPrefix()
-  alt
-     note over pluginA: prefix := configured | auto-detected | hard-coded
-     pluginA <--> ledgerA : get prefix (five-bells plugin)
-  else
-     pluginA <->  pluginA : hardcoded \n(Bitcoin, ..)
-  else
-     pluginA <->  pluginA : auto-detected
-  end
-  pluginA -> router : String prefix
-end
-group getAccount() => Promise.<String>\nGet ledger plugin's ILP address
-  router -> pluginA : getAccount() 
-  pluginA <--> ledgerA : map local ledger address <-> ILP address
-  pluginA -> router : String ILP_address
-end
+!include participants_ledger2.pu
 
-group sendTransfer and fulfill
-    group sendTransfer (transfer) => Promise.<null>
-      ledgerA -> ledgerA: accept transfer from wallet
-      ledgerA -> ledgerA: prepare transfer
-      ledgerA -> pluginA: IncomingTransfer
-      alt transfer has no condition
-          pluginA ->o router : *incoming_transfer event*
-      else "transfer has condition"
-          pluginA ->o router : *incoming_prepare event*
-      end
-      router -> router : Incoming -> Outgoing\n(updateIncomingTransfer@payments.js)
-      router -> pluginB : sendTransfer(OutgoingTransfer)
-      pluginB -> ledgerB : OutgoingTransfer
-      pluginB -> router : empty||\nInvalidFieldsError: Missing malformed fields.\nDuplicateIdError:\nNotAcceptedError: ledger rejected \n(insufficient balance|nonexistant destination)
-      ledgerB <--> ledgerB : initiates\n ledger-local\n transfer
-    end
-    
-    group fulfillCondition( transferId, fulfillment ) ⇒ Promise.<null>
-      ledgerB <--> ledgerB: execute\n(add fulfillment)
-      ledgerB --> pluginB: fulfillment(transferID)
-      pluginB ->o router : *outgoing_fulfill event*
-      router -> pluginA : fulfillCondition(OutgoingTransfer)\n(Execute source transfer\n to get paid)
-      pluginA -> ledgerA: fulfillment(transferID)
-    end
-end
+!include newLedgerPlugin_seq_diagram.pu
 
-group sendMessage(transfer)=> Promise.<null>
-  alt  usecase 1: broadcast routes
-      router -> router : getPlugin(adjacentLedger)
-      router -> pluginA : sendMessage({...,data:{'broadcast_routes':data:routers}}
-      note over pluginA: DOUBT: what next? \nForward to other connector?
-  else usecase 2 message received from ledger, forward to interested peers
-      ledgerA -> pluginA : incoming_message
-      pluginA ->o router : *incoming_message event*
-      router -> pluginB  : sendMessage(incomming_message) \n (transfer affected account)
-      pluginB <--> ledgerB :
-      pluginB -> router : empty||\n(InvalidFields|NotAccepted|NotSubscriptions)Error
-  end
-end
+!include getInfo_seq_diagram.pu
 
-group rejectIncomingTransfer(transferId:String, rejectMessage:Buffer)
-  note over router: reject before timeout 
-  alt sendTransfer failure during settlement
-     pluginB ->o router : *outgoing_cancel | outgoing_reject event*
-  else rejected:
-     ledgerA -> pluginA: source transfer 
-     pluginA ->o router : *incoming_transfer event*
-     router -> router  : not accepted
-  end
-  router -> pluginA : rejectIncomingTransfer(transferId, rejectMessage)
-  pluginA <--> ledgerA : 
-  pluginA -> router : empty||\n(TransferNotFound|AlreadyFulfilled|\nNotAccepted|TransferNotConditional)Error
-end
+!include getPrefix_seq_diagram.pu
 
-group disconnect() => Promise.<null>
-  router -> pluginA : disconnect ()
-  pluginA ->o router : *disconnect event*
-end
+!include getAccount_seq_diagram.pu
 
-group isConnected() => Boolean
-  router -> pluginA : isConnected()
-  pluginA -> router : yes|no
-end
-note over ledgerA, ledgerB
-  DOUBT: getFulfillment doesn't look to be used in the ilp-connector (Outdated API?)
+!include sendTransferAndFulfill_2Ledgers.pu
 
-  DOUBT: getBalance    doesn't look to be used in the ilp-connector  (Outdated API?)
+!include sendMessage_2Ledgers.pu
 
-  DOUBT: outgoing_transfer ,  outgoing_prepare, incoming_fulfill, incoming_cancel,  events doesn't look to be used (in model/subscriptions subscribePairs)
-  
-  DOUBT: REF: https://github.com/interledger/rfcs/blob/master/0004-ledger-plugin-interface/0004-ledger-plugin-interface.md#outgoingmessage
-         "If the event is incoming_fulfill, then it means you fulfilled the transfer. outgoing_fulfill means the receiver of your outgoing transfer has fulfilled the condition."
+!include rejectIncomingTransfer.pu
 
-  DOUBT: It looks "incoming" means from the ledger to the plugin when speaking about transfer but the opposite when speaking about fulfillments. (subscribePairs@subscriptions)
-  
-  DOUBT: in subscribePairs outgoing_cancel && outgoing_reject are treated by rejectSourceTransfer
-end note
+!include disconnect_seq_diagram.pu
+
+!include isConnected_seq_diagram.pu
+
+!include doubts.ipu
+
 @enduml
-
-

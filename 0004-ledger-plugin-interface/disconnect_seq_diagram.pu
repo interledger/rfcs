@@ -1,0 +1,10 @@
+@startuml
+
+group disconnect() => Promise.<null>
+  router -> pluginA : disconnect ()
+  pluginA -> ledgerA : close bidirectional channel
+  pluginA -> pluginA : pluginA.isConnected = false
+  pluginA ->o router : *disconnect event*
+end
+
+@enduml

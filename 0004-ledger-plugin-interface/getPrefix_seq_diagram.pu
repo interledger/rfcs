@@ -1,0 +1,15 @@
+@startuml
+group getPrefix() => Promise<String plugin's ILP address prefix>.\nIt is used to determine if a given ILP address is local to \nthis ledger and thus can be reached using this plugin's \nsendTransfer method
+  router -> pluginA : getPrefix()
+  alt
+     note over pluginA: prefix := configured | auto-detected | hard-coded
+     pluginA <--> ledgerA : get prefix (five-bells plugin)
+  else
+     pluginA <->  pluginA : hardcoded \n(Bitcoin, ..)
+  else
+     pluginA <->  pluginA : auto-detected
+  end
+  pluginA -> router : String prefix
+end
+
+@enduml

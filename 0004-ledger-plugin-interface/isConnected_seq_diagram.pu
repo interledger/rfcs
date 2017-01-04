@@ -1,0 +1,12 @@
+@startuml
+
+group isConnected() => Boolean
+  router -> pluginA : isConnected()
+  alt pluginA.isConnected == true
+      pluginA -> router : True
+  else
+      pluginA -> router : False
+  end
+end
+
+@enduml
