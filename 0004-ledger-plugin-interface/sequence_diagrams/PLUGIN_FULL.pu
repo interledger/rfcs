@@ -6,13 +6,13 @@ title https://github.com/interledger/rfcs/blob/master/0004-ledger-plugin-interfa
 participant "ilp-connector\n(router)" as router
 !include participants_ledger2.pu
 
-!include newLedgerPlugin_seq_diagram.pu
+!include newLedgerPlugin.pu
 
-!include getInfo_seq_diagram.pu
+!include getInfo.pu
 
-!include getPrefix_seq_diagram.pu
+!include getPrefix.pu
 
-!include getAccount_seq_diagram.pu
+!include getAccount.pu
 
 !include sendTransferAndFulfill_2Ledgers.pu
 
@@ -20,9 +20,9 @@ participant "ilp-connector\n(router)" as router
 
 !include rejectIncomingTransfer.pu
 
-!include disconnect_seq_diagram.pu
+!include disconnect.pu
 
-!include isConnected_seq_diagram.pu
+!include isConnected.pu
 
 !include doubts.ipu
 
