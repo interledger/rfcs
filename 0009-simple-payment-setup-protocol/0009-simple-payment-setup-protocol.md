@@ -4,7 +4,7 @@
 
 This document describes the Simple Payment Setup Protocol (SPSP), a basic protocol for exchanging payment information between senders and recipients to set up an Interledger payment.
 
-## Introduction 
+## Introduction
 
 ### Motivation
 
@@ -126,7 +126,27 @@ Content-Type: application/json
 
 [Try this request](https://red.ilpdemo.org/api/receivers/bob)
 
-Possible values for `type` are:
+##### Response Headers
+
+The response MUST contain at least the following headers:
+
+| Header          | Description                                                |
+|:----------------|:-----------------------------------------------------------|
+| `Content-Type`  | MUST be `application/json` to indicates the response is encoded as [JSON](http://www.json.org/). |
+| `Cache-Control` | Indicates how long the SPSP Client should cache the response. See supported cache-control directives below. |
+
+To handle as many transactions per second as possible, the SPSP Client caches results from the SPSP Server. The information returned by the SPSP Server is not expected to change rapidly, so repeated requests for the same information are usually redundant. The server communicates how long to cache results for using the HTTP-standard [`Cache-Control` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) in the responses to RESTful API calls.
+
+The SPSP Client understands the following Cache-Control directives:
+
+| Directive     | Description                                                  |
+|:--------------|:-------------------------------------------------------------|
+| `max-age=<i>` | The client should cache this response for `<i>` seconds. `<i>` MUST be a positive integer. |
+| `no-cache`    | The client must not cache this response. (This may be useful on invoice-type receivers, which are unique per payment.) |
+
+##### Response Body
+
+The response body is a JSON object. The fields provided are different depending on the `type` value of the object. Possible values for `type` are:
 
 `payee`
 : This is a general receiving account for peer-to-peer payments.
@@ -298,4 +318,3 @@ Content-Type: application/json
 }
 ```
 [Try this request](https://red.ilpdemo.org/.well-known/webfinger?resource=acct%3Abob%40red.ilpdemo.org)
-

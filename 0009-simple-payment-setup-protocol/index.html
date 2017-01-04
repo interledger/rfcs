@@ -216,7 +216,48 @@ Content-Type: application/json
 }
 </code></pre>
 <p><a href="https://red.ilpdemo.org/api/receivers/bob">Try this request</a></p>
-<p>Possible values for <code>type</code> are:</p>
+<h5 id="response-headers">Response Headers</h5>
+<p>The response MUST contain at least the following headers:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Header</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>Content-Type</code></td>
+<td style="text-align:left">MUST be <code>application/json</code> to indicates the response is encoded as <a href="http://www.json.org/">JSON</a>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Cache-Control</code></td>
+<td style="text-align:left">Indicates how long the SPSP Client should cache the response. See supported cache-control directives below.</td>
+</tr>
+</tbody>
+</table>
+<p>To handle as many transactions per second as possible, the SPSP Client caches results from the SPSP Server. The information returned by the SPSP Server is not expected to change rapidly, so repeated requests for the same information are usually redundant. The server communicates how long to cache results for using the HTTP-standard <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control"><code>Cache-Control</code> header</a> in the responses to RESTful API calls.</p>
+<p>The SPSP Client understands the following Cache-Control directives:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Directive</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>max-age=&lt;i&gt;</code></td>
+<td style="text-align:left">The client should cache this response for <code>&lt;i&gt;</code> seconds. <code>&lt;i&gt;</code> MUST be a positive integer.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>no-cache</code></td>
+<td style="text-align:left">The client must not cache this response. (This may be useful on invoice-type receivers, which are unique per payment.)</td>
+</tr>
+</tbody>
+</table>
+<h5 id="response-body">Response Body</h5>
+<p>The response body is a JSON object. The fields provided are different depending on the <code>type</code> value of the object. Possible values for <code>type</code> are:</p>
 <p><code>payee</code>
 : This is a general receiving account for peer-to-peer payments.</p>
 <p><code>invoice</code>
