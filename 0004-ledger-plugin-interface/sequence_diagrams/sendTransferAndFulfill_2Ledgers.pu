@@ -1,25 +1,79 @@
 @startuml
 group sendTransfer and fulfill between remote ledgers
     group sendTransfer (transfer) => Promise.<null>
-      ledgerA -> ledgerA: accept transfer from wallet
-      ledgerA -> ledgerA: prepare transfer
-      ledgerA -> pluginA: IncomingTransfer
-      alt transfer has no condition
-          pluginA ->o router : *incoming_transfer event*
-      else "transfer has condition"
+      note over pluginA: REF: _handleTransferNotification@ilp-plugin-bells/src/lib/plugin.js
+      ledgerA ->  ledgerA: accept transfer from wallet
+      ledgerA ->  ledgerA: prepare transfer
+      ledgerA ->o pluginA: *message event* IncomingTransfer
+      note over pluginA
+         TIP: if plugin account not in IncomingTransfer.credits 
+              raise exception. This message was not for this plugin
+      end note
+      alt IncomingTransfer.state == prepared
           pluginA ->o router : *incoming_prepare event*
       end
-      router -> router : Incoming -> Outgoing\n(updateIncomingTransfer@payments.js)
-      router -> pluginB : sendTransfer(OutgoingTransfer)
-      pluginB -> ledgerB : OutgoingTransfer
-      pluginB -> router : empty||\nInvalidFieldsError: Missing malformed fields.\nDuplicateIdError:\nNotAcceptedError: ledger rejected \n(insufficient balance|nonexistant destination)
-      ledgerB <--> ledgerB : initiates\n ledger-local\n transfer
+      alt IncomingTransfer.state == executed && ! transfer.executionCondition
+          pluginA ->o router : *incoming_transfer event*
+      end
+      alt IncomingTransfer.state == executed && executionFulfillment
+          pluginA ->o router : *incoming_fulfill event*
+      end
+      alt IncomingTransfer.state == rejected && cancellationFulfillment
+          pluginA ->o router : *incoming_cancel event*
+      else IncomingTransfer.state == rejected
+          alt rejectedCredit?
+             pluginA ->o router : *incoming_reject event*
+          else 
+              pluginA ->o router : *incoming_cancel event*
+          end
+      end
+      alt is local transfer?
+          router -> pluginA : sendTransfer(OutgoingTransfer)
+          pluginA -> ledgerA : OutgoingTransfer
+          pluginA -> router : empty||\nInvalidFieldsError: Missing malformed fields.\nDuplicateIdError:\nNotAcceptedError: ledger rejected \n(insufficient balance|nonexistant destination)
+          ledgerA <--> ledgerA : initiates\n ledger-local\n transfer
+      else
+          router -> router : Incoming -> Outgoing\n(updateIncomingTransfer@payments.js\n,rounds incoming amount to outgoing amount in favor of connector\nafter checking for precision&scale in ledgers)
+          note over router
+             DOUBT: Payment commision applied here?
+          end note
+          router -> pluginB : sendTransfer(OutgoingTransfer)
+          pluginB -> ledgerB : OutgoingTransfer
+          pluginB -> router : empty||\nInvalidFieldsError: Missing malformed fields.\nDuplicateIdError:\nNotAcceptedError: ledger rejected \n(insufficient balance|nonexistant destination)
+          ledgerB <--> ledgerB : initiates\n ledger-local\n transfer
+      end
     end
     
     group fulfillCondition( transferId, fulfillment ) ⇒ Promise.<null>
+      note over pluginB: REF: _handleTransferNotification@ilp-plugin-bells/src/lib/plugin.js
       ledgerB <--> ledgerB: execute\n(add fulfillment)
-      ledgerB --> pluginB: fulfillment(transferID)
-      pluginB ->o router : *outgoing_fulfill event*
+      ledgerB --> pluginB: *message event* OutgoingTransfer (with fulfillment)
+      note over pluginB
+         TIP: if plugin account not in IncomingTransfer.debits
+              raise exception. This message was not for this plugin
+      end note
+
+      alt OutgoingTransfer.state === 'prepared'
+          pluginB ->o router : *outgoing_prepare event*
+      end
+      alt OutgoingTransfer.state === 'executed' && !executionCondition
+          pluginB ->o router : *outgoing_transfer event*
+      end
+      alt OutgoingTransfer.state === 'executed' && executionFulfillment
+          pluginB ->o router : *outgoing_fulfill event*
+      end
+      alt OutgoingTransfer.state === 'rejected' && cancellationFulfillment
+          pluginB ->o router : *outgoing_cancel event*
+      else
+          alt rejectedCredit?
+              pluginB ->o router : *outgoing_reject event*
+          else
+              pluginB ->o router : *outgoing_cancel event*
+      end
+      note over pluginB
+          DOUBT: Is it possible to have an OutgoingTransfer
+             execution and/or cancellation Fulfillment
+      end note
       router -> pluginA : fulfillCondition(OutgoingTransfer)\n(Execute source transfer\n to get paid)
       pluginA -> ledgerA: fulfillment(transferID)
     end
