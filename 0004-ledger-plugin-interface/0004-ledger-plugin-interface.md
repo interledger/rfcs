@@ -18,7 +18,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**connect**](#connect) ( options ) `⇒ Promise.<null>` |
 | | [**disconnect**](#disconnect) ( ) `⇒ Promise.<null>` |
 | | [**isConnected**](#isconnected) ( ) `⇒ Boolean` |
-| | [**getInfo**](#getinfo) ( ) <code>⇒ Promise.&lt;[LedgerInfo](#class-ledgerinfo)></code> |
+| | [**getInfo**](#getinfo) ( ) <code>⇒ [LedgerInfo](#class-ledgerinfo)</code> |
 | | [**getPrefix**](#getprefix) ( ) `⇒ Promise<String>` |
 | | [**getAccount**](#getaccount) ( ) `⇒ Promise<String>` |
 | | [**getBalance**](#getbalance) ( ) <code>⇒ Promise.&lt;String></code> |
@@ -124,9 +124,9 @@ Unsubscribe from ledger events.
 Query whether the plugin is currently connected.
 
 #### getInfo
-<code>ledgerPlugin.getInfo() ⇒ Promise.&lt;[LedgerInfo](#class-ledgerinfo)></code>
+<code>ledgerPlugin.getInfo() ⇒ [LedgerInfo](#class-ledgerinfo)</code>
 
-Retrieve some metadata about the ledger. Plugin must be connected, otherwise the promise should reject.
+Retrieve some metadata about the ledger. Plugin must be connected, otherwise the function should throw.
 
 ###### Example Return Value
 ```json
