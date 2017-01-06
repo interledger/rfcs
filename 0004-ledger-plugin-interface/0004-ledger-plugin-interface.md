@@ -19,8 +19,8 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**disconnect**](#disconnect) ( ) `⇒ Promise.<null>` |
 | | [**isConnected**](#isconnected) ( ) `⇒ Boolean` |
 | | [**getInfo**](#getinfo) ( ) <code>⇒ [LedgerInfo](#class-ledgerinfo)</code> |
-| | [**getPrefix**](#getprefix) ( ) `⇒ Promise<String>` |
-| | [**getAccount**](#getaccount) ( ) `⇒ Promise<String>` |
+| | [**getPrefix**](#getprefix) ( ) `⇒ String` |
+| | [**getAccount**](#getaccount) ( ) `⇒ String` |
 | | [**getBalance**](#getbalance) ( ) <code>⇒ Promise.&lt;String></code> |
 | | [**getFulfillment**](#getfulfillment) ( transferId ) <code>⇒ Promise.&lt;String></code> |
 | | [**sendTransfer**](#sendTransfer) ( transfer ) <code>⇒ Promise.&lt;null></code> |
@@ -148,9 +148,9 @@ Retrieve some metadata about the ledger. Plugin must be connected, otherwise the
 For a detailed description of these properties, please see [`LedgerInfo`](#class-ledgerinfo).
 
 #### getPrefix
-<code>ledgerPlugin.getPrefix() ⇒ Promise.&lt;String></code>
+<code>ledgerPlugin.getPrefix() ⇒ String</code>
 
-Get the ledger plugin's ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin's `sendTransfer` method.
+Get the ledger plugin's ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin's `sendTransfer` method. Plugin must be connected, otherwise the function should throw.
 
 The prefix may be configured, automatically detected, or hard-coded, depending on the ledger. For example, a Bitcoin ledger plugin may have the address hard-coded, while a [`five-bells-ledger`](https://github.com/interledger/five-bells-ledger) would use an API call to get the prefix.
 
@@ -158,9 +158,9 @@ The prefix may be configured, automatically detected, or hard-coded, depending o
 `us.fed.some-bank`
 
 #### getAccount
-<code>ledgerPlugin.getAccount() ⇒ Promise.&lt;String></code>
+<code>ledgerPlugin.getAccount() ⇒ String</code>
 
-Get the ledger plugin's ILP address. This is given to senders to receive transfers to this account.
+Get the ledger plugin's ILP address. This is given to senders to receive transfers to this account. Plugin must be connected, otherwise the function should throw.
 
 The mapping from the ILP address to the local ledger address is dependent on the ledger / ledger plugin. An ILP address could be the `<ledger prefix>.<account name or number>`, or a token could be used in place of the actual account name or number.
 
