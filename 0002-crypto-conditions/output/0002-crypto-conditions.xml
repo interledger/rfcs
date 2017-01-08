@@ -977,7 +977,7 @@ ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&c
       <ttcol align='left'>Value</ttcol>
       <ttcol align='left'>Description</ttcol>
       <c>scheme</c>
-      <c><spanx style="verb">ni://</spanx></c>
+      <c><spanx style="verb">ni:///</spanx></c>
       <c>The named information scheme.</c>
       <c>hash function name</c>
       <c><spanx style="verb">sha-256</spanx></c>
@@ -1243,7 +1243,7 @@ Ed25519FingerprintContents ::= SEQUENCE {
   </back>
 
 <!-- ##markdown-source:
-H4sIAFiiclgAA+19a3fbRpbgd/2KWvvshvSQFACCL02nd/gAbU1syWPJ3Znx
+H4sIALymclgAA+19a3fbRpbgd/2KWvvshvSQFACCL02nd/gAbU1syWPJ3Znx
 yaYhEpLQJgE2AEpmp3PO/of9h/tL9j6qCoUXpU6nN5nd1jlxJBKounXr1n3f
 W91u92QVr8Po7kzss9vu+OQkC7NNcCbmyWGXxd15HK3DLIyj9GQdryJ/C1+t
 E/8262b38dZPuyt+bqWf61rOycrPgrs4OZyJNFufnOzCM/Epi1cdkcZJlgS3
@@ -1583,26 +1583,26 @@ Z6Its4atL5b8EVNLOBgDEI4lRksx7ouZLSjnXSxtsZwLSnsXzkLMQeOzRe+/
 9b7rdb+B4R5b/9orjedgFr0YLkAxFsMJTg9qpzWv06HVT2/bC9Uw9E8Unp2e
 nkrm/s+37uWX//j2+y/fLy8Hb1evZ1ffvPn9t7eP2dWX7h9t4FhXWf9qOvvX
 7PPrz/8d9vPrcnPa/4an8Gvb0X4/QrnqwpH3xvczYHE3ezg7gPK/iGJKqfz5
-C5qs+0D/tSAxy5eV/+XkL93an78c+evJHxhVSs4KKH8gPP1B/nUtOR9yc0NV
-ZgchAsfeDO1NxGd5GImnP+hhSj2CpTai1caSY0eNiFPU3kgMU/wVe/iHGiC0
-59M40DgdnfvqHv2hTAJqaaG8t+xT+ZQB/3mi53K7PHftRcowt+38QePRMI53
-/mET+6TT6UxWbIFTvi9V5c/ZDk5zAhQgbvzVZ+QhVyrTby71W1+qHzWqAXeO
-iJgO8J5W7vGG6j8qiEaRMbuwCm/LBhXBF1Av6fZEnWO4KsxcAV19yXW3rFfh
-3pkqXCjvyiwkG6UNpRf0ZG05RcQjV7z86V/ric+LiZXRYN7+WriSLO9asipa
-AloiYOdv5CcV5RjNHHxddnUKE6F6wJgdXIsXDTbdMYD3ArNUucbzRxxJU4E0
-vDi5Kfiy81V6r8/viXXi34IlKX7zX7DH/OXiUnS7v5VXJEfxYweGkEKVurX4
-qXFxK2w2dgRalSvMz8Rv7rNslwI7ugPK2d/0QC04xRT0ZBOs4Rif3sIaujfB
-ZpPm5+o0A7X1dOvjnR+nONtvcU0cC3iHwVPMNkJBDM9/6a60H/038Ijde7/4
-KG9Dyc2ynv61U/3OcFX9ttsFa66kkaRgaC3PL84xafdKTD9eX76bXp/PxfX0
-9RVfYu69Pr+oxiDS0q3nz75c6eit9rW3KzXcDn/0jqUn3qm9ZukoZLX3LNW+
-YYY/ah/4Za61N8FqwM4vA5hRqKmLcvWPho1u/CmuwfyGSVXfeWiS4HmBBFtW
-u5HYWna7kahaTruReFr9diOZtNzCXUb4TzEmlv7jnrJ/3FN2tFEz/u9X0Wbp
-F0/nx//9umPdBq+UEQr9HWpXv8w1Of85+6v/qvqf4b+K/H/20hk9+P+FzAj1
-1Il3sUDFkxy0RdPK1D8Dzng67sequYiv5MdScX7tdiB/LcUmsgSTnaQT6qbg
-tw0a5tXOXNb3+aa1tWzxqa/N8zPRYt/UHVrs8MnHD+ftE9LZQWV/fHzshX7k
-9+Lk7pSzsYhhntbfKfjbs/IS8pv08iv8yIdyLbO55G8XvuHFMN0ldT4RtLEt
-9WyVXZANbpvfm91PeXzh6O+rnZDw+77+3qzU0PAJV3+v7Mz85y8nP5yJhmsX
-uxlfox1mm+DrF/V3Nr748eT/ADeE3C4A3gAA
+C5qs+0D/tSAxy5eV/+XkL93an78c+evJHxhVSs4KKH9gPP1B/nktWR+yc0NX
+Zg8hQsfuDO1OxGd5HImoP+hhSk2CpTqi9caSZ0eNiFPUXkkMU/wVm/iHGiC0
+69M40TgdHfzqJv2hTANqaaG8uOxT+ZgBA3qi6XK7PHftTcowt+38QePRsI53
+/mET+6TU6VRW7IFTvjBVJdDZDk5zAiQgbvzVZ2QiVyrVby4VXF/qHzW6AbeO
+iJgO8KJWbvKG+j9qiEaVMfuwCm/LDhXBF9Av6fpEnWS4KsxcAV19yYW3rFjh
+3pk6XCgvyyxkG6UNtRf0ZG09RcQjV9z86V/ris+riZXVYF7/WriTLG9bsiqa
+AlokYOtvZCgV7RjtHHxdtnUKE6GawJgtXIs3DTZdMoAXA7NYucbzRyxJU4G0
+vDi7Kfiy81V+r8/viXXi34IpKX7zX7DJ/OXiUnS7v5V3JEfxYweGkFKV2rX4
+qXFzK2w2tgRalUvMz8Rv7rNslwI/ugPK2d/0QC84xRz0ZBOs4Rif3sIaujfB
+ZpPm5+o0A731dOvjpR+nONtvcU0cDHiH0VNMN0JJDM9/6a60I/038Ijde7/4
+KK9Dye2ynv61U/3O8FX9ttsFc66kkqRgaS3PL84xa/dKTD9eX76bXp/PxfX0
+9RXfYu69Pr+oBiHS0rXnz75d6ei19rXXKzVcD3/0kqUn3qm9Z+koZLUXLdW+
+YcY/ah/4Ze61N8FqwM4vA5hRqamrcvWPho2u/CmuwfyGSVVfemiS4HmBBFtW
+u5HYWna7kahaTruReFr9diOZtNzCZUb4TzEolv7jorJ/XFR2tFMz/u9X0Wfp
+F8/nx//9uoPdBq+UIQr9HWpXv8w9Of85G6z/qhqg4b+K/H/22hk9+P+F1Aj1
+1Il3sUDFkzy0RdPK1D8DTnk67siquYmv5MhSgX7tdyCHLQUnsgSznaQX6qbg
+uA0a5tXeXNb3+aq1tezxqe/N8zPRYufUHVrs8MnHD+ftE9LZQWV/fHzshX7k
+9+Lk7pTTsYhhntZfKvjbs/IS8qv08jv8yIlyLdO55G8XvuHGMP0ldU4RtLEt
+9WyVXZANbpvfm+1PeXzh6O+rrZDw+77+3izV0PAJV3+v7Mz85y8nP5yJhnsX
+uxnfox1mm+DrF/WXNr748eT/ANZUpKsB3gAA
 
 -->
 
