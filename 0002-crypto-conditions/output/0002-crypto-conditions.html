@@ -457,7 +457,7 @@
 
   <meta name="dct.creator" content="Thomas, S., Reginelli, R., and A. Hope-Bailie" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-thomas-crypto-conditions-02" />
-  <meta name="dct.issued" scheme="ISO8601" content="2016-12-20" />
+  <meta name="dct.issued" scheme="ISO8601" content="2017-1-08" />
   <meta name="dct.abstract" content="The crypto-conditions specification defines a set of encoding formats and data structures for " />
   <meta name="description" content="The crypto-conditions specification defines a set of encoding formats and data structures for " />
 
@@ -481,12 +481,12 @@
   <td class="right">A. Hope-Bailie</td>
 </tr>
 <tr>
-  <td class="left">Expires: June 23, 2017</td>
+  <td class="left">Expires: July 12, 2017</td>
   <td class="right">Ripple</td>
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">December 20, 2016</td>
+  <td class="right">January 08, 2017</td>
 </tr>
 
     	
@@ -512,11 +512,11 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on June 23, 2017.</p>
+<p>This Internet-Draft will expire on July 12, 2017.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
-<p>Copyright (c) 2016 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
+<p>Copyright (c) 2017 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (http://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
 
   
@@ -745,10 +745,10 @@ ConditionTypes ::= BIT STRING {
 <h1 id="rfc.section.7.2.3"><a href="#rfc.section.7.2.3">7.2.3.</a> <a href="#subtypes" id="subtypes">Subtypes</a></h1>
 <p id="rfc.section.7.2.3.p.1">Subtypes is a bitmap that indicates the set of types an implementation must support in order to be able to successfully validate the fulfillment of this condition. This is the set of types and subtypes of all sub-crypto-conditions, recursively excluding the type of the root crypto-condition.</p>
 <p id="rfc.section.7.2.3.p.2">It must be possible to verify that all types used in a crypto-condition are supported (including the types and subtypes of any sub-crypto-conditions) even if the fulfillment is not available to be analysed yet. Therefore, all compound conditions set the bits in this bitmap that correspond to the set of types and subtypes of all sub-crypto-conditions.</p>
-<p id="rfc.section.7.2.3.p.3">The field is encoded as a variable length BIT STRING, as defined in ASN.1 to accommodate new types that may be defined.</p>
+<p id="rfc.section.7.2.3.p.3">The field is encoded as a variable length BIT STRING, as defined in ASN.1, to accommodate new types that may be defined.</p>
 <p id="rfc.section.7.2.3.p.4">Each bit in the bitmap represents a type from the list of known types in the IANA-maintained <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite> and the bit corresponding to each type is the bit at position X where X is the type ID of the type.</p>
 <p id="rfc.section.7.2.3.p.5">The presence of one or more sub-crypto-conditions of a specific type is indicated by setting the numbered bit corresponding to the type ID of that type.</p>
-<p id="rfc.section.7.2.3.p.6">For example, a compound condition that contains an ED25519-SHA-256 crypto-condition as a sub-crypto-condition will set the bit at position 4.</p>
+<p id="rfc.section.7.2.3.p.6">In DER encoding, the bits in a bitstring are numbered from the MOST significant bit (bit 0) to least significant (bit 7) of the first byte and then continue with the MOST significant bit (bit 8) of the next byte, and so on. For example, a compound condition that contains an ED25519-SHA-256 crypto-condition as a sub-crypto-condition will set the bit at position 4 and the BITSTRING will be DER encoded with an appropriate tag byte followed by the three bytes 0x02 0x03 and 0x80, where 0x02 indicates the length (2 bytes, the first being the padding indicator), 0x03 indicates that there are 3 padding bits in the last byte and 0x80 indicates the 5 bits in the string are set to 00001.</p>
 <h1 id="rfc.section.7.3"><a href="#rfc.section.7.3">7.3.</a> <a href="#fulfillment-format" id="fulfillment-format">Fulfillment</a></h1>
 <p id="rfc.section.7.3.p.1">The ASN.1 definition for fulfillments is defined as follows:</p>
 <pre>
@@ -771,8 +771,8 @@ PrefixFulfillment ::= SEQUENCE {
 }
 
 ThresholdFulfillment ::= SEQUENCE {
-  subfulfillments      SEQUENCE OF Fulfillment,
-  subconditions        SEQUENCE OF Condition
+  subfulfillments      SET OF Fulfillment,
+  subconditions        SET OF Condition
 }
 
 RsaSha256Fulfillment ::= SEQUENCE {
@@ -932,8 +932,8 @@ ThresholdFingerprintContents ::= SEQUENCE {
 
 -- Fulfillment 
 ThresholdFulfillment ::= SEQUENCE {
-  subfulfillments      SEQUENCE OF Fulfillment,
-  subconditions        SEQUENCE OF Condition
+  subfulfillments      SET OF Fulfillment,
+  subconditions        SET OF Condition
 }
 </pre>
 <h1 id="rfc.section.8.3.3"><a href="#rfc.section.8.3.3">8.3.3.</a> <a href="#threshold-sha-256-condition-type-condition" id="threshold-sha-256-condition-type-condition">Condition Format</a></h1>
@@ -952,13 +952,12 @@ ThresholdFulfillment ::= SEQUENCE {
 
 <dl>
   <dt>subfulfillments</dt>
-  <dd style="margin-left: 8">A SEQUENCE of fulfillments. The number of elements in this set is equal to the threshold therefore implementations must use the length of this SEQUENCE as the threshold value when deriving the fingerprint of this crypto-condition.</dd>
+  <dd style="margin-left: 8">A SET OF fulfillments. The number of elements in this set is equal to the threshold therefore implementations must use the length of this SET as the threshold value when deriving the fingerprint of this crypto-condition.</dd>
   <dt>subconditions</dt>
-  <dd style="margin-left: 8">A SEQUENCE of conditions. This is the list of unfulfilled sub-conditions. This list must be combined with the list of conditions derived from the subfulfillments and the combined list, sorted, and used as the subconditions value when deriving the fingerprint of this crypto-condition.</dd>
+  <dd style="margin-left: 8">A SET OF conditions. This is the list of unfulfilled sub-conditions. This list must be combined with the list of conditions derived from the subfulfillments and the combined list, sorted, and used as the subconditions value when deriving the fingerprint of this crypto-condition.</dd>
   <dt></dt>
   <dd style="margin-left: 8">This may be an empty list.</dd>
 </dl>
-<p id="rfc.section.8.3.4.p.3">SEQUENCE OF is used instead of SET OF, because a correct DER decoder should reject SET OF values that aren't in canonical order, but most don't, so there is a risk of inconsistent behavior. By using SEQUENCE OF it is possible to ensure that all implementations consistently accept any arbitrary ordering.</p>
 <h1 id="rfc.section.8.3.5"><a href="#rfc.section.8.3.5">8.3.5.</a> <a href="#threshold-sha-256-condition-type-validating" id="threshold-sha-256-condition-type-validating">Validating</a></h1>
 <p id="rfc.section.8.3.5.p.1">A THRESHOLD-SHA-256 fulfillment is valid iff :</p>
 <p/>
@@ -1059,9 +1058,9 @@ rSASSA-PSS-SHA256-Params RSASSA-PSS-params ::=  {
 <p id="rfc.section.8.4.1.p.4">Implementations MUST use the value 65537 for the public exponent e as recommended in <a href="#RFC4871">[RFC4871]</a>. Very large exponents can be a DoS vector <a href="#LARGE-RSA-EXPONENTS">[LARGE-RSA-EXPONENTS]</a> and 65537 is the largest Fermat prime, which has some nice properties <a href="#USING-RSA-EXPONENT-OF-65537">[USING-RSA-EXPONENT-OF-65537]</a>.</p>
 <p id="rfc.section.8.4.1.p.5">The recommended modulus size as of 2016 is 2048 bits <a href="#KEYLENGTH-RECOMMENDATION">[KEYLENGTH-RECOMMENDATION]</a>. In the future we anticipate an upgrade to 3072 bits which provides approximately 128 bits of security <a href="#NIST-KEYMANAGEMENT">[NIST-KEYMANAGEMENT]</a> (p. 64), about the same level as SHA-256.</p>
 <h1 id="rfc.section.8.4.2"><a href="#rfc.section.8.4.2">8.4.2.</a> <a href="#rsa-sha-256-condition-type-cost" id="rsa-sha-256-condition-type-cost">Cost</a></h1>
-<p id="rfc.section.8.4.2.p.1">The cost is the square of the RSA key modulus size (in bits) divided by the constant 64.</p>
+<p id="rfc.section.8.4.2.p.1">The cost is the square of the RSA key modulus size (in bytes).</p>
 <pre>
-cost = ( (modulus size in bits) ^ 2 ) / 64 
+cost = (modulus size in bytes) ^ 2 
 </pre>
 <h1 id="rfc.section.8.4.3"><a href="#rfc.section.8.4.3">8.4.3.</a> <a href="#rsa-sha-256-condition-asn1" id="rsa-sha-256-condition-asn1">ASN.1</a></h1>
 <pre>
@@ -1413,8 +1412,8 @@ PrefixFulfillment ::= SEQUENCE {
 }
 
 ThresholdFulfillment ::= SEQUENCE {
-  subfulfillments      SEQUENCE OF Fulfillment,
-  subconditions        SEQUENCE OF Condition
+  subfulfillments      SET OF Fulfillment,
+  subconditions        SET OF Condition
 }
 
 RsaSha256Fulfillment ::= SEQUENCE {

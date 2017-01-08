@@ -341,13 +341,13 @@ Subtypes is a bitmap that indicates the set of types an implementation must supp
 
 It must be possible to verify that all types used in a crypto-condition are supported (including the types and subtypes of any sub-crypto-conditions) even if the fulfillment is not available to be analysed yet. Therefore, all compound conditions set the bits in this bitmap that correspond to the set of types and subtypes of all sub-crypto-conditions.
 
-The field is encoded as a variable length BIT STRING, as defined in ASN.1 to accommodate new types that may be defined. 
+The field is encoded as a variable length BIT STRING, as defined in ASN.1, to accommodate new types that may be defined. 
 
 Each bit in the bitmap represents a type from the list of known types in the IANA-maintained [Crypto-Condition Type Registry](#crypto-conditions-type-registry) and the bit corresponding to each type is the bit at position X where X is the type ID of the type. 
 
 The presence of one or more sub-crypto-conditions of a specific type is indicated by setting the numbered bit corresponding to the type ID of that type.
 
-For example, a compound condition that contains an ED25519-SHA-256 crypto-condition as a sub-crypto-condition will set the bit at position 4. 
+In DER encoding, the bits in a bitstring are numbered from the MOST significant bit (bit 0) to least significant (bit 7) of the first byte and then continue with the MOST significant bit (bit 8) of the next byte, and so on. For example, a compound condition that contains an ED25519-SHA-256 crypto-condition as a sub-crypto-condition will set the bit at position 4 and the BITSTRING will be DER encoded with an appropriate tag byte followed by the three bytes 0x02 0x03 and 0x80, where 0x02 indicates the length (2 bytes, the first being the padding indicator), 0x03 indicates that there are 3 padding bits in the last byte and 0x80 indicates the 5 bits in the string are set to 00001.
 
 ## Fulfillment {#fulfillment-format}
 
@@ -372,8 +372,8 @@ The ASN.1 definition for fulfillments is defined as follows:
     }
 
     ThresholdFulfillment ::= SEQUENCE {
-      subfulfillments      SEQUENCE OF Fulfillment,
-      subconditions        SEQUENCE OF Condition
+      subfulfillments      SET OF Fulfillment,
+      subconditions        SET OF Condition
     }
 
     RsaSha256Fulfillment ::= SEQUENCE {
@@ -559,8 +559,8 @@ For example, if a threshold crypto-condition contains 5 sub-conditions with cost
 
     -- Fulfillment 
     ThresholdFulfillment ::= SEQUENCE {
-      subfulfillments      SEQUENCE OF Fulfillment,
-      subconditions        SEQUENCE OF Condition
+      subfulfillments      SET OF Fulfillment,
+      subconditions        SET OF Condition
     }
     
 ### Condition Format {#threshold-sha-256-condition-type-condition}
@@ -578,14 +578,12 @@ subconditions
 The fulfillment of a THRESHOLD-SHA-256 crypto-condition is a ThresholdFulfillment which is a SEQUENCE of:
 
 subfulfillments
-: A SEQUENCE of fulfillments. The number of elements in this set is equal to the threshold therefore implementations must use the length of this SEQUENCE as the threshold value when deriving the fingerprint of this crypto-condition.
+: A SET OF fulfillments. The number of elements in this set is equal to the threshold therefore implementations must use the length of this SET as the threshold value when deriving the fingerprint of this crypto-condition.
 
 subconditions
-: A SEQUENCE of conditions. This is the list of unfulfilled sub-conditions. This list must be combined with the list of conditions derived from the subfulfillments and the combined list, sorted, and used as the subconditions value when deriving the fingerprint of this crypto-condition.
+: A SET OF conditions. This is the list of unfulfilled sub-conditions. This list must be combined with the list of conditions derived from the subfulfillments and the combined list, sorted, and used as the subconditions value when deriving the fingerprint of this crypto-condition.
 
 : This may be an empty list.
-
-SEQUENCE OF is used instead of SET OF, because a correct DER decoder should reject SET OF values that aren't in canonical order, but most don't, so there is a risk of inconsistent behavior. By using SEQUENCE OF it is possible to ensure that all implementations consistently accept any arbitrary ordering.
 
 ### Validating {#threshold-sha-256-condition-type-validating}
 
@@ -695,9 +693,9 @@ The recommended modulus size as of 2016 is 2048 bits [KEYLENGTH-RECOMMENDATION](
 
 ### Cost {#rsa-sha-256-condition-type-cost}
 
-The cost is the square of the RSA key modulus size (in bits) divided by the constant 64.
+The cost is the square of the RSA key modulus size (in bytes).
 
-    cost = ( (modulus size in bits) ^ 2 ) / 64 
+    cost = (modulus size in bytes) ^ 2 
 
 ### ASN.1 {#rsa-sha-256-condition-asn1}
 
@@ -960,8 +958,8 @@ Crypto-Conditions DEFINITIONS AUTOMATIC TAGS ::= BEGIN
     }
 
     ThresholdFulfillment ::= SEQUENCE {
-      subfulfillments      SEQUENCE OF Fulfillment,
-      subconditions        SEQUENCE OF Condition
+      subfulfillments      SET OF Fulfillment,
+      subconditions        SET OF Condition
     }
 
     RsaSha256Fulfillment ::= SEQUENCE {

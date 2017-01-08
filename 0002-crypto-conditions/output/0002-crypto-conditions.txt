@@ -5,8 +5,8 @@
 Network Working Group                                          S. Thomas
 Internet-Draft                                              R. Reginelli
 Intended status: Standards Track                          A. Hope-Bailie
-Expires: June 23, 2017                                            Ripple
-                                                       December 20, 2016
+Expires: July 12, 2017                                            Ripple
+                                                        January 08, 2017
 
 
                            Crypto-Conditions
@@ -53,9 +53,9 @@ Status of This Memo
 
 
 
-Thomas, et al.            Expires June 23, 2017                 [Page 1]
+Thomas, et al.            Expires July 12, 2017                 [Page 1]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    Internet-Drafts are working documents of the Internet Engineering
@@ -68,11 +68,11 @@ Internet-Draft              Crypto-Conditions              December 2016
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on June 23, 2017.
+   This Internet-Draft will expire on July 12, 2017.
 
 Copyright Notice
 
-   Copyright (c) 2016 IETF Trust and the persons identified as the
+   Copyright (c) 2017 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Thomas, et al.            Expires June 23, 2017                 [Page 2]
+Thomas, et al.            Expires July 12, 2017                 [Page 2]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
        7.2.1.  Fingerprint . . . . . . . . . . . . . . . . . . . . .  12
@@ -145,7 +145,7 @@ Internet-Draft              Crypto-Conditions              December 2016
        8.4.2.  Cost  . . . . . . . . . . . . . . . . . . . . . . . .  24
        8.4.3.  ASN.1 . . . . . . . . . . . . . . . . . . . . . . . .  24
        8.4.4.  Condition Format  . . . . . . . . . . . . . . . . . .  24
-       8.4.5.  Fulfillment Format  . . . . . . . . . . . . . . . . .  25
+       8.4.5.  Fulfillment Format  . . . . . . . . . . . . . . . . .  24
        8.4.6.  Validating  . . . . . . . . . . . . . . . . . . . . .  25
        8.4.7.  Example . . . . . . . . . . . . . . . . . . . . . . .  25
      8.5.  ED25519-SHA256  . . . . . . . . . . . . . . . . . . . . .  26
@@ -165,9 +165,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                 [Page 3]
+Thomas, et al.            Expires July 12, 2017                 [Page 3]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    11. References  . . . . . . . . . . . . . . . . . . . . . . . . .  30
@@ -221,9 +221,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                 [Page 4]
+Thomas, et al.            Expires July 12, 2017                 [Page 4]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    The different types of crypto-conditions each have different internal
@@ -277,9 +277,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                 [Page 5]
+Thomas, et al.            Expires July 12, 2017                 [Page 5]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    Implementations are not required to support all condition types
@@ -333,9 +333,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                 [Page 6]
+Thomas, et al.            Expires July 12, 2017                 [Page 6]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    signature or another threshold condition.  This provides flexibility
@@ -389,9 +389,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                 [Page 7]
+Thomas, et al.            Expires July 12, 2017                 [Page 7]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
 4.5.  Crypto-conditions as a trigger in distributed systems
@@ -445,9 +445,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                 [Page 8]
+Thomas, et al.            Expires July 12, 2017                 [Page 8]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
 4.6.  Smart signatures
@@ -501,9 +501,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                 [Page 9]
+Thomas, et al.            Expires July 12, 2017                 [Page 9]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    A more detailed validation algorithm for each crypto-condition type
@@ -557,9 +557,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 10]
+Thomas, et al.            Expires July 12, 2017                [Page 10]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    public key is shared publicly.  It's not possible to derive the
@@ -613,9 +613,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 11]
+Thomas, et al.            Expires July 12, 2017                [Page 11]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    Condition ::= CHOICE {
@@ -669,9 +669,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 12]
+Thomas, et al.            Expires July 12, 2017                [Page 12]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
 7.2.2.  Cost
@@ -725,9 +725,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 13]
+Thomas, et al.            Expires July 12, 2017                [Page 13]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    It must be possible to verify that all types used in a crypto-
@@ -738,7 +738,7 @@ Internet-Draft              Crypto-Conditions              December 2016
    sub-crypto-conditions.
 
    The field is encoded as a variable length BIT STRING, as defined in
-   ASN.1 to accommodate new types that may be defined.
+   ASN.1, to accommodate new types that may be defined.
 
    Each bit in the bitmap represents a type from the list of known types
    in the IANA-maintained Crypto-Condition Type Registry (Appendix D.1)
@@ -749,9 +749,17 @@ Internet-Draft              Crypto-Conditions              December 2016
    is indicated by setting the numbered bit corresponding to the type ID
    of that type.
 
-   For example, a compound condition that contains an ED25519-SHA-256
-   crypto-condition as a sub-crypto-condition will set the bit at
-   position 4.
+   In DER encoding, the bits in a bitstring are numbered from the MOST
+   significant bit (bit 0) to least significant (bit 7) of the first
+   byte and then continue with the MOST significant bit (bit 8) of the
+   next byte, and so on.  For example, a compound condition that
+   contains an ED25519-SHA-256 crypto-condition as a sub-crypto-
+   condition will set the bit at position 4 and the BITSTRING will be
+   DER encoded with an appropriate tag byte followed by the three bytes
+   0x02 0x03 and 0x80, where 0x02 indicates the length (2 bytes, the
+   first being the padding indicator), 0x03 indicates that there are 3
+   padding bits in the last byte and 0x80 indicates the 5 bits in the
+   string are set to 00001.
 
 7.3.  Fulfillment
 
@@ -773,17 +781,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-
-
-
-
-
-
-
-
-Thomas, et al.            Expires June 23, 2017                [Page 14]
+Thomas, et al.            Expires July 12, 2017                [Page 14]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    Fulfillment ::= CHOICE {
@@ -805,8 +805,8 @@ Internet-Draft              Crypto-Conditions              December 2016
    }
 
    ThresholdFulfillment ::= SEQUENCE {
-     subfulfillments      SEQUENCE OF Fulfillment,
-     subconditions        SEQUENCE OF Condition
+     subfulfillments      SET OF Fulfillment,
+     subconditions        SET OF Condition
    }
 
    RsaSha256Fulfillment ::= SEQUENCE {
@@ -837,9 +837,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 15]
+Thomas, et al.            Expires July 12, 2017                [Page 15]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    it is possible to create a condition which the creator can trivially
@@ -893,9 +893,9 @@ PreimageFulfillment ::= SEQUENCE {
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 16]
+Thomas, et al.            Expires July 12, 2017                [Page 16]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
 examplePreimageCondition Condition ::=
@@ -949,9 +949,9 @@ cost = prefix.length (in bytes) + max_message_length + subcondition_cost + 1024
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 17]
+Thomas, et al.            Expires July 12, 2017                [Page 17]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
 8.2.2.  ASN.1
@@ -1005,9 +1005,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 18]
+Thomas, et al.            Expires July 12, 2017                [Page 18]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
 8.2.5.  Validating
@@ -1061,9 +1061,9 @@ examplePrefixFingerprintContents PrefixFingerprintContents ::= {
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 19]
+Thomas, et al.            Expires July 12, 2017                [Page 19]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    Note also, any change to the PREFIX-SHA-256 crypto-condition's prefix
@@ -1103,8 +1103,8 @@ cost = (sum of largest F.threshold subcondition.cost values) + 1024 * F.subcondi
 
    -- Fulfillment
    ThresholdFulfillment ::= SEQUENCE {
-     subfulfillments      SEQUENCE OF Fulfillment,
-     subconditions        SEQUENCE OF Condition
+     subfulfillments      SET OF Fulfillment,
+     subconditions        SET OF Condition
    }
 
 8.3.3.  Condition Format
@@ -1117,9 +1117,9 @@ cost = (sum of largest F.threshold subcondition.cost values) + 1024 * F.subcondi
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 20]
+Thomas, et al.            Expires July 12, 2017                [Page 20]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    threshold  A number that MUST be an integer in the range 1 ... 65535.
@@ -1138,24 +1138,18 @@ Internet-Draft              Crypto-Conditions              December 2016
    The fulfillment of a THRESHOLD-SHA-256 crypto-condition is a
    ThresholdFulfillment which is a SEQUENCE of:
 
-   subfulfillments  A SEQUENCE of fulfillments.  The number of elements
-      in this set is equal to the threshold therefore implementations
-      must use the length of this SEQUENCE as the threshold value when
-      deriving the fingerprint of this crypto-condition.
+   subfulfillments  A SET OF fulfillments.  The number of elements in
+      this set is equal to the threshold therefore implementations must
+      use the length of this SET as the threshold value when deriving
+      the fingerprint of this crypto-condition.
 
-   subconditions  A SEQUENCE of conditions.  This is the list of
-      unfulfilled sub-conditions.  This list must be combined with the
-      list of conditions derived from the subfulfillments and the
-      combined list, sorted, and used as the subconditions value when
-      deriving the fingerprint of this crypto-condition.
+   subconditions  A SET OF conditions.  This is the list of unfulfilled
+      sub-conditions.  This list must be combined with the list of
+      conditions derived from the subfulfillments and the combined list,
+      sorted, and used as the subconditions value when deriving the
+      fingerprint of this crypto-condition.
 
       This may be an empty list.
-
-   SEQUENCE OF is used instead of SET OF, because a correct DER decoder
-   should reject SET OF values that aren't in canonical order, but most
-   don't, so there is a risk of inconsistent behavior.  By using
-   SEQUENCE OF it is possible to ensure that all implementations
-   consistently accept any arbitrary ordering.
 
 8.3.5.  Validating
 
@@ -1170,20 +1164,20 @@ Internet-Draft              Crypto-Conditions              December 2016
 exampleThresholdCondition Condition ::=
   thresholdSha256 : {
     fingerprint 'B4B84136 DF48A71D 73F4985C 04C6767A 778ECB65 BA7023B4 506823BE EE7631B9'H,
-
-
-
-Thomas, et al.            Expires June 23, 2017                [Page 21]
-
-Internet-Draft              Crypto-Conditions              December 2016
-
-
     cost         1024,
     subtypes    { preimageSha256 }
   }
 
 exampleThresholdFulfillment Fulfillment ::=
   thresholdSha256 : {
+
+
+
+Thomas, et al.            Expires July 12, 2017                [Page 21]
+
+Internet-Draft              Crypto-Conditions               January 2017
+
+
     subfulfillments { preimageSha256 : { preimage ''H } },
     subconditions   { }
   }
@@ -1226,17 +1220,19 @@ exampleThresholdFingerprintContents2 ThresholdFingerprintContents ::= {
     preimageSha256 : {
       fingerprint '7F83B165 7FF1FC53 B92DC181 48A1D65D FC2D4B1F A3D67728 4ADDD200 126D9069'H,
       cost         12
-
-
-
-Thomas, et al.            Expires June 23, 2017                [Page 22]
-
-Internet-Draft              Crypto-Conditions              December 2016
-
-
     }
   }
 }
+
+
+
+
+
+
+Thomas, et al.            Expires July 12, 2017                [Page 22]
+
+Internet-Draft              Crypto-Conditions               January 2017
+
 
 8.4.  RSA-SHA-256
 
@@ -1281,18 +1277,18 @@ rSASSA-PSS-SHA256-Params RSASSA-PSS-params ::=  {
    of 65537, only the RSA Public Key modulus is stored in the
    RsaFingerprintContents and RsaFulfillment.
 
-
-
-
-
-Thomas, et al.            Expires June 23, 2017                [Page 23]
-
-Internet-Draft              Crypto-Conditions              December 2016
-
-
    The modulus is stored as an OCTET STRING representing an unsigned
    integer (i.e. no sign byte) in big-endian byte-order, the most
    significant byte being the first in the string.
+
+
+
+
+
+Thomas, et al.            Expires July 12, 2017                [Page 23]
+
+Internet-Draft              Crypto-Conditions               January 2017
+
 
    Implementations MUST use moduli greater than 128 bytes (1017 bits)
    and smaller than or equal to 512 bytes (4096 bits.)  Large moduli
@@ -1312,10 +1308,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 8.4.2.  Cost
 
-   The cost is the square of the RSA key modulus size (in bits) divided
-   by the constant 64.
+   The cost is the square of the RSA key modulus size (in bytes).
 
-   cost = ( (modulus size in bits) ^ 2 ) / 64
+   cost = (modulus size in bytes) ^ 2
 
 8.4.3.  ASN.1
 
@@ -1336,16 +1331,6 @@ Internet-Draft              Crypto-Conditions              December 2016
    the DER encoded fingerprint contents which is a SEQUENCE of a single
    element, the modulus of the RSA Key Pair.
 
-
-
-
-
-
-Thomas, et al.            Expires June 23, 2017                [Page 24]
-
-Internet-Draft              Crypto-Conditions              December 2016
-
-
 8.4.5.  Fulfillment Format
 
    The fulfillment of an RSA-SHA-256 crypto-condition is an
@@ -1353,6 +1338,13 @@ Internet-Draft              Crypto-Conditions              December 2016
 
    modulus  The modulus of the RSA key pair used to sign and verify the
       signature provided.
+
+
+
+Thomas, et al.            Expires July 12, 2017                [Page 24]
+
+Internet-Draft              Crypto-Conditions               January 2017
+
 
    signature  An octet string representing the RSA signature on the
       message M.
@@ -1397,9 +1389,17 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 25]
+
+
+
+
+
+
+
+
+Thomas, et al.            Expires July 12, 2017                [Page 25]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
 exampleRsaCondition Condition ::=
@@ -1453,9 +1453,9 @@ exampleRsaFingerprintContents RsaFingerprintContents ::= {
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 26]
+Thomas, et al.            Expires July 12, 2017                [Page 26]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
 8.5.1.  Cost
@@ -1509,9 +1509,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 27]
+Thomas, et al.            Expires July 12, 2017                [Page 27]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
 8.5.6.  Example
@@ -1565,9 +1565,9 @@ exampleEd25519FingerprintContents Ed25519FingerprintContents ::= {
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 28]
+Thomas, et al.            Expires July 12, 2017                [Page 28]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
 9.2.  New URI Parameter Definitions
@@ -1621,9 +1621,9 @@ ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&c
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 29]
+Thomas, et al.            Expires July 12, 2017                [Page 29]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    +-----------+--------------------------------------+----------------+
@@ -1677,9 +1677,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 30]
+Thomas, et al.            Expires July 12, 2017                [Page 30]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    [itu.X690.2015]
@@ -1733,9 +1733,9 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 31]
+Thomas, et al.            Expires July 12, 2017                [Page 31]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    [NIST-KEYMANAGEMENT]
@@ -1789,9 +1789,9 @@ Appendix B.  Test Values
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 32]
+Thomas, et al.            Expires July 12, 2017                [Page 32]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    For now, see the test cases for the reference implementation:
@@ -1845,9 +1845,9 @@ Fulfillment ::= CHOICE {
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 33]
+Thomas, et al.            Expires July 12, 2017                [Page 33]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
 PreimageFulfillment ::= SEQUENCE {
@@ -1861,8 +1861,8 @@ PrefixFulfillment ::= SEQUENCE {
 }
 
 ThresholdFulfillment ::= SEQUENCE {
-  subfulfillments      SEQUENCE OF Fulfillment,
-  subconditions        SEQUENCE OF Condition
+  subfulfillments      SET OF Fulfillment,
+  subconditions        SET OF Condition
 }
 
 RsaSha256Fulfillment ::= SEQUENCE {
@@ -1901,9 +1901,9 @@ Ed25519FingerprintContents ::= SEQUENCE {
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 34]
+Thomas, et al.            Expires July 12, 2017                [Page 34]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    END
@@ -1957,9 +1957,9 @@ Authors' Addresses
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 35]
+Thomas, et al.            Expires July 12, 2017                [Page 35]
 
-Internet-Draft              Crypto-Conditions              December 2016
+Internet-Draft              Crypto-Conditions               January 2017
 
 
    Rome Reginelli
@@ -2013,4 +2013,4 @@ Internet-Draft              Crypto-Conditions              December 2016
 
 
 
-Thomas, et al.            Expires June 23, 2017                [Page 36]
+Thomas, et al.            Expires July 12, 2017                [Page 36]
