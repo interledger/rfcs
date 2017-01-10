@@ -19,7 +19,6 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**disconnect**](#disconnect) ( ) `⇒ Promise.<null>` |
 | | [**isConnected**](#isconnected) ( ) `⇒ Boolean` |
 | | [**getInfo**](#getinfo) ( ) <code>⇒ [LedgerInfo](#class-ledgerinfo)</code> |
-| | [**getPrefix**](#getprefix) ( ) `⇒ String` |
 | | [**getAccount**](#getaccount) ( ) `⇒ String` |
 | | [**getBalance**](#getbalance) ( ) <code>⇒ Promise.&lt;String></code> |
 | | [**getFulfillment**](#getfulfillment) ( transferId ) <code>⇒ Promise.&lt;String></code> |
@@ -131,31 +130,16 @@ Retrieve some metadata about the ledger. Plugin must be connected, otherwise the
 ###### Example Return Value
 ```json
 {
+  "prefix": "us.fed.some-bank.",
   "precision": 10,
   "scale": 4,
   "currencyCode": "USD",
   "currencySymbol": "$",
-  "connectors": [
-    {
-      "id": "http://usd-ledger.example/accounts/chloe",
-      "name": "chloe",
-      "connector": "http://usd-eur-connector.example"
-    }
-  ]
+  "connectors": [ "chloe" ]
 }
 ```
 
 For a detailed description of these properties, please see [`LedgerInfo`](#class-ledgerinfo).
-
-#### getPrefix
-<code>ledgerPlugin.getPrefix() ⇒ String</code>
-
-Get the ledger plugin's ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin's `sendTransfer` method. Plugin must be connected, otherwise the function should throw.
-
-The prefix may be configured, automatically detected, or hard-coded, depending on the ledger. For example, a Bitcoin ledger plugin may have the address hard-coded, while a [`five-bells-ledger`](https://github.com/interledger/five-bells-ledger) would use an API call to get the prefix.
-
-###### Example Return Value
-`us.fed.some-bank`
 
 #### getAccount
 <code>ledgerPlugin.getAccount() ⇒ String</code>
@@ -546,13 +530,21 @@ Metadata describing the ledger. This data is returned by the [`getInfo`](#getinf
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
+| `String` | [prefix](#prefix) | The plugin's ILP address prefix |
 | `Number` | [precision](#precision) | Total number of digits allowed |
 | `Number` | [scale](#scale) | Digits allowed after decimal |
 | `String` | [currencyCode](#currencycode) | ISO three-letter currency code |
 | `String` | [currencySymbol](#currencysymbol) | UTF8 currency symbol |
-| `ConnectorInfo[]` | [connectors](#connectors) | Recommended connectors |
+| `String[]` | [connectors](#connectors) | Names of recommended connectors |
 
 ### Fields
+
+#### prefix
+<code>**prefix**:String</code>
+
+The ledger plugin's ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin's `sendTransfer` method.
+
+The prefix may be configured, automatically detected, or hard-coded, depending on the ledger. For example, a Bitcoin ledger plugin may have the address hard-coded, while a [`five-bells-ledger`](https://github.com/interledger/five-bells-ledger) would use an API call to get the prefix.
 
 #### precision
 <code>**precision**:Number</code>
@@ -575,9 +567,9 @@ The ISO 4217 currency code (if any) used by the ledger.
 The currency symbol as one or more UTF8 characters.
 
 #### connectors
-<code>**connectors**:[ConnectorInfo](#class-connectorinfo)[]</code>
+<code>**connectors**:String[]</code>
 
-The list of recommended connectors.
+The names of recommended connectors.
 
 ## Class: PluginOptions
 <code>class PluginOptions</code>
@@ -618,44 +610,6 @@ Method names are based on the popular LevelUP/LevelDOWN packages.
   del: (key) => {
     // Returns Promise.<null>
   }
-}
-```
-
-## Class: ConnectorInfo
-<code>class ConnectorInfo</code>
-
-Data about recommended connectors included in [`LedgerInfo`](#class-ledgerinfo).
-
-###### Fields
-| Type | Name | Description |
-|:--|:--|:--|
-| `String` | id | Account URI |
-| `String` | name | Account name |
-| `String` | connector | Connector URI |
-
-### Fields
-
-#### id
-<code>**id**:String</code>
-
-The connector's account URI on the ledger.
-
-#### name
-<code>**name**:String</code>
-
-The connector's account name on the ledger.
-
-#### connector
-<code>**connector**:String</code>
-
-The URI of the connector.
-
-###### Example
-```js
-{
-    "id": "http://usd-ledger.example/accounts/chloe",
-    "name": "chloe",
-    "connector": "http://usd-eur-connector.example"
 }
 ```
 
