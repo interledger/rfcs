@@ -135,7 +135,7 @@ Retrieve some metadata about the ledger. Plugin must be connected, otherwise the
   "scale": 4,
   "currencyCode": "USD",
   "currencySymbol": "$",
-  "connectors": [ "chloe" ]
+  "connectors": [ "us.fed.some-bank.chloe" ]
 }
 ```
 
@@ -535,7 +535,7 @@ Metadata describing the ledger. This data is returned by the [`getInfo`](#getinf
 | `Number` | [scale](#scale) | Digits allowed after decimal |
 | `String` | [currencyCode](#currencycode) | ISO three-letter currency code |
 | `String` | [currencySymbol](#currencysymbol) | UTF8 currency symbol |
-| `String[]` | [connectors](#connectors) | Names of recommended connectors |
+| `String[]` | [connectors](#connectors) | ILP addresses of recommended connectors |
 
 ### Fields
 
@@ -569,7 +569,7 @@ The currency symbol as one or more UTF8 characters.
 #### connectors
 <code>**connectors**:String[]</code>
 
-The names of recommended connectors.
+The ILP addresses of recommended connectors.
 
 ## Class: PluginOptions
 <code>class PluginOptions</code>
