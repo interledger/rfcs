@@ -882,7 +882,7 @@ The example has the following attributes:
 
 | Field                | Value       | Description |
 |----------------------|-------------|----------------------------------------------|
-| scheme               | `ni://`     | The named information scheme. |
+| scheme               | `ni:///`     | The named information scheme. |
 | hash function name   | `sha-256`   | The fingerprint is hashed with the SHA-256 digest function|
 | fingerprint          | `f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk` | The fingerprint for this condition. |
 | type                 | `preimage-sha-256`   | This is a [PREIMAGE-SHA-256](#preimage-sha-256-condition-type) condition. |
