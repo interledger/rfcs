@@ -157,7 +157,7 @@
 <h3 id="architectural-assumptions">Architectural Assumptions</h3>
 <h4 id="ledgers-contain-only-one-type-of-asset">Ledgers contain only one type of asset.</h4>
 <p>We assume that all assets within one ledger are fungible. Within one ledger transfers can happen directly from sender to recipient and do not require a third party exchanger.</p>
-<p>When a single organization such as a bank has accounts in multiple different assets of different types, we treat each asset as belonging to its own ledger.</p>
+<p>When a single organization such as a bank manages accounts in multiple different assets of different types, we treat each asset as belonging to its own ledger.</p>
 <h4 id="connectors-do-not-keep-transfer-state-information">Connectors do not keep transfer state information.</h4>
 <p>Just as Internet gateways do not keep connection state information, connectors do not keep transfer state information. All state is kept at the ledger level and connectors merely react to and trigger ledger events.</p>
 <p>Note that this does not mean that all connectors are necessarily stateless. They may keep track of their available liquidity or even maintain an internal ledger if they are transacting on behalf of third parties. But we are assuming that they do not keep authoritative state about transfers.</p>
@@ -195,7 +195,7 @@
 <p>In order to facilitate transfers between accounts, ledgers must implement some API or protocol. We call this the ledger layer. There is a wide variety of ledger layer protocols, corresponding to the many different types of ledger.</p>
 <h2 id="ledger-layer-2">Ledger Layer</h2>
 <h3 id="introduction-2">Introduction</h3>
-<p>Ledger protocols are responsible for executing the individual transfers that constitute an Interledger transaction. They are also used by connectors to communicate with each other. Ledger layer protocols can differ widely depending on the type of ledger. For example, a central ledger will likely use a very different protocol than a blockchain.</p>
+<p>Ledger protocols are responsible for executing the individual transfers that constitute an Interledger transaction. They are also used by connectors to communicate with each other. Ledger layer protocols can differ widely depending on the type of ledger. For example, a central ledger will likely use a very different protocol than a blockchain, but for interledger purposes they are both ledgers and may be accessed using the same primitive operations as defined in this architecture.</p>
 <h3 id="requirements">Requirements</h3>
 <h4 id="minimal-support">Minimal Support</h4>
 <p>For minimal Interledger support, the ledger MUST have the ability for funds to be transferred from one account to another. This enables OTP transactions to pass through this ledger. It also allows third parties to act as escrow providers in order to enable UTP and ATP transactions on the ledger.</p>
@@ -224,7 +224,7 @@
 <p>A reference implementation of a ledger using SLP can be found <a href="https://github.com/interledger/five-bells-ledger">here</a>.</p>
 <h4 id="blockchain-protocols-eg-bitcoin">Blockchain Protocols (e.g. Bitcoin)</h4>
 <p>Blockchains are distributed, peer-to-peer systems that provide consensus over a single shared state. Any blockchain that supports escrowed funds transfers is in principle capable of acting as a ledger connected to the Interledger.</p>
-<p>Bitcoin for instance supports multiple credits and debits as well as SHA-256 hashlocked escrow transfers which means it can participate in OTP/ILP and UTP/ILP Interledger transactions.</p>
+<p>Bitcoin for instance supports multiple credits and debits as well as SHA-256 hashlocked escrow transfers which means it can participate in OTP/ILP and UTP/ILP Interledger transactions. Bitcoin&apos;s BIP-65 enhancement proposal provides the timeouts required for Basic level support.</p>
 <h4 id="legacy-protocols-eg-ach-iso-20022">Legacy Protocols (e.g. ACH, ISO 20022)</h4>
 <p>Legacy protocols often do not provide escrow functionality. In this case, the protocol can either be upgraded, or a highly trusted participant (e.g. a bank) can act as an escrow provider.</p>
 <h4 id="proprietary-wallet-protocols-eg-paypal-api">Proprietary Wallet Protocols (e.g. PayPal API)</h4>
