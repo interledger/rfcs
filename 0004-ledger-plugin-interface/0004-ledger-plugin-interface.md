@@ -44,6 +44,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**outgoing_fulfill**](#event-*_fulfill-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), fulfillment:Buffer ) ⇒</code> |
 | [**outgoing_reject**](#event-*_reject-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), rejectionReason:Buffer ) ⇒</code> |
 | [**outgoing_cancel**](#event-*_cancel-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), cancellationReason:Buffer ) ⇒</code> |
+| [**info_change**](#event-info_change-) | <code>( info:[LedgerInfo](#class-ledgerinfo) ) ⇒</code> |
 
 ###### Errors
 | Name | Description |
@@ -107,7 +108,7 @@ For a detailed description of these properties, please see [`PluginOptions`](#cl
 
 `options` is optional.
 
-Initiate ledger event subscriptions. Once `connect` is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the [`connect`](#event-connect-) event. If the connection is lost, the ledger plugin SHOULD emit the [`disconnect`](#event-disconnect-) event.
+Initiate ledger event subscriptions. Once `connect` is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the [`connect`](#event-connect-) event. If the connection is lost, the ledger plugin SHOULD emit the [`disconnect`](#event-disconnect-) event. The plugin should ensure that the information returned by `getInfo` and `getAccount` is available and cached before emitting the [`connect`](#event-connect-) event.
 
 Throws `InvalidFieldsError` if credentials are missing, and `NotAcceptedError` if credentials are rejected.
 Throws `TypeError` if `options.timeout` is passed but is not a `Number`.
@@ -369,6 +370,15 @@ means that a transfer you created has timed out.
 )</code>
 
 Emitted when an incoming message arrives from the ledger.
+
+### Event: `info_change`
+<code style="">ledgerPlugin.on('info_change',
+  (
+    **info**:[LedgerInfo](#class-ledgerinfo)
+  ) ⇒
+)</code>
+
+Emitted any time the plugin's `LedgerInfo` cache changes.
 
 ## Class: Transfer
 <code>class Transfer</code>
