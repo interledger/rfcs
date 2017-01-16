@@ -5,8 +5,8 @@
 Network Working Group                                          S. Thomas
 Internet-Draft                                              R. Reginelli
 Intended status: Standards Track                          A. Hope-Bailie
-Expires: July 12, 2017                                            Ripple
-                                                        January 08, 2017
+Expires: July 20, 2017                                            Ripple
+                                                        January 16, 2017
 
 
                            Crypto-Conditions
@@ -53,7 +53,7 @@ Status of This Memo
 
 
 
-Thomas, et al.            Expires July 12, 2017                 [Page 1]
+Thomas, et al.            Expires July 20, 2017                 [Page 1]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -68,7 +68,7 @@ Internet-Draft              Crypto-Conditions               January 2017
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on July 12, 2017.
+   This Internet-Draft will expire on July 20, 2017.
 
 Copyright Notice
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Thomas, et al.            Expires July 12, 2017                 [Page 2]
+Thomas, et al.            Expires July 20, 2017                 [Page 2]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -165,7 +165,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                 [Page 3]
+Thomas, et al.            Expires July 20, 2017                 [Page 3]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -221,7 +221,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                 [Page 4]
+Thomas, et al.            Expires July 20, 2017                 [Page 4]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -277,7 +277,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                 [Page 5]
+Thomas, et al.            Expires July 20, 2017                 [Page 5]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -333,7 +333,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                 [Page 6]
+Thomas, et al.            Expires July 20, 2017                 [Page 6]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -389,7 +389,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                 [Page 7]
+Thomas, et al.            Expires July 20, 2017                 [Page 7]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -445,7 +445,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                 [Page 8]
+Thomas, et al.            Expires July 20, 2017                 [Page 8]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -501,7 +501,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                 [Page 9]
+Thomas, et al.            Expires July 20, 2017                 [Page 9]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -557,7 +557,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 10]
+Thomas, et al.            Expires July 20, 2017                [Page 10]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -613,7 +613,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 11]
+Thomas, et al.            Expires July 20, 2017                [Page 11]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -669,7 +669,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 12]
+Thomas, et al.            Expires July 20, 2017                [Page 12]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -725,7 +725,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 13]
+Thomas, et al.            Expires July 20, 2017                [Page 13]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -781,7 +781,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 14]
+Thomas, et al.            Expires July 20, 2017                [Page 14]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -837,7 +837,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 15]
+Thomas, et al.            Expires July 20, 2017                [Page 15]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -893,7 +893,7 @@ PreimageFulfillment ::= SEQUENCE {
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 16]
+Thomas, et al.            Expires July 20, 2017                [Page 16]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -949,7 +949,7 @@ cost = prefix.length (in bytes) + max_message_length + subcondition_cost + 1024
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 17]
+Thomas, et al.            Expires July 20, 2017                [Page 17]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1005,7 +1005,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 18]
+Thomas, et al.            Expires July 20, 2017                [Page 18]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1061,7 +1061,7 @@ examplePrefixFingerprintContents PrefixFingerprintContents ::= {
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 19]
+Thomas, et al.            Expires July 20, 2017                [Page 19]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1117,7 +1117,7 @@ cost = (sum of largest F.threshold subcondition.cost values) + 1024 * F.subcondi
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 20]
+Thomas, et al.            Expires July 20, 2017                [Page 20]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1173,7 +1173,7 @@ exampleThresholdFulfillment Fulfillment ::=
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 21]
+Thomas, et al.            Expires July 20, 2017                [Page 21]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1229,7 +1229,7 @@ exampleThresholdFingerprintContents2 ThresholdFingerprintContents ::= {
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 22]
+Thomas, et al.            Expires July 20, 2017                [Page 22]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1285,7 +1285,7 @@ rSASSA-PSS-SHA256-Params RSASSA-PSS-params ::=  {
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 23]
+Thomas, et al.            Expires July 20, 2017                [Page 23]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1341,7 +1341,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 24]
+Thomas, et al.            Expires July 20, 2017                [Page 24]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1397,7 +1397,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 25]
+Thomas, et al.            Expires July 20, 2017                [Page 25]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1453,7 +1453,7 @@ exampleRsaFingerprintContents RsaFingerprintContents ::= {
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 26]
+Thomas, et al.            Expires July 20, 2017                [Page 26]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1509,7 +1509,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 27]
+Thomas, et al.            Expires July 20, 2017                [Page 27]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1565,7 +1565,7 @@ exampleEd25519FingerprintContents Ed25519FingerprintContents ::= {
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 28]
+Thomas, et al.            Expires July 20, 2017                [Page 28]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1593,10 +1593,15 @@ Internet-Draft              Crypto-Conditions               January 2017
    The subtypes parameter indicates the types of conditions that are
    subtypes of the condition represented by the URI.  The value MUST be
    a comma seperated list of names from the Crypto-Condition Type
-   Registry (Appendix D.1) and SHOULD not include the type of the root
-   crypto-condition. i.e. The value of the fpt paramtere should not
-   appear in the list of types provided as the value of the subtypes
-   parameter.
+   Registry (Appendix D.1).
+
+   The list MUST exclude the type of the root crypto-condition. i.e. The
+   value of the fpt parameter should not appear in the list of types
+   provided as the value of the subtypes parameter.
+
+   The list MUST be ordered by the type id value of each type, in
+   ascending order. i.e. preimage-sha-256 MUST appear before prefix-sha-
+   256.
 
 10.  Example Condition
 
@@ -1616,12 +1621,7 @@ ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&c
 
 
 
-
-
-
-
-
-Thomas, et al.            Expires July 12, 2017                [Page 29]
+Thomas, et al.            Expires July 20, 2017                [Page 29]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1677,7 +1677,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 30]
+Thomas, et al.            Expires July 20, 2017                [Page 30]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1733,7 +1733,7 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 31]
+Thomas, et al.            Expires July 20, 2017                [Page 31]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1789,7 +1789,7 @@ Appendix B.  Test Values
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 32]
+Thomas, et al.            Expires July 20, 2017                [Page 32]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1845,7 +1845,7 @@ Fulfillment ::= CHOICE {
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 33]
+Thomas, et al.            Expires July 20, 2017                [Page 33]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1901,7 +1901,7 @@ Ed25519FingerprintContents ::= SEQUENCE {
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 34]
+Thomas, et al.            Expires July 20, 2017                [Page 34]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -1957,7 +1957,7 @@ Authors' Addresses
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 35]
+Thomas, et al.            Expires July 20, 2017                [Page 35]
 
 Internet-Draft              Crypto-Conditions               January 2017
 
@@ -2013,4 +2013,4 @@ Internet-Draft              Crypto-Conditions               January 2017
 
 
 
-Thomas, et al.            Expires July 12, 2017                [Page 36]
+Thomas, et al.            Expires July 20, 2017                [Page 36]

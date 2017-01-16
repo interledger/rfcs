@@ -70,7 +70,7 @@
       </address>
     </author>
 
-    <date year="2017" month="January" day="08"/>
+    <date year="2017" month="January" day="16"/>
 
     <area>security</area>
     
@@ -953,7 +953,11 @@ exampleEd25519FingerprintContents Ed25519FingerprintContents ::= {
 </section>
 <section anchor="parameter-subtypes-subtypes" title="Parameter: Subtypes (subtypes)">
 
-<t>The subtypes parameter indicates the types of conditions that are subtypes of the condition represented by the URI. The value MUST be a comma seperated list of names from the <xref target="crypto-conditions-type-registry">Crypto-Condition Type Registry</xref> and SHOULD not include the type of the root crypto-condition. i.e. The value of the fpt paramtere should not appear in the list of types provided as the value of the subtypes parameter.</t>
+<t>The subtypes parameter indicates the types of conditions that are subtypes of the condition represented by the URI. The value MUST be a comma seperated list of names from the <xref target="crypto-conditions-type-registry">Crypto-Condition Type Registry</xref>.</t>
+
+<t>The list MUST exclude the type of the root crypto-condition. i.e. The value of the fpt parameter should not appear in the list of types provided as the value of the subtypes parameter.</t>
+
+<t>The list MUST be ordered by the type id value of each type, in ascending order. i.e. preimage-sha-256 MUST appear before prefix-sha-256.</t>
 
 </section>
 </section>
@@ -1243,7 +1247,7 @@ Ed25519FingerprintContents ::= SEQUENCE {
   </back>
 
 <!-- ##markdown-source:
-H4sIALymclgAA+19a3fbRpbgd/2KWvvshvSQFACCL02nd/gAbU1syWPJ3Znx
+H4sIALT7fFgAA+19a3fbRpbgd/2KWvvshvSQFACCL02nd/gAbU1syWPJ3Znx
 yaYhEpLQJgE2AEpmp3PO/of9h/tL9j6qCoUXpU6nN5nd1jlxJBKounXr1n3f
 W91u92QVr8Po7kzss9vu+OQkC7NNcCbmyWGXxd15HK3DLIyj9GQdryJ/C1+t
 E/8262b38dZPuyt+bqWf61rOycrPgrs4OZyJNFufnOzCM/Epi1cdkcZJlgS3
@@ -1576,33 +1580,34 @@ d6Dz+tS5VlIh9TJWfYhxz2qAbJzihSx/KZxs4xI8LPLEGum8N7zR5U6X00qW
 JkGg2no/lZeP6BMaFK70AFL60560aGY7eWqZVOE0uGemLcZ9mVu3u6zNDIBU
 av1yqVN+tWmxukrPPGKyHxgAygefrQJVKUfXT8hbE/ytujUK//xZbl0tLZVM
 7RbqS20j7cFYX7VJ2bMXV5lM37nTUtn6clKdvH8MsWmpHkqThXnTShHA52Od
-Ksq3PkZiqV3eWldg/eybIN0+lx/fLsxbGAsERHy3/k4eSoPLF6CE607uGrYd
-B3bCd6bhXTi7XeDrelK1KIltFX/OGzHnI1b3hC5SV+HTvF4XbRjVCiRHfavc
-Z6Its4atL5b8EVNLOBgDEI4lRksx7ouZLSjnXSxtsZwLSnsXzkLMQeOzRe+/
-9vAngP+uet1erzCebQl3LKa2AOOAkuPxPXcmKD8ePxyNBKXIi8UCNFoB87/p
-9b7rdb+B4R5b/9orjedgFr0YLkAxFsMJTg9qpzWv06HVT2/bC9Uw9E8Unp2e
-nkrm/s+37uWX//j2+y/fLy8Hb1evZ1ffvPn9t7eP2dWX7h9t4FhXWf9qOvvX
-7PPrz/8d9vPrcnPa/4an8Gvb0X4/QrnqwpH3xvczYHE3ezg7gPK/iGJKqfz5
-C5qs+0D/tSAxy5eV/+XkL93an78c+evJHxhVSs4KKH9gPP1B/nktWR+yc0NX
-Zg8hQsfuDO1OxGd5HImoP+hhSk2CpTqi9caSZ0eNiFPUXkkMU/wVm/iHGiC0
-69M40TgdHfzqJv2hTANqaaG8uOxT+ZgBA3qi6XK7PHftTcowt+38QePRsI53
-/mET+6TU6VRW7IFTvjBVJdDZDk5zAiQgbvzVZ2QiVyrVby4VXF/qHzW6AbeO
-iJgO8KJWbvKG+j9qiEaVMfuwCm/LDhXBF9Av6fpEnWS4KsxcAV19yYW3rFjh
-3pk6XCgvyyxkG6UNtRf0ZG09RcQjV9z86V/ris+riZXVYF7/WriTLG9bsiqa
-AlokYOtvZCgV7RjtHHxdtnUKE6GawJgtXIs3DTZdMoAXA7NYucbzRyxJU4G0
-vDi7Kfiy81V+r8/viXXi34IpKX7zX7DJ/OXiUnS7v5V3JEfxYweGkFKV2rX4
-qXFzK2w2tgRalUvMz8Rv7rNslwI/ugPK2d/0QC84xRz0ZBOs4Rif3sIaujfB
-ZpPm5+o0A731dOvjpR+nONtvcU0cDHiH0VNMN0JJDM9/6a60I/038Ijde7/4
-KK9Dye2ynv61U/3O8FX9ttsFc66kkqRgaS3PL84xa/dKTD9eX76bXp/PxfX0
-9RXfYu69Pr+oBiHS0rXnz75d6ei19rXXKzVcD3/0kqUn3qm9Z+koZLUXLdW+
-YcY/ah/4Ze61N8FqwM4vA5hRqamrcvWPho2u/CmuwfyGSVVfemiS4HmBBFtW
-u5HYWna7kahaTruReFr9diOZtNzCZUb4TzEolv7jorJ/XFR2tFMz/u9X0Wfp
-F8/nx//9uoPdBq+UIQr9HWpXv8w9Of85G6z/qhqg4b+K/H/22hk9+P+F1Aj1
-1Il3sUDFkzy0RdPK1D8DTnk67siquYmv5MhSgX7tdyCHLQUnsgSznaQX6qbg
-uA0a5tXeXNb3+aq1tezxqe/N8zPRYufUHVrs8MnHD+ftE9LZQWV/fHzshX7k
-9+Lk7pTTsYhhntZfKvjbs/IS8qv08jv8yIlyLdO55G8XvuHGMP0ldU4RtLEt
-9WyVXZANbpvfm+1PeXzh6O+rrZDw+77+3izV0PAJV3+v7Mz85y8nP5yJhnsX
-uxnfox1mm+DrF/WXNr748eT/ANZUpKsB3gAA
+Ksq3PkZiqV3eWldg/T024VpVeNH0fC1PUKAgYrz1l/JQHly+AiVdd+a2pfd8
+aRpehrPbBb4uKFWrkuhWAei8E3M+YnVT1G0pOehIrwkLKHXnBd2Gss6HMq4+
+ROM0XWG2HoppfE+uptyGlQeXkN+wv6bYdIcudVeh3Lx2GO0p1ZYkJ4NWuedF
+W2YwW18s+SOmlnAwHiEcS4yWYtwXM1tQ/r1Y2mI5F5SCL5yFmIP2aYvef+3h
+TwD/XfW6vV5hPNsS7lhMbQGGCiXq43vuTFCuPn44GglK1xeLBWjXAuZ/0+t9
+1+t+A8M9tv61VxrPwYx+MVyAki6GE5weVGBrXqfPq5/etheqYeifKDw7PT2V
+6PvnW/fyy398+/2X75eXg7er17Orb978/tvbx+zqS/ePNnDPq6x/NZ39a/b5
+9ef/DqT1dXmH/htyhK9tR/sgCeWqI0jep9/PgN3e7OEcA8r/IorprfLnL2g+
+7wP914JEPl+c/peTv3Rrf/5y5K8nf2BUKcUroPyB8fQH+ee1ZMMoWgy9nb2V
+CB27VrRrE5/lcSSi/qCHKTUslqqR1mFLXiY1Ik5Rez0yTPFXbOIfaoDQbliD
+ueB0dISrm/SHMg2opYXyErVP5WMGzPCJBtDt8ty1tzrD3LbzB41Hw1Lf+YdN
+7JOCqdNqsR9P+fJWlcxnOzjNCZCAuPFXn5GJXKm0w7lUtn2pC9XoKdzGImI6
+wEtjueEc2iKorRoVz+xPK7wtu2UEX0DXpascdcLjqjBzBXT1JRcBs5KHe2fq
+k6G8uLOQ+ZQ21IHQk7W1HRGPXAk5pH9tWCCvbFYWjHkVbeF+tLyFyqpolmjp
+hG3IkaFUNHW0ufB12WIqTIRqSGO2ky3eeth04QFeUkzZduIazx+xJE0F0grk
+TKvgy85XucY+vyfWiX8LZq34zX/BhveXi0vR7f5W3tccxY8dGEIKeGod46fG
+LbKw2dieaFUudz8Tv7nPsl0K/OgOKGd/0wMd5RTz4ZNNsIZjfHoLa+jeBJtN
+mp+r0wx06NOtjxeQnOJsv8U1cWDiHUZyMfUJRSs8/6W70k7938Ajdu/94qO8
+miW3EXv61071O8Nv9ttuF0zLknqUgtW3PL84xwziKzH9eH35bnp9PhfX09dX
+fKO69/r8ohoQSUtXsD/7pqcrQmLp2vmjVz01XFV/9MKnJ96pvfPpKGS1lz7V
+vmHGYmofqA+51AqRJ0JEtdy4oVetCVYDdn4ZwIyqUV0hrH80bHT9UHEN5jdM
+qvoCRpMEzwsk2LLajcTWstuNRNVy2o3E0+q3G8mk5RYuVsJ/igG69B+Xpv3j
+0rSjXaPxf7+Knk+/eG0B/u/XHXg3eKUMl+jvULv6Ze7s+c/Z7P1X1YwN/1Xk
+/7PX8ejB/y+kaainTryLBSqe5C0umlam/hlw+tVxp1rNrYAlp5pKOtB+B3Ie
+U6AkSzDzSjrEbgpO5KBhXu1ZZn2fr31by36j+g4/PxMt9pPdocUOn3z8cN4+
+IZ0dVPbHx8de6Ed+L07uTjk1jBjmaf0Fh789Ky8hv9Yvv0+QnCjXMrVM/nbh
+G24M019S5xRBG9tSz1bZBdngtvm92YqVxxeO/r7algm/7+vvzbIRDZ9w9ffK
+zsx//nLyw5louAOym/Gd3mG2Cb5+UX+B5IsfT/4PDU1Moo3eAAA=
 
 -->
 
