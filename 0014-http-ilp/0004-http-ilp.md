@@ -119,7 +119,7 @@ This completes the setup process. The server is now ready to receive paid API re
 
 **Marat** is a *graphic designer* who would like to upload a mockup image to share with a client. His friend recommended a tool which doesn't require any signup or configuration and uses his existing ILP account to pay for the storage and bandwidth fees.
 
-![Sequence Diagram](sequence.svg)
+![Sequence Diagram](sequence.png)
 
 ### 2.1. Client generates a server-specific token from the hostname and its local secret:
 
