@@ -106,6 +106,10 @@
                   <a href="#event-incoming_message">Event: incoming_message</a>
                 </li>
               
+                <li>
+                  <a href="#event-info_change">Event: info_change</a>
+                </li>
+              
                 <li class="nav-label">
                   <a href="#class-transfer">Class: Transfer</a>
                 </li>
@@ -151,19 +155,11 @@
                 </li>
               
                 <li class="nav-label">
-                  <a href="#class-connectorinfo">Class: ConnectorInfo</a>
-                </li>
-              
-                <li>
-                  <a href="#fields-8">Fields</a>
-                </li>
-              
-                <li class="nav-label">
                   <a href="#class-connectoptions">Class: ConnectOptions</a>
                 </li>
               
                 <li>
-                  <a href="#fields-10">Fields</a>
+                  <a href="#fields-8">Fields</a>
                 </li>
               
             </ul>
@@ -204,15 +200,11 @@
 </tr>
 <tr>
 <td style="text-align:left"></td>
-<td style="text-align:left"><a href="#getinfo"><strong>getInfo</strong></a> ( ) <code>&#x21D2; Promise.&lt;<a href="#class-ledgerinfo">LedgerInfo</a>&gt;</code></td>
+<td style="text-align:left"><a href="#getinfo"><strong>getInfo</strong></a> ( ) <code>&#x21D2; <a href="#class-ledgerinfo">LedgerInfo</a></code></td>
 </tr>
 <tr>
 <td style="text-align:left"></td>
-<td style="text-align:left"><a href="#getprefix"><strong>getPrefix</strong></a> ( ) <code>&#x21D2; Promise&lt;String&gt;</code></td>
-</tr>
-<tr>
-<td style="text-align:left"></td>
-<td style="text-align:left"><a href="#getaccount"><strong>getAccount</strong></a> ( ) <code>&#x21D2; Promise&lt;String&gt;</code></td>
+<td style="text-align:left"><a href="#getaccount"><strong>getAccount</strong></a> ( ) <code>&#x21D2; String</code></td>
 </tr>
 <tr>
 <td style="text-align:left"></td>
@@ -304,6 +296,10 @@
 <tr>
 <td style="text-align:left"><a href="#event-*_cancel-"><strong>outgoing_cancel</strong></a></td>
 <td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a>, cancellationReason:Buffer ) &#x21D2;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="#event-info_change-"><strong>info_change</strong></a></td>
+<td style="text-align:left"><code>( info:<a href="#class-ledgerinfo">LedgerInfo</a> ) &#x21D2;</code></td>
 </tr>
 </tbody>
 </table>
@@ -408,7 +404,7 @@
 <h4 id="connect">connect</h4>
 <p><code>ledgerPlugin.connect( options:<a href="#class-connectoptions">ConnectOptions</a> &#x21D2; Promise.&lt;null&gt;</code></p>
 <p><code>options</code> is optional.</p>
-<p>Initiate ledger event subscriptions. Once <code>connect</code> is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the <a href="#event-connect-"><code>connect</code></a> event. If the connection is lost, the ledger plugin SHOULD emit the <a href="#event-disconnect-"><code>disconnect</code></a> event.</p>
+<p>Initiate ledger event subscriptions. Once <code>connect</code> is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the <a href="#event-connect-"><code>connect</code></a> event. If the connection is lost, the ledger plugin SHOULD emit the <a href="#event-disconnect-"><code>disconnect</code></a> event. The plugin should ensure that the information returned by <code>getInfo</code> and <code>getAccount</code> is available and cached before emitting the <a href="#event-connect-"><code>connect</code></a> event.</p>
 <p>Throws <code>InvalidFieldsError</code> if credentials are missing, and <code>NotAcceptedError</code> if credentials are rejected.
 Throws <code>TypeError</code> if <code>options.timeout</code> is passed but is not a <code>Number</code>.</p>
 <h4 id="disconnect">disconnect</h4>
@@ -418,35 +414,24 @@ Throws <code>TypeError</code> if <code>options.timeout</code> is passed but is n
 <p><code>ledgerPlugin.isConnected() &#x21D2; Boolean</code></p>
 <p>Query whether the plugin is currently connected.</p>
 <h4 id="getinfo">getInfo</h4>
-<p><code>ledgerPlugin.getInfo() &#x21D2; Promise.&lt;<a href="#class-ledgerinfo">LedgerInfo</a>&gt;</code></p>
-<p>Retrieve some metadata about the ledger. Plugin must be connected, otherwise the promise should reject.</p>
+<p><code>ledgerPlugin.getInfo() &#x21D2; <a href="#class-ledgerinfo">LedgerInfo</a></code></p>
+<p>Retrieve some metadata about the ledger. Plugin must be connected, otherwise the function should throw.</p>
 <h6 id="example-return-value-1">Example Return Value</h6>
 <pre><code class="lang-json">{
+  &quot;prefix&quot;: &quot;us.fed.some-bank.&quot;,
   &quot;precision&quot;: 10,
   &quot;scale&quot;: 4,
   &quot;currencyCode&quot;: &quot;USD&quot;,
   &quot;currencySymbol&quot;: &quot;$&quot;,
-  &quot;connectors&quot;: [
-    {
-      &quot;id&quot;: &quot;http://usd-ledger.example/accounts/chloe&quot;,
-      &quot;name&quot;: &quot;chloe&quot;,
-      &quot;connector&quot;: &quot;http://usd-eur-connector.example&quot;
-    }
-  ]
+  &quot;connectors&quot;: [ &quot;us.fed.some-bank.chloe&quot; ]
 }
 </code></pre>
 <p>For a detailed description of these properties, please see <a href="#class-ledgerinfo"><code>LedgerInfo</code></a>.</p>
-<h4 id="getprefix">getPrefix</h4>
-<p><code>ledgerPlugin.getPrefix() &#x21D2; Promise.&lt;String&gt;</code></p>
-<p>Get the ledger plugin&apos;s ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin&apos;s <code>sendTransfer</code> method.</p>
-<p>The prefix may be configured, automatically detected, or hard-coded, depending on the ledger. For example, a Bitcoin ledger plugin may have the address hard-coded, while a <a href="https://github.com/interledger/five-bells-ledger"><code>five-bells-ledger</code></a> would use an API call to get the prefix.</p>
-<h6 id="example-return-value-2">Example Return Value</h6>
-<p><code>us.fed.some-bank</code></p>
 <h4 id="getaccount">getAccount</h4>
-<p><code>ledgerPlugin.getAccount() &#x21D2; Promise.&lt;String&gt;</code></p>
-<p>Get the ledger plugin&apos;s ILP address. This is given to senders to receive transfers to this account.</p>
+<p><code>ledgerPlugin.getAccount() &#x21D2; String</code></p>
+<p>Get the ledger plugin&apos;s ILP address. This is given to senders to receive transfers to this account. Plugin must be connected, otherwise the function should throw.</p>
 <p>The mapping from the ILP address to the local ledger address is dependent on the ledger / ledger plugin. An ILP address could be the <code>&lt;ledger prefix&gt;.&lt;account name or number&gt;</code>, or a token could be used in place of the actual account name or number.</p>
-<h6 id="example-return-value-3">Example Return Value</h6>
+<h6 id="example-return-value-2">Example Return Value</h6>
 <p><code>us.fed.some-bank.my-account</code></p>
 <h4 id="getbalance">getBalance</h4>
 <p><code>ledgerPlugin.getBalance() &#x21D2; Promise.&lt;String&gt;</code></p>
@@ -630,6 +615,13 @@ means that a transfer you created has timed out.</p>
   ) &#x21D2;
 )</code></p>
 <p>Emitted when an incoming message arrives from the ledger.</p>
+<h3 id="event-info_change">Event: <code>info_change</code></h3>
+<p><code style="">ledgerPlugin.on(&apos;info_change&apos;,
+  (
+    <strong>info</strong>:<a href="#class-ledgerinfo">LedgerInfo</a>
+  ) &#x21D2;
+)</code></p>
+<p>Emitted any time the plugin&apos;s <code>LedgerInfo</code> cache changes.</p>
 <h2 id="class-transfer">Class: Transfer</h2>
 <p><code>class Transfer</code></p>
 <p>The <code>Transfer</code> class is used to describe local ledger transfers. Only
@@ -810,6 +802,11 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 </thead>
 <tbody>
 <tr>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left"><a href="#prefix">prefix</a></td>
+<td style="text-align:left">The plugin&apos;s ILP address prefix</td>
+</tr>
+<tr>
 <td style="text-align:left"><code>Number</code></td>
 <td style="text-align:left"><a href="#precision">precision</a></td>
 <td style="text-align:left">Total number of digits allowed</td>
@@ -830,13 +827,17 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <td style="text-align:left">UTF8 currency symbol</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>ConnectorInfo[]</code></td>
+<td style="text-align:left"><code>String[]</code></td>
 <td style="text-align:left"><a href="#connectors">connectors</a></td>
-<td style="text-align:left">Recommended connectors</td>
+<td style="text-align:left">ILP addresses of recommended connectors</td>
 </tr>
 </tbody>
 </table>
 <h3 id="fields-5">Fields</h3>
+<h4 id="prefix">prefix</h4>
+<p><code><strong>prefix</strong>:String</code></p>
+<p>The ledger plugin&apos;s ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin&apos;s <code>sendTransfer</code> method.</p>
+<p>The prefix may be configured, automatically detected, or hard-coded, depending on the ledger. For example, a Bitcoin ledger plugin may have the address hard-coded, while a <a href="https://github.com/interledger/five-bells-ledger"><code>five-bells-ledger</code></a> would use an API call to get the prefix.</p>
 <h4 id="precision">precision</h4>
 <p><code><strong>precision</strong>:Number</code></p>
 <p>The total number of digits (base 10) of precision allowed by the ledger.</p>
@@ -850,8 +851,8 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <p><code><strong>currencySymbol</strong>:String</code></p>
 <p>The currency symbol as one or more UTF8 characters.</p>
 <h4 id="connectors">connectors</h4>
-<p><code><strong>connectors</strong>:<a href="#class-connectorinfo">ConnectorInfo</a>[]</code></p>
-<p>The list of recommended connectors.</p>
+<p><code><strong>connectors</strong>:String[]</code></p>
+<p>The ILP addresses of recommended connectors.</p>
 <h2 id="class-pluginoptions">Class: PluginOptions</h2>
 <p><code>class PluginOptions</code></p>
 <p>Plugin options are passed in to the <a href="#class-ledgerplugin"><code>LedgerPlugin</code></a>
@@ -897,56 +898,9 @@ an underscore, and listed in the table below.</p>
   }
 }
 </code></pre>
-<h2 id="class-connectorinfo">Class: ConnectorInfo</h2>
-<p><code>class ConnectorInfo</code></p>
-<p>Data about recommended connectors included in <a href="#class-ledgerinfo"><code>LedgerInfo</code></a>.</p>
-<h6 id="fields-7">Fields</h6>
-<table class="table table-striped">
-<thead>
-<tr>
-<th style="text-align:left">Type</th>
-<th style="text-align:left">Name</th>
-<th style="text-align:left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left"><code>String</code></td>
-<td style="text-align:left">id</td>
-<td style="text-align:left">Account URI</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>String</code></td>
-<td style="text-align:left">name</td>
-<td style="text-align:left">Account name</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>String</code></td>
-<td style="text-align:left">connector</td>
-<td style="text-align:left">Connector URI</td>
-</tr>
-</tbody>
-</table>
-<h3 id="fields-8">Fields</h3>
-<h4 id="id-2">id</h4>
-<p><code><strong>id</strong>:String</code></p>
-<p>The connector&apos;s account URI on the ledger.</p>
-<h4 id="name">name</h4>
-<p><code><strong>name</strong>:String</code></p>
-<p>The connector&apos;s account name on the ledger.</p>
-<h4 id="connector">connector</h4>
-<p><code><strong>connector</strong>:String</code></p>
-<p>The URI of the connector.</p>
-<h6 id="example-7">Example</h6>
-<pre><code class="lang-js">{
-    &quot;id&quot;: &quot;http://usd-ledger.example/accounts/chloe&quot;,
-    &quot;name&quot;: &quot;chloe&quot;,
-    &quot;connector&quot;: &quot;http://usd-eur-connector.example&quot;
-}
-</code></pre>
 <h2 id="class-connectoptions">Class: ConnectOptions</h2>
 <p><code>class ConnectOptions</code></p>
-<h6 id="fields-9">Fields</h6>
+<h6 id="fields-7">Fields</h6>
 <table class="table table-striped">
 <thead>
 <tr>
@@ -963,8 +917,8 @@ an underscore, and listed in the table below.</p>
 </tr>
 </tbody>
 </table>
-<h3 id="fields-10">Fields</h3>
-<h4 id="id-3">id</h4>
+<h3 id="fields-8">Fields</h3>
+<h4 id="id-2">id</h4>
 <p><code><strong>timeout</strong>:Number</code></p>
 <p>The number of milliseconds that the plugin should spend trying to connect before giving up.</p>
 <p>If falsy, use the plugin&apos;s default timeout.
