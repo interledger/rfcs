@@ -18,9 +18,8 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**connect**](#connect) ( options ) `⇒ Promise.<null>` |
 | | [**disconnect**](#disconnect) ( ) `⇒ Promise.<null>` |
 | | [**isConnected**](#isconnected) ( ) `⇒ Boolean` |
-| | [**getInfo**](#getinfo) ( ) <code>⇒ Promise.&lt;[LedgerInfo](#class-ledgerinfo)></code> |
-| | [**getPrefix**](#getprefix) ( ) `⇒ Promise<String>` |
-| | [**getAccount**](#getaccount) ( ) `⇒ Promise<String>` |
+| | [**getInfo**](#getinfo) ( ) <code>⇒ [LedgerInfo](#class-ledgerinfo)</code> |
+| | [**getAccount**](#getaccount) ( ) `⇒ String` |
 | | [**getBalance**](#getbalance) ( ) <code>⇒ Promise.&lt;String></code> |
 | | [**getFulfillment**](#getfulfillment) ( transferId ) <code>⇒ Promise.&lt;String></code> |
 | | [**sendTransfer**](#sendTransfer) ( transfer ) <code>⇒ Promise.&lt;null></code> |
@@ -45,6 +44,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**outgoing_fulfill**](#event-*_fulfill-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), fulfillment:Buffer ) ⇒</code> |
 | [**outgoing_reject**](#event-*_reject-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), rejectionReason:Buffer ) ⇒</code> |
 | [**outgoing_cancel**](#event-*_cancel-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), cancellationReason:Buffer ) ⇒</code> |
+| [**info_change**](#event-info_change-) | <code>( info:[LedgerInfo](#class-ledgerinfo) ) ⇒</code> |
 
 ###### Errors
 | Name | Description |
@@ -108,7 +108,7 @@ For a detailed description of these properties, please see [`PluginOptions`](#cl
 
 `options` is optional.
 
-Initiate ledger event subscriptions. Once `connect` is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the [`connect`](#event-connect-) event. If the connection is lost, the ledger plugin SHOULD emit the [`disconnect`](#event-disconnect-) event.
+Initiate ledger event subscriptions. Once `connect` is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the [`connect`](#event-connect-) event. If the connection is lost, the ledger plugin SHOULD emit the [`disconnect`](#event-disconnect-) event. The plugin should ensure that the information returned by `getInfo` and `getAccount` is available and cached before emitting the [`connect`](#event-connect-) event.
 
 Throws `InvalidFieldsError` if credentials are missing, and `NotAcceptedError` if credentials are rejected.
 Throws `TypeError` if `options.timeout` is passed but is not a `Number`.
@@ -124,43 +124,28 @@ Unsubscribe from ledger events.
 Query whether the plugin is currently connected.
 
 #### getInfo
-<code>ledgerPlugin.getInfo() ⇒ Promise.&lt;[LedgerInfo](#class-ledgerinfo)></code>
+<code>ledgerPlugin.getInfo() ⇒ [LedgerInfo](#class-ledgerinfo)</code>
 
-Retrieve some metadata about the ledger. Plugin must be connected, otherwise the promise should reject.
+Retrieve some metadata about the ledger. Plugin must be connected, otherwise the function should throw.
 
 ###### Example Return Value
 ```json
 {
+  "prefix": "us.fed.some-bank.",
   "precision": 10,
   "scale": 4,
   "currencyCode": "USD",
   "currencySymbol": "$",
-  "connectors": [
-    {
-      "id": "http://usd-ledger.example/accounts/chloe",
-      "name": "chloe",
-      "connector": "http://usd-eur-connector.example"
-    }
-  ]
+  "connectors": [ "us.fed.some-bank.chloe" ]
 }
 ```
 
 For a detailed description of these properties, please see [`LedgerInfo`](#class-ledgerinfo).
 
-#### getPrefix
-<code>ledgerPlugin.getPrefix() ⇒ Promise.&lt;String></code>
-
-Get the ledger plugin's ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin's `sendTransfer` method.
-
-The prefix may be configured, automatically detected, or hard-coded, depending on the ledger. For example, a Bitcoin ledger plugin may have the address hard-coded, while a [`five-bells-ledger`](https://github.com/interledger/five-bells-ledger) would use an API call to get the prefix.
-
-###### Example Return Value
-`us.fed.some-bank`
-
 #### getAccount
-<code>ledgerPlugin.getAccount() ⇒ Promise.&lt;String></code>
+<code>ledgerPlugin.getAccount() ⇒ String</code>
 
-Get the ledger plugin's ILP address. This is given to senders to receive transfers to this account.
+Get the ledger plugin's ILP address. This is given to senders to receive transfers to this account. Plugin must be connected, otherwise the function should throw.
 
 The mapping from the ILP address to the local ledger address is dependent on the ledger / ledger plugin. An ILP address could be the `<ledger prefix>.<account name or number>`, or a token could be used in place of the actual account name or number.
 
@@ -386,6 +371,15 @@ means that a transfer you created has timed out.
 
 Emitted when an incoming message arrives from the ledger.
 
+### Event: `info_change`
+<code style="">ledgerPlugin.on('info_change',
+  (
+    **info**:[LedgerInfo](#class-ledgerinfo)
+  ) ⇒
+)</code>
+
+Emitted any time the plugin's `LedgerInfo` cache changes.
+
 ## Class: Transfer
 <code>class Transfer</code>
 
@@ -546,13 +540,21 @@ Metadata describing the ledger. This data is returned by the [`getInfo`](#getinf
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
+| `String` | [prefix](#prefix) | The plugin's ILP address prefix |
 | `Number` | [precision](#precision) | Total number of digits allowed |
 | `Number` | [scale](#scale) | Digits allowed after decimal |
 | `String` | [currencyCode](#currencycode) | ISO three-letter currency code |
 | `String` | [currencySymbol](#currencysymbol) | UTF8 currency symbol |
-| `ConnectorInfo[]` | [connectors](#connectors) | Recommended connectors |
+| `String[]` | [connectors](#connectors) | ILP addresses of recommended connectors |
 
 ### Fields
+
+#### prefix
+<code>**prefix**:String</code>
+
+The ledger plugin's ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin's `sendTransfer` method.
+
+The prefix may be configured, automatically detected, or hard-coded, depending on the ledger. For example, a Bitcoin ledger plugin may have the address hard-coded, while a [`five-bells-ledger`](https://github.com/interledger/five-bells-ledger) would use an API call to get the prefix.
 
 #### precision
 <code>**precision**:Number</code>
@@ -575,9 +577,9 @@ The ISO 4217 currency code (if any) used by the ledger.
 The currency symbol as one or more UTF8 characters.
 
 #### connectors
-<code>**connectors**:[ConnectorInfo](#class-connectorinfo)[]</code>
+<code>**connectors**:String[]</code>
 
-The list of recommended connectors.
+The ILP addresses of recommended connectors.
 
 ## Class: PluginOptions
 <code>class PluginOptions</code>
@@ -618,44 +620,6 @@ Method names are based on the popular LevelUP/LevelDOWN packages.
   del: (key) => {
     // Returns Promise.<null>
   }
-}
-```
-
-## Class: ConnectorInfo
-<code>class ConnectorInfo</code>
-
-Data about recommended connectors included in [`LedgerInfo`](#class-ledgerinfo).
-
-###### Fields
-| Type | Name | Description |
-|:--|:--|:--|
-| `String` | id | Account URI |
-| `String` | name | Account name |
-| `String` | connector | Connector URI |
-
-### Fields
-
-#### id
-<code>**id**:String</code>
-
-The connector's account URI on the ledger.
-
-#### name
-<code>**name**:String</code>
-
-The connector's account name on the ledger.
-
-#### connector
-<code>**connector**:String</code>
-
-The URI of the connector.
-
-###### Example
-```js
-{
-    "id": "http://usd-ledger.example/accounts/chloe",
-    "name": "chloe",
-    "connector": "http://usd-eur-connector.example"
 }
 ```
 
