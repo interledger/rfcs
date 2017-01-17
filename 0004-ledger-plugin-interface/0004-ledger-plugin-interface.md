@@ -256,6 +256,15 @@ p.sendMessage({
 })
 ```
 
+```js
+p.sendMessage({
+  ledger: 'example.ledger.',
+  from: 'example.ledger.alice',
+  to: 'example.ledger.bob',
+  data: { foo: 'bar' }
+})
+```
+
 For a detailed description of these properties, please see [`OutgoingMessage`](#outgoingmessage).
 
 
@@ -496,37 +505,57 @@ Ledger plugins MAY use this object to accept and/or set additional fields for ot
 }
 ```
 
-## Class: Message
-<code>class Message</code>
 
-The `Message` class is used to describe local ledger message. All fields are required.
+### IncomingMessage
+<code>class IncomingMessage</code>
+
+`IncomingMessage` objects describe messages which are **received** by the ledger plugin. The `account` field refers to the local source account that the message originated from.
 
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
-| `String` | account | ILP Address of the source or destination account |
+| `String` | account | ILP Address of the source account |
 | `String` | ledger | ILP Address prefix of the ledger |
 | `Object` | data | Data packet to be sent with the message |
 
-
-### IncomingMessage
-<code>class IncomingMessage extends [Message](#class-message)</code>
-
-`IncomingMessage` objects describe messages which are **received** by the ledger plugin. The `account` field refers to the local source account that the message originated from.
-
-See [`Message`](#class-message) for more information.
+###### Example
+``` js
+{
+  account: 'example.ledger.alice',
+  ledger: 'example.ledger.',
+  data: { /* ... */ }
+}
+```
 
 ### OutgoingMessage
-<code>class OutgoingMessage extends [Message](#class-message)</code>
+<code>class OutgoingMessage</code>
 
-`OutgoingMessage` objects describe messages which have been **sent** by the ledger plugin. The `account` field refers to the local destination account on the underlying ledger.
+`OutgoingMessage` objects describe messages which have been **sent** by the ledger plugin. The `account`/`to` fields refer to the local destination account on the underlying ledger.
 
-See [`Message`](#class-message) for more information.
+Either `from`/`to` must be provided, or `account` must be.
+
+###### Fields
+| Type | Name | Description |
+|:--|:--|:--|
+| `String` | account | ILP Address of the destination account |
+| `String` | from | ILP Address of the source account |
+| `String` | to | ILP Address of the destination account |
+| `String` | ledger | ILP Address prefix of the ledger |
+| `Object` | data | Data packet to be sent with the message |
 
 ###### Example
 ``` js
 {
   account: 'example.ledger.bob',
+  ledger: 'example.ledger.',
+  data: { /* ... */ }
+}
+```
+
+``` js
+{
+  from: 'example.ledger.alice',
+  to: 'example.ledger.bob',
   ledger: 'example.ledger.',
   data: { /* ... */ }
 }
