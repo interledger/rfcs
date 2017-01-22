@@ -214,8 +214,6 @@ Throws `InvalidFieldsError` if required fields are missing from the transfer or 
 the given ID and different already exists. Throws `NotAcceptedError` if the transfer is rejected by the ledger due to insufficient balance or
 a nonexistant destination account.
 
-
-
 ###### Example
 ```js
 p.sendTransfer({
@@ -243,6 +241,8 @@ Messaging is used by connectors for [quoting](../0008-interledger-quoting-protoc
 | Name | Type | Description |
 |:--|:--|:--|
 | message | <code>[OutgoingMessage](#outgoingmessage)</code> | Properties of the message to be created |
+
+When sending messages, the [to](#to) and [data](#data) fields are required.
 
 ###### Returns
 **`Promise.<null>`** A promise which resolves when the message has been submitted (but not necessarily delivered). To ensure delivery, you must build a mechanism for that on top.
@@ -399,8 +399,8 @@ left undefined (but not any other false-y value) if unused.
 | `String` | [to](#to) | ILP Address of the destination account |
 | `String` | [ledger](#ledger) | ILP Address prefix of the ledger |
 | `String` | [amount](#amount) | Decimal transfer amount |
-| `Buffer` | [data](#data) | Data packet or memo to be sent with the transfer, starts with an ILP header |
-| `Buffer` | [noteToSelf](#notetoself) | Host-provided memo that should be stored with the transfer |
+| `Object` | [data](#data) | Data packet or memo to be sent with the transfer, starts with an ILP header |
+| `Object` | [noteToSelf](#notetoself) | Host-provided memo that should be stored with the transfer |
 | `String` | [executionCondition](#executioncondition) | Cryptographic hold condition |
 | `String` | [expiresAt](#expiresat) | Expiry time of the cryptographic hold |
 | `Object` | [custom](#custom) | Object containing ledger plugin specific options |
@@ -461,16 +461,16 @@ ILP Address prefix of the ledger that this transfer is going through on.
 A decimal amount, represented as a string. MUST be positive. The supported precision is defined by each ledger plugin and can be queried by the host via [`getInfo`](#getinfo). The ledger plugin MUST throw an `InsufficientPrecisionError` if the given amount exceeds the supported level of precision.
 
 #### data
-<code>**data**:Buffer</code>
+<code>**data**:Object</code>
 
-A buffer containing the data to be sent. Ledger plugins SHOULD treat this data as opaque, however it will usually start with an [ILP header](../0003-interledger-protocol/) followed by a transport layer header, a [quote request](../0008-interledger-quoting-protocol/) or a custom user-provided data packet.
+An arbitrary plain JavaScript object containing the data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque. Typically, it will contain an [ILP header](../0003-interledger-protocol/).
 
 If the `data` is too large, the ledger plugin MUST throw a `MaximumDataSizeExceededError`. If the `data` is too large only because the `amount` is insufficient, the ledger plugin MUST throw an `InsufficientAmountError`.
 
 #### noteToSelf
-<code>**noteToSelf**:Buffer</code>
+<code>**noteToSelf**:Object</code>
 
-An optional bytestring containing details the host needs to persist with the transfer in order to be able to react to transfer events like condition fulfillment later.
+An arbitrary plain JavaScript object containing details the host needs to persist with the transfer in order to be able to react to transfer events like condition fulfillment later.
 
 Ledger plugins MAY attach the `noteToSelf` to the transfer and let the ledger store it. Otherwise it MAY use the [`store`](#store) in order to persist this field. Regardless of the implementation, the ledger plugin MUST ensure that all instances of the transfer carry the same `noteToSelf`, even across different machines.
 
@@ -559,6 +559,18 @@ The ILP Address of the source or debit account.
 <code>**to**:String</code>
 
 The ILP Address of the destination or credit account.
+
+#### ledger
+<code>**to**:String</code>
+
+The ILP Prefix of the ledger being used to transfer the message.
+
+#### data
+<code>**data**:Object</code>
+
+An arbitrary plain JavaScript object containing the data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque.
+
+If the `data` is too large, the ledger plugin MUST throw a `MaximumDataSizeExceededError`.
 
 ###### Example
 ``` js
