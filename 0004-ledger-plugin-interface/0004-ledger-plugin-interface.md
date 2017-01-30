@@ -204,6 +204,9 @@ implement zero-amount transfers differently than other transfers.
 |:--|:--|:--|
 | transfer | <code>[OutgoingTransfer](#outgoingtransfer)</code> | Properties of the transfer to be created |
 
+When sending transfers, the [id](#id), [amount](#amount) and [to](#to) fields
+are required.
+
 ###### Returns
 **`Promise.<null>`** A promise which resolves when the transfer has been submitted (but not necessarily accepted.)
 
@@ -215,7 +218,7 @@ a nonexistant destination account.
 ```js
 p.sendTransfer({
   id: 'd86b0299-e2fa-4713-833a-96a6a75271b8',
-  account: 'example.ledger.connector',
+  to: 'example.ledger.connector',
   amount: '10',
   data: new Buffer('...', 'base64'),
   noteToSelf: {},
@@ -239,6 +242,8 @@ Messaging is used by connectors for [quoting](../0008-interledger-quoting-protoc
 |:--|:--|:--|
 | message | <code>[OutgoingMessage](#outgoingmessage)</code> | Properties of the message to be created |
 
+When sending messages, the [to](#to) and [data](#data) fields are required.
+
 ###### Returns
 **`Promise.<null>`** A promise which resolves when the message has been submitted (but not necessarily delivered). To ensure delivery, you must build a mechanism for that on top.
 
@@ -250,8 +255,7 @@ Throws `NoSubscriptionsError` if the message cannot be delivered because there i
 ###### Example
 ```js
 p.sendMessage({
-  ledger: 'example.ledger.',
-  account: 'example.ledger.connector',
+  to: 'example.ledger.connector',
   data: { foo: 'bar' }
 })
 ```
@@ -383,19 +387,20 @@ Emitted any time the plugin's `LedgerInfo` cache changes.
 ## Class: Transfer
 <code>class Transfer</code>
 
-The `Transfer` class is used to describe local ledger transfers. Only
-[id](#id), [account](#account), [ledger](#ledger), and [amount](#amount) are required; the other
-fields can be left undefined (but not any other false-y value) if unused.
+The `Transfer` class is used to describe local ledger transfers. Fields can be
+left undefined (but not any other false-y value) if unused.
 
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
 | `String` | [id](#id) | UUID used as an external identifier |
-| `String` | [account](#account) | ILP Address of the source or destination account |
+| `String` | [account](#account) | ILP Address of the source or destination account (deprecated) |
+| `String` | [from](#from) | ILP Address of the source account |
+| `String` | [to](#to) | ILP Address of the destination account |
 | `String` | [ledger](#ledger) | ILP Address prefix of the ledger |
 | `String` | [amount](#amount) | Decimal transfer amount |
-| `Buffer` | [data](#data) | Data packet or memo to be sent with the transfer, starts with an ILP header |
-| `Buffer` | [noteToSelf](#notetoself) | Host-provided memo that should be stored with the transfer |
+| `Object` | [data](#data) | Data packet or memo to be sent with the transfer, starts with an ILP header |
+| `Object` | [noteToSelf](#notetoself) | Host-provided memo that should be stored with the transfer |
 | `String` | [executionCondition](#executioncondition) | Cryptographic hold condition |
 | `String` | [expiresAt](#expiresat) | Expiry time of the cryptographic hold |
 | `Object` | [custom](#custom) | Object containing ledger plugin specific options |
@@ -433,6 +438,18 @@ Ledger plugins that support scalability (e.g. running multiple instances of a co
 
 The ILP Address of a local account.
 
+**Deprecated:** Use [`from`](#from)/[`to`](#to) instead.
+
+#### from
+<code>**from**:String</code>
+
+The ILP Address of the source or debit account.
+
+#### to
+<code>**to**:String</code>
+
+The ILP Address of the destination or credit account.
+
 #### ledger
  <code>**ledger**:String</code>
 
@@ -444,16 +461,16 @@ ILP Address prefix of the ledger that this transfer is going through on.
 A decimal amount, represented as a string. MUST be positive. The supported precision is defined by each ledger plugin and can be queried by the host via [`getInfo`](#getinfo). The ledger plugin MUST throw an `InsufficientPrecisionError` if the given amount exceeds the supported level of precision.
 
 #### data
-<code>**data**:Buffer</code>
+<code>**data**:Object</code>
 
-A buffer containing the data to be sent. Ledger plugins SHOULD treat this data as opaque, however it will usually start with an [ILP header](../0003-interledger-protocol/) followed by a transport layer header, a [quote request](../0008-interledger-quoting-protocol/) or a custom user-provided data packet.
+An arbitrary plain JavaScript object containing the data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque. Typically, it will contain an [ILP header](../0003-interledger-protocol/).
 
 If the `data` is too large, the ledger plugin MUST throw a `MaximumDataSizeExceededError`. If the `data` is too large only because the `amount` is insufficient, the ledger plugin MUST throw an `InsufficientAmountError`.
 
 #### noteToSelf
-<code>**noteToSelf**:Buffer</code>
+<code>**noteToSelf**:Object</code>
 
-An optional bytestring containing details the host needs to persist with the transfer in order to be able to react to transfer events like condition fulfillment later.
+An arbitrary plain JavaScript object containing details the host needs to persist with the transfer in order to be able to react to transfer events like condition fulfillment later.
 
 Ledger plugins MAY attach the `noteToSelf` to the transfer and let the ledger store it. Otherwise it MAY use the [`store`](#store) in order to persist this field. Regardless of the implementation, the ledger plugin MUST ensure that all instances of the transfer carry the same `noteToSelf`, even across different machines.
 
@@ -485,6 +502,8 @@ Ledger plugins MAY use this object to accept and/or set additional fields for ot
 {
   id: '94adc29e-26cd-471b-987e-8d41e8773864',
   account: 'example.ledger.bob',
+  from: 'example.ledger.bob',
+  to: 'example.ledger.alice',
   ledger: 'example.ledger.',
   amount: '100',
   data: /* ... */,
@@ -504,10 +523,11 @@ The `Message` class is used to describe local ledger message. All fields are req
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
-| `String` | account | ILP Address of the source or destination account |
+| `String` | account | ILP Address of the source or destination account (deprecated) |
+| `String` | from | ILP Address of the source account |
+| `String` | to | ILP Address of the destination account |
 | `String` | ledger | ILP Address prefix of the ledger |
 | `Object` | data | Data packet to be sent with the message |
-
 
 ### IncomingMessage
 <code>class IncomingMessage extends [Message](#class-message)</code>
@@ -523,10 +543,41 @@ See [`Message`](#class-message) for more information.
 
 See [`Message`](#class-message) for more information.
 
+#### account
+<code>**account**:String</code>
+
+The ILP Address of a local account.
+
+**Deprecated:** Use [`from`](#from)/[`to`](#to) instead.
+
+#### from
+<code>**from**:String</code>
+
+The ILP Address of the source or debit account.
+
+#### to
+<code>**to**:String</code>
+
+The ILP Address of the destination or credit account.
+
+#### ledger
+<code>**to**:String</code>
+
+The ILP Prefix of the ledger being used to transfer the message.
+
+#### data
+<code>**data**:Object</code>
+
+An arbitrary plain JavaScript object containing the data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque.
+
+If the `data` is too large, the ledger plugin MUST throw a `MaximumDataSizeExceededError`.
+
 ###### Example
 ``` js
 {
   account: 'example.ledger.bob',
+  from: 'example.ledger.alice',
+  to: 'example.ledger.bob',
   ledger: 'example.ledger.',
   data: { /* ... */ }
 }
