@@ -481,6 +481,8 @@ implement zero-amount transfers differently than other transfers.</p>
 </tr>
 </tbody>
 </table>
+<p>When sending transfers, the <a href="#id">id</a>, <a href="#amount">amount</a> and <a href="#to">to</a> fields
+are required.</p>
 <h6 id="returns-1">Returns</h6>
 <p><strong><code>Promise.&lt;null&gt;</code></strong> A promise which resolves when the transfer has been submitted (but not necessarily accepted.)</p>
 <p>Throws <code>InvalidFieldsError</code> if required fields are missing from the transfer or malformed. Throws <code>DuplicateIdError</code> if a transfer with
@@ -489,7 +491,7 @@ a nonexistant destination account.</p>
 <h6 id="example-2">Example</h6>
 <pre><code class="lang-js">p.sendTransfer({
   id: &apos;d86b0299-e2fa-4713-833a-96a6a75271b8&apos;,
-  account: &apos;example.ledger.connector&apos;,
+  to: &apos;example.ledger.connector&apos;,
   amount: &apos;10&apos;,
   data: new Buffer(&apos;...&apos;, &apos;base64&apos;),
   noteToSelf: {},
@@ -520,6 +522,7 @@ If there is a problem with the structure or validity of the message, then <code>
 </tr>
 </tbody>
 </table>
+<p>When sending messages, the <a href="#to">to</a> and <a href="#data">data</a> fields are required.</p>
 <h6 id="returns-2">Returns</h6>
 <p><strong><code>Promise.&lt;null&gt;</code></strong> A promise which resolves when the message has been submitted (but not necessarily delivered). To ensure delivery, you must build a mechanism for that on top.</p>
 <p>Throws <code>InvalidFieldsError</code> if required fields are missing from the message or malformed.
@@ -527,8 +530,7 @@ Throws <code>NotAcceptedError</code> if the message is rejected by the ledger.
 Throws <code>NoSubscriptionsError</code> if the message cannot be delivered because there is nobody listening to messages addressed to the given account.</p>
 <h6 id="example-3">Example</h6>
 <pre><code class="lang-js">p.sendMessage({
-  ledger: &apos;example.ledger.&apos;,
-  account: &apos;example.ledger.connector&apos;,
+  to: &apos;example.ledger.connector&apos;,
   data: { foo: &apos;bar&apos; }
 })
 </code></pre>
@@ -624,9 +626,8 @@ means that a transfer you created has timed out.</p>
 <p>Emitted any time the plugin&apos;s <code>LedgerInfo</code> cache changes.</p>
 <h2 id="class-transfer">Class: Transfer</h2>
 <p><code>class Transfer</code></p>
-<p>The <code>Transfer</code> class is used to describe local ledger transfers. Only
-<a href="#id">id</a>, <a href="#account">account</a>, <a href="#ledger">ledger</a>, and <a href="#amount">amount</a> are required; the other
-fields can be left undefined (but not any other false-y value) if unused.</p>
+<p>The <code>Transfer</code> class is used to describe local ledger transfers. Fields can be
+left undefined (but not any other false-y value) if unused.</p>
 <h6 id="fields-1">Fields</h6>
 <table class="table table-striped">
 <thead>
@@ -645,7 +646,17 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <tr>
 <td style="text-align:left"><code>String</code></td>
 <td style="text-align:left"><a href="#account">account</a></td>
-<td style="text-align:left">ILP Address of the source or destination account</td>
+<td style="text-align:left">ILP Address of the source or destination account (deprecated)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left"><a href="#from">from</a></td>
+<td style="text-align:left">ILP Address of the source account</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left"><a href="#to">to</a></td>
+<td style="text-align:left">ILP Address of the destination account</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>String</code></td>
@@ -658,12 +669,12 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <td style="text-align:left">Decimal transfer amount</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>Buffer</code></td>
+<td style="text-align:left"><code>Object</code></td>
 <td style="text-align:left"><a href="#data">data</a></td>
 <td style="text-align:left">Data packet or memo to be sent with the transfer, starts with an ILP header</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>Buffer</code></td>
+<td style="text-align:left"><code>Object</code></td>
 <td style="text-align:left"><a href="#notetoself">noteToSelf</a></td>
 <td style="text-align:left">Host-provided memo that should be stored with the transfer</td>
 </tr>
@@ -699,22 +710,29 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <p>For <a href="#outgoingtransfer"><code>OutgoingTransfer</code></a>s, the ID is chosen by the host. The ledger plugin MAY use a different identifier internally, but MUST fail if the external ID has already been used. In the case of a connector, the ID will be deterministically chosen from the hash of the ledger and transfer IDs of the inbound transfer that triggered this outbound transfer.</p>
 <p>For <a href="#incomingtransfer"><code>IncomingTransfer</code></a>s, the ID is chosen by the ledger plugin. The ledger plugin MAY use any type of UUID, but MUST ensure that the same transfer is always referred to by the same ID and that IDs are unique per ledger.</p>
 <p>Ledger plugins that support scalability (e.g. running multiple instances of a connector using the same settings) MUST ensure that external transfer IDs are unique <strong>globally</strong>, i.e. across all machines and instances. Otherwise a connector could accidentally process two outgoing payments for one incoming payment.</p>
-<h4 id="account">account</h4>
+<h4 id="account-1">account</h4>
 <p><code><strong>account</strong>:String</code></p>
 <p>The ILP Address of a local account.</p>
-<h4 id="ledger">ledger</h4>
+<p><strong>Deprecated:</strong> Use <a href="#from"><code>from</code></a>/<a href="#to"><code>to</code></a> instead.</p>
+<h4 id="from-1">from</h4>
+<p><code><strong>from</strong>:String</code></p>
+<p>The ILP Address of the source or debit account.</p>
+<h4 id="to-1">to</h4>
+<p><code><strong>to</strong>:String</code></p>
+<p>The ILP Address of the destination or credit account.</p>
+<h4 id="ledger-1">ledger</h4>
 <p> <code><strong>ledger</strong>:String</code></p>
 <p>ILP Address prefix of the ledger that this transfer is going through on.</p>
 <h4 id="amount">amount</h4>
 <p><code><strong>amount</strong>:String</code></p>
 <p>A decimal amount, represented as a string. MUST be positive. The supported precision is defined by each ledger plugin and can be queried by the host via <a href="#getinfo"><code>getInfo</code></a>. The ledger plugin MUST throw an <code>InsufficientPrecisionError</code> if the given amount exceeds the supported level of precision.</p>
-<h4 id="data">data</h4>
-<p><code><strong>data</strong>:Buffer</code></p>
-<p>A buffer containing the data to be sent. Ledger plugins SHOULD treat this data as opaque, however it will usually start with an <a href="../0003-interledger-protocol/">ILP header</a> followed by a transport layer header, a <a href="../0008-interledger-quoting-protocol/">quote request</a> or a custom user-provided data packet.</p>
+<h4 id="data-1">data</h4>
+<p><code><strong>data</strong>:Object</code></p>
+<p>An arbitrary plain JavaScript object containing the data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque. Typically, it will contain an <a href="../0003-interledger-protocol/">ILP header</a>.</p>
 <p>If the <code>data</code> is too large, the ledger plugin MUST throw a <code>MaximumDataSizeExceededError</code>. If the <code>data</code> is too large only because the <code>amount</code> is insufficient, the ledger plugin MUST throw an <code>InsufficientAmountError</code>.</p>
 <h4 id="notetoself">noteToSelf</h4>
-<p><code><strong>noteToSelf</strong>:Buffer</code></p>
-<p>An optional bytestring containing details the host needs to persist with the transfer in order to be able to react to transfer events like condition fulfillment later.</p>
+<p><code><strong>noteToSelf</strong>:Object</code></p>
+<p>An arbitrary plain JavaScript object containing details the host needs to persist with the transfer in order to be able to react to transfer events like condition fulfillment later.</p>
 <p>Ledger plugins MAY attach the <code>noteToSelf</code> to the transfer and let the ledger store it. Otherwise it MAY use the <a href="#store"><code>store</code></a> in order to persist this field. Regardless of the implementation, the ledger plugin MUST ensure that all instances of the transfer carry the same <code>noteToSelf</code>, even across different machines.</p>
 <p>Ledger plugins MUST ensure that the data in the <code>noteToSelf</code> either isn&apos;t shared with any untrusted party or encrypted before it is shared.</p>
 <h4 id="executioncondition">executionCondition</h4>
@@ -733,6 +751,8 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <pre><code class="lang-js">{
   id: &apos;94adc29e-26cd-471b-987e-8d41e8773864&apos;,
   account: &apos;example.ledger.bob&apos;,
+  from: &apos;example.ledger.bob&apos;,
+  to: &apos;example.ledger.alice&apos;,
   ledger: &apos;example.ledger.&apos;,
   amount: &apos;100&apos;,
   data: /* ... */,
@@ -759,7 +779,17 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <tr>
 <td style="text-align:left"><code>String</code></td>
 <td style="text-align:left">account</td>
-<td style="text-align:left">ILP Address of the source or destination account</td>
+<td style="text-align:left">ILP Address of the source or destination account (deprecated)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left">from</td>
+<td style="text-align:left">ILP Address of the source account</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left">to</td>
+<td style="text-align:left">ILP Address of the destination account</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>String</code></td>
@@ -781,9 +811,28 @@ fields can be left undefined (but not any other false-y value) if unused.</p>
 <p><code>class OutgoingMessage extends <a href="#class-message">Message</a></code></p>
 <p><code>OutgoingMessage</code> objects describe messages which have been <strong>sent</strong> by the ledger plugin. The <code>account</code> field refers to the local destination account on the underlying ledger.</p>
 <p>See <a href="#class-message"><code>Message</code></a> for more information.</p>
+<h4 id="account-2">account</h4>
+<p><code><strong>account</strong>:String</code></p>
+<p>The ILP Address of a local account.</p>
+<p><strong>Deprecated:</strong> Use <a href="#from"><code>from</code></a>/<a href="#to"><code>to</code></a> instead.</p>
+<h4 id="from-2">from</h4>
+<p><code><strong>from</strong>:String</code></p>
+<p>The ILP Address of the source or debit account.</p>
+<h4 id="to-2">to</h4>
+<p><code><strong>to</strong>:String</code></p>
+<p>The ILP Address of the destination or credit account.</p>
+<h4 id="ledger-2">ledger</h4>
+<p><code><strong>to</strong>:String</code></p>
+<p>The ILP Prefix of the ledger being used to transfer the message.</p>
+<h4 id="data-2">data</h4>
+<p><code><strong>data</strong>:Object</code></p>
+<p>An arbitrary plain JavaScript object containing the data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque.</p>
+<p>If the <code>data</code> is too large, the ledger plugin MUST throw a <code>MaximumDataSizeExceededError</code>.</p>
 <h6 id="example-5">Example</h6>
 <pre><code class="lang-js">{
   account: &apos;example.ledger.bob&apos;,
+  from: &apos;example.ledger.alice&apos;,
+  to: &apos;example.ledger.bob&apos;,
   ledger: &apos;example.ledger.&apos;,
   data: { /* ... */ }
 }
