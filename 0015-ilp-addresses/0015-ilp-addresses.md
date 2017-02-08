@@ -1,9 +1,11 @@
 # ILP Addresses
 
-_ILP addresses_ provide a way route payments to their intended destination through a recursive series of hops, including any number of ILP Connectors. (This happens after the payment is set up on a higher level, such as [SPSP](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md).) Addresses can be subdivided into two categories:
+_ILP addresses_ provide a way route payments to their intended destination through a recursive series of hops, including any number of ILP Connectors. (This happens after the payment is set up on a higher level, such as [SPSP](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md).) Addresses are not meant to be user-facing, but allow several ASCII characters for easy debugging.
+
+Addresses can be subdivided into two categories:
 
 - **Destination Addresses** are complete addresses that can receive payments. A destination address always maps to one account in a ledger. (It can also provide more specific information, such as an invoice ID or a sub-account.) Destination addresses MUST NOT end in a period (`.`) character.
-- **Prefix Addresses** are incomplete addresses representing a group of destination addresses. Many depths of grouping are possible: groups of accounts or sub-accounts, an individual ledger or subledger, or entire neighborhoods of ledgers. Prefix addresses MUST end in a period (`.`) character. Payment setup protocols MUST reject payments to prefix addresses.
+- **Address Prefixes** are incomplete addresses representing a group of destination addresses. Many depths of grouping are possible: groups of accounts or sub-accounts, an individual ledger or subledger, or entire neighborhoods of ledgers. Address prefixes MUST end in a period (`.`) character. Payment setup protocols MUST reject payments to address prefixes.
 
 Both types of address usually contain one or more period characters as separators.
 
@@ -11,40 +13,39 @@ Both types of address usually contain one or more period characters as separator
 
 ILP Addresses must meet the following requirements:
 
-1. The address MUST begin with a prefix indicating the allocation scheme. The only supported allocation scheme for now is the [General Allocation Scheme](#general-allocation-scheme), which uses the prefix `g.`.
+1. The address MUST begin with a prefix indicating the allocation scheme. See [Allocation Schemes](#allocation-schemes) for more information.
 2. Each "segment" of the address MUST contain one or more of the following characters:
     - Alphanumeric characters, upper or lower case. (Addresses are **case-sensitive** so that they can contain data encoded in formats such as base64url.)
     - Underscore (`_`)
     - Tilde (`~`)
     - Hyphen (`-`)
 3. Each segment MUST be separated from other segments by a period character (`.`).
-4. Prefix addresses MUST end in a period (`.`) character and MAY contain any number of segments after the allocation scheme prefix.
+4. Address prefixes MUST end in a period (`.`) character and MAY contain any number of segments after the allocation scheme prefix.
 6. Destination addresses MUST NOT end in a period (`.`) character, and MUST contain at least two segments after the allocation scheme prefix.
+
+***TODO: ABNF definitions for address, destination address, and address prefix; update or remove regexes accordingly.***
 
 The following regular expressions summarize these requirements:
 
 | Address Type        | Regular Expression                         |
 |:--------------------|:-------------------------------------------|
 | All addresses       | `^g\.[a-zA-Z0-9._~-]*$`                    |
-| Prefix address      | `^g\.([a-zA-Z0-9_~-]+\.)*$`                |
+| Address prefix      | `^g\.([a-zA-Z0-9_~-]+\.)*$`                |
 | Destination address | `^g\.([a-zA-Z0-9_~-]+\.)+[a-zA-Z0-9_~-]+$` |
 
-## Example Addresses
+## Allocation Schemes
 
-`g.acme.bob` - a destination address to the account "bob" in the ledger "acme".
+The allocation scheme is the first part of an address, which indicates how the address is assigned. Here is a summary of the prefixes that are currently defined:
 
-`g.us.fed.ach.0.acmebank.swx0a0.acmecorp.sales.199.cdfa5e16-e759-4ba3-88f6-8b9dc83c1868.2` - destination address for a particular invoice, which can break down as follows:
-
-- Neighborhoods: `us`, `fed`, `ach`, `0`, `acmebank`
-- Ledger: `swx0a0`
-- Subledger: `acmecorp`
-- Account group: `sales`
-- Account: `199`
-- Interactions: `cdfa5e16-e759-4ba3-88f6-8b9dc83c1868`, `2`
-
-`g.` - the shortest possible prefix address. All entries that are in the general allocation scheme.
-
-`g.crypto.bitcoin.` - prefix address for the public Bitcoin blockchain
+| Prefix                       | Allocation Scheme                                       | Definition and Use Case |
+|:-----------------------------|:--------------------------------------------------------|:--|
+| `g.`                         | [General Allocation Scheme](#general-allocation-scheme) | Most ILP addresses used to send and receive real money. |
+| `private.`                   | Private allocation                                      | For ILP addresses that only have meaning in a private subnet or intranet. Analogous to the [192.168.0.0/16 range in IPv4](https://en.wikipedia.org/wiki/Private_network). |
+| `example.`                   | Examples                                                | For "non-real" addresses that are used as examples or in documentation. Analogous to ["555 phone numbers"](https://en.wikipedia.org/wiki/555_%28telephone_number%29) in the USA. |
+| `test1.`, `test2.`, `test3.` | Testing                                                 | For addresses used in tests, such as unit or integration tests of compatible software. |
+| `local.`                     | Ledger-local                                            | For addresses that are only valid in the context of a local ledger. Analogous to [link-local addresses](https://en.wikipedia.org/wiki/Link-local_address) in IP. |
+| `peer.`                      | Peering                                                 | Similar to ledger-local addresses, but specifically for use in a peering relationship. The [ilp-plugin-virtual](https://github.com/interledgerjs/ilp-plugin-virtual) is an example of an existing implementation that uses this. |
+| `self.`                      | Local loopback                                          | For addresses that are only valid on the local machine. |
 
 ## General Allocation Scheme
 
@@ -66,7 +67,7 @@ To make routing work well, we recommend including the following components as se
 
 Neighborhoods have no specific meaning, but serve as a quick shortcut for routing to the right area.
 
-- For regional currencies, use a continent code from the folowing table:
+- For regional currencies, use a continent code from the following table:
     | Segment | Continent     |
     |:--------|:--------------|
     | `af`    | Africa        |
@@ -111,7 +112,23 @@ Additional segments within an address. In most cases, any segments after the acc
 
 _**Rome's note:** I'm not sure if we should say ledger plugins can use these segments to decide which account to route to or not. If they can, I'm not sure how useful it is to draw a distinction between this and the account identifier._
 
+### Example General Allocation Scheme Addresses
 
+`g.acme.bob` - a destination address to the account "bob" in the ledger "acme".
+
+`g.us.fed.ach.0.acmebank.swx0a0.acmecorp.sales.199.cdfa5e16-e759-4ba3-88f6-8b9dc83c1868.2` - destination address for a particular invoice, which can break down as follows:
+
+- Neighborhoods: `us`, `fed`, `0`, `acmebank`
+- Payment rail: `ach`
+- Ledger: `swx0a0`
+- Subledger: `acmecorp`
+- Account group: `sales`
+- Account: `199`
+- Interactions: `cdfa5e16-e759-4ba3-88f6-8b9dc83c1868`, `2`
+
+`g.` - the shortest possible address prefix. Includes all entries that are in the general allocation scheme.
+
+`g.crypto.bitcoin.` - address prefix for the public Bitcoin blockchain
 
 # Routing
 
