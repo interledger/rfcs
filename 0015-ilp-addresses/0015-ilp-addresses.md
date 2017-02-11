@@ -23,37 +23,53 @@ ILP Addresses must meet the following requirements:
 4. Address prefixes MUST end in a period (`.`) character and MAY contain any number of segments after the allocation scheme prefix.
 6. Destination addresses MUST NOT end in a period (`.`) character, and MUST contain at least two segments after the allocation scheme prefix.
 
-***TODO: ABNF definitions for address, destination address, and address prefix; update or remove regexes accordingly.***
+The following ABNF specification defines the format for all ILP addresses and address prefixes:
 
-The following regular expressions summarize these requirements:
+```abnf
+address     = scheme separator *prefix [segment]
+                    ; the last segment is REQUIRED for destination addresses
 
-| Address Type        | Regular Expression                         |
-|:--------------------|:-------------------------------------------|
-| All addresses       | `^g\.[a-zA-Z0-9._~-]*$`                    |
-| Address prefix      | `^g\.([a-zA-Z0-9_~-]+\.)*$`                |
-| Destination address | `^g\.([a-zA-Z0-9_~-]+\.)+[a-zA-Z0-9_~-]+$` |
+scheme      = "g" / "private" / "example" / "peer" / "self" /
+              "test1" / "test2" / "test3"
+
+separator   = "."
+
+prefix      = 1*(segment separator)
+
+segment     = 1*( ALPHA / DIGIT / "_" / "~" / "-" )
+```
+
+You can also use the following regular expressions to verify the same requirements:
+
+| Address Type        | Regular Expression                                     |
+|:--------------------|:-------------------------------------------------------|
+| All addresses       | `^(g|private|example|peer|self|test[1-3])\.([a-zA-Z0-9_~-]+\.)*([a-zA-Z0-9_~-]+)?$` |
+| Address prefix      | `^(g|private|example|peer|self|test[1-3])\.([a-zA-Z0-9_~-]+\.)*$` |
+| Destination address | `^(g|private|example|peer|self|test[1-3])\.([a-zA-Z0-9_~-]+\.)+[a-zA-Z0-9_~-]+$` |
+
 
 ## Allocation Schemes
 
 The allocation scheme is the first part of an address, which indicates how the address is assigned. Here is a summary of the prefixes that are currently defined:
 
-| Prefix                       | Allocation Scheme                                       | Definition and Use Case |
-|:-----------------------------|:--------------------------------------------------------|:--|
-| `g.`                         | [General Allocation Scheme](#general-allocation-scheme) | Most ILP addresses used to send and receive real money. |
-| `private.`                   | Private allocation                                      | For ILP addresses that only have meaning in a private subnet or intranet. Analogous to the [192.168.0.0/16 range in IPv4](https://en.wikipedia.org/wiki/Private_network). |
-| `example.`                   | Examples                                                | For "non-real" addresses that are used as examples or in documentation. Analogous to ["555 phone numbers"](https://en.wikipedia.org/wiki/555_%28telephone_number%29) in the USA. |
-| `test1.`, `test2.`, `test3.` | Testing                                                 | For addresses used in tests, such as unit or integration tests of compatible software. |
-| `local.`                     | Ledger-local                                            | For addresses that are only valid in the context of a local ledger. Analogous to [link-local addresses](https://en.wikipedia.org/wiki/Link-local_address) in IP. |
-| `peer.`                      | Peering                                                 | Similar to ledger-local addresses, but specifically for use in a peering relationship. The [ilp-plugin-virtual](https://github.com/interledgerjs/ilp-plugin-virtual) is an example of an existing implementation that uses this. |
-| `self.`                      | Local loopback                                          | For addresses that are only valid on the local machine. |
+| Prefix                       | Allocation Scheme             | Definition and Use Case |
+|:-----------------------------|:------------------------------|:--------------|
+| `g.`                         | [General Allocation Scheme][] | Most ILP addresses used to send and receive real money. |
+| `private.`                   | Private allocation            | For ILP addresses that only have meaning in a private subnet or intranet. Analogous to the [192.168.0.0/16 range in IPv4](https://en.wikipedia.org/wiki/Private_network). |
+| `example.`                   | Examples                      | For "non-real" addresses that are used as examples or in documentation. Analogous to ["555 phone numbers"](https://en.wikipedia.org/wiki/555_%28telephone_number%29) in the USA. |
+| `test1.`, `test2.`, `test3.` | Testing                       | For addresses used in tests, such as unit or integration tests of compatible software. |
+| `local.`                     | Ledger-local                  | For addresses that are only valid in the context of a local ledger. Analogous to [link-local addresses](https://en.wikipedia.org/wiki/Link-local_address) in IP. |
+| `peer.`                      | Peering                       | Similar to ledger-local addresses, but specifically for use in a peering relationship. The [ilp-plugin-virtual](https://github.com/interledgerjs/ilp-plugin-virtual) is an example of an existing implementation that uses this. |
+| `self.`                      | Local loopback                | For addresses that are only valid on the local machine. |
 
 ## General Allocation Scheme
+[General Allocation Scheme]: #general-allocation-scheme
 
 The general allocation scheme for ILP Addresses is currently the only supported scheme. It uses the prefix `g.`.
 
 This scheme has no central issuing authority or mechanism, so more than one entity can use the same address. In this case, some connectors may prepare a route to a different account than intended. In this failure case, no money moves because the receiver does not send the fulfillment. Participants in the interledger can reduce the chances of encountering this failure case by choosing addresses carefully and by properly managing connectors' routing tables.
 
-To make routing work well, we recommend including the following components as segments in an address (in order):
+The general allocation scheme does not allow you to make any assumptions about the meaning of the segments. Segments in the same place could have different meanings to different ledgers or connectors. To make routing work well, we recommend placing the segments in the following order:
 
 - [Neighborhoods](#neighborhoods)
 - [Payment rail](#payment-rail)
@@ -62,6 +78,7 @@ To make routing work well, we recommend including the following components as se
 - [Account identifier](#account-identifier)
 - [Interactions](#interactions)
 
+Not all addresses contain all this information, and some addresses may use multiple segments to represent some of this information.
 
 ### Neighborhoods
 
@@ -98,19 +115,21 @@ The payment rail refers to a specific way some accounts or ledgers are connected
 
 The ledger prefix is the unique name of the ledger. When doing a local delivery, the connector typically uses this segment to figure out which ledger plugin to use. As a result, it's difficult (but possible) to make a connector between two ledgers that use the same ledger prefix.
 
-### Subledger and Account Group
+### Subledger
 
-Zero or more segments representing optional divisions within a ledger. If there are no fees involved in transferring between a ledger and a subledger, the subledger can be a "local delivery" from the connector's perspective. If fees are necessary for connecting to a subledger, it may require a connector. ***TODO: More clarifications and detailed recommendations needed.***
+Zero or more segments representing optional divisions within a ledger; for example, if a ledger is composed of partitions that run on different hardware, the partitions could be named here. If there are no fees involved in transferring between a ledger and a subledger, this can still be a "local delivery" from the connector's perspective.
+
+If fees are necessary for connecting to a subledger, payments to that subledger must be routed through a connector.
 
 ### Account Identifier
 
-A unique identifier of the account within the ledger. The ledger plugin maps these to accounts within a ledger. For some ledgers, a simple conversion rule may suffice; other ledgers may require a lookup table. ***TODO: clarify exactly how five-bells-ledger-plugin or Common Ledger API plugin do this***
+A unique identifier of the account within the ledger. The ledger plugin maps these to accounts within a ledger. For some ledgers, a simple conversion rule may suffice; other ledgers may require a lookup table. The five-bells-ledger-plugin reference implementation translates uses this full segment exactly as the account identifier.
+
+If a ledger has different groupings of accounts, it might represent them as additional segments that are effectively part of the account identifier.
 
 ### Interactions
 
-Additional segments within an address. In most cases, any segments after the account identifier are not expected to match anything in a routing table, so they won't usually affect the routing of a payment. They may be used by automated programs listening for payments to specific purposes or situations, such as invoices.
-
-_**Rome's note:** I'm not sure if we should say ledger plugins can use these segments to decide which account to route to or not. If they can, I'm not sure how useful it is to draw a distinction between this and the account identifier._
+Additional segments within an address. In most cases, any segments after the account identifier are not expected to match anything in a routing table, so they won't usually affect the routing of a payment. Ledgers and ledger plugins may use the interactions segment of an address when generating notifications, so programs listening for payments can respond differently based on this portion of the address.
 
 ### Example General Allocation Scheme Addresses
 
@@ -118,12 +137,11 @@ _**Rome's note:** I'm not sure if we should say ledger plugins can use these seg
 
 `g.us.fed.ach.0.acmebank.swx0a0.acmecorp.sales.199.cdfa5e16-e759-4ba3-88f6-8b9dc83c1868.2` - destination address for a particular invoice, which can break down as follows:
 
-- Neighborhoods: `us`, `fed`, `0`, `acmebank`
+- Neighborhoods: `us`, `fed`, `0`
 - Payment rail: `ach`
-- Ledger: `swx0a0`
-- Subledger: `acmecorp`
-- Account group: `sales`
-- Account: `199`
+- Ledger: `acmebank`
+- Subledger components: `swx0a0`, `acmecorp`
+- Account components: `sales`, `199`
 - Interactions: `cdfa5e16-e759-4ba3-88f6-8b9dc83c1868`, `2`
 
 `g.` - the shortest possible address prefix. Includes all entries that are in the general allocation scheme.
