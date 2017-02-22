@@ -287,7 +287,7 @@
 </tr>
 <tr>
 <td style="text-align:left"><a href="#event-*_fulfill-"><strong>outgoing_fulfill</strong></a></td>
-<td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a>, fulfillment:Buffer ) &#x21D2;</code></td>
+<td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a>, fulfillment:String ) &#x21D2;</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><a href="#event-*_reject-"><strong>outgoing_reject</strong></a></td>
@@ -495,7 +495,7 @@ a nonexistant destination account.</p>
   amount: &apos;10&apos;,
   data: new Buffer(&apos;...&apos;, &apos;base64&apos;),
   noteToSelf: {},
-  executionCondition: &apos;cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0&apos;,
+  executionCondition: &apos;47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU&apos;,
   expiresAt: &apos;2016-05-18T12:00:00.000Z&apos;
 })
 </code></pre>
@@ -536,8 +536,9 @@ Throws <code>NoSubscriptionsError</code> if the message cannot be delivered beca
 </code></pre>
 <p>For a detailed description of these properties, please see <a href="#outgoingmessage"><code>OutgoingMessage</code></a>.</p>
 <h4 id="fulfillcondition">fulfillCondition</h4>
-<p><code>ledgerPlugin.fulfillCondition( <strong>transferId</strong>:String, <strong>fulfillment</strong>:Buffer ) &#x21D2; Promise.&lt;null&gt;</code></p>
+<p><code>ledgerPlugin.fulfillCondition( <strong>transferId</strong>:String, <strong>fulfillment</strong>:String ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Submit a fulfillment to a ledger. Plugin must be connected, otherwise the promise should reject.</p>
+<p>The <code>fulfillment</code> is an arbitrary 32-byte buffer and is provided as a base64url-encoded string.</p>
 <p>Throws <code>InvalidFieldsError</code> if the fulfillment is malformed. Throws <code>TransferNotFoundError</code> if the fulfillment
 if no conditional transfer with the given ID exists. Throws <code>AlreadyRolledBackError</code> if the transfer has already been
 rolled back. Throws <code>NotAcceptedError</code> if the fulfillment is formatted correctly, but does not match the condition
@@ -579,7 +580,7 @@ a transfer to you.</p>
 <p><code style="">ledgerPlugin.on(&apos;outgoing_fulfill&apos;,
   (
     <strong>transfer</strong>:<a href="#class-transfer">Transfer</a>,
-    <strong>fulfillment</strong>:Buffer
+    <strong>fulfillment</strong>:String
   ) &#x21D2;
 )</code></p>
 <p>Emitted when an outgoing/incoming transfer with a condition is fulfilled.</p>
@@ -737,9 +738,9 @@ left undefined (but not any other false-y value) if unused.</p>
 <p>Ledger plugins MUST ensure that the data in the <code>noteToSelf</code> either isn&apos;t shared with any untrusted party or encrypted before it is shared.</p>
 <h4 id="executioncondition">executionCondition</h4>
 <p><code><strong>executionCondition</strong>:String</code></p>
-<p>A <a href="../0002-crypto-conditions/">cryptographic condition</a> used for implementing holds. The underlying ledger MUST hold the transfer until the condition has been fulfilled or the <code>expiresAt</code> time has been reached.</p>
+<p>A cryptographic challenge used for implementing holds. The underlying ledger MUST hold the transfer until the condition has been fulfilled or the <code>expiresAt</code> time has been reached.</p>
+<p>Conditions are the base64url-encoded SHA-256 hash of a random, pseudo-random or deterministically generated 32-byte preimage called the fulfillment.</p>
 <p>Ledger plugins that do not support holds MUST throw an <code>HoldsNotSupportedError</code> if this parameter is provided.</p>
-<p>Ledger plugins that do support holds, but do not support the given condition type or bitmask MUST throw a  <code>ExecutionConditionNotSupportedError</code>.</p>
 <h4 id="expiresat">expiresAt</h4>
 <p><code><strong>expiresAt</strong>:String</code></p>
 <p>An ISO 8601 timestamp representing the expiry date for the transfer.</p>
