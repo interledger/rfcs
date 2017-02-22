@@ -41,7 +41,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**incoming_message**](#event-*_message-) | <code>( message:[IncomingMessage](#incomingmessage) ) ⇒</code> |
 | [**outgoing_transfer**](#event-*_transfer-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
 | [**outgoing_prepare**](#event-*_prepare-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
-| [**outgoing_fulfill**](#event-*_fulfill-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), fulfillment:Buffer ) ⇒</code> |
+| [**outgoing_fulfill**](#event-*_fulfill-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), fulfillment:String ) ⇒</code> |
 | [**outgoing_reject**](#event-*_reject-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), rejectionReason:Buffer ) ⇒</code> |
 | [**outgoing_cancel**](#event-*_cancel-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), cancellationReason:Buffer ) ⇒</code> |
 | [**info_change**](#event-info_change-) | <code>( info:[LedgerInfo](#class-ledgerinfo) ) ⇒</code> |
@@ -222,7 +222,7 @@ p.sendTransfer({
   amount: '10',
   data: new Buffer('...', 'base64'),
   noteToSelf: {},
-  executionCondition: 'cc:0:3:47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU:0',
+  executionCondition: '47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU',
   expiresAt: '2016-05-18T12:00:00.000Z'
 })
 ```
@@ -264,9 +264,11 @@ For a detailed description of these properties, please see [`OutgoingMessage`](#
 
 
 #### fulfillCondition
-<code>ledgerPlugin.fulfillCondition( **transferId**:String, **fulfillment**:Buffer ) ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.fulfillCondition( **transferId**:String, **fulfillment**:String ) ⇒ Promise.&lt;null></code>
 
 Submit a fulfillment to a ledger. Plugin must be connected, otherwise the promise should reject.
+
+The `fulfillment` is an arbitrary 32-byte buffer and is provided as a base64url-encoded string.
 
 Throws `InvalidFieldsError` if the fulfillment is malformed. Throws `TransferNotFoundError` if the fulfillment
 if no conditional transfer with the given ID exists. Throws `AlreadyRolledBackError` if the transfer has already been
@@ -323,7 +325,7 @@ a transfer to you.
 <code style="">ledgerPlugin.on('outgoing_fulfill',
   (
     **transfer**:[Transfer](#class-transfer),
-    **fulfillment**:Buffer
+    **fulfillment**:String
   ) ⇒
 )</code>
 
@@ -479,11 +481,11 @@ Ledger plugins MUST ensure that the data in the `noteToSelf` either isn't shared
 #### executionCondition
 <code>**executionCondition**:String</code>
 
-A [cryptographic condition](../0002-crypto-conditions/) used for implementing holds. The underlying ledger MUST hold the transfer until the condition has been fulfilled or the `expiresAt` time has been reached.
+A cryptographic challenge used for implementing holds. The underlying ledger MUST hold the transfer until the condition has been fulfilled or the `expiresAt` time has been reached.
+
+Conditions are the base64url-encoded SHA-256 hash of a random, pseudo-random or deterministically generated 32-byte preimage called the fulfillment.
 
 Ledger plugins that do not support holds MUST throw an `HoldsNotSupportedError` if this parameter is provided.
-
-Ledger plugins that do support holds, but do not support the given condition type or bitmask MUST throw a  `ExecutionConditionNotSupportedError`.
 
 #### expiresAt
 <code>**expiresAt**:String</code>
