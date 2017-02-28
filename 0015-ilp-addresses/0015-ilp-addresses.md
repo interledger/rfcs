@@ -28,7 +28,7 @@ ILP Addresses must meet the following requirements:
     - Hyphen (`-`)
 3. Each segment MUST be separated from other segments by a period character (`.`).
 4. Address prefixes MUST end in a period (`.`) character and MAY contain any number of segments after the allocation scheme prefix.
-6. Destination addresses MUST NOT end in a period (`.`) character, and MUST contain at least two segments after the allocation scheme prefix.
+5. Destination addresses MUST NOT end in a period (`.`) character, and MUST contain at least two segments after the allocation scheme prefix.
 
 The following ABNF specification defines the format for all ILP addresses and address prefixes:
 
