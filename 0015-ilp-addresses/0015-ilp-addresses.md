@@ -13,7 +13,7 @@ Both types of address usually contain one or more period characters as separator
 
 Connectors maintain a _routing table_ of ILP addresses. Routing is a recursive lookup through the routing tables of any number of connectors. When a connector receives a query, it finds the [longest prefix match](https://en.wikipedia.org/wiki/Longest_prefix_match) for the queried address. Then, it follows one of the following cases:
 
-- If the matching address is marked for local delivery, the connector prepares a transfer to that address in one of the ledgers connected to it. The connector's ledger plugin maps the ILP address to an account within the ledger. (This is the base case.)
+- If the matching address is marked for local delivery, the connector prepares a transfer to that address in one of the ledgers connected to it. The connector maps the ILP address to an account within the ledger. (This is the base case.)
 - If the matching address is marked as forwarded delivery, it has the address of another connector associated with it in the routing table. The connector makes a routing lookup on the connector associated with the address. (This is the recursive case.)
 
 ## Address Requirements
@@ -29,6 +29,7 @@ ILP Addresses must meet the following requirements:
 3. Each segment MUST be separated from other segments by a period character (`.`).
 4. Address prefixes MUST end in a period (`.`) character and MAY contain any number of segments after the allocation scheme prefix.
 5. Destination addresses MUST NOT end in a period (`.`) character, and MUST contain at least two segments after the allocation scheme prefix.
+6. The total length of an ILP Address must be no more than **1023 characters** including the allocation scheme prefix, separators, and all segments.
 
 The following ABNF specification defines the format for all ILP addresses and address prefixes:
 
@@ -54,6 +55,7 @@ You can also use the following regular expressions to verify the same requiremen
 | Address prefix      | `^(g|private|example|peer|self|test[1-3])\.([a-zA-Z0-9_~-]+\.)*$` |
 | Destination address | `^(g|private|example|peer|self|test[1-3])\.([a-zA-Z0-9_~-]+\.)+[a-zA-Z0-9_~-]+$` |
 
+(Note that neither the ABNF nor the regular expressions enforce the maximum length requirement. Remember to check that total length of the address is **1023 characters or less**.)
 
 ## Allocation Schemes
 
@@ -79,45 +81,60 @@ This scheme has no central issuing authority or mechanism, so more than one enti
 The global allocation scheme does not allow you to make any assumptions about the meaning of the segments. Segments in the same place could have different meanings to different ledgers or connectors. However, to make routing work well, we recommend placing segments in the following order:
 
 - [Neighborhoods](#neighborhoods)
-- [Ledger prefixes](#ledger-prefixes)
+- [Ledger identifiers](#ledger-identifiers)
 - [Account identifiers](#account-identifiers)
 - [Interactions](#interactions)
 
-Not all addresses contain all this information, and some addresses may use multiple segments to represent some of this information.
+Not all addresses contain all this information, and some addresses may use multiple segments to represent some of this information. Other concepts that may help to understand the global allocation scheme include:
+
+- [Ledger Prefixes](#ledger-prefixes)
+- [Nested Ledgers](#nested-ledgers)
+
 
 ### Neighborhoods
 
-Neighborhoods have no specific meaning, but serve as a quick shortcut for routing to the right area. At this time, there is no official list of neighborhoods, but the following list of examples should illustrate what might constitute a neighborhood:
+_Neighborhoods_ are leading segments with no specific meaning, whose purpose is to help route to the right area. At this time, there is no official list of neighborhoods, but the following list of examples should illustrate what might constitute a neighborhood:
 
 - `crypto.` for ledgers related to decentralized crypto-currencies such as Bitcoin, Etherium, or XRP.
 - `sepa.` for ledgers in the [Single Euro Payments Area](https://en.wikipedia.org/wiki/Single_Euro_Payments_Area).
 - `dev.` for Interledger Protocol development and early adopters
 
-Large neighborhoods can be further subdivided into nested sub-neighborhoods; for example, `dev.luxembourg.` for development ledgers hosted in Luxembourg.
+The goal of neighborhoods is to group connectors and ledgers that know about each other, so that routing is more efficient. If a neighborhood is too large or not well-connected, it can be further subdivided into nested sub-neighborhoods. For example, if the `dev.` neighborhood contains too many routes to store efficiently, or if the ledgers in that neighborhood tend only to be connected to other ledgers from the same country, development ledgers hosted in Luxembourg might choose `dev.luxembourg.` as a more closely-knit neighborhood.
 
 
-### Ledger Prefixes
+### Ledger Identifiers
 
-A ledger prefix is the unique name of the ledger. When doing a local delivery, the [ilp-connector][] reference implementation uses this segment to figure out which ledger plugin to use. As a result, it's difficult (but possible) to make a connector that directly interacts with two ledgers that use the same ledger prefix.
+An address must have at least one segment to identify the ledger itself. These are called the _ledger identifier_ segments. The ledger identifier can be multiple segments, which can be useful if a ledger is divided into logical or physical subledgers. The ledger identifier segments distinguish a ledger from other ledgers in its same neighborhood.
 
-A ledger's prefix can be multiple segments, for example if a ledger is divided into logical or physical subledgers. If fees are necessary for connecting to a subledger, payments to that subledger must be routed through a connector, although it is not necessary for the address itself to include a connector.
-
-If at all possible, the ledger itself should advertise what prefix(es) are used to address it. This could be reported in a metadata API method or in official communications from the ledger operator. If a ledger cannot or does not specify its prefix, whoever is running connectors to the ledger should agree upon a prefix to use. See also: [Nested Ledgers](#nested-ledgers).
+If fees are necessary for connecting to a subledger, payments to that subledger must be routed through a connector, although it is not necessary for the address itself to include a connector.
 
 [ilp-connector]: https://github.com/interledgerjs/ilp-connector
 
 
 ### Account Identifiers
 
-One or more segments that serve as a unique identifier of the account within the ledger. The ledger plugin maps these to accounts within a ledger. For some ledgers, a simple conversion rule may suffice; other ledgers may require a lookup table. The [five-bells-ledger-plugin][] reference implementation translates uses one full segment exactly as the account identifier.
+The _account identifiers_ are one or more segments that serve as a unique identifier of the account within the ledger. The connector (or its ledger plugin) maps these to accounts within a ledger. For some ledgers, a simple conversion rule may suffice; other ledgers may require a lookup table. The [five-bells-ledger-plugin][] reference implementation uses one full segment exactly as the account identifier.
 
 [five-bells-ledger-plugin]: https://github.com/interledgerjs/ilp-plugin-bells
 
 ### Interactions
 
-Additional segments within an address. Ledgers and ledger plugins may use the interactions segment of an address when generating notifications, so programs listening for payments can respond differently based on this portion of the address. Interactions may be unique per payment or purpose.
+_Interactions_ are additional segments after the account identifier portion of an address. Ledgers and ledger plugins may use the interactions segment of an address when generating notifications, so programs listening for payments can respond differently based on this portion of the address. Interactions may be unique per payment or purpose.
 
-To prevent multiple listeners from reacting to incoming payments intended for each other, the "interactions" segment of an address should start with a segment identifying how the payment was planned.
+To prevent multiple listeners from reacting to incoming payments intended for each other, the "interactions" segment of an address should start with a segment identifying how the payment was planned. (This is a similar function to the role of ports in Internet Protocol.)
+
+
+### Ledger Prefixes
+
+A _ledger prefix_ is the entire set of segments leading up to the [account identifiers](#account-identifiers) of accounts in that ledger. In other words, a ledger prefix usually contains all of the following:
+
+- [Allocation Scheme Prefix](#allocation-schemes)
+- [Neighborhoods](#neighborhoods)
+- [Ledger identifiers](#ledger-identifiers)
+
+For two ledgers to be connected, those ledgers MUST have different prefixes. When doing a local delivery, the [ilp-connector][] reference implementation uses the prefix to choose a ledger plugin.
+
+If at all possible, a ledger should advertise a unique prefix for itself. This could be reported in a "metadata" API method or in official communications from the ledger operator. If a ledger cannot or does not specify its prefix, whoever is running connectors to the ledger should agree upon a prefix to use. See also: [Nested Ledgers](#nested-ledgers).
 
 
 ### Nested Ledgers
@@ -138,7 +155,7 @@ Using addresses that are nested this way depends on having a connector advertise
 `g.us-fed.ach.0.acmebank.swx0a0.acmecorp.sales.199.~ipr.cdfa5e16-e759-4ba3-88f6-8b9dc83c1868.2` - destination address for a particular invoice, which can break down as follows:
 
 - Neighborhoods: `us-fed.`, `0.`, `ach.`
-- Ledger prefixes: `acmebank.`, `swx0a0.`, `acmecorp.`
+- Ledger identifiers: `acmebank.`, `swx0a0.`, `acmecorp.`
 - Account identifiers: `sales`, `199`
 - Interactions: `~ipr`, `cdfa5e16-e759-4ba3-88f6-8b9dc83c1868`, `2`
 
@@ -149,14 +166,14 @@ Using addresses that are nested this way depends on having a connector advertise
 `g.crypto.rcl.xrp.ra5nK24KXen9AHvsdFTKHSANinZseWnPcX` - Address for sending XRP to a particular user of the Ripple Consensus Ledger, which breaks down as follows:
 
 - Neighborhood: `crypto.`
-- Ledger Prefixes: `rcl.`, `xrp.`
+- Ledger identifiers: `rcl.`, `xrp.`
 - Account identifier: `ra5nK24KXen9AHvsdFTKHSANinZseWnPcX`
 
 `g.dev.ilp-blue.blue.ilp-cyan.aquahuman.~psk.6373df86-a8d1-4aaa-930d-7d5a622913bc` - Address of a particular invoice using a nested ledger, which can break down as follows:
 
 - Neighborhood: `dev.`
-- Ledger prefixes (locator ledger): `ilp-blue.`
+- Ledger identifier (locator ledger): `ilp-blue.`
 - Connector account identifier (locator ledger): `blue.`
-- Ledger prefixes (nested ledger): `ilp-cyan.`
+- Ledger identifier (nested ledger): `ilp-cyan.`
 - Account identifier (nested ledger): `aquahuman.`
 - Interactions: `~psk`, `6373df86-a8d1-4aaa-930d-7d5a622913bc`
