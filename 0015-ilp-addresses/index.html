@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Payments across payment networks">
+
+    <title>ILP Addresses | Interledger</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link href="/css/monokai-sublime.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    <!-- Google fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,200,600,700|Droid+Sans+Mono|Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
+
+    <!-- Font awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
+
+    <link href="/assets/favicon.ico" rel="icon" type="image/x-icon">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body data-spy="scroll" data-target="#myScrollspy" data-offset="160" class="spec">
+
+     <!-- navbar -->
+      <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><img class="logo" alt="interledger" src="/assets/ilp_icon.png"/></a>
+          </div>
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="/overview.html">Docs</a></li>
+              <li><a href="/community.html">Community</a></li>
+              <li><a href="/news.html">News</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a target="_blank" href="https://github.com/interledger">Github</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+    <!-- docs overview section -->
+
+    <div class="container docs-wrapper">
+      <div class="row">
+        <div id="sidebarContent">
+          <nav class="col-sm-4" id="myScrollspy">
+            <ul class="nav-fixed nav nav-sidebar">
+              <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
+              
+                <li class="nav-label">
+                  <a href="#routing">Routing</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#address-requirements">Address Requirements</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#allocation-schemes">Allocation Schemes</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#global-allocation-scheme">Global Allocation Scheme</a>
+                </li>
+              
+                <li>
+                  <a href="#neighborhoods">Neighborhoods</a>
+                </li>
+              
+                <li>
+                  <a href="#ledger-identifiers">Ledger Identifiers</a>
+                </li>
+              
+                <li>
+                  <a href="#account-identifiers">Account Identifiers</a>
+                </li>
+              
+                <li>
+                  <a href="#interactions">Interactions</a>
+                </li>
+              
+                <li>
+                  <a href="#ledger-prefixes">Ledger Prefixes</a>
+                </li>
+              
+                <li>
+                  <a href="#nested-ledgers">Nested Ledgers</a>
+                </li>
+              
+                <li>
+                  <a href="#example-global-allocation-scheme-addresses">Example Global Allocation Scheme Addresses</a>
+                </li>
+              
+            </ul>
+          </nav>
+        </div>
+        <div class="col-sm-8 markdown-body">
+          <h1 id="ilp-addresses">ILP Addresses</h1>
+<p class="intro"><em>ILP addresses</em> provide a way to <a href="#routing">route</a> payments to their intended destination through a recursive series of hops, including any number of ILP Connectors. (This happens after the payment is set up on by a higher-level payment setup protocol such as <a href="../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md">SPSP</a>.) Addresses are not meant to be user-facing, but allow several ASCII characters for easy debugging.</p>
+<p>Addresses can be subdivided into two categories:</p>
+<ul>
+<li><strong>Destination Addresses</strong> are complete addresses that can receive payments. A destination address always maps to one account in a ledger. (It can also provide more specific information, such as an invoice ID or a sub-account.) Destination addresses MUST NOT end in a period (<code>.</code>) character.</li>
+<li><strong>Address Prefixes</strong> are incomplete addresses representing a group of destination addresses. Many depths of grouping are possible: groups of accounts or sub-accounts, an individual ledger or subledger, or entire neighborhoods of ledgers. Address prefixes MUST end in a period (<code>.</code>) character. Payment setup protocols MUST reject payments to address prefixes.</li>
+</ul>
+<p>Both types of address usually contain one or more period characters as separators.</p>
+<h2 id="routing">Routing</h2>
+<p>Connectors maintain a <em>routing table</em> of ILP addresses. Routing is a recursive lookup through the routing tables of any number of connectors. When a connector receives a query, it finds the <a href="https://en.wikipedia.org/wiki/Longest_prefix_match">longest prefix match</a> for the queried address. Then, it follows one of the following cases:</p>
+<ul>
+<li>If the matching address is marked for local delivery, the connector prepares a transfer to that address in one of the ledgers connected to it. The connector maps the ILP address to an account within the ledger. (This is the base case.)</li>
+<li>If the matching address is marked as forwarded delivery, it has the address of another connector associated with it in the routing table. The connector makes a routing lookup on the connector associated with the address. (This is the recursive case.)</li>
+</ul>
+<h2 id="address-requirements">Address Requirements</h2>
+<p>ILP Addresses must meet the following requirements:</p>
+<ol>
+<li>The address MUST begin with a prefix indicating the allocation scheme. See <a href="#allocation-schemes">Allocation Schemes</a> for more information.</li>
+<li>Each &quot;segment&quot; of the address MUST contain one or more of the following characters:<ul>
+<li>Alphanumeric characters, upper or lower case. (Addresses are <strong>case-sensitive</strong> so that they can contain data encoded in formats such as base64url.)</li>
+<li>Underscore (<code>_</code>)</li>
+<li>Tilde (<code>~</code>)</li>
+<li>Hyphen (<code>-</code>)</li>
+</ul>
+</li>
+<li>Each segment MUST be separated from other segments by a period character (<code>.</code>).</li>
+<li>Address prefixes MUST end in a period (<code>.</code>) character and MAY contain any number of segments after the allocation scheme prefix.</li>
+<li>Destination addresses MUST NOT end in a period (<code>.</code>) character, and MUST contain at least two segments after the allocation scheme prefix.</li>
+<li>The total length of an ILP Address must be no more than <strong>1023 characters</strong> including the allocation scheme prefix, separators, and all segments.</li>
+</ol>
+<p>The following ABNF specification defines the format for the contents of all ILP addresses and address prefixes. (You must also enforce the overal length requirement of 1023 characters or less.)</p>
+<pre><code class="lang-abnf">address     = scheme separator *prefix [segment]
+                    ; the last segment is REQUIRED for destination addresses
+
+scheme      = &quot;g&quot; / &quot;private&quot; / &quot;example&quot; / &quot;peer&quot; / &quot;self&quot; /
+              &quot;test1&quot; / &quot;test2&quot; / &quot;test3&quot;
+
+separator   = &quot;.&quot;
+
+prefix      = 1*(segment separator)
+
+segment     = 1*( ALPHA / DIGIT / &quot;_&quot; / &quot;~&quot; / &quot;-&quot; )
+</code></pre>
+<p>You can also use the following regular expressions to verify the same requirements:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Address Type</th>
+<th style="text-align:left">Regular Expression</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">All addresses</td>
+<td style="text-align:left">`(?=^.{1,1023}$)^(g</td>
+<td>private</td>
+<td>example</td>
+<td>peer</td>
+<td>self</td>
+<td>test[1-3])<a href="[a-zA-Z0-9_~-]+[.]">.</a>*([a-zA-Z0-9_~-]+)?$`</td>
+</tr>
+<tr>
+<td style="text-align:left">Address prefix</td>
+<td style="text-align:left">`(?=^.{1,1023}$)^(g</td>
+<td>private</td>
+<td>example</td>
+<td>peer</td>
+<td>self</td>
+<td>test[1-3])<a href="[a-zA-Z0-9_~-]+[.]">.</a>*$`</td>
+</tr>
+<tr>
+<td style="text-align:left">Destination address</td>
+<td style="text-align:left">`(?=^.{1,1023}$)^(g</td>
+<td>private</td>
+<td>example</td>
+<td>peer</td>
+<td>self</td>
+<td>test[1-3])<a href="[a-zA-Z0-9_~-]+[.]">.</a>+[a-zA-Z0-9_~-]+$`</td>
+</tr>
+</tbody>
+</table>
+<p>(If your regular expression engine does not support lookahead, you must drop the first parenthesis and separately enforce the overall length requirement of 1023 characters or less.)</p>
+<h2 id="allocation-schemes">Allocation Schemes</h2>
+<p>The allocation scheme is the first part of an address, which indicates how the address is assigned. Here is a summary of the prefixes that are currently defined:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Prefix</th>
+<th style="text-align:left">Allocation Scheme</th>
+<th style="text-align:left">Definition and Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>g.</code></td>
+<td style="text-align:left"><a href="#global-allocation-scheme">Global Allocation Scheme</a></td>
+<td style="text-align:left">ILP addresses that are intended to send and receive money from any other address in the global scheme.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>private.</code></td>
+<td style="text-align:left">Private allocation</td>
+<td style="text-align:left">For ILP addresses that only have meaning in a private subnet or intranet. Analogous to the <a href="https://en.wikipedia.org/wiki/Private_network">192.168.0.0/16 range in IPv4</a>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>example.</code></td>
+<td style="text-align:left">Examples</td>
+<td style="text-align:left">For &quot;non-real&quot; addresses that are used as examples or in documentation. Analogous to <a href="https://en.wikipedia.org/wiki/555_%28telephone_number%29">&quot;555 phone numbers&quot;</a> in the USA.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>test1.</code>, <code>test2.</code>, <code>test3.</code></td>
+<td style="text-align:left">Testing</td>
+<td style="text-align:left">For addresses used in tests, such as unit or integration tests of compatible software.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>local.</code></td>
+<td style="text-align:left">Ledger-local</td>
+<td style="text-align:left">For addresses that are only valid in the context of a local ledger. Analogous to <a href="https://en.wikipedia.org/wiki/Link-local_address">link-local addresses</a> in IP.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>peer.</code></td>
+<td style="text-align:left">Peering</td>
+<td style="text-align:left">Similar to ledger-local addresses, but specifically for use in a peering relationship. The <a href="https://github.com/interledgerjs/ilp-plugin-virtual">ilp-plugin-virtual</a> is an example of an existing implementation that uses this.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>self.</code></td>
+<td style="text-align:left">Local loopback</td>
+<td style="text-align:left">For addresses that are only valid on the local machine.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="global-allocation-scheme">Global Allocation Scheme</h2>
+<p>The global allocation scheme for ILP Addresses is the scheme that most addresses are expected to use. It uses the prefix <code>g.</code>. Addresses under this scheme are expected to be connected to all other such addresses, to the extent that the current trust and liquidity permit.</p>
+<p>This scheme has no central issuing authority or mechanism, so more than one entity can use the same address. In this case, some connectors may prepare a route to a different account than intended. In this failure case, no money moves because the receiver does not send the fulfillment. Participants in the interledger can reduce the chances of encountering this failure case by choosing addresses carefully and by properly managing connectors&apos; routing tables.</p>
+<p>The global allocation scheme does not allow you to make any assumptions about the meaning of the segments. Segments in the same place could have different meanings to different ledgers or connectors. However, to make routing work well, we recommend placing segments in the following order:</p>
+<ul>
+<li><a href="#neighborhoods">Neighborhoods</a></li>
+<li><a href="#ledger-identifiers">Ledger identifiers</a></li>
+<li><a href="#account-identifiers">Account identifiers</a></li>
+<li><a href="#interactions">Interactions</a></li>
+</ul>
+<p>Not all addresses contain all this information, and some addresses may use multiple segments to represent some of this information. Other concepts that may help to understand the global allocation scheme include:</p>
+<ul>
+<li><a href="#ledger-prefixes">Ledger Prefixes</a></li>
+<li><a href="#nested-ledgers">Nested Ledgers</a></li>
+</ul>
+<h3 id="neighborhoods">Neighborhoods</h3>
+<p><em>Neighborhoods</em> are leading segments with no specific meaning, whose purpose is to help route to the right area. At this time, there is no official list of neighborhoods, but the following list of examples should illustrate what might constitute a neighborhood:</p>
+<ul>
+<li><code>crypto.</code> for ledgers related to decentralized crypto-currencies such as Bitcoin, Etherium, or XRP.</li>
+<li><code>sepa.</code> for ledgers in the <a href="https://en.wikipedia.org/wiki/Single_Euro_Payments_Area">Single Euro Payments Area</a>.</li>
+<li><code>dev.</code> for Interledger Protocol development and early adopters</li>
+</ul>
+<p>The goal of neighborhoods is to group connectors and ledgers that know about each other, so that routing is more efficient. If a neighborhood is too large or not well-connected, it can be further subdivided into nested sub-neighborhoods. For example, if the <code>dev.</code> neighborhood contains too many routes to store efficiently, or if the ledgers in that neighborhood tend only to be connected to other ledgers from the same country, development ledgers hosted in Luxembourg might choose <code>dev.luxembourg.</code> as a more closely-knit neighborhood.</p>
+<h3 id="ledger-identifiers">Ledger Identifiers</h3>
+<p>An address must have at least one segment to identify the ledger itself. These are called the <em>ledger identifier</em> segments. The ledger identifier can be multiple segments, which can be useful if a ledger is divided into logical or physical subledgers. The ledger identifier segments distinguish a ledger from other ledgers in its same neighborhood.</p>
+<p>If fees are necessary for connecting to a subledger, payments to that subledger must be routed through a connector, although it is not necessary for the address itself to include a connector.</p>
+<h3 id="account-identifiers">Account Identifiers</h3>
+<p>The <em>account identifiers</em> are one or more segments that serve as a unique identifier of the account within the ledger. The connector (or its ledger plugin) maps these to accounts within a ledger. For some ledgers, a simple conversion rule may suffice; other ledgers may require a lookup table. The <a href="https://github.com/interledgerjs/ilp-plugin-bells">five-bells-ledger-plugin</a> reference implementation uses one full segment exactly as the account identifier.</p>
+<h3 id="interactions">Interactions</h3>
+<p><em>Interactions</em> are additional segments after the account identifier portion of an address. Ledgers and ledger plugins may use the interactions segment of an address when generating notifications, so programs listening for payments can respond differently based on this portion of the address. Interactions may be unique per payment or purpose.</p>
+<p>To prevent multiple listeners from reacting to incoming payments intended for each other, the &quot;interactions&quot; segment of an address should start with a segment identifying how the payment was planned. (This is a similar function to the role of ports in Internet Protocol.)</p>
+<h3 id="ledger-prefixes">Ledger Prefixes</h3>
+<p>A <em>ledger prefix</em> is the entire set of segments leading up to the <a href="#account-identifiers">account identifiers</a> of accounts in that ledger. In other words, a ledger prefix usually contains all of the following:</p>
+<ul>
+<li><a href="#allocation-schemes">Allocation Scheme Prefix</a></li>
+<li><a href="#neighborhoods">Neighborhoods</a></li>
+<li><a href="#ledger-identifiers">Ledger identifiers</a></li>
+</ul>
+<p>For two ledgers to be connected, those ledgers MUST have different prefixes. When doing a local delivery, the <a href="https://github.com/interledgerjs/ilp-connector">ilp-connector</a> reference implementation uses the prefix to choose a ledger plugin.</p>
+<p>If at all possible, a ledger should advertise a unique prefix for itself. This could be reported in a &quot;metadata&quot; API method or in official communications from the ledger operator. If a ledger cannot or does not specify its prefix, whoever is running connectors to the ledger should agree upon a prefix to use. See also: <a href="#nested-ledgers">Nested Ledgers</a>.</p>
+<h3 id="nested-ledgers">Nested Ledgers</h3>
+<p>A ledger can be addressed relative to another <em>&quot;locator&quot;</em> ledger. Smaller and lesser-known ledgers may find it easier to advertise routes to themselves in this manner. That way, rather than needing to have the ledger known to every connector in the same large neighborhood, only the connectors attached to the locator ledger need to know how to route to the smaller connector.</p>
+<p>A connector can advertise routes to addresses that are prefixed by the connector&apos;s address in a ledger, if the connector proves it owns those addresses (for example, by sending messages using a ledger&apos;s messaging service from the account that address describes).</p>
+<p>If <code>example.dev.acme.blue</code> is an account at ACME ledger belonging to Blue Connector, Blue Connector can advertise prefixes such as <code>example.dev.acme.blue.waygate.</code> to its peer connectors that are also on ACME ledger. This way, payments that could be routed to <code>example.dev.acme.blue</code> can also be routed to accounts in the nested WayGate ledger through Blue Connector, with ACME ledger as the locator ledger. Other connectors <em>could</em> manually add routes that shortcut to the <code>example.dev.acme.blue.waygate.</code> ledger without going through Blue Connector or ACME ledger.</p>
+<p>Using addresses that are nested this way depends on having a connector advertise the routes; if it doesn&apos;t, then only the manually-added &quot;shortcut&quot; routes can deliver money to addresses under the nested ledger prefix. Thus, it makes most sense if the connector at the locator ledger is operated by, or part of the same entity as, the nested ledger.</p>
+<h3 id="example-global-allocation-scheme-addresses">Example Global Allocation Scheme Addresses</h3>
+<p><code>g.acme.bob</code> - a destination address to the account &quot;bob&quot; in the ledger &quot;acme&quot;.</p>
+<p><code>g.us-fed.ach.0.acmebank.swx0a0.acmecorp.sales.199.~ipr.cdfa5e16-e759-4ba3-88f6-8b9dc83c1868.2</code> - destination address for a particular invoice, which can break down as follows:</p>
+<ul>
+<li>Neighborhoods: <code>us-fed.</code>, <code>0.</code>, <code>ach.</code></li>
+<li>Ledger identifiers: <code>acmebank.</code>, <code>swx0a0.</code>, <code>acmecorp.</code></li>
+<li>Account identifiers: <code>sales</code>, <code>199</code></li>
+<li>Interactions: <code>~ipr</code>, <code>cdfa5e16-e759-4ba3-88f6-8b9dc83c1868</code>, <code>2</code></li>
+</ul>
+<p><code>g.</code> - the shortest possible address prefix. Includes all entries that are in the global allocation scheme.</p>
+<p><code>g.crypto.bitcoin.</code> - address prefix for the public Bitcoin blockchain</p>
+<p><code>g.crypto.rcl.xrp.ra5nK24KXen9AHvsdFTKHSANinZseWnPcX</code> - Address for sending XRP to a particular user of the Ripple Consensus Ledger, which breaks down as follows:</p>
+<ul>
+<li>Neighborhood: <code>crypto.</code></li>
+<li>Ledger identifiers: <code>rcl.</code>, <code>xrp.</code></li>
+<li>Account identifier: <code>ra5nK24KXen9AHvsdFTKHSANinZseWnPcX</code></li>
+</ul>
+<p><code>g.dev.ilp-blue.blue.ilp-cyan.aquahuman.~psk.6373df86-a8d1-4aaa-930d-7d5a622913bc</code> - Address of a particular invoice using a nested ledger, which can break down as follows:</p>
+<ul>
+<li>Neighborhood: <code>dev.</code></li>
+<li>Ledger identifier (locator ledger): <code>ilp-blue.</code></li>
+<li>Connector account identifier (locator ledger): <code>blue.</code></li>
+<li>Ledger identifier (nested ledger): <code>ilp-cyan.</code></li>
+<li>Account identifier (nested ledger): <code>aquahuman.</code></li>
+<li>Interactions: <code>~psk</code>, <code>6373df86-a8d1-4aaa-930d-7d5a622913bc</code></li>
+</ul>
+
+        </div>
+      </div>
+
+    </div> <!-- /container -->
+
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="col-sm-4 col-xs-12">
+              <p>Interledger Team</p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="text-center">See list of <a target="_blank" href="https://www.w3.org/community/interledger/participants">Contributors</a></p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="pull-right">Documentation licensed under <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0.</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-68500608-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    <script src="/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
