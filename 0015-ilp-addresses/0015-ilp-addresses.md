@@ -31,7 +31,7 @@ ILP Addresses must meet the following requirements:
 5. Destination addresses MUST NOT end in a period (`.`) character, and MUST contain at least two segments after the allocation scheme prefix.
 6. The total length of an ILP Address must be no more than **1023 characters** including the allocation scheme prefix, separators, and all segments.
 
-The following ABNF specification defines the format for all ILP addresses and address prefixes:
+The following ABNF specification defines the format for the contents of all ILP addresses and address prefixes. (You must also enforce the overal length requirement of 1023 characters or less.)
 
 ```abnf
 address     = scheme separator *prefix [segment]
@@ -51,11 +51,11 @@ You can also use the following regular expressions to verify the same requiremen
 
 | Address Type        | Regular Expression                                     |
 |:--------------------|:-------------------------------------------------------|
-| All addresses       | `^(g|private|example|peer|self|test[1-3])\.([a-zA-Z0-9_~-]+\.)*([a-zA-Z0-9_~-]+)?$` |
-| Address prefix      | `^(g|private|example|peer|self|test[1-3])\.([a-zA-Z0-9_~-]+\.)*$` |
-| Destination address | `^(g|private|example|peer|self|test[1-3])\.([a-zA-Z0-9_~-]+\.)+[a-zA-Z0-9_~-]+$` |
+| All addresses       | `(?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])*([a-zA-Z0-9_~-]+)?$` |
+| Address prefix      | `(?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])*$` |
+| Destination address | `(?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])+[a-zA-Z0-9_~-]+$` |
 
-(Note that neither the ABNF nor the regular expressions enforce the maximum length requirement. Remember to check that total length of the address is **1023 characters or less**.)
+(If your regular expression engine does not support lookahead, you must drop the first parenthesis and separately enforce the overall length requirement of 1023 characters or less.)
 
 ## Allocation Schemes
 
