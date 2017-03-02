@@ -35,7 +35,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**error**](#event-error-) | `( ) ⇒` |
 | [**incoming_transfer**](#event-*_transfer-) | <code>( transfer:[IncomingTransfer](#incomingtransfer) ) ⇒</code> |
 | [**incoming_prepare**](#event-*_prepare-) | <code>( transfer:[IncomingTransfer](#incomingtransfer) ) ⇒</code> |
-| [**incoming_fulfill**](#event-*_fulfill-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), fulfillment:Buffer ) ⇒</code> |
+| [**incoming_fulfill**](#event-*_fulfill-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), fulfillment:String ) ⇒</code> |
 | [**incoming_reject**](#event-*_reject-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), rejectionReason:Buffer ) ⇒</code> |
 | [**incoming_cancel**](#event-*_cancel-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), cancellationReason:Buffer ) ⇒</code> |
 | [**incoming_message**](#event-*_message-) | <code>( message:[IncomingMessage](#incomingmessage) ) ⇒</code> |
