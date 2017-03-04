@@ -25,7 +25,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**sendTransfer**](#sendTransfer) ( transfer ) <code>⇒ Promise.&lt;null></code> |
 | | [**sendMessage**](#sendMessage) ( message ) <code>⇒ Promise.&lt;null></code> |
 | | [**fulfillCondition**](#fulfillcondition) ( transferId, fulfillment ) <code>⇒ Promise.&lt;null></code> |
-| | [**rejectIncomingTransfer**](#rejectincomingtransfer) ( transferId, rejectMessage ) <code>⇒ Promise.&lt;null></code> |
+| | [**rejectIncomingTransfer**](#rejectincomingtransfer) ( transferId, reason ) <code>⇒ Promise.&lt;null></code> |
 
 ###### Events
 | Name | Handler |
@@ -276,9 +276,9 @@ rolled back. Throws `NotAcceptedError` if the fulfillment is formatted correctly
 of the specified transfer. Throws `TransferNotConditionalError` if transfer is not conditional.
 
 #### rejectIncomingTransfer
-<code>ledgerPlugin.rejectIncomingTransfer( **transferId**:String, **rejectMessage**:Buffer ) ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.rejectIncomingTransfer( **transferId**:String, **reason**:[RejectionMessage](#class-rejectionmessage) ) ⇒ Promise.&lt;null></code>
 
-Reject an incoming transfer that is held pending the fulfillment of its `executionCondition` before the `expiresAt` time. `rejectMessage` MAY be supplied to provide details on why the transfer was rejected.
+Reject an incoming transfer that is held pending the fulfillment of its `executionCondition` before the `expiresAt` time. `reason` MAY be supplied to provide details on why the transfer was rejected.
 
 Throws `TransferNotFoundError` if there is no conditional transfer with the
 given ID. Throws `AlreadyFulfilledError` if the specified transfer has already been
