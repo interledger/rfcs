@@ -329,7 +329,7 @@ a transfer to you.
   ) ⇒
 )</code>
 
-Emitted when an outgoing/incoming transfer with a condition is fulfilled.
+Emitted when an outgoing/incoming transfer with a condition is fulfilled. The `fulfillment` is provided as a base64url-encoded string.
 
 This indicates that funds have been transferred. In order to prevent unexpected incoming funds, a ledger MAY forbid
 accounts from fulfilling a transfer who are not the transfer's receiver.
