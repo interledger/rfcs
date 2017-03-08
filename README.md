@@ -13,9 +13,11 @@ Here is a list of published Interledger RFCs.
 
   Basic overview of the Interledger architecture.
 
-* **[IL-RFC 2: Crypto-conditions](0002-crypto-conditions/0002-crypto-conditions.xml)**
+* **[IL-RFC 2: Crypto-conditions](https://github.com/rfcs/crypto-conditions/)**
 
   Cryptographic conditions provide a flexible mechanism for delegation and authentication. Conditions include hashlocks, signatures and operators to compose them.
+
+  The crypto conditions spec has been moved to https://github.com/rfcs/crypto-conditions/
 
 * **[IL-RFC 3: Interledger Protocol](0003-interledger-protocol/0003-interledger-protocol.md)**
 
