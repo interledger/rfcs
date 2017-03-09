@@ -25,7 +25,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**sendTransfer**](#sendTransfer) ( transfer ) <code>⇒ Promise.&lt;null></code> |
 | | [**sendMessage**](#sendMessage) ( message ) <code>⇒ Promise.&lt;null></code> |
 | | [**fulfillCondition**](#fulfillcondition) ( transferId, fulfillment ) <code>⇒ Promise.&lt;null></code> |
-| | [**rejectIncomingTransfer**](#rejectincomingtransfer) ( transferId, rejectMessage ) <code>⇒ Promise.&lt;null></code> |
+| | [**rejectIncomingTransfer**](#rejectincomingtransfer) ( transferId, reason ) <code>⇒ Promise.&lt;null></code> |
 
 ###### Events
 | Name | Handler |
@@ -36,14 +36,14 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**incoming_transfer**](#event-*_transfer-) | <code>( transfer:[IncomingTransfer](#incomingtransfer) ) ⇒</code> |
 | [**incoming_prepare**](#event-*_prepare-) | <code>( transfer:[IncomingTransfer](#incomingtransfer) ) ⇒</code> |
 | [**incoming_fulfill**](#event-*_fulfill-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), fulfillment:String ) ⇒</code> |
-| [**incoming_reject**](#event-*_reject-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), rejectionReason:Buffer ) ⇒</code> |
-| [**incoming_cancel**](#event-*_cancel-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), cancellationReason:Buffer ) ⇒</code> |
+| [**incoming_reject**](#event-*_reject-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), rejectionReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
+| [**incoming_cancel**](#event-*_cancel-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
 | [**incoming_message**](#event-*_message-) | <code>( message:[IncomingMessage](#incomingmessage) ) ⇒</code> |
 | [**outgoing_transfer**](#event-*_transfer-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
 | [**outgoing_prepare**](#event-*_prepare-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
 | [**outgoing_fulfill**](#event-*_fulfill-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), fulfillment:String ) ⇒</code> |
-| [**outgoing_reject**](#event-*_reject-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), rejectionReason:Buffer ) ⇒</code> |
-| [**outgoing_cancel**](#event-*_cancel-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), cancellationReason:Buffer ) ⇒</code> |
+| [**outgoing_reject**](#event-*_reject-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), rejectionReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
+| [**outgoing_cancel**](#event-*_cancel-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
 | [**info_change**](#event-info_change-) | <code>( info:[LedgerInfo](#class-ledgerinfo) ) ⇒</code> |
 
 ###### Errors
@@ -276,9 +276,9 @@ rolled back. Throws `NotAcceptedError` if the fulfillment is formatted correctly
 of the specified transfer. Throws `TransferNotConditionalError` if transfer is not conditional.
 
 #### rejectIncomingTransfer
-<code>ledgerPlugin.rejectIncomingTransfer( **transferId**:String, **rejectMessage**:Buffer ) ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.rejectIncomingTransfer( **transferId**:String, **reason**:[RejectionMessage](#class-rejectionmessage) ) ⇒ Promise.&lt;null></code>
 
-Reject an incoming transfer that is held pending the fulfillment of its `executionCondition` before the `expiresAt` time. `rejectMessage` MAY be supplied to provide details on why the transfer was rejected.
+Reject an incoming transfer that is held pending the fulfillment of its `executionCondition` before the `expiresAt` time. `reason` MAY be supplied to provide details on why the transfer was rejected.
 
 Throws `TransferNotFoundError` if there is no conditional transfer with the
 given ID. Throws `AlreadyFulfilledError` if the specified transfer has already been
@@ -329,7 +329,7 @@ a transfer to you.
   ) ⇒
 )</code>
 
-Emitted when an outgoing/incoming transfer with a condition is fulfilled.
+Emitted when an outgoing/incoming transfer with a condition is fulfilled. The `fulfillment` is provided as a base64url-encoded string.
 
 This indicates that funds have been transferred. In order to prevent unexpected incoming funds, a ledger MAY forbid
 accounts from fulfilling a transfer who are not the transfer's receiver.
@@ -341,7 +341,7 @@ of your outgoing transfer has fulfilled the condition.
 <code style="">ledgerPlugin.on('outgoing_reject',
   (
     **transfer**:[Transfer](#class-transfer),
-    **reason**:Buffer
+    **reason**:[RejectionMessage](#class-rejectionmessage)
   ) ⇒
 )</code>
 
@@ -357,7 +357,7 @@ the receiver of your outgoing transfer has rejected it.
 <code style="">ledgerPlugin.on('outgoing_cancel',
   (
     **transfer**:[Transfer](#class-transfer),
-    **reason**:Buffer
+    **reason**:[RejectionMessage](#class-rejectionmessage)
   ) ⇒
 )</code>
 
@@ -693,3 +693,17 @@ The number of milliseconds that the plugin should spend trying to connect before
 
 If falsy, use the plugin's default timeout.
 If `Infinity`, there is no timeout.
+
+## Class: RejectionMessage
+<code>class RejectionMessage</code>
+
+###### Fields
+| Field             | Type        | Description |
+|:------------------|:------------|:------------|
+| `code`            | String      | Machine-readable error code |
+| `name`            | String      | Human-readable description of the error code |
+| `message`         | String      | Description of the error |
+| `triggered_by`    | ILP Address or ILP Prefix | ILP address or ledger prefix from which the rejection originates |
+| `forwarded_by`    | ILP Address | (optional) The address of the last connector to forward the rejection |
+| `triggered_at`    | Timestamp   | (optional) The time the rejection occurred. |
+| `additional_info` | Object      | Additional details about the error |
