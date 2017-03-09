@@ -50,8 +50,8 @@ The message formats described here are the `data` properties of an `OutgoingMess
 |:------------------------------|:------------|:------------|
 | `source_address`              | ILP Address | Address of the source's account in the source ledger. |
 | `destination_address`         | ILP Address | Address of the destination's account in the destination ledger. |
-| `source_amount`               | String      | Fixed amount to debit from the source's account. (Required unless `destination_amount` specified.) |
-| `destination_amount`          | String      | Fixed amount to credit to the destination's account. (Required unless `source_amount` specified.) |
+| `source_amount`               | String      | Fixed integer amount to debit from the source's account. (Required unless `destination_amount` specified.) |
+| `destination_amount`          | String      | Fixed integer amount to credit to the destination's account. (Required unless `source_amount` specified.) |
 | `destination_expiry_duration` | String      | (Optional) Number of milliseconds before the transfer in the destination ledger expires. |
 | `source_expiry_duration`      | String      | (Optional) Number of milliseconds before the transfer in the source ledger expires. |
 | `slippage`                    | String      | (Optional) Custom slippage to assume for the exchange between ledgers, as a decimal proportion. Lower slippage means the payment is cheaper but more likely to fail due to market movement. |
@@ -65,7 +65,7 @@ The request must specify either `source_amount` or `destination_amount` but not 
   "method": "quote_request",
   "id": "721e4126-98a1-4974-b35a-8a8f4655f934",
   "data": {
-    "source_amount": "100.25",
+    "source_amount": "10025",
     "source_address": "example.eur-ledger.alice",
     "destination_address": "example.usd-ledger.bob",
     "source_expiry_duration": "6000",
@@ -88,10 +88,10 @@ The request must specify either `source_amount` or `destination_amount` but not 
 |:------------------------------|:------------|:------------|
 | `source_connector_account`    | ILP Address | The address of the connector's account in the source ledger where it should receive the first transfer. |
 | `source_ledger`               | ILP Address | The address of the ILP-enabled ledger where the source account is. |
-| `source_amount`               | String      | Decimal number amount of currency the connector's account should receive in the source ledger. |
+| `source_amount`               | String      | Integer number amount of currency the connector's account should receive in the source ledger. |
 | `source_expiry_duration`      | String      | Integer number of milliseconds between when the payment in the source ledger is prepared and when it must be executed. |
 | `destination_ledger`          | ILP Address | The address of the ILP-enabled ledger where the destination account is. |
-| `destination_amount`          | String      | Decimal number amount of currency that should be received by the destination account in the destination ledger. |
+| `destination_amount`          | String      | Integer number amount of currency that should be received by the destination account in the destination ledger. |
 | `destination_expiry_duration` | String      | Integer number of milliseconds between when the payment in the destination ledger is prepared and when it must be executed. |
 
 ##### Example response (method = `"quote_response"`)
@@ -103,10 +103,10 @@ The request must specify either `source_amount` or `destination_amount` but not 
   "data": {
     "source_connector_account": "mark",
     "source_ledger": "example.eur-ledger.",
-    "source_amount": "100.25",
+    "source_amount": "10025",
     "source_expiry_duration": "6000",
     "destination_ledger": "example.usd-ledger.",
-    "destination_amount": "105.71",
+    "destination_amount": "10571",
     "destination_expiry_duration": "5000"
   }
 }

@@ -155,7 +155,7 @@ The mapping from the ILP address to the local ledger address is dependent on the
 #### getBalance
 <code>ledgerPlugin.getBalance() ⇒ Promise.&lt;String></code>
 
-Return a decimal string representing the current balance. Plugin must be connected, otherwise the promise should reject.
+Return a integer string representing the current balance. Plugin must be connected, otherwise the promise should reject.
 
 #### getFulfillment
 <code>ledgerPlugin.getFulfillment( transferId ) ⇒ Promise.&lt;String></code>
@@ -400,7 +400,7 @@ left undefined (but not any other false-y value) if unused.
 | `String` | [from](#from) | ILP Address of the source account |
 | `String` | [to](#to) | ILP Address of the destination account |
 | `String` | [ledger](#ledger) | ILP Address prefix of the ledger |
-| `String` | [amount](#amount) | Decimal transfer amount |
+| `String` | [amount](#amount) | Integer transfer amount |
 | `String` | [ilp](#ilp) | Base64-encoded ILP header |
 | `Object` | [data](#data) | Data packet or memo to be sent with the transfer |
 | `Object` | [noteToSelf](#notetoself) | Host-provided memo that should be stored with the transfer |
@@ -461,7 +461,7 @@ ILP Address prefix of the ledger that this transfer is going through on.
 #### amount
 <code>**amount**:String</code>
 
-A decimal amount, represented as a string. MUST be positive. The supported precision is defined by each ledger plugin and can be queried by the host via [`getInfo`](#getinfo). The ledger plugin MUST reject with an `InsufficientPrecisionError` if the given amount exceeds the supported level of precision.
+An integer amount, represented as a string. MUST be positive. The supported precision is defined by each ledger plugin and can be queried by the host via [`getInfo`](#getinfo). The ledger plugin MUST reject with an `InsufficientPrecisionError` if the given amount exceeds the supported level of precision.
 
 #### ilp
 <code>**ilp**:String</code>
