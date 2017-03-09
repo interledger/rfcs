@@ -162,6 +162,10 @@
                   <a href="#fields-8">Fields</a>
                 </li>
               
+                <li class="nav-label">
+                  <a href="#class-rejectionmessage">Class: RejectionMessage</a>
+                </li>
+              
             </ul>
           </nav>
         </div>
@@ -228,7 +232,7 @@
 </tr>
 <tr>
 <td style="text-align:left"></td>
-<td style="text-align:left"><a href="#rejectincomingtransfer"><strong>rejectIncomingTransfer</strong></a> ( transferId, rejectMessage ) <code>&#x21D2; Promise.&lt;null&gt;</code></td>
+<td style="text-align:left"><a href="#rejectincomingtransfer"><strong>rejectIncomingTransfer</strong></a> ( transferId, reason ) <code>&#x21D2; Promise.&lt;null&gt;</code></td>
 </tr>
 </tbody>
 </table>
@@ -267,11 +271,11 @@
 </tr>
 <tr>
 <td style="text-align:left"><a href="#event-*_reject-"><strong>incoming_reject</strong></a></td>
-<td style="text-align:left"><code>( transfer:<a href="#incomingtransfer">IncomingTransfer</a>, rejectionReason:Buffer ) &#x21D2;</code></td>
+<td style="text-align:left"><code>( transfer:<a href="#incomingtransfer">IncomingTransfer</a>, rejectionReason:<a href="#class-rejectionmessage">RejectionMessage</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><a href="#event-*_cancel-"><strong>incoming_cancel</strong></a></td>
-<td style="text-align:left"><code>( transfer:<a href="#incomingtransfer">IncomingTransfer</a>, cancellationReason:Buffer ) &#x21D2;</code></td>
+<td style="text-align:left"><code>( transfer:<a href="#incomingtransfer">IncomingTransfer</a>, cancellationReason:<a href="#class-rejectionmessage">RejectionMessage</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><a href="#event-*_message-"><strong>incoming_message</strong></a></td>
@@ -291,11 +295,11 @@
 </tr>
 <tr>
 <td style="text-align:left"><a href="#event-*_reject-"><strong>outgoing_reject</strong></a></td>
-<td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a>, rejectionReason:Buffer ) &#x21D2;</code></td>
+<td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a>, rejectionReason:<a href="#class-rejectionmessage">RejectionMessage</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><a href="#event-*_cancel-"><strong>outgoing_cancel</strong></a></td>
-<td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a>, cancellationReason:Buffer ) &#x21D2;</code></td>
+<td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a>, cancellationReason:<a href="#class-rejectionmessage">RejectionMessage</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><a href="#event-info_change-"><strong>info_change</strong></a></td>
@@ -544,8 +548,8 @@ if no conditional transfer with the given ID exists. Throws <code>AlreadyRolledB
 rolled back. Throws <code>NotAcceptedError</code> if the fulfillment is formatted correctly, but does not match the condition
 of the specified transfer. Throws <code>TransferNotConditionalError</code> if transfer is not conditional.</p>
 <h4 id="rejectincomingtransfer">rejectIncomingTransfer</h4>
-<p><code>ledgerPlugin.rejectIncomingTransfer( <strong>transferId</strong>:String, <strong>rejectMessage</strong>:Buffer ) &#x21D2; Promise.&lt;null&gt;</code></p>
-<p>Reject an incoming transfer that is held pending the fulfillment of its <code>executionCondition</code> before the <code>expiresAt</code> time. <code>rejectMessage</code> MAY be supplied to provide details on why the transfer was rejected.</p>
+<p><code>ledgerPlugin.rejectIncomingTransfer( <strong>transferId</strong>:String, <strong>reason</strong>:<a href="#class-rejectionmessage">RejectionMessage</a> ) &#x21D2; Promise.&lt;null&gt;</code></p>
+<p>Reject an incoming transfer that is held pending the fulfillment of its <code>executionCondition</code> before the <code>expiresAt</code> time. <code>reason</code> MAY be supplied to provide details on why the transfer was rejected.</p>
 <p>Throws <code>TransferNotFoundError</code> if there is no conditional transfer with the
 given ID. Throws <code>AlreadyFulfilledError</code> if the specified transfer has already been
 fulfilled. Throws <code>NotAcceptedError</code> if you are not authorized
@@ -583,7 +587,7 @@ a transfer to you.</p>
     <strong>fulfillment</strong>:String
   ) &#x21D2;
 )</code></p>
-<p>Emitted when an outgoing/incoming transfer with a condition is fulfilled.</p>
+<p>Emitted when an outgoing/incoming transfer with a condition is fulfilled. The <code>fulfillment</code> is provided as a base64url-encoded string.</p>
 <p>This indicates that funds have been transferred. In order to prevent unexpected incoming funds, a ledger MAY forbid
 accounts from fulfilling a transfer who are not the transfer&apos;s receiver.</p>
 <p>If the event is <code>incoming_fulfill</code>, then it means you fulfilled the transfer. <code>outgoing_fulfill</code> means the receiver
@@ -592,7 +596,7 @@ of your outgoing transfer has fulfilled the condition.</p>
 <p><code style="">ledgerPlugin.on(&apos;outgoing_reject&apos;,
   (
     <strong>transfer</strong>:<a href="#class-transfer">Transfer</a>,
-    <strong>reason</strong>:Buffer
+    <strong>reason</strong>:<a href="#class-rejectionmessage">RejectionMessage</a>
   ) &#x21D2;
 )</code></p>
 <p>Emitted when an outgoing/incoming transfer is rejected by the receiver.</p>
@@ -604,7 +608,7 @@ the receiver of your outgoing transfer has rejected it.</p>
 <p><code style="">ledgerPlugin.on(&apos;outgoing_cancel&apos;,
   (
     <strong>transfer</strong>:<a href="#class-transfer">Transfer</a>,
-    <strong>reason</strong>:Buffer
+    <strong>reason</strong>:<a href="#class-rejectionmessage">RejectionMessage</a>
   ) &#x21D2;
 )</code></p>
 <p>Emitted when an outgoing/incoming transfer is rejected by the ledger.</p>
@@ -973,6 +977,55 @@ an underscore, and listed in the table below.</p>
 <p>The number of milliseconds that the plugin should spend trying to connect before giving up.</p>
 <p>If falsy, use the plugin&apos;s default timeout.
 If <code>Infinity</code>, there is no timeout.</p>
+<h2 id="class-rejectionmessage">Class: RejectionMessage</h2>
+<p><code>class RejectionMessage</code></p>
+<h6 id="fields-9">Fields</h6>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>code</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">Machine-readable error code</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>name</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">Human-readable description of the error code</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>message</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">Description of the error</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>triggered_by</code></td>
+<td style="text-align:left">ILP Address or ILP Prefix</td>
+<td style="text-align:left">ILP address or ledger prefix from which the rejection originates</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>forwarded_by</code></td>
+<td style="text-align:left">ILP Address</td>
+<td style="text-align:left">(optional) The address of the last connector to forward the rejection</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>triggered_at</code></td>
+<td style="text-align:left">Timestamp</td>
+<td style="text-align:left">(optional) The time the rejection occurred.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>additional_info</code></td>
+<td style="text-align:left">Object</td>
+<td style="text-align:left">Additional details about the error</td>
+</tr>
+</tbody>
+</table>
 
         </div>
       </div>
