@@ -457,7 +457,7 @@
 
   <meta name="dct.creator" content="Thomas, S., Reginelli, R., and A. Hope-Bailie" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-thomas-crypto-conditions-02" />
-  <meta name="dct.issued" scheme="ISO8601" content="2017-1-08" />
+  <meta name="dct.issued" scheme="ISO8601" content="2017-1-16" />
   <meta name="dct.abstract" content="The crypto-conditions specification defines a set of encoding formats and data structures for " />
   <meta name="description" content="The crypto-conditions specification defines a set of encoding formats and data structures for " />
 
@@ -481,12 +481,12 @@
   <td class="right">A. Hope-Bailie</td>
 </tr>
 <tr>
-  <td class="left">Expires: July 12, 2017</td>
+  <td class="left">Expires: July 20, 2017</td>
   <td class="right">Ripple</td>
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">January 08, 2017</td>
+  <td class="right">January 16, 2017</td>
 </tr>
 
     	
@@ -512,7 +512,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on July 12, 2017.</p>
+<p>This Internet-Draft will expire on July 20, 2017.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -1211,7 +1211,9 @@ exampleEd25519FingerprintContents Ed25519FingerprintContents ::= {
 <h1 id="rfc.section.9.2.2"><a href="#rfc.section.9.2.2">9.2.2.</a> <a href="#parameter-cost-cost" id="parameter-cost-cost">Parameter: Cost (cost)</a></h1>
 <p id="rfc.section.9.2.2.p.1">The cost parameter is the cost of the condition that is represented by the URI.</p>
 <h1 id="rfc.section.9.2.3"><a href="#rfc.section.9.2.3">9.2.3.</a> <a href="#parameter-subtypes-subtypes" id="parameter-subtypes-subtypes">Parameter: Subtypes (subtypes)</a></h1>
-<p id="rfc.section.9.2.3.p.1">The subtypes parameter indicates the types of conditions that are subtypes of the condition represented by the URI. The value MUST be a comma seperated list of names from the <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite> and SHOULD not include the type of the root crypto-condition. i.e. The value of the fpt paramtere should not appear in the list of types provided as the value of the subtypes parameter.</p>
+<p id="rfc.section.9.2.3.p.1">The subtypes parameter indicates the types of conditions that are subtypes of the condition represented by the URI. The value MUST be a comma seperated list of names from the <a href="#crypto-conditions-type-registry">Crypto-Condition Type Registry</a> <cite title="NONE">[crypto-conditions-type-registry]</cite>.</p>
+<p id="rfc.section.9.2.3.p.2">The list MUST exclude the type of the root crypto-condition. i.e. The value of the fpt parameter should not appear in the list of types provided as the value of the subtypes parameter.</p>
+<p id="rfc.section.9.2.3.p.3">The list MUST be ordered by the type id value of each type, in ascending order. i.e. preimage-sha-256 MUST appear before prefix-sha-256.</p>
 <h1 id="rfc.section.10"><a href="#rfc.section.10">10.</a> <a href="#example-condition" id="example-condition">Example Condition</a></h1>
 <p id="rfc.section.10.p.1">An example condition (PREIMAGE-SHA-256):</p>
 <pre>
