@@ -53,6 +53,7 @@ normative:
     RFC3280:
     RFC4055:
     RFC4648:
+    RFC5912:
     RFC6920:
     RFC8017:
     I-D.draft-irtf-cfrg-eddsa-08:
@@ -74,11 +75,23 @@ normative:
         seriesInfo:
             name: "ITU-T"
             value: "Recommendation ITU-T X.690, August 2015"
+    ANSI-X9.62-2005:
+        title: "Public Key Cryptography for the Financial Services Industry: The Elliptic Curve Digital Signature Algorithm (ECDSA)"
+        author:
+            organization: American National Standards Institute
+        date: 2005-11
+    SECG-SEC2:
+        title: "Standards for Efficient Cryptography"
+        target: http://www.secg.org/sec2-v2.pdf
+        author:
+            organization: Standards for Efficient Cryptography Group
+        date: 2000
 
 informative:
     RFC2119:
     RFC3110:
     RFC4871:
+    RFC6979:
     LARGE-RSA-EXPONENTS:
         title: Imperial Violet - Very large RSA public exponents (17 Mar 2012)
         target: https://www.imperialviolet.org/2012/03/17/rsados.html
@@ -285,7 +298,8 @@ Conditions are encoded as follows:
       prefixSha256     [1] CompoundSha256Condition,
       thresholdSha256  [2] CompoundSha256Condition,
       rsaSha256        [3] SimpleSha256Condition,
-      ed25519Sha256    [4] SimpleSha256Condition
+      ed25519Sha256    [4] SimpleSha256Condition,
+      secp256k1Sha256  [5] SimpleSha256Condition
     }
 
     SimpleSha256Condition ::= SEQUENCE {
@@ -304,7 +318,8 @@ Conditions are encoded as follows:
       prefixSha256     (1),
       thresholdSha256  (2),
       rsaSha256        (3),
-      ed25519Sha256    (4)
+      ed25519Sha256    (4),
+      secp256k1Sha256  (5)
     }
 
 ### Fingerprint
@@ -358,7 +373,8 @@ The ASN.1 definition for fulfillments is defined as follows:
       prefixSha256     [1] PrefixFulfillment,
       thresholdSha256  [2] ThresholdFulfillment,
       rsaSha256        [3] RsaSha256Fulfillment,
-      ed25519Sha256    [4] Ed25519Sha512Fulfillment
+      ed25519Sha256    [4] Ed25519Sha512Fulfillment,
+      secp256k1Sha256  [5] Secp256k1Sha256Fulfillment
     }
 
     PreimageFulfillment ::= SEQUENCE {
@@ -385,7 +401,12 @@ The ASN.1 definition for fulfillments is defined as follows:
       publicKey            OCTET STRING (SIZE(32)),
       signature            OCTET STRING (SIZE(64))
     }
-    
+
+    Secp256k1Sha256Fulfillment ::= SEQUENCE {
+      publicKey            OCTET STRING (size(33)),
+      signature            ECDSA-Sig-Value
+    }
+
 # Crypto-Condition Types {#crypto-condition-types}
 The following condition types are defined in this version of the specification. While support for additional crypto-condition types may be added in the future and will be registered in the IANA maintained [Crypto-Condition Type Registry](#crypto-conditions-type-registry), no other types are supported by this specification.
 
@@ -838,6 +859,117 @@ An ED25519-SHA-256 fulfillment is valid iff :
     }
 
 
+## SECP256K1-SHA-256 {#secp256k1-sha-256-condition-type}
+SECP256K1-SHA-256 is assigned the type ID 5. It relies on the SHA-256 digest algorithm and the ECDSA signature scheme over the secp256k1 standard curve.
+This curve is used by cryptocurrencies Bitcoin and Ethereum.
+
+The signature algorithm used is the Elliptic Curve Digital Signature Algorithm (ECDSA) as defined in [X9.62](#ANSI-X9.62-2005)  
+
+Implementations MUST use only the secp256k1 curve as defined in [SEC2](#SECG-SEC2).
+
+Several of the ASN.1 primitives used here are defined in [RFC5912](#RFC5912).
+
+    certicom-arc OBJECT IDENTIFIER ::= {
+      iso(1) identified-organization(3) certicom(132)
+    }
+
+    ellipticCurve OBJECT IDENTIFIER ::= { certicom-arc curve(0) }
+
+    secp256k1 OBJECT IDENTIFIER ::= { ellipticCurve 10 }
+
+    CURVE ::= CLASS { &id OBJECT IDENTIFIER UNIQUE } WITH SYNTAX { ID &id }
+
+    ECParameters ::= CHOICE {
+      namedCurve      CURVE.&id({NamedCurve})
+    }
+
+    ECPoint ::= OCTET STRING
+
+    id-ecPublicKey OBJECT IDENTIFIER ::= {
+      iso(1) member-body(2) us(840) ansi-X9-62(10045) keyType(2) 1  
+    }
+
+    pk-ec PUBLIC-KEY ::= {
+      IDENTIFIER id-ecPublicKey
+      KEY ECPoint
+      PARAMS TYPE ECParameters ARE required
+      CERT-KEY-USAGE { digitalSignature, nonRepudiation, keyAgreement, keyCertSign, cRLSign }
+    }
+
+    ECDSA-Sig-Value ::= SEQUENCE {
+      r  INTEGER,
+      s  INTEGER
+    }
+
+
+### ECDSA Signature Generation
+
+Implementations SHOULD generate deterministic signatures according to the method described in [RFC6979](#RFC6979).
+Deterministic signatures retain the cryptographic security features associated with digital signatures but can be more easily implemented in various environments, since it does not require access to a source of high-quality randomness.
+
+
+### Cost {#secp256k1-sha-256-condition-type-cost}
+
+The public key is of fixed size and the signature has a fixed size limit; therefore the cost for a secp256k1 crypto-condition is fixed at 131072.
+
+    cost = 131072
+
+### ASN.1 {#secp256k1-sha-256-condition-asn1}
+
+    -- Condition Fingerprint
+    Secp256k1FingerprintContents ::= SEQUENCE {
+      publicKey            OCTET STRING (size(33))
+    }
+
+    -- Fulfillment
+    Secp256k1Sha256Fulfillment ::= SEQUENCE {
+      publicKey            OCTET STRING (size(33)),
+      signature            ECDSA-Sig-Value
+    }
+
+### Condition Format {#secp256k1-sha-256-condition-type-condition}
+The fingerprint of an SECP256K1-SHA-256 condition is the SHA-256 digest of the DER encoded fingerprint contents which is a SEQUENCE of a single element, the ECDSA public key encoded using the compressed form as defined in [X9.62](#ANSI-X9.62-2005).
+
+### Fulfillment Format {#secp256k1-sha-256-condition-type-fulfillment}
+
+The fulfillment of an SECP256K1-SHA-256 crypto-condition is an Secp256k1Sha256Fulfillment which is a SEQUENCE of:
+
+publicKey
+: An octet string containing the ECDSA public key encoded using the compressed form as defined in [X9.62](#ANSI-X9.62-2005).
+
+signature
+: An octet string containing the ECDSA encoded like specified above, being a SEQUENCE of the r and s INTEGER values.
+
+### Validating {#secp256k1-sha-256-condition-type-validating}
+
+An SECP256K1-SHA-256 fulfillment is valid iff :
+
+  1. F.signature is valid for the message M, given the ECDSA public key F.publicKey.
+  2. D is equal to C.
+
+### Example {#secp256k1-sha-256-example}
+
+    exampleSecp256k1Condition Condition ::=
+      secp256k1Sha256 : {
+        fingerprint '58D75DE6 55F7E638 DE44CE6E D460C8DD 025F9756 2C6542C6 4AF4063C 9859E304'H,
+        cost 131072
+      }
+
+    exampleSecp256k1Fulfillment Fulfillment ::=
+      secp256k1Sha256 : {
+        publicKey  '02496D40 E1EA73F6 50BCD8D8 6F34D36A 54734B69 6DD9444C BF35446E E0D792CC 54'H,
+        signature  ECDSA-Sig-Value {
+          r        '99429426695302733862653516028123493910940805115181338906028629863499550919801',
+          s        '42676989614236598121359799755877392066583597896625026344239827573644940124249'
+        }
+      }
+
+    exampleSecp256k1FingerprintContents Ed25519FingerprintContents ::= {
+      publicKey  '02496D40 E1EA73F6 50BCD8D8 6F34D36A 54734B69 6DD9444C BF35446E E0D792CC 54'H
+    }
+
+
+
 # URI Encoding Rules {#uri-encoding-rules}
 
 Conditions can be encoded as URIs per the rules defined in the Named Information specification, [RFC6920](#RFC6920). There are no URI encoding rules for fulfillments. 
@@ -915,7 +1047,8 @@ Crypto-Conditions DEFINITIONS AUTOMATIC TAGS ::= BEGIN
       prefixSha256     [1] CompoundSha256Condition,
       thresholdSha256  [2] CompoundSha256Condition,
       rsaSha256        [3] SimpleSha256Condition,
-      ed25519Sha256    [4] SimpleSha256Condition
+      ed25519Sha256    [4] SimpleSha256Condition,
+      secp256k1Sha256  [5] SimpleSha256Condition
     }
 
     SimpleSha256Condition ::= SEQUENCE {
@@ -934,7 +1067,8 @@ Crypto-Conditions DEFINITIONS AUTOMATIC TAGS ::= BEGIN
       prefixSha256     (1),
       thresholdSha256  (2),
       rsaSha256        (3),
-      ed25519Sha256    (4)
+      ed25519Sha256    (4),
+      secp256k1Sha256  (5)
     }
     
     -- Fulfillments
@@ -944,7 +1078,8 @@ Crypto-Conditions DEFINITIONS AUTOMATIC TAGS ::= BEGIN
       prefixSha256     [1] PrefixFulfillment,
       thresholdSha256  [2] ThresholdFulfillment,
       rsaSha256        [3] RsaSha256Fulfillment,
-      ed25519Sha256    [4] Ed25519Sha512Fulfillment
+      ed25519Sha256    [4] Ed25519Sha512Fulfillment,
+      secp256k1Sha256  [5] Secp256k1Sha256Fulfillment
     }
 
     PreimageFulfillment ::= SEQUENCE {
@@ -972,6 +1107,11 @@ Crypto-Conditions DEFINITIONS AUTOMATIC TAGS ::= BEGIN
       signature            OCTET STRING (SIZE(64))
     }
 
+    Secp256k1Sha256Fulfillment ::= SEQUENCE {
+      publicKey            OCTET STRING (size(33)),
+      signature            ECDSA-Sig-Value
+    }
+
     -- Fingerprint Content
 
     -- The PREIMAGE-SHA-256 condition fingerprint content is not DER encoded
@@ -995,7 +1135,11 @@ Crypto-Conditions DEFINITIONS AUTOMATIC TAGS ::= BEGIN
     Ed25519FingerprintContents ::= SEQUENCE {
       publicKey            OCTET STRING (SIZE(32))
     }
-        
+
+    Secp256k1FingerprintContents ::= SEQUENCE {
+      publicKey            OCTET STRING (size(33))
+    }
+
 END
 
 # IANA Considerations {#appendix-e}
@@ -1014,4 +1158,5 @@ The following types are registered:
 | 2       | THRESHOLD-SHA-256 |
 | 3       | RSA-SHA-256       |
 | 4       | ED25519           |
+| 5       | SECP256K1-SHA-256 |
 {: #crypto-condition-types-table title="Crypto-Condition Types"}
