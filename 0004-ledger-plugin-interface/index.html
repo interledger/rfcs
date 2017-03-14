@@ -409,8 +409,8 @@
 <p><code>ledgerPlugin.connect( options:<a href="#class-connectoptions">ConnectOptions</a> &#x21D2; Promise.&lt;null&gt;</code></p>
 <p><code>options</code> is optional.</p>
 <p>Initiate ledger event subscriptions. Once <code>connect</code> is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the <a href="#event-connect-"><code>connect</code></a> event. If the connection is lost, the ledger plugin SHOULD emit the <a href="#event-disconnect-"><code>disconnect</code></a> event. The plugin should ensure that the information returned by <code>getInfo</code> and <code>getAccount</code> is available and cached before emitting the <a href="#event-connect-"><code>connect</code></a> event.</p>
-<p>Throws <code>InvalidFieldsError</code> if credentials are missing, and <code>NotAcceptedError</code> if credentials are rejected.
-Throws <code>TypeError</code> if <code>options.timeout</code> is passed but is not a <code>Number</code>.</p>
+<p>Rejects with <code>InvalidFieldsError</code> if credentials are missing, and <code>NotAcceptedError</code> if credentials are rejected.
+Rejects with <code>TypeError</code> if <code>options.timeout</code> is passed but is not a <code>Number</code>.</p>
 <h4 id="disconnect">disconnect</h4>
 <p><code>ledgerPlugin.disconnect() &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Unsubscribe from ledger events.</p>
@@ -443,10 +443,10 @@ Throws <code>TypeError</code> if <code>options.timeout</code> is passed but is n
 <h4 id="getfulfillment">getFulfillment</h4>
 <p><code>ledgerPlugin.getFulfillment( transferId ) &#x21D2; Promise.&lt;String&gt;</code></p>
 <p>Return the fulfillment of a transfer if it has already been executed.</p>
-<p>Throws <code>MissingFulfillmentError</code> if the transfer exists but is not yet
-fulfilled. Throws <code>TransferNotFoundError</code> if no conditional transfer is found
-with the given ID. Throws <code>AlreadyRolledBackError</code> if the transfer has been rolled back
-and will not be fulfilled. Throws <code>TransferNotConditionalError</code> if transfer is not
+<p>Rejects with <code>MissingFulfillmentError</code> if the transfer exists but is not yet
+fulfilled. Rejects with <code>TransferNotFoundError</code> if no conditional transfer is found
+with the given ID. Rejects with <code>AlreadyRolledBackError</code> if the transfer has been rolled back
+and will not be fulfilled. Rejects with <code>TransferNotConditionalError</code> if transfer is not
 conditional.</p>
 <h4 id="event-connect">Event: <code>connect</code></h4>
 <p><code>ledgerPlugin.on(&apos;connect&apos;, () &#x21D2; )</code></p>
@@ -463,8 +463,8 @@ conditional.</p>
 <p><code>ledgerPlugin.sendTransfer( <strong>transfer</strong>:<a href="#outgoingtransfer">OutgoingTransfer</a> ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Plugin must be connected, otherwise the promise should reject. Initiates a ledger-local transfer. A transfer can
 contain money and/or information. If there is a problem with the structure or
-validity of the transfer, then <code>sendTransfer</code> should throw an error in the form of a
-rejected promise. If the transfer is accepted by the ledger, however, then
+validity of the transfer, then <code>sendTransfer</code> should reject with an error.
+If the transfer is accepted by the ledger, however, then
 further errors will be in the form of <code>&quot;reject&quot;</code> events.</p>
 <p>All plugins MUST implement zero-amount transfers, but some ledger plugins MAY
 implement zero-amount transfers differently than other transfers.</p>
@@ -489,8 +489,8 @@ implement zero-amount transfers differently than other transfers.</p>
 are required.</p>
 <h6 id="returns-1">Returns</h6>
 <p><strong><code>Promise.&lt;null&gt;</code></strong> A promise which resolves when the transfer has been submitted (but not necessarily accepted.)</p>
-<p>Throws <code>InvalidFieldsError</code> if required fields are missing from the transfer or malformed. Throws <code>DuplicateIdError</code> if a transfer with
-the given ID and different already exists. Throws <code>NotAcceptedError</code> if the transfer is rejected by the ledger due to insufficient balance or
+<p>Rejects with <code>InvalidFieldsError</code> if required fields are missing from the transfer or malformed. Rejects with <code>DuplicateIdError</code> if a transfer with
+the given ID and different already exists. Rejects with <code>NotAcceptedError</code> if the transfer is rejected by the ledger due to insufficient balance or
 a nonexistant destination account.</p>
 <h6 id="example-2">Example</h6>
 <pre><code class="lang-js">p.sendTransfer({
@@ -507,7 +507,7 @@ a nonexistant destination account.</p>
 <h4 id="sendmessage">sendMessage</h4>
 <p><code>ledgerPlugin.sendMessage( <strong>message</strong>:<a href="#outgoingmessage">OutgoingMessage</a> ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Plugin must be connected, otherwise the promise should reject. Send a ledger-local message.
-If there is a problem with the structure or validity of the message, then <code>sendMessage</code> should throw an error in the form of a rejected promise.</p>
+If there is a problem with the structure or validity of the message, then <code>sendMessage</code> should reject with an error.</p>
 <p>Messaging is used by connectors for <a href="../0008-interledger-quoting-protocol/">quoting</a> and broadcasting routes.</p>
 <h6 id="parameters-3">Parameters</h6>
 <table class="table table-striped">
@@ -529,9 +529,9 @@ If there is a problem with the structure or validity of the message, then <code>
 <p>When sending messages, the <a href="#to">to</a> and <a href="#data">data</a> fields are required.</p>
 <h6 id="returns-2">Returns</h6>
 <p><strong><code>Promise.&lt;null&gt;</code></strong> A promise which resolves when the message has been submitted (but not necessarily delivered). To ensure delivery, you must build a mechanism for that on top.</p>
-<p>Throws <code>InvalidFieldsError</code> if required fields are missing from the message or malformed.
-Throws <code>NotAcceptedError</code> if the message is rejected by the ledger.
-Throws <code>NoSubscriptionsError</code> if the message cannot be delivered because there is nobody listening to messages addressed to the given account.</p>
+<p>Rejects with <code>InvalidFieldsError</code> if required fields are missing from the message or malformed.
+Rejects with <code>NotAcceptedError</code> if the message is rejected by the ledger.
+Rejects with <code>NoSubscriptionsError</code> if the message cannot be delivered because there is nobody listening to messages addressed to the given account.</p>
 <h6 id="example-3">Example</h6>
 <pre><code class="lang-js">p.sendMessage({
   to: &apos;example.ledger.connector&apos;,
@@ -543,17 +543,17 @@ Throws <code>NoSubscriptionsError</code> if the message cannot be delivered beca
 <p><code>ledgerPlugin.fulfillCondition( <strong>transferId</strong>:String, <strong>fulfillment</strong>:String ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Submit a fulfillment to a ledger. Plugin must be connected, otherwise the promise should reject.</p>
 <p>The <code>fulfillment</code> is an arbitrary 32-byte buffer and is provided as a base64url-encoded string.</p>
-<p>Throws <code>InvalidFieldsError</code> if the fulfillment is malformed. Throws <code>TransferNotFoundError</code> if the fulfillment
-if no conditional transfer with the given ID exists. Throws <code>AlreadyRolledBackError</code> if the transfer has already been
-rolled back. Throws <code>NotAcceptedError</code> if the fulfillment is formatted correctly, but does not match the condition
-of the specified transfer. Throws <code>TransferNotConditionalError</code> if transfer is not conditional.</p>
+<p>Rejects with <code>InvalidFieldsError</code> if the fulfillment is malformed. Rejects with <code>TransferNotFoundError</code> if the fulfillment
+if no conditional transfer with the given ID exists. Rejects with <code>AlreadyRolledBackError</code> if the transfer has already been
+rolled back. Rejects with <code>NotAcceptedError</code> if the fulfillment is formatted correctly, but does not match the condition
+of the specified transfer. Rejects with <code>TransferNotConditionalError</code> if transfer is not conditional.</p>
 <h4 id="rejectincomingtransfer">rejectIncomingTransfer</h4>
 <p><code>ledgerPlugin.rejectIncomingTransfer( <strong>transferId</strong>:String, <strong>reason</strong>:<a href="#class-rejectionmessage">RejectionMessage</a> ) &#x21D2; Promise.&lt;null&gt;</code></p>
 <p>Reject an incoming transfer that is held pending the fulfillment of its <code>executionCondition</code> before the <code>expiresAt</code> time. <code>reason</code> MAY be supplied to provide details on why the transfer was rejected.</p>
-<p>Throws <code>TransferNotFoundError</code> if there is no conditional transfer with the
-given ID. Throws <code>AlreadyFulfilledError</code> if the specified transfer has already been
-fulfilled. Throws <code>NotAcceptedError</code> if you are not authorized
-to reject the transfer (e.g. if you are the sender). Throws <code>TransferNotConditionalError</code>
+<p>Rejects with <code>TransferNotFoundError</code> if there is no conditional transfer with the
+given ID. Rejects with <code>AlreadyFulfilledError</code> if the specified transfer has already been
+fulfilled. Rejects with <code>NotAcceptedError</code> if you are not authorized
+to reject the transfer (e.g. if you are the sender). Rejects with <code>TransferNotConditionalError</code>
 if transfer is not conditional.</p>
 <p>This MAY be used by receivers or connectors to reject incoming funds if they will not fulfill the condition or are unable to forward the payment. Previous hops in an Interledger transfer would have their money returned before the expiry and the sender or previous connectors MAY retry and reroute the transfer through an alternate path.</p>
 <h3 id="event-_transfer">Event: <code>*_transfer</code></h3>
@@ -730,11 +730,11 @@ left undefined (but not any other false-y value) if unused.</p>
 <p>ILP Address prefix of the ledger that this transfer is going through on.</p>
 <h4 id="amount">amount</h4>
 <p><code><strong>amount</strong>:String</code></p>
-<p>A decimal amount, represented as a string. MUST be positive. The supported precision is defined by each ledger plugin and can be queried by the host via <a href="#getinfo"><code>getInfo</code></a>. The ledger plugin MUST throw an <code>InsufficientPrecisionError</code> if the given amount exceeds the supported level of precision.</p>
+<p>A decimal amount, represented as a string. MUST be positive. The supported precision is defined by each ledger plugin and can be queried by the host via <a href="#getinfo"><code>getInfo</code></a>. The ledger plugin MUST reject with an <code>InsufficientPrecisionError</code> if the given amount exceeds the supported level of precision.</p>
 <h4 id="data-1">data</h4>
 <p><code><strong>data</strong>:Object</code></p>
 <p>An arbitrary plain JavaScript object containing the data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque. Typically, it will contain an <a href="../0003-interledger-protocol/">ILP header</a>.</p>
-<p>If the <code>data</code> is too large, the ledger plugin MUST throw a <code>MaximumDataSizeExceededError</code>. If the <code>data</code> is too large only because the <code>amount</code> is insufficient, the ledger plugin MUST throw an <code>InsufficientAmountError</code>.</p>
+<p>If the <code>data</code> is too large, the ledger plugin MUST reject with a <code>MaximumDataSizeExceededError</code>. If the <code>data</code> is too large only because the <code>amount</code> is insufficient, the ledger plugin MUST reject with an <code>InsufficientAmountError</code>.</p>
 <h4 id="notetoself">noteToSelf</h4>
 <p><code><strong>noteToSelf</strong>:Object</code></p>
 <p>An arbitrary plain JavaScript object containing details the host needs to persist with the transfer in order to be able to react to transfer events like condition fulfillment later.</p>
@@ -744,11 +744,11 @@ left undefined (but not any other false-y value) if unused.</p>
 <p><code><strong>executionCondition</strong>:String</code></p>
 <p>A cryptographic challenge used for implementing holds. The underlying ledger MUST hold the transfer until the condition has been fulfilled or the <code>expiresAt</code> time has been reached.</p>
 <p>Conditions are the base64url-encoded SHA-256 hash of a random, pseudo-random or deterministically generated 32-byte preimage called the fulfillment.</p>
-<p>Ledger plugins that do not support holds MUST throw an <code>HoldsNotSupportedError</code> if this parameter is provided.</p>
+<p>Ledger plugins that do not support holds MUST reject with an <code>HoldsNotSupportedError</code> if this parameter is provided.</p>
 <h4 id="expiresat">expiresAt</h4>
 <p><code><strong>expiresAt</strong>:String</code></p>
 <p>An ISO 8601 timestamp representing the expiry date for the transfer.</p>
-<p>Ledger plugins that do not support holds or do not support expiries MUST throw an <code>ExpiryNotSupportedError</code> if this parameter is provided.</p>
+<p>Ledger plugins that do not support holds or do not support expiries MUST reject with an <code>ExpiryNotSupportedError</code> if this parameter is provided.</p>
 <h4 id="custom">custom</h4>
 <p><code><strong>custom</strong>:Object</code></p>
 <p>Ledger plugins MAY use this object to accept and/or set additional fields for other features they support. The object MUST be serializable, i.e. only plain JSON types are allowed anywhere in the object or sub-objects.</p>
@@ -832,7 +832,7 @@ left undefined (but not any other false-y value) if unused.</p>
 <h4 id="data-2">data</h4>
 <p><code><strong>data</strong>:Object</code></p>
 <p>An arbitrary plain JavaScript object containing the data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque.</p>
-<p>If the <code>data</code> is too large, the ledger plugin MUST throw a <code>MaximumDataSizeExceededError</code>.</p>
+<p>If the <code>data</code> is too large, the ledger plugin MUST reject with a <code>MaximumDataSizeExceededError</code>.</p>
 <h6 id="example-5">Example</h6>
 <pre><code class="lang-js">{
   account: &apos;example.ledger.bob&apos;,
