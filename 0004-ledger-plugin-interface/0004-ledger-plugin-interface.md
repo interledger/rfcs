@@ -110,8 +110,8 @@ For a detailed description of these properties, please see [`PluginOptions`](#cl
 
 Initiate ledger event subscriptions. Once `connect` is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the [`connect`](#event-connect-) event. If the connection is lost, the ledger plugin SHOULD emit the [`disconnect`](#event-disconnect-) event. The plugin should ensure that the information returned by `getInfo` and `getAccount` is available and cached before emitting the [`connect`](#event-connect-) event.
 
-Throws `InvalidFieldsError` if credentials are missing, and `NotAcceptedError` if credentials are rejected.
-Throws `TypeError` if `options.timeout` is passed but is not a `Number`.
+Rejects with `InvalidFieldsError` if credentials are missing, and `NotAcceptedError` if credentials are rejected.
+Rejects with `TypeError` if `options.timeout` is passed but is not a `Number`.
 
 #### disconnect
 <code>ledgerPlugin.disconnect() ⇒ Promise.&lt;null></code>
@@ -162,10 +162,10 @@ Return a decimal string representing the current balance. Plugin must be connect
 
 Return the fulfillment of a transfer if it has already been executed.
 
-Throws `MissingFulfillmentError` if the transfer exists but is not yet
-fulfilled. Throws `TransferNotFoundError` if no conditional transfer is found
-with the given ID. Throws `AlreadyRolledBackError` if the transfer has been rolled back
-and will not be fulfilled. Throws `TransferNotConditionalError` if transfer is not
+Rejects with `MissingFulfillmentError` if the transfer exists but is not yet
+fulfilled. Rejects with `TransferNotFoundError` if no conditional transfer is found
+with the given ID. Rejects with `AlreadyRolledBackError` if the transfer has been rolled back
+and will not be fulfilled. Rejects with `TransferNotConditionalError` if transfer is not
 conditional.
 
 #### Event: `connect`
@@ -192,8 +192,8 @@ Note that all transfers will have `transferId`'s to allow the plugin user to cor
 
 Plugin must be connected, otherwise the promise should reject. Initiates a ledger-local transfer. A transfer can
 contain money and/or information. If there is a problem with the structure or
-validity of the transfer, then `sendTransfer` should throw an error in the form of a
-rejected promise. If the transfer is accepted by the ledger, however, then
+validity of the transfer, then `sendTransfer` should reject with an error.
+If the transfer is accepted by the ledger, however, then
 further errors will be in the form of `"reject"` events.
 
 All plugins MUST implement zero-amount transfers, but some ledger plugins MAY
@@ -210,8 +210,8 @@ are required.
 ###### Returns
 **`Promise.<null>`** A promise which resolves when the transfer has been submitted (but not necessarily accepted.)
 
-Throws `InvalidFieldsError` if required fields are missing from the transfer or malformed. Throws `DuplicateIdError` if a transfer with
-the given ID and different already exists. Throws `NotAcceptedError` if the transfer is rejected by the ledger due to insufficient balance or
+Rejects with `InvalidFieldsError` if required fields are missing from the transfer or malformed. Rejects with `DuplicateIdError` if a transfer with
+the given ID and different already exists. Rejects with `NotAcceptedError` if the transfer is rejected by the ledger due to insufficient balance or
 a nonexistant destination account.
 
 ###### Example
@@ -233,7 +233,7 @@ For a detailed description of these properties, please see [`OutgoingTransfer`](
 <code>ledgerPlugin.sendMessage( **message**:[OutgoingMessage](#outgoingmessage) ) ⇒ Promise.&lt;null></code>
 
 Plugin must be connected, otherwise the promise should reject. Send a ledger-local message.
-If there is a problem with the structure or validity of the message, then `sendMessage` should throw an error in the form of a rejected promise.
+If there is a problem with the structure or validity of the message, then `sendMessage` should reject with an error.
 
 Messaging is used by connectors for [quoting](../0008-interledger-quoting-protocol/) and broadcasting routes.
 
@@ -247,9 +247,9 @@ When sending messages, the [to](#to) and [data](#data) fields are required.
 ###### Returns
 **`Promise.<null>`** A promise which resolves when the message has been submitted (but not necessarily delivered). To ensure delivery, you must build a mechanism for that on top.
 
-Throws `InvalidFieldsError` if required fields are missing from the message or malformed.
-Throws `NotAcceptedError` if the message is rejected by the ledger.
-Throws `NoSubscriptionsError` if the message cannot be delivered because there is nobody listening to messages addressed to the given account.
+Rejects with `InvalidFieldsError` if required fields are missing from the message or malformed.
+Rejects with `NotAcceptedError` if the message is rejected by the ledger.
+Rejects with `NoSubscriptionsError` if the message cannot be delivered because there is nobody listening to messages addressed to the given account.
 
 
 ###### Example
@@ -270,20 +270,20 @@ Submit a fulfillment to a ledger. Plugin must be connected, otherwise the promis
 
 The `fulfillment` is an arbitrary 32-byte buffer and is provided as a base64url-encoded string.
 
-Throws `InvalidFieldsError` if the fulfillment is malformed. Throws `TransferNotFoundError` if the fulfillment
-if no conditional transfer with the given ID exists. Throws `AlreadyRolledBackError` if the transfer has already been
-rolled back. Throws `NotAcceptedError` if the fulfillment is formatted correctly, but does not match the condition
-of the specified transfer. Throws `TransferNotConditionalError` if transfer is not conditional.
+Rejects with `InvalidFieldsError` if the fulfillment is malformed. Rejects with `TransferNotFoundError` if the fulfillment
+if no conditional transfer with the given ID exists. Rejects with `AlreadyRolledBackError` if the transfer has already been
+rolled back. Rejects with `NotAcceptedError` if the fulfillment is formatted correctly, but does not match the condition
+of the specified transfer. Rejects with `TransferNotConditionalError` if transfer is not conditional.
 
 #### rejectIncomingTransfer
 <code>ledgerPlugin.rejectIncomingTransfer( **transferId**:String, **reason**:[RejectionMessage](#class-rejectionmessage) ) ⇒ Promise.&lt;null></code>
 
 Reject an incoming transfer that is held pending the fulfillment of its `executionCondition` before the `expiresAt` time. `reason` MAY be supplied to provide details on why the transfer was rejected.
 
-Throws `TransferNotFoundError` if there is no conditional transfer with the
-given ID. Throws `AlreadyFulfilledError` if the specified transfer has already been
-fulfilled. Throws `NotAcceptedError` if you are not authorized
-to reject the transfer (e.g. if you are the sender). Throws `TransferNotConditionalError`
+Rejects with `TransferNotFoundError` if there is no conditional transfer with the
+given ID. Rejects with `AlreadyFulfilledError` if the specified transfer has already been
+fulfilled. Rejects with `NotAcceptedError` if you are not authorized
+to reject the transfer (e.g. if you are the sender). Rejects with `TransferNotConditionalError`
 if transfer is not conditional.
 
 This MAY be used by receivers or connectors to reject incoming funds if they will not fulfill the condition or are unable to forward the payment. Previous hops in an Interledger transfer would have their money returned before the expiry and the sender or previous connectors MAY retry and reroute the transfer through an alternate path.
@@ -460,14 +460,14 @@ ILP Address prefix of the ledger that this transfer is going through on.
 #### amount
 <code>**amount**:String</code>
 
-A decimal amount, represented as a string. MUST be positive. The supported precision is defined by each ledger plugin and can be queried by the host via [`getInfo`](#getinfo). The ledger plugin MUST throw an `InsufficientPrecisionError` if the given amount exceeds the supported level of precision.
+A decimal amount, represented as a string. MUST be positive. The supported precision is defined by each ledger plugin and can be queried by the host via [`getInfo`](#getinfo). The ledger plugin MUST reject with an `InsufficientPrecisionError` if the given amount exceeds the supported level of precision.
 
 #### data
 <code>**data**:Object</code>
 
 An arbitrary plain JavaScript object containing the data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque. Typically, it will contain an [ILP header](../0003-interledger-protocol/).
 
-If the `data` is too large, the ledger plugin MUST throw a `MaximumDataSizeExceededError`. If the `data` is too large only because the `amount` is insufficient, the ledger plugin MUST throw an `InsufficientAmountError`.
+If the `data` is too large, the ledger plugin MUST reject with a `MaximumDataSizeExceededError`. If the `data` is too large only because the `amount` is insufficient, the ledger plugin MUST reject with an `InsufficientAmountError`.
 
 #### noteToSelf
 <code>**noteToSelf**:Object</code>
@@ -485,14 +485,14 @@ A cryptographic challenge used for implementing holds. The underlying ledger MUS
 
 Conditions are the base64url-encoded SHA-256 hash of a random, pseudo-random or deterministically generated 32-byte preimage called the fulfillment.
 
-Ledger plugins that do not support holds MUST throw an `HoldsNotSupportedError` if this parameter is provided.
+Ledger plugins that do not support holds MUST reject with an `HoldsNotSupportedError` if this parameter is provided.
 
 #### expiresAt
 <code>**expiresAt**:String</code>
 
 An ISO 8601 timestamp representing the expiry date for the transfer.
 
-Ledger plugins that do not support holds or do not support expiries MUST throw an `ExpiryNotSupportedError` if this parameter is provided.
+Ledger plugins that do not support holds or do not support expiries MUST reject with an `ExpiryNotSupportedError` if this parameter is provided.
 
 #### custom
 <code>**custom**:Object</code>
@@ -572,7 +572,7 @@ The ILP Prefix of the ledger being used to transfer the message.
 
 An arbitrary plain JavaScript object containing the data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque.
 
-If the `data` is too large, the ledger plugin MUST throw a `MaximumDataSizeExceededError`.
+If the `data` is too large, the ledger plugin MUST reject with a `MaximumDataSizeExceededError`.
 
 ###### Example
 ``` js
