@@ -439,7 +439,7 @@ Rejects with <code>TypeError</code> if <code>options.timeout</code> is passed bu
 <p><code>us.fed.some-bank.my-account</code></p>
 <h4 id="getbalance">getBalance</h4>
 <p><code>ledgerPlugin.getBalance() &#x21D2; Promise.&lt;String&gt;</code></p>
-<p>Return a decimal string representing the current balance. Plugin must be connected, otherwise the promise should reject.</p>
+<p>Return an integer string representing the current balance. Plugin must be connected, otherwise the promise should reject.</p>
 <h4 id="getfulfillment">getFulfillment</h4>
 <p><code>ledgerPlugin.getFulfillment( transferId ) &#x21D2; Promise.&lt;String&gt;</code></p>
 <p>Return the fulfillment of a transfer if it has already been executed.</p>
@@ -497,7 +497,6 @@ a nonexistant destination account.</p>
   id: &apos;d86b0299-e2fa-4713-833a-96a6a75271b8&apos;,
   to: &apos;example.ledger.connector&apos;,
   amount: &apos;10&apos;,
-  data: new Buffer(&apos;...&apos;, &apos;base64&apos;),
   noteToSelf: {},
   executionCondition: &apos;47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU&apos;,
   expiresAt: &apos;2016-05-18T12:00:00.000Z&apos;
@@ -671,12 +670,12 @@ left undefined (but not any other false-y value) if unused.</p>
 <tr>
 <td style="text-align:left"><code>String</code></td>
 <td style="text-align:left"><a href="#amount">amount</a></td>
-<td style="text-align:left">Decimal transfer amount</td>
+<td style="text-align:left">Integer transfer amount</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>Object</code></td>
-<td style="text-align:left"><a href="#data">data</a></td>
-<td style="text-align:left">Data packet or memo to be sent with the transfer, starts with an ILP header</td>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left"><a href="#ilp">ilp</a></td>
+<td style="text-align:left">Base64-encoded ILP packet</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>Object</code></td>
@@ -730,11 +729,10 @@ left undefined (but not any other false-y value) if unused.</p>
 <p>ILP Address prefix of the ledger that this transfer is going through on.</p>
 <h4 id="amount">amount</h4>
 <p><code><strong>amount</strong>:String</code></p>
-<p>A decimal amount, represented as a string. MUST be positive. The supported precision is defined by each ledger plugin and can be queried by the host via <a href="#getinfo"><code>getInfo</code></a>. The ledger plugin MUST reject with an <code>InsufficientPrecisionError</code> if the given amount exceeds the supported level of precision.</p>
-<h4 id="data-1">data</h4>
-<p><code><strong>data</strong>:Object</code></p>
-<p>An arbitrary plain JavaScript object containing the data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque. Typically, it will contain an <a href="../0003-interledger-protocol/">ILP header</a>.</p>
-<p>If the <code>data</code> is too large, the ledger plugin MUST reject with a <code>MaximumDataSizeExceededError</code>. If the <code>data</code> is too large only because the <code>amount</code> is insufficient, the ledger plugin MUST reject with an <code>InsufficientAmountError</code>.</p>
+<p>An integer amount, represented as a string. MUST be positive.</p>
+<h4 id="ilp">ilp</h4>
+<p><code><strong>ilp</strong>:String</code></p>
+<p>An <a href="../0003-interledger-protocol/">ILP packet</a>, denoting the payment&apos;s final destination.</p>
 <h4 id="notetoself">noteToSelf</h4>
 <p><code><strong>noteToSelf</strong>:Object</code></p>
 <p>An arbitrary plain JavaScript object containing details the host needs to persist with the transfer in order to be able to react to transfer events like condition fulfillment later.</p>
@@ -760,7 +758,6 @@ left undefined (but not any other false-y value) if unused.</p>
   to: &apos;example.ledger.alice&apos;,
   ledger: &apos;example.ledger.&apos;,
   amount: &apos;100&apos;,
-  data: /* ... */,
   noteToSelf: /* ... */,
   custom: {
     alternateAccount: &apos;bob-savings&apos;,
@@ -829,7 +826,7 @@ left undefined (but not any other false-y value) if unused.</p>
 <h4 id="ledger-2">ledger</h4>
 <p><code><strong>to</strong>:String</code></p>
 <p>The ILP Prefix of the ledger being used to transfer the message.</p>
-<h4 id="data-2">data</h4>
+<h4 id="data">data</h4>
 <p><code><strong>data</strong>:Object</code></p>
 <p>An arbitrary plain JavaScript object containing the data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque.</p>
 <p>If the <code>data</code> is too large, the ledger plugin MUST reject with a <code>MaximumDataSizeExceededError</code>.</p>

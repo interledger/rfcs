@@ -155,7 +155,7 @@ The mapping from the ILP address to the local ledger address is dependent on the
 #### getBalance
 <code>ledgerPlugin.getBalance() ⇒ Promise.&lt;String></code>
 
-Return a decimal string representing the current balance. Plugin must be connected, otherwise the promise should reject.
+Return an integer string representing the current balance. Plugin must be connected, otherwise the promise should reject.
 
 #### getFulfillment
 <code>ledgerPlugin.getFulfillment( transferId ) ⇒ Promise.&lt;String></code>
@@ -220,7 +220,6 @@ p.sendTransfer({
   id: 'd86b0299-e2fa-4713-833a-96a6a75271b8',
   to: 'example.ledger.connector',
   amount: '10',
-  data: new Buffer('...', 'base64'),
   noteToSelf: {},
   executionCondition: '47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU',
   expiresAt: '2016-05-18T12:00:00.000Z'
@@ -400,8 +399,8 @@ left undefined (but not any other false-y value) if unused.
 | `String` | [from](#from) | ILP Address of the source account |
 | `String` | [to](#to) | ILP Address of the destination account |
 | `String` | [ledger](#ledger) | ILP Address prefix of the ledger |
-| `String` | [amount](#amount) | Decimal transfer amount |
-| `Object` | [data](#data) | Data packet or memo to be sent with the transfer, starts with an ILP header |
+| `String` | [amount](#amount) | Integer transfer amount |
+| `String` | [ilp](#ilp) | Base64-encoded ILP packet |
 | `Object` | [noteToSelf](#notetoself) | Host-provided memo that should be stored with the transfer |
 | `String` | [executionCondition](#executioncondition) | Cryptographic hold condition |
 | `String` | [expiresAt](#expiresat) | Expiry time of the cryptographic hold |
@@ -460,14 +459,12 @@ ILP Address prefix of the ledger that this transfer is going through on.
 #### amount
 <code>**amount**:String</code>
 
-A decimal amount, represented as a string. MUST be positive. The supported precision is defined by each ledger plugin and can be queried by the host via [`getInfo`](#getinfo). The ledger plugin MUST reject with an `InsufficientPrecisionError` if the given amount exceeds the supported level of precision.
+An integer amount, represented as a string. MUST be positive.
 
-#### data
-<code>**data**:Object</code>
+#### ilp
+<code>**ilp**:String</code>
 
-An arbitrary plain JavaScript object containing the data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque. Typically, it will contain an [ILP header](../0003-interledger-protocol/).
-
-If the `data` is too large, the ledger plugin MUST reject with a `MaximumDataSizeExceededError`. If the `data` is too large only because the `amount` is insufficient, the ledger plugin MUST reject with an `InsufficientAmountError`.
+An [ILP packet](../0003-interledger-protocol/), denoting the payment's final destination.
 
 #### noteToSelf
 <code>**noteToSelf**:Object</code>
@@ -508,7 +505,6 @@ Ledger plugins MAY use this object to accept and/or set additional fields for ot
   to: 'example.ledger.alice',
   ledger: 'example.ledger.',
   amount: '100',
-  data: /* ... */,
   noteToSelf: /* ... */,
   custom: {
     alternateAccount: 'bob-savings',

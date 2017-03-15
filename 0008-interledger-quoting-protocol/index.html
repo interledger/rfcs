@@ -170,12 +170,12 @@ The message formats described here are the <code>data</code> properties of an <c
 <tr>
 <td style="text-align:left"><code>source_amount</code></td>
 <td style="text-align:left">String</td>
-<td style="text-align:left">Fixed amount to debit from the source&apos;s account. (Required unless <code>destination_amount</code> specified.)</td>
+<td style="text-align:left">Fixed integer amount to debit from the source&apos;s account. (Required unless <code>destination_amount</code> specified.)</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>destination_amount</code></td>
 <td style="text-align:left">String</td>
-<td style="text-align:left">Fixed amount to credit to the destination&apos;s account. (Required unless <code>source_amount</code> specified.)</td>
+<td style="text-align:left">Fixed integer amount to credit to the destination&apos;s account. (Required unless <code>source_amount</code> specified.)</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>destination_expiry_duration</code></td>
@@ -200,7 +200,7 @@ The message formats described here are the <code>data</code> properties of an <c
   &quot;method&quot;: &quot;quote_request&quot;,
   &quot;id&quot;: &quot;721e4126-98a1-4974-b35a-8a8f4655f934&quot;,
   &quot;data&quot;: {
-    &quot;source_amount&quot;: &quot;100.25&quot;,
+    &quot;source_amount&quot;: &quot;10025&quot;,
     &quot;source_address&quot;: &quot;example.eur-ledger.alice&quot;,
     &quot;destination_address&quot;: &quot;example.usd-ledger.bob&quot;,
     &quot;source_expiry_duration&quot;: &quot;6000&quot;,
@@ -258,7 +258,7 @@ The message formats described here are the <code>data</code> properties of an <c
 <tr>
 <td style="text-align:left"><code>source_amount</code></td>
 <td style="text-align:left">String</td>
-<td style="text-align:left">Decimal number amount of currency the connector&apos;s account should receive in the source ledger.</td>
+<td style="text-align:left">Integer number amount of currency the connector&apos;s account should receive in the source ledger.</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>source_expiry_duration</code></td>
@@ -273,7 +273,7 @@ The message formats described here are the <code>data</code> properties of an <c
 <tr>
 <td style="text-align:left"><code>destination_amount</code></td>
 <td style="text-align:left">String</td>
-<td style="text-align:left">Decimal number amount of currency that should be received by the destination account in the destination ledger.</td>
+<td style="text-align:left">Integer number amount of currency that should be received by the destination account in the destination ledger.</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>destination_expiry_duration</code></td>
@@ -289,10 +289,10 @@ The message formats described here are the <code>data</code> properties of an <c
   &quot;data&quot;: {
     &quot;source_connector_account&quot;: &quot;mark&quot;,
     &quot;source_ledger&quot;: &quot;example.eur-ledger.&quot;,
-    &quot;source_amount&quot;: &quot;100.25&quot;,
+    &quot;source_amount&quot;: &quot;10025&quot;,
     &quot;source_expiry_duration&quot;: &quot;6000&quot;,
     &quot;destination_ledger&quot;: &quot;example.usd-ledger.&quot;,
-    &quot;destination_amount&quot;: &quot;105.71&quot;,
+    &quot;destination_amount&quot;: &quot;10571&quot;,
     &quot;destination_expiry_duration&quot;: &quot;5000&quot;
   }
 }
