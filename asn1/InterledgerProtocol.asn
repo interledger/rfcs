@@ -7,8 +7,7 @@ IMPORTS
     UInt64
     FROM GenericTypes
 
-    Address,
-    Amount
+    Address
     FROM InterledgerTypes
 
     MetadataEntry

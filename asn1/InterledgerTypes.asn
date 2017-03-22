@@ -4,11 +4,7 @@ AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
-    Int16,
-    UInt8,
     UInt64,
-    VarUInt,
-    Float64
     FROM GenericTypes
 ;
 
@@ -33,107 +29,6 @@ Address ::= IA5String
 
 -- --------------------------------------------------------------------------
 
--- Amounts are represented as IEEE 754 double-precision floating point.
---
--- *audience gasps*
---
--- Humans generally use decimals in today's financial systems. This is done
--- because binary floating point numbers cannot accurately reflect decimal
--- fractions and exhibit rounding errors when numbers are ultimately converted
--- back to decimal representation.
---
--- However, we anticipate that Interledger will primarily be used by computers
--- to pay other computers. So we believe an efficient binary representation
--- makes sense long-term though of course we need to address the rounding
--- issue.
---
--- Double precision binary floating point numbers (IEEE 754 binary64) can
--- accurately represent decimals of up to 15 significant digits. That means,
--- if the destination ledger of an Interledger payment uses base-10, we simply
--- need to convert the amount to a decimal fraction with 15 digits of
--- precision.
---
--- Java: new BigDecimal(amount, new MathContext(15));
--- JavaScript: new BigNumber(Number(amount).toPrecision(15))
---
--- Another reason to use binary amounts is that most numbers in Interledger
--- are either liquidity curves, or amounts that a liquidity curve has been
--- applied to. Since binary floating point math is much more efficient, it
--- makes sense to do all of the calculations consistently in binary and only
--- round to decimals for amounts that humans will actually see.
---
--- Note that subnormal amounts as well as special amounts other than positive
--- zero (-Infinity, +Infinity, -0, NaN, ...) are not allowed in Interledger.
-
-Amount ::= UInt64
-
--- Selection of other options considered:
-
--- Amount ::= Float64
-
--- Amount ::= REAL (0 | WITH COMPONENTS {
---  mantissa (-9223372036854775808..9223372036854775807),
---  base (10),
---  exponent (-127..127)
--- })
-
--- Amount ::= SEQUENCE {
---  mantissa UInt64,
---  exponent Int8
--- }
-
--- --------------------------------------------------------------------------
-
--- Different ledgers may use different rounding parameters
-
--- NumberFormat ::= CHOICE {
-    -- Most ledgers today are designed for humans and use base-10. However, it
-    -- may be desirable to create base 2 ledgers in the future for efficiency.
-    -- base2 [2] IMPLICIT Base2NumberFormat,
-    -- base10 [10] IMPLICIT Base10NumberFormat
--- }
-
--- Base2NumberFormat ::= SEQUENCE {
-    -- precision UInt8,
-
-    -- Providing a range of exponents allows us to describe both
-    -- fixed-point (min == max) and floating-point (min != max) type ledgers.
-    -- minExponent Int16,
-    -- maxExponent Int16
--- }
-
--- Base10NumberFormat ::= SEQUENCE {
-    -- precision UInt8,
-
-    -- Providing a range of exponents allows us to describe both
-    -- fixed-point (min == max) and floating-point (min != max) type ledgers.
-    -- minExponent Int16,
-    -- maxExponent Int16
-
-    -- Stepping is used in some assets some of the time. For instance, Swiss
-    -- Francs are sometimes rounded in CHF 0.05 increments. However, this is an
-    -- obscure enough use case that we don't feel it's necessary to support.
-    -- Note that stepping is only possible for base-10 ledgers, not base-2,
-    -- step UInt8 ( 1 | 2 | 5 )
-
-    -- Rounding could be specified per ledger, but we believe that in most cases
-    -- rounding is dictated by security and self-interest. For example, a
-    -- connector will always round in its favor to prevent its customers from
-    -- being able to extract money from it over time by tricking it to round in
-    -- their favor over and over.
-    -- roundingMode ENUMERATED {
-    --  up (0)
-    --  down (1)
-    --  ceiling (2)
-    --  floor (3)
-    --  halfUp (4)
-    --  halfDown (5)
-    --  halfEven (6)
-    -- }
---}
-
--- --------------------------------------------------------------------------
-
 -- GeneralizedTime is a standard ASN.1 time format based on ISO 8601. It was
 -- tempting to use the Unix epoch. Unfortunately, standard POSIX time is
 -- discontinuous. If we used POSIX time for expiries for example, a transfer
@@ -147,15 +42,25 @@ Timestamp ::= GeneralizedTime
 -- --------------------------------------------------------------------------
 
 -- Liquidity curves describe the relationship between input and output amount
--- for a given path between a given pair of ledgers.
+-- for a given path between a pair of ledgers.
 --
--- The curve is expressed as a series of points given as <x, y> coordinates.
+-- The curve is expressed as a series of points given as coordinates of the form
+-- <inputAmount, outputAmount>. If a sender sends `inputAmount` units to the
+-- connector, the recipient will receive `outputAmount`. The curve may represent
+-- the liquidity through a single connector, or multiple liquidity curves can be
+-- combined into one to represent the liquidity through a given path of
+-- connectors.
 --
--- Each x coordinate corresponds to an input amount, each y corresponds to an
--- output amount. Each point must have larger x and y values than the previous
--- point. All coordinates must be greater than zero.
+-- Points are ordered by inputAmount. The inputAmount is strictly increasing
+-- from point to point. The outputAmount is monotonically increasing, meaning
+-- each successively point must have an equal or greater outputAmount.
 --
--- The only amounts
+-- The first point represents the minimum amount that can be transacted, while
+-- the final point represents the maximum amount that can be transacted.
+--
+-- If a query does not match a point exactly, implementations MUST use linear
+-- interpolation. When querying by outputAmount, if multiple points match
+-- exactly, the lowest inputAmount of any of these points MUST be returned.
 
 LiquidityCurve ::= SEQUENCE OF SEQUENCE {
   x UInt64,
