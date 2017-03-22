@@ -14,7 +14,7 @@ One approach is for conditions to be generated and fulfilled by the receivers of
 
 Receiver-generated conditions are also useful in building non-repudiable application layer protocols. The recipient would generate the condition and cryptographically sign a statement that the preimage of the specified hash indicates the sender has settled a particular debt. The recipient would only disclose the hash preimage upon receipt of payment. Once the sender gets the preimage, they would be able to demonstrate to 3rd parties that they paid the recipient using the preimage and the original signed statement.
 
-In cases where non-repudiability is unnecessary, the [Pre-Shared Key](../0016-pre-shared-key/0016-pre-shared-key.md) transport protocol may be preferrable because it does not require end-to-end communication for each payment.
+In most cases, non-repudiability is unnecessary, as it is sufficient for the sender to get proof that the recipient received the payment even if that proof cannot be used to convince 3rd parties. In such cases, the [Pre-Shared Key](../0016-pre-shared-key/0016-pre-shared-key.md) transport protocol is recommended because it does not require end-to-end communication for each payment.
 
 ### Scope
 
@@ -63,6 +63,8 @@ In IPR the sender only uses the `account` and `amount` from the ILP packet and M
 It is RECOMMENDED that recipients use a Message Authentication Code (MAC) of the details of their payment request in the condition so that the condition can be used as an integrity check on incoming transfers. This allows a recipient to ensure that a transfer matches a request they previously generated, without the recipient needing to maintain a log of all outstanding payment requests.
 
 Recipients MUST include a payment request-specific nonce in the ILP packet to ensure that conditions are unique per-request.
+
+Recipients SHOULD include an expiry date so that they do not accept incoming payments that are paid too long after their creation.
 
 ### Using a PSK Implementation
 
