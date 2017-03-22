@@ -1,6 +1,6 @@
-# Pre-Shared Key
+# Pre-Shared Key Transport Protocol
 
-The Pre-Shared Key (PSK) protocol is an end-to-end transport protocol, used by the sender and receiver of an ILP payment to decide on a condition and fulfillment for a payment. By default, the protocol also encrypts any additional data sent along with the payment, using [AES-256-CTR](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard). The PSK data is authenticated through an [HMAC-SHA-256](https://en.wikipedia.org/wiki/Hash-based_message_authentication_code) which is used to generate the fulfillment of a PSK payment. The entirety of the PSK data, including public headesrs, encrypted private headers, and encrypted private data, is expected to be encoded into an octet-stream that forms the data portion of the [ILP Packet](https://github.com/interledger/rfcs/blob/master/0003-interledger-protocol/0003-interledger-protocol.md).
+The Pre-Shared Key (PSK) protocol is an end-to-end transport protocol, used by the sender and receiver of an ILP payment to decide on a condition and fulfillment for a payment. By default, the protocol also encrypts any additional data sent along with the payment, using [AES-256-GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode). The full ILP payment is authenticated through an [HMAC-SHA-256](https://en.wikipedia.org/wiki/Hash-based_message_authentication_code) which is used to generate the fulfillment of a PSK payment. The entirety of the PSK data, including public headers, encrypted private headers, and encrypted private data, is encoded into an octet-stream that forms the data portion of the [ILP Packet](https://github.com/interledger/rfcs/blob/master/0003-interledger-protocol/0003-interledger-protocol.md). The PSK data is authenticated via AES-256-GCM in addition to the HMAC-SHA-256 which authenticates the full ILP payment.
 
 Pseudocode for this protocol can be read [at the bottom of this spec](#pseudocode).
 
@@ -8,7 +8,7 @@ As the name suggests, PSK relies on a pre-shared secret key. In application-laye
 
 An advantage of PSK is that the pre-shared secret key only needs to be shared once. As long as both parties possess this key and are listening for transfers, they can send payments between one another.
 
-A disadvantage of PSK is that it is repudiable. Knowledge of a payment's fulfillment cannot be used as cryptographic proof that the receiver completed the payment, because both sender and receiver know how to generate the fulfillment with their pre-shared secret key. This causes no issues unless you have some other framework on top of ILP that relies on this cryptographic proof.
+A disadvantage of PSK is that it is repudiable. Although the sender does get cryptographic proof that the recipient received the payment, that proof cannot be used to convince 3rd parties that the sender did indeed send the funds, because the sender could have generated the fulfillment themselves. However, simple proof for the sender that the recipient got the funds is sufficient in many applications. The [Interledger Payment Request](https://github.com/interledger/rfcs/blob/master/0011-interledger-payment-request/0011-interledger-payment-request.md) transport protocol should be used instead in cases where non-repudiable proof is required.
 
 ## Flow
 
@@ -17,13 +17,13 @@ A disadvantage of PSK is that it is repudiable. Knowledge of a payment's fulfill
 3. The sender constructs the PSK data:
     1. The sender starts with the PSK status line: `PSK/1.0\n`
     2. The sender appends the [public headers](#public-headers) (including the nonce), followed by `\n\n`.
-    3. If the public `Encryption` header is set to `aes-256-ctr`, then the remainder of the PSK data after this point will be encrypted using AES-256-CTR with the pre-shared secret key, using the nonce as the initialization vector. Note: The ciphertext is raw binary data, and is not base64 encoded. If the public `Encryption` header is set to `none`, then the remainder of the PSK data will be appended in unaltered cleartext.
+    3. If the public `Encryption` header starts with `aes-256-gcm`, then the remainder of the PSK data after the public headers will be encrypted using AES-256-GCM with the pre-shared secret key, using the nonce as the initialization vector. The AES-256-GCM authentication tag is attached to the `Encryption` header. Note: The ciphertext is raw binary data, and is not base64 encoded. If the public `Encryption` header is set to `none`, then the remainder of the PSK data will be appended in unaltered cleartext.
     4. The sender appends the [private headers](#private-headers), followed by `\n\n`.
     5. The sender appends the application data (in its raw binary format).
 4. The sender creates the condition of their payment by taking the HMAC of the full ILP packet with the pre-shared secret key, and computing the SHA-256 hash of it.
 5. The sender quotes and sends their payment, setting the data field of the ILP packet to the PSK data.
 6. The receiver gets notified by their ledger of an incoming prepared transfer with an ILP packet.
-7. If the public `Encryption` header is set, then the receiver derives the payment encryption key from the pre-shared secret key, sets the AES-256-CTR initialization vector to the `Nonce` header in the PSK public headers, and uses them to decrypt the private headers and their data. If the public `Encryption` header is set to `none`, the receiver parses the private headers and their data in clear-text.
+7. If the public `Encryption` header is set, then the receiver derives the payment encryption key from the pre-shared secret key, sets the AES-256-GCM initialization vector to the `Nonce` header in the PSK public headers, and uses them to decrypt the private headers and their data. The AES-256-GCM authentication tag is attached to the `Encryption` header. If the public `Encryption` header is set to `none`, the receiver parses the private headers and their data in clear-text.
 8. The receiver verifies that the amount in the incoming transfer matches the amount in the ILP packet. The receiver may also call an external system to make sure the incoming funds are expected.
 9. The receiver fulfills the incoming transfer with the HMAC of the ILP packet, using the same HMAC key as the sender, derived from the shared secret.
 
@@ -47,7 +47,7 @@ The public headers and their data are formatted as below:
 PSK/1.0
 Nonce: fpwpAhlN588
 Key: hmac-sha-256
-Encryption: aes-256-ctr
+Encryption: aes-256-gcm 58EowcXBk3qBIvJ0kmvdCh
 Header: data_everyone_can_see
 
 ...
@@ -61,13 +61,13 @@ The data attached to these headers is an encrypted binary blob. This encrypted b
 
 Despite the fact that connectors can read the public headers' data, connectors should not be required to do so, nor should they rely on PSK details being present on all transfers. This information is only intended for the initial sender and final receiver of a payment.
 
-The decryption key is derived from the pre-shared secret key, and the AES-256-CTR initialization vector is set to the value of the `Nonce` header (`fpwpAhlN588` in the above example). The nonce MUST be generated with cryptographically-secure randomness. **If the nonce is reused with the same shared secret, it could leak unencrypted data or allow money to be stolen by malicious parties.**
+The decryption key is derived from the pre-shared secret key, and the AES-256-GCM initialization vector is set to the value of the `Nonce` header (`fpwpAhlN588` in the above example). The nonce MUST be generated with cryptographically-secure randomness. **If the nonce is reused with the same shared secret, it could leak unencrypted data or allow money to be stolen by malicious parties.** The AES-256-GCM authentication tag used for decryption is attached to the `Encryption` header (`58EowcXBk3qBIvJ0kmvdCh` in the above example).
 
 | Header | Value |
 |--------|-------|
-| `Nonce` | _(Required)_ A [base64url-encoded](https://en.wikipedia.org/wiki/Base64#URL_applications) nonce, used to generate ensure uniqueness of the PSK data and as an initialization vector (IV) for AES-256-CTR encryption. The nonce **MUST** be 16 bytes, and **MUST** be generated with cryptographically-secure randomness. |
-| `Encryption` | _(Required)_ Supported values are `aes-256-ctr` and `none`. If it is set to `aes-256-ctr`, then private headers and application data will be AES-256-CTR encrypted. If it is set to `none`, then private headers and application data will be in cleartext. This cleartext will still be appended to the public headers after an empty line. If the value is neither `aes-256-ctr` nor `none`, the receiver MUST reject the incoming payment with an "S??" (error code to be determined) error. |
-| `Key` | _(Optional)_ The algorithm by which the receiver generates the shared secret. If this value is set to anything but `hmac-sha-256`, the receiver MUST reject the incoming payment with an "S??" (error code to be determined) error. |
+| `Nonce` | _(Required)_ A [base64url-encoded](https://en.wikipedia.org/wiki/Base64#URL_applications) nonce, used to generate ensure uniqueness of the PSK data and as an initialization vector (IV) for AES-256-GCM encryption. The nonce **MUST** be 16 bytes, and **MUST** be generated with cryptographically-secure randomness. |
+| `Encryption` | _(Required)_ Supported values are `aes-256-gcm <AUTH_TAG>` and `none`. If it is set to `aes-256-gcm`, then private headers and application data will be AES-256-GCM encrypted, and `<AUTH_TAG>` will be the authentication tag returned by the cipher. If it is set to `none`, then private headers and application data will be in cleartext. This cleartext will still be appended to the public headers after an empty line. If the value is neither `aes-256-gcm` nor `none`, the receiver MUST reject the incoming payment with an `S06: UnexpectedPayment` error. |
+| `Key` | _(Optional)_ The algorithm by which the receiver generates the shared secret. If this value is set, the receiver MUST reject the incoming payment with an `S06: UnexpectedPayment`. Future versions of PSK will use values here. |
 | ... | _(Optional)_ Additional headers. These can be read by any connectors. |
 
 ### Private Headers
@@ -168,14 +168,15 @@ private_headers += application_data
 nonce = random_bytes(16)
 
 // If you want to send data unencrypted, you can skip this encryption step and
-// set the public 'Encryption' header to 'none' instead of 'aes-256-ctr'. The
+// set the public 'Encryption' header to 'none' instead of 'aes-256-gcm'. The
 // receiver side must always check the public 'Encryption' header to check
 // whether or not encryption is enabled. This pseudocode only describes the
 // case where encryption is turned on, for simplicity.
-// The nonce is used as the IV (initialization vector) of AES-256-CTR.
+// The nonce is used as the IV (initialization vector) of AES-256-GCM.
+// The auth tag of GCM will be attached to the 'encryption' header.
 
 payment_encryption_key = hmac_sha_256(shared_secret, 'ilp_psk_encryption')
-encrypted_data = aes_256_ctr({
+encrypted_data, auth_tag = aes_256_gcm({
   key: payment_encryption_key,
   iv: nonce,
   data: private_headers
@@ -183,14 +184,15 @@ encrypted_data = aes_256_ctr({
 
 // Now the PSK data object is constructed, containing the public headers, the
 // encrypted private headers, and the encrypted application data. The
-// "public_headers" are added, including a "key" header that specifies the
-// HMAC algorithm used (which MUST be hmac-sha-256) and the nonce used to
-// generate the payment's encryption key.
+// "public_headers" are added, including a "key" header that specifies the HMAC
+// algorithm used (which MUST be hmac-sha-256) and the nonce used to generate
+// the payment's encryption key. The AES-256-GCM authentication tag is attached
+// to the 'encryption' header after a space.
 
 psk_data = create_empty_buffer()
 psk_data += 'PSK/1.0\n'
 psk_data += 'Nonce: ' + nonce
-psk_data += 'Encryption: aes-256-ctr'
+psk_data += 'Encryption: aes-256-gcm ' + auth_tag
 psk_data += 'Key: hmac-sha-256'
 psk_data += public_headers.join('\n')
 
@@ -242,18 +244,21 @@ shared_secret_generator = hmac_sha_256(receiver_secret, "ilp_psk_generation")
 shared_secret = hmac_sha_256(shared_secret_generator, token)
 
 // The nonce is taken from the public headers and used as the IV
-// (initialization vector) of AES-256-CTR. Note that the header names are
-// case-insensitive but the values are case-sensitive, just as in HTTP.  If the
-// public 'Encryption' header were set to 'none', this decryption function
-// would be omitted, as packet.data would contain the plaintext of the private
-// headers and application data.
+// (initialization vector) of AES-256-GCM. The auth tag for GCM decryption is
+// the second space-separated field of the 'encryption' header. Note that the
+// header names are case-insensitive but the values are case-sensitive, just as
+// in HTTP. If the public 'Encryption' header were set to 'none', this
+// decryption function would be omitted, as packet.data would contain the
+// plaintext of the private headers and application data.
 
 psk_data = packet.data
 nonce = psk_data.headers['nonce']
+auth_tag = psk_data.headers['encryption'].split(' ')[1]
 payment_decryption_key = hmac_sha_256(shared_secret, 'ilp_psk_encryption')
-private_headers = aes_256_ctr_decipher({
+private_headers = aes_256_gcm_decipher({
   key: payment_decryption_key,
   iv: nonce,
+  tag: auth_tag,
   data: psk_data.data
 })
 
