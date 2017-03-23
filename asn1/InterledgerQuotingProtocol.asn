@@ -2,40 +2,77 @@ InterledgerQuotingProtocol DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
-	Address,
-	Amount
-	FROM Types
-	
-	GenericHeaderPreamble
-	FROM GenericExtensionHeaderFormat
+    UInt32,
+    UInt64,
+    UInt128,
+    FROM GenericTypes
+
+    Address,
+    Timestamp,
+    LiquidityCurve
+    FROM InterledgerTypes
 ;
 
-QuoteRequest ::= SEQUENCE {
-	preamble GenericHeaderPreamble,
-	addresses AddressSet,
-	sourceAmount Amount OPTIONAL,
-	destinationAmount Amount OPTIONAL,
-	-- How long the receiver needs to fulfill the payment (when using TTP/ATP)
-	-- Defaults to 1.5 seconds
-	destinationHoldDuration IlpHoldDuration DEFAULT 1500000
+-- Request to receive liquidity information between the current ledger and the
+-- destination account. This information is sufficient to locally quote any
+-- amount until the curve expires.
+QuoteLiquidityRequest ::= SEQUENCE {
+    requestId UInt128,
+    destinationAccount Address,
+    -- How much time the receiver needs to fulfill the payment (in milliseconds)
+    destinationHoldDuration UInt32
 }
 
-QuoteResponse ::= SEQUENCE {
-	preamble GenericHeaderPreamble,
-	connectorAccount IlpAccountName,
-	-- Address that this quote response relates to
-	address Address,
-	-- Source or destination amount, depending on whichever one was NOT
-	-- provided in the request.
-	requestedAmount Amount,
-	sourceHoldDuration IlpHoldDuration
+QuoteLiquidityResponse ::= SEQUENCE {
+    requestId UInt128,
+    -- Curve describing the liquidity (relationship between input and output
+    -- amounts) for the quoted route
+    liquidity LiquidityCurve,
+    -- Common prefix of all addresses for which this liquidity curve applies
+    -- This SHOULD be an address prefix ending in a period ".", see IL-RFC-0015:
+    -- https://interledger.org/rfcs/0015-ilp-addresses/
+    destinationPrefix Address,
+    -- How long the sender should put money on hold (in milliseconds)
+    sourceHoldDuration UInt32
+    -- Maximum time where the connector (and any connectors after it) expects to
+    -- be able to honor this liquidity curve. Note that a quote in ILP is
+    -- non-committal, meaning that the liquidity is only likely to be available,
+    -- but not reserved and therefore not guaranteed.
+    expiresAt Timestamp
 }
 
-AddressSet ::= SEQUENCE OF Address
+-- Quoting with a specified source amount to determine destination amount
+QuoteBySourceAmountRequest ::= SEQUENCE {
+    requestId UInt128,
+    destinationAccount Address,
+    sourceAmount UInt64,
+    -- How much time the receiver needs to fulfill the payment (in milliseconds)
+    destinationHoldDuration UInt32
+}
 
-IlpAccountName ::= OCTET STRING
+QuoteBySourceAmountResponse ::= SEQUENCE {
+    requestId UInt128,
+    -- Amount that will arrive at the receiver
+    destinationAmount UInt64,
+    -- How long the sender should put money on hold (in milliseconds)
+    sourceHoldDuration UInt32
+}
 
--- Length of hold in microseconds
-IlpHoldDuration ::= INTEGER (0..18446744073709551615)
+-- Quoting with a specified destination amount to determine source amount
+QuoteByDestinationAmountRequest ::= SEQUENCE {
+    requestId UInt128,
+    destinationAccount Address,
+    destinationAmount UInt64,
+    -- How much time the receiver needs to fulfill the payment (in milliseconds)
+    destinationHoldDuration UInt32
+}
+
+QuoteByDestinationAmountResponse ::= SEQUENCE {
+    requestId UInt128,
+    -- Amount the sender needs to send based on the requested destination amount
+    sourceAmount UInt64,
+    -- How long the sender should put money on hold (in milliseconds)
+    sourceHoldDuration UInt32
+}
 
 END

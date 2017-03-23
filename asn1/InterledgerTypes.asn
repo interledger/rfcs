@@ -1,0 +1,70 @@
+InterledgerTypes
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt64,
+    FROM GenericTypes
+;
+
+-- Readable names for special characters that may appear in ILP addresses
+hyphen IA5String ::= "-"
+period IA5String ::= "."
+underscore IA5String ::= "_"
+tilde IA5String ::= "~"
+
+-- A standard interledger address
+Address ::= IA5String
+    (FROM
+        ( hyphen
+        | period
+        | "0".."9"
+        | "A".."Z"
+        | underscore
+        | "a".."z"
+        | tilde )
+    )
+    (SIZE (1..1023))
+
+-- --------------------------------------------------------------------------
+
+-- GeneralizedTime is a standard ASN.1 time format based on ISO 8601. It was
+-- tempting to use the Unix epoch. Unfortunately, standard POSIX time is
+-- discontinuous. If we used POSIX time for expiries for example, a transfer
+-- might expire and then "un-expire" when a leap second occurs. Since
+-- Interledger protocols depend on causality, we cannot use POSIX time and
+-- since we do not wish to create our own time standard, we end up using ISO
+-- 8601.
+
+Timestamp ::= GeneralizedTime
+
+-- --------------------------------------------------------------------------
+
+-- Liquidity curves describe the relationship between input and output amount
+-- for a given path between a pair of ledgers.
+--
+-- The curve is expressed as a series of points given as coordinates of the form
+-- <inputAmount, outputAmount>. If a sender sends `inputAmount` units to the
+-- connector, the recipient will receive `outputAmount`. The curve may represent
+-- the liquidity through a single connector, or multiple liquidity curves can be
+-- combined into one to represent the liquidity through a given path of
+-- connectors.
+--
+-- Points are ordered by inputAmount. The inputAmount is strictly increasing
+-- from point to point. The outputAmount is monotonically increasing, meaning
+-- each successively point must have an equal or greater outputAmount.
+--
+-- The first point represents the minimum amount that can be transacted, while
+-- the final point represents the maximum amount that can be transacted.
+--
+-- If a query does not match a point exactly, implementations MUST use linear
+-- interpolation. When querying by outputAmount, if multiple points match
+-- exactly, the lowest inputAmount of any of these points MUST be returned.
+
+LiquidityCurve ::= SEQUENCE OF SEQUENCE {
+  x UInt64,
+  y UInt64
+}
+
+END

@@ -1,0 +1,30 @@
+InterledgerProtocol
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt64
+    FROM GenericTypes
+
+    Address
+    FROM InterledgerTypes
+
+    MetadataEntry
+    FROM MetadataEntry
+;
+
+InterledgerProtocolPaymentMessage ::= SEQUENCE {
+    -- Amount which must be received at the destination
+    amount UInt64,
+    -- Destination ILP Address
+    account Address,
+    -- Information for recipient (transport layer information)
+    data OCTET STRING (SIZE (0..32767)),
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
+}
+
+END
