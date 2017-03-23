@@ -33,7 +33,7 @@ Sender errors indicate that the payment is invalid and should not be retried unl
 |---|---|---|
 | **S00** | **Bad Request** | Generic sender error. |
 | **S01** | **Invalid Packet** | The ILP packet was syntactically invalid. |
-| **S02** | **Unreachable** | There was no way to forward the payment, because the destination ILP address was wrong or unreachable. |
+| **S02** | **Unreachable** | There was no way to forward the payment, because the destination ILP address was wrong or the connector does not have a route to the destination. |
 | **S03** | **Invalid Amount** | The amount is invalid, e.g. it contains more digits of precision than are available on the destination ledger or the amount is greater than the total amount of the given asset in existence. |
 | **S04** | **Insufficient Destination Amount** | The amount was insufficient (e.g. you tried to pay a $100 invoice with $10). |
 | **S05** | **Wrong Condition** | The receiver generated a different condition and cannot fulfill the payment. |
@@ -50,7 +50,7 @@ Temporary errors indicate a failure on the part of the receiver or an intermedia
 | Code | Name | Description |
 |---|---|---|
 | **T00** | **Internal Error** | Like HTTP 500. Something threw an exception, that's all we know. Try again later after we've had time to fix it. |
-| **T01** | **Ledger Unreachable** | The connector was not able to reach the next ledger. Try again later. |
+| **T01** | **Ledger Unreachable** | The connector has a route or partial route to the destination but was unable to reach the next ledger. Try again later. |
 | **T02** | **Ledger Busy** | The ledger is rejecting requests due to overloading. Try again later. |
 | **T03** | **Connector Busy** | The connector is rejecting requests due to overloading. Try again later. |
 | **T04** | **Insufficient Liquidity** | The connector would like to fulfill your request, but it doesn't currently have enough money. Try again later. |
@@ -64,9 +64,9 @@ Relative errors indicate that the payment did not have enough of a margin in ter
 
 | Code | Name | Description
 |---|---|---|
-| **R01** | **Transfer Timed Out** | The transfer timed out, i.e. the next party in the chain did not respond. This could be because you set your timeout too low or because something look longer than it should. Try again with a higher expiry. |
-| **R02** | **Insufficient Source Amount** | Either you didn't send enough money or there wasn't enough liquidity. Try again with a higher sending amount. |
-| **R03** | **Insufficient Timeout** | The connector could not forward the payment, because the timeout was too low to subtract its safety margin. Try again with a higher expiry. |
+| **R01** | **Transfer Timed Out** | The transfer timed out, i.e. the next party in the chain did not respond. This could be because you set your timeout too low or because something look longer than it should. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. |
+| **R02** | **Insufficient Source Amount** | Either you didn't send enough money or there wasn't enough liquidity. The sender MAY try again with a higher amount, but they SHOULD NOT do this indefinitely or a malicious connector could steal money from them. |
+| **R03** | **Insufficient Timeout** | The connector could not forward the payment, because the timeout was too low to subtract its safety margin. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. |
 
 **R04** - **R50** are reserved for future use.
 **R51** - **R99** are for application-defined errors.
