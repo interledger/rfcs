@@ -29,7 +29,7 @@ A disadvantage of PSK is that it is repudiable. Although the sender does get cry
 
 ## Data Format
 
-The PSK details are divided into two sets of headers. Each set of headers is formatted like those found in [HTTP Requests](https://tools.ietf.org/html/rfc7230#section-3.2). Application data is appended to the private headers, after a blank line. This object is then encrypted and appended to the public headers as binary data, after a blank line. Both private and public headers are parsed in the exact same way as HTTP headers.
+The PSK details are divided into two sets of headers. Each set of headers is formatted like those found in [HTTP Requests](https://tools.ietf.org/html/rfc7230#section-3.2). Application data is appended to the private headers, after a blank line. This object is then encrypted and appended to the public headers as binary data, after a blank line. Both private and public headers are parsed in the exact same way as HTTP headers. All strings are UTF-8 encoded.
 
 ### Nonce
 
@@ -97,50 +97,14 @@ Only the payment's sender and receiver can decrypt and read the private headers 
 
 The following pseudocode outlines the generation procedure for the necessary values involved in PSK. It follows only the case where encryption is enabled, for simplicity.
 
-### Receiver: Setup of the Protocol
+### 1. Payment Creation
 
-This pattern of generating the shared secret based on a random token is not part of the PSK protocol, but allows a receiver to listen for incoming PSK payments with many different shared secrets. If the derivation of the shared secret in this first section is changed, then the [final section](#receiver-receipt-of-each-payment) must be changed to use the same shared secret.
+This is executed by the sender for each payment once they have the `shared_secret` and `destination_account` from the receiver:
 
 ```js
 /**
-  * @param account (this is the address the receiver will listen on, as
-  * returned by their ledger plugin)
-  */ 
-
-// The token is attached to the receiver's ILP address, allowing them to
-// regenerate the shared secret every time they receive a payment, instead of
-// keeping a store of all shared secrets they've given out.
-
-receiver_secret = random_bytes(32)
-token = random_bytes(16)
-
-// The receiver id differentiates this receiver from other receivers on the
-// same account with different receiver_secrets. When they receive a payment,
-// the receiver can make sure the receiver id in the ILP address is their own.
-
-receiver_id = hmac_sha_256(receiver_secret, "ilp_psk_receiver_id").slice(0, 8)
-receiver_address = account + "." + base64url(receiver_id) + base64url(token)
-
-// This pattern of taking the HMAC of a secret and a hard-coded string will be
-// repeated for the generation of many variables. It helps secure the secrets
-// against any interactions between the algorithms used. This method of
-// generating the shared secret is just a recommendation, but the receiver MUST
-// be able to access or regenerate the shared secret in order to fulfill
-// incoming payments.
-
-shared_secret_generator = hmac_sha_256(receiver_secret, "ilp_psk_generation")
-shared_secret = hmac_sha_256(shared_secret_generator, token)
-
-// Now the shared_secret and the receiver_address are transmitted to the
-// sender.
-```
-
-### Sender: Generation of Each Payment
-
-```js
-/** 
   * @param shared_secret (sent by the receiver)
-  * @param receiver_address (sent by the receiver)
+  * @param destination_account (sent by the receiver)
   *
   * @param headers (a list of HTTP style headers, which will be encrypted)
   * @param public_headers (a list of HTTP style headers, which will be left
@@ -151,8 +115,7 @@ shared_secret = hmac_sha_256(shared_secret_generator, token)
   * ledger, used to construct the ILP packet)
   */
 
-// The private headers are put together first. Application data is attached to
-// the private headers, after an empty line.
+// Private headers and application data are included first, separated by a newline
 
 private_headers = create_empty_buffer()
 private_headers += headers.join('\n')
@@ -182,12 +145,11 @@ encrypted_data, auth_tag = aes_256_gcm({
   data: private_headers
 })
 
-// Now the PSK data object is constructed, containing the public headers, the
-// encrypted private headers, and the encrypted application data. The
-// "public_headers" are added, including a "key" header that specifies the HMAC
-// algorithm used (which MUST be hmac-sha-256) and the nonce used to generate
-// the payment's encryption key. The AES-256-GCM authentication tag is attached
-// to the 'encryption' header after a space.
+// The PSK data object is constructed from the public headers, encrypted private
+// headers, and the encrypted application data. The "public_headers" include a
+// "key" header that specifies the HMAC algorithm used (which MUST be hmac-sha-256)
+// and the nonce used to generate the payment's encryption key. The AES-256-GCM
+// authentication tag is attached to the 'encryption' header after a space.
 
 psk_data = create_empty_buffer()
 psk_data += 'PSK/1.0\n'
@@ -196,19 +158,16 @@ psk_data += 'Encryption: aes-256-gcm ' + auth_tag
 psk_data += 'Key: hmac-sha-256'
 psk_data += public_headers.join('\n')
 
-// The encrypted private headers and application data are appended after an
-// empty line.
+// Encrypted private headers and application data are appended after an empty line
 
 psk_data += '\n\n'
 psk_data += encrypted_data
 
-// An ILP packet is generated from the receiver's address and the amount that
-// the sender wants to reach the receiver. The PSK data makes up the data field
-// of the ILP packet.
+// The ILP packet includes the destination account, amount and PSK data.
 
 ilp_packet = create_ilp_packet({
   amount: destination_amount,
-  account: receiver_address,
+  account: destination_account,
   data: psk_data
 })
 
@@ -221,27 +180,20 @@ fulfillment_generator = hmac_sha_256(shared_secret, 'ilp_psk_condition')
 fulfillment = hmac_sha_256(fulfillment_generator, ilp_packet)
 condition = sha_256(fulfillment)
 
-// The sender will now quote this payment and send it to the first connector,
-// using the ilp_packet and the condition.
+// The sender will now quote and prepare this payment with the condition
+// and the ilp_packet attached.
 ```
 
-### Receiver: Receipt of Each Payment
+### 2. Payment Fulfillment
+
+This is executed by the receiver for each payment once they have gotten the notification of the incoming transfer:
 
 ```js
-/** 
-  * @param ilp_packet (the ILP packet attached to the incoming payment)
-  * @param receiver_secret (same receiver_secret generated in the first section)
+/**
+  * @param shared_secret (same as the one used by the sender)
   * @param account (the receiver's account, as provided by their ledger plugin)
+  * @param ilp_packet (the ILP packet attached to the incoming payment)
   */
-
-// The receiver id and the shared secret are regenerated from the account in
-// the ILP packet. Remember from the first section that this address contains
-// the token appended after the receiver id.
-
-receiver_id = hmac_sha_256(receiver_secret, "ilp_psk_receiver_id").slice(0, 8)
-token = ilp_packet.account.slice(account.length + receiver_id.length)
-shared_secret_generator = hmac_sha_256(receiver_secret, "ilp_psk_generation")
-shared_secret = hmac_sha_256(shared_secret_generator, token)
 
 // The nonce is taken from the public headers and used as the IV
 // (initialization vector) of AES-256-GCM. The auth tag for GCM decryption is
@@ -274,4 +226,72 @@ review_payment(private_headers, psk_data, ilp_packet, ... )
 
 fulfillment_generator = hmac_sha_256(shared_secret, 'ilp_psk_condition')
 fulfillment = hmac_sha_256(fulfillment_generator, ilp_packet)
+
+// The receiver submits the fulfillment to execute the incoming transfer.
+```
+
+## Appendix A: Recommended Algorithm for Generating Shared Secrets
+
+The receiver MAY use any method they choose for determining the `shared_secret`. This algorithm is RECOMMENDED because it allows the receiver to listen for incoming PSK payments with many different shared secrets without needing to store all of the various secret values.
+
+The receiver maintains one `receiver_secret`, which is HMACed with a random public `token` to generate the shared secret initially and regenerate it from incoming payment packets.
+
+### Shared Secret Generation
+
+This is executed by the receiver once per sender, or each time a new `shared_secret` is desired (NOT once per payment):
+
+```js
+/**
+  * @param account (this is the address the receiver will listen on, as
+  * returned by their ledger plugin)
+  */
+
+// The token is attached to the receiver's ILP address, allowing them to
+// regenerate the shared secret every time they receive a payment, instead of
+// keeping a store of all shared secrets they've given out.
+
+receiver_secret = random_bytes(32)
+token = random_bytes(16)
+
+// The receiver id differentiates this receiver from other receivers on the
+// same account with different receiver_secrets. When they receive a payment,
+// the receiver can make sure the receiver id in the ILP address is their own.
+
+receiver_id = hmac_sha_256(receiver_secret, "ilp_psk_receiver_id").slice(0, 8)
+destination_account = account + "." + base64url(receiver_id) + base64url(token)
+
+// This pattern of taking the HMAC of a secret and a hard-coded string will be
+// repeated for the generation of many variables. It helps secure the secrets
+// against any interactions between the algorithms used. This method of
+// generating the shared secret is just a recommendation, but the receiver MUST
+// be able to access or regenerate the shared secret in order to fulfill
+// incoming payments.
+
+shared_secret_generator = hmac_sha_256(receiver_secret, "ilp_psk_generation")
+shared_secret = hmac_sha_256(shared_secret_generator, token)
+
+// The shared_secret and the destination_account are transmitted to the sender.
+```
+
+### Shared Secret Regeneration
+
+This is executed each time a payment is received, before [2. Payment Fulfillment](#2-payment-fulfillment):
+
+```js
+/**
+  * @param ilp_packet (the ILP packet attached to the incoming payment)
+  * @param receiver_secret (same as generated above)
+  * @param account (the receiver's account, as provided by their ledger plugin)
+  */
+
+// The receiver id and the shared secret are regenerated from the account in
+// the ILP packet. Remember from the previous section that this address contains
+// the token appended after the receiver id.
+
+receiver_id = hmac_sha_256(receiver_secret, "ilp_psk_receiver_id").slice(0, 8)
+token = ilp_packet.account.slice(account.length + receiver_id.length)
+shared_secret_generator = hmac_sha_256(receiver_secret, "ilp_psk_generation")
+shared_secret = hmac_sha_256(shared_secret_generator, token)
+
+// Now the receiver can continue with Payment Fulfillment.
 ```
