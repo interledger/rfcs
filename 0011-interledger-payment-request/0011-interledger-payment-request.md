@@ -1,8 +1,6 @@
 # Interledger Payment Request (IPR)
 
-## Preface
-
-This document specifies the Interledger Payment Request (IPR) transport protocol. It is an end-to-end protocol in which the receiver of an Interledger payment first communicates a request for payment to the sender. This document also details how the receiver can verify that incoming payments match previously created requests without storing a history of all outstanding requests.
+The Interledger Payment Request (IPR) transport protocol is an end-to-end protocol in which the receiver of an Interledger payment first communicates a request for payment to the sender. This document also recommends a method for receivers to generate payment requests such that they can verify incoming payments without storing all outstanding requests.
 
 ## Introduction
 
@@ -12,9 +10,9 @@ The Interledger Protocol uses holds based on cryptographic conditions and expiri
 
 One approach is for conditions to be generated and fulfilled by the receivers of Interledger payments. When the sender of the payment receives the fulfillment, they can be certain that the receiver received the payment.
 
-Receiver-generated conditions are also useful in building non-repudiable application layer protocols. The receiver would generate the condition and cryptographically sign a statement that the preimage of the specified hash indicates the sender has settled a particular debt. The receiver would only disclose the hash preimage upon receipt of payment. Once the sender gets the preimage, they would be able to demonstrate to 3rd parties that they paid the receiver using the preimage and the original signed statement.
+Receiver-generated conditions are also useful in building non-repudiable application layer protocols. The receiver would generate the condition and cryptographically sign a statement that the preimage of the specified hash indicates the sender has settled a particular debt. The receiver would only disclose the hash preimage upon receipt of payment. Once the sender gets the preimage, they would be able to demonstrate to third parties that they paid the receiver using the preimage and the original signed statement.
 
-In most cases, non-repudiability is unnecessary, as it is sufficient for the sender to get proof that the receiver received the payment even if that proof cannot be used to convince 3rd parties. In such cases, the [Pre-Shared Key](../0016-pre-shared-key/0016-pre-shared-key.md) transport protocol is recommended because it does not require end-to-end communication for each payment.
+In most cases, non-repudiability is unnecessary, as it is sufficient for the sender to get proof that the receiver received the payment even if that proof cannot be used to convince third parties. In such cases, the [Pre-Shared Key](../0016-pre-shared-key/0016-pre-shared-key.md) transport protocol is recommended because it does not require end-to-end communication for every payment.
 
 ### Scope
 
@@ -28,13 +26,40 @@ This document does **not** specify how payment requests are communicated from a 
 
 Interledger Payment Requests are intended to be used in higher-level protocols as follows:
 
-1. Receiver creates the ILP Packet and generates the condition using one of algorithms outlined in [Condition Generation](#condition-generation).
-2. Receiver communicates the ILP Packet and condition to the sender.
-3. Sender prepares a local ledger transfer to a connector, held pending the execution condition provided by the receiver and with the ILP Packet provided by the receiver attached.
-4. Connectors forward the payment until it reaches the receiver.
-5. Receiver receives a notification of a held transfer with an ILP Packet attached.
-6. Receiver checks the transfer amount against the ILP Packet and checks the payment request has not expired.
-7. Receiver regenerates the condition and fulfillment from the ILP Packet attached to the incoming transfer, using the same algorithm as before, and fulfills the transfer's condition. If the condition generated does not match the one in the transfer it means that the ILP Packet has been tampered with and the transfer goes unfulfilled.
+1. The receiver creates the ILP Packet and generates the condition using one of algorithms outlined in [Condition Generation Recommendations](#condition-generation-recommendations).
+2. The receiver communicates the payment request, which includes the ILP Packet and condition, to the sender.
+3. The sender quotes the requested ILP packet and initiates an ILP payment with the packet and execution condition from the payment request. The sender uses the `account` and `amount` from the packet but they MUST treat the `data` as opaque. The sender MUST NOT modify the packet at all, or the receiver will reject the payment.
+4. When the receiver gets a notification of the incoming transfer, they check the transfer amount against the ILP Packet and check the payment request has not expired.
+5. The receiver regenerates the condition and fulfillment from the ILP Packet attached to the incoming transfer, using the same algorithm as before, and fulfills the transfer's condition.
+6. If the condition generated by the receiver matches the one in the incoming transfer, they submit the fulfillment to execute the transfer. If the condition does not match, it means that the ILP Packet has been tampered with and the receiver rejects the incoming transfer.
+
+## Condition Generation Recommendations
+
+It is RECOMMENDED that receivers use an implementation of the [Pre-Shared Key](../0016-pre-shared-key/0016-pre-shared-key.md) transport protocol to generate the packet and condition, because it will already include the best practices for generating conditions and enable the receiver to avoid keeping state of all outstanding payment requests.
+
+Note the receiver's method for generating the condition or encoding data in the ILP packet does not matter to the sender. The sender treats the `data` in the ILP packet as opaque and uses the condition from the payment request without needing to know how the fulfillment is generated.
+
+### Using a PSK Implementation
+
+The [Pre-Shared Key](../0016-pre-shared-key/0016-pre-shared-key.md) protocol uses the payment condition as a MAC of the payment details by setting the fulfillment to be an HMAC of the ILP packet with a key derived from a secret shared between the sender and receiver. In IPR there is no shared secret and the condition is only generated by the receiver. Nevertheless, an IPR receiver can use the same methods to generate the condition and regenerate the fulfillment on receipt of the incoming transfer.
+
+To use a PSK implementation, the receiver follows these steps:
+
+1. The receiver MAY derive a receiver secret and address as detailed in [PSK: Shared Secret Generation](../0016-pre-shared-key/0016-pre-shared-key.md#shared-secret-generation) but the receiver DOES NOT share the secret key.
+2. The receiver creates the payment packet and condition _using the steps normally executed by the sender_: [PSK: Payment Creation](../0016-pre-shared-key/0016-pre-shared-key.md#1-payment-creation).
+3. The receiver communicates the payment request, including the packet and condition, to the sender.
+4. If the receiver used the derived secret from `1.`, they regenerate that secret from the packet as specified in [PSK: Shared Secret Regeneration](../0016-pre-shared-key/0016-pre-shared-key.md#shared-secret-regeneration).
+5. The receiver generates the fulfillment from the secret and packet as specified in [PSK: Payment Fulfillment](../0016-pre-shared-key/0016-pre-shared-key.md#2-payment-fulfillment).
+
+### Alternative Methods and General Best Practices
+
+Receivers MAY use any method they choose for generating the condition, such as using a random fulfillment for each request. However, this also requires storing every outstanding fulfillment and packet in a database.
+
+A PSK implementation will already provide these features, but receivers that choose a different method for generating the conditions SHOULD consider these recommendations:
+
+* It is RECOMMENDED that receivers use the condition as a Message Authentication Code (MAC) of their payment request, by making the fulfillment an HMAC of the packet and a secret key. This allows receivers to verify that incoming transfers match requests they created without needing to store all outstanding requests.
+* Receivers SHOULD include a payment request-specific nonce in the ILP packet to ensure that conditions are unique even when multiple payments would otherwise have identical packets.
+* Receivers SHOULD include an expiry date so that they do not accept incoming payments that are paid too long after their creation.
 
 ## Payment Request Specification
 
@@ -57,22 +82,4 @@ In IPR the sender only uses the `account` and `amount` from the ILP packet and M
 ### Binary
 
 **TODO**
-
-## Condition Generation
-
-It is RECOMMENDED that receivers use a Message Authentication Code (MAC) of the details of their payment request in the condition so that the condition can be used as an integrity check on incoming transfers. This allows a receiver to ensure that a transfer matches a request they previously generated, without the receiver needing to maintain a log of all outstanding payment requests.
-
-Receivers MUST include a payment request-specific nonce in the ILP packet to ensure that conditions are unique per-request.
-
-Receivers SHOULD include an expiry date so that they do not accept incoming payments that are paid too long after their creation.
-
-### Using a PSK Implementation
-
-It is RECOMMENDED that receivers use an implementation of the [Pre-Shared Key](../0016-pre-shared-key/0016-pre-shared-key.md) protocol to generate the packet and condition for IPR.
-
-The receiver should follow BOTH the steps normally followed by the receiver AND sender. The receiver should generate the secret in the normal fashion but MUST NOT share it. The receiver then follows the steps the sender would do in a PSK payment to create the packet and condition from the secret and the payment parameters.
-
-For details, see the [Pre-Shared Key Pseudocode](../0016-pre-shared-key/0016-pre-shared-key.md#pseudocode).
-
-Note the receiver's use of a PSK implementation does not matter to the sender, because the sender treats the `data` in the ILP packet as opaque and uses the condition from the receiver without needing to know how the fulfillment is generated.
 
