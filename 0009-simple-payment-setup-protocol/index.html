@@ -111,11 +111,11 @@
                 </li>
               
                 <li>
-                  <a href="#query-get-receiver">Query (GET &lt;receiver&gt;)</a>
+                  <a href="#query-get-spsp-endpoint">Query (GET &lt;SPSP Endpoint&gt;)</a>
                 </li>
               
                 <li>
-                  <a href="#setup-post-receiver">Setup (POST &lt;receiver&gt;)</a>
+                  <a href="#payment-setup">Payment Setup</a>
                 </li>
               
                 <li class="nav-label">
@@ -128,91 +128,69 @@
         <div class="col-sm-8 markdown-body">
           <h1 id="simple-payment-setup-protocol-spsp">Simple Payment Setup Protocol (SPSP)</h1>
 <h2 id="preface">Preface</h2>
-<p class="intro">This document describes the Simple Payment Setup Protocol (SPSP), a basic protocol for exchanging payment information between senders and recipients to set up an Interledger payment.</p>
+<p class="intro">This document describes the Simple Payment Setup Protocol (SPSP), a basic protocol for exchanging payment information between senders and receivers to set up an Interledger payment. SPSP uses the <a href="../0016-pre-shared-key/0016-pre-shared-key.md">Pre-Shared Key (PSK)</a> transport protocol for condition generation and data encoding.</p>
 <h2 id="introduction">Introduction</h2>
 <h3 id="motivation">Motivation</h3>
-<p>The Interledger Protocol does not specify how payment details, such as the ILP Packet or Crypto Condition, should be exchanged between the sender and recipient. SPSP is a minimal protocol that uses HTTP for communicating these details.</p>
+<p>The Interledger Protocol does not specify how payment details, such as the ILP Packet or Crypto Condition, should be exchanged between the sender and receiver. SPSP is a minimal protocol that uses HTTPS for communicating these details.</p>
 <h3 id="scope">Scope</h3>
-<p>SPSP provides for exchanging basic payment details needed by a sender to confirm the details of and set up an ILP payment. It is intended for use by end-user applications.</p>
+<p>SPSP provides for exchanging basic receiver details needed by a sender to set up an ILP payment. It is intended for use by end-user applications.</p>
 <h3 id="interfaces">Interfaces</h3>
 <p>SPSP may be used by end-user applications, such as a digital wallet with a user interface for the sender to initiate payments. SPSP clients and receivers use ILP modules to send and receive Interledger payments.</p>
 <p>SPSP messages MUST be exchanged over HTTPS.</p>
 <h3 id="operation">Operation</h3>
-<p>Any SPSP recipient will create a receiving HTTP endpoint called the <em>receiver</em>. The sender can query this endpoint to get information about the type of payment that can be made to this receiver. The sender also uses the receiver endpoint to set up the ILP payment.</p>
+<p>Any SPSP receiver will run an SPSP server and expose an HTTPS endpoint called the SPSP Endpoint. The sender can query this endpoint to get information about the type of payment that can be made to this receiver. The sender can set up and send multiple ILP payments using the details provided by the receiver.</p>
 <h3 id="definitions">Definitions</h3>
-<h4 id="spsp-client">SPSP Client</h4>
-<p>The sender application that uses SPSP to interact with the SPSP Server.</p>
-<h4 id="spsp-server">SPSP Server</h4>
-<p>The server used on the recipient&apos;s side to handle SPSP requests.</p>
-<h4 id="receiver">Receiver</h4>
-<p>The specific HTTP endpoint on the SPSP used for setting up a payment.</p>
+<ul>
+<li><strong>SPSP Client</strong> - The sender application that uses SPSP to interact with the SPSP Server</li>
+<li><strong>SPSP Server</strong> - The server used on the receiver&apos;s side to handle SPSP requests</li>
+<li><strong>SPSP Endpoint</strong> - The specific HTTPS endpoint on the SPSP server used for setting up a payment</li>
+<li><strong>PSK Module</strong> - Software included in the SPSP Client and Server that implements the <a href="../0016-pre-shared-key/0016-pre-shared-key.md">Pre-Shared Key</a> protocol</li>
+</ul>
 <h2 id="overview">Overview</h2>
 <h3 id="relation-to-other-protocols">Relation to Other Protocols</h3>
-<p>SPSP is used for exchanging payment information before an ILP payment is initiated. It uses the receiver generated <a href="../0011-interledger-payment-request">Interledger Payment Requests</a> over HTTP.</p>
+<p>SPSP is used for exchanging payment information before an ILP payment is initiated. The sender and receiver use the <a href="../0016-pre-shared-key/0016-pre-shared-key.md">Pre-Shared Key (PSK)</a> transport protocol to generate the condition and fulfillment. The receiver generates the shared secret to be used in PSK and communicates it to the sender over HTTPS.</p>
 <h3 id="model-of-operation">Model of Operation</h3>
-<h4 id="fixed-destination-amount">Fixed Destination Amount</h4>
-<p>SPSP may be used by the sender to send a payment such that the recipient receives a specific amount of their chosen currency or asset type. The model of operation is illustrated with the following example:</p>
-<p>We assume that the sender knows the receiver endpoint (see <a href="#appendix-a-optional-webfinger-discovery">Appendix A: (Optional) Webfinger Discovery</a>).</p>
+<p>We assume that the sender knows the receiver&apos;s SPSP endpoint (see <a href="#appendix-a-optional-webfinger-discovery">Appendix A: (Optional) Webfinger Discovery</a>).</p>
 <ol>
-<li>The sender&apos;s SPSP client queries the receiver endpoint.</li>
-<li>The receiver endpoint responds with the receiver info, including the receiver&apos;s currency code.</li>
-<li>The sender chooses an amount of the receiver&apos;s asset to deliver.</li>
-<li>The sender&apos;s SPSP client submits the payment information, including the destination amount, to the receiver endpoint.</li>
-<li>The receiver endpoint responds with an <a href="../0011-interledger-payment-request">Interledger Payment Request</a>, which includes the execution condition.</li>
-<li>The sender&apos;s SPSP client uses its ILP module to get a quote in their currency or asset type for the ILP transfer.</li>
-<li>The sender accepts the quote.</li>
-<li>The sender&apos;s SPSP client uses its ILP module to initiate the ILP payment.</li>
-<li>The receiver&apos;s ILP module registers the incoming transfer held pending the fulfillment of the Crypto Condition. It validates that the transfer matches the packet and regenerates the condition fulfillment using the method recommended in the <a href="../0011-interledger-payment-request">Interledger Payment Request</a> spec. The ILP module submits the fulfillment to execute the transfer and claim the funds.</li>
-<li>The sender&apos;s SPSP client receives a notification from its ILP module that the transfer has been executed, including the condition fulfillment from the recipient, and notifies the sender that the payment is completed.</li>
-</ol>
-<h4 id="fixed-source-amount">Fixed Source Amount</h4>
-<p>SPSP may be used by the sender to send a payment of a fixed amount of the sender&apos;s chosen currency or asset type. This is illustrated with the following example:</p>
-<p>We assume that the sender knows the receiver endpoint (see <a href="#appendix-a-optional-webfinger-discovery">Appendix A: (Optional) Webfinger Discovery</a>).</p>
-<ol>
-<li>The sender&apos;s SPSP client queries the receiver endpoint.</li>
-<li>The receiver endpoint responds with the receiver info, including the recipient&apos;s ILP address.</li>
-<li>The sender choses an amount of their currency or assets to send.</li>
-<li>The sender&apos;s SPSP client uses its ILP module to quote how much of the recipient&apos;s currency or asset type will be delivered to the recipient&apos;s ILP address for the given source amount.</li>
-<li>The sender accepts the quote.</li>
-<li>The sender&apos;s SPSP client submits the payment information, including the destination amount, to the receiver endpoint.</li>
-<li>The receiver endpoint responds with an <a href="../0011-interledger-payment-request">Interledger Payment Requests</a>, which includes the execution condition.</li>
-<li>The sender&apos;s SPSP client uses its ILP module to create a transfer <strong>using the chosen source amount, NOT by quoting the payment request</strong>, and attaches the ILP packet to the transfer.</li>
-<li>The receiver&apos;s ILP module registers the incoming transfer held pending the fulfillment of the Crypto Condition. It validates that the transfer matches the packet and regenerates the condition fulfillment using the method recommended in the <a href="../0011-interledger-payment-request">Interledger Payment Request</a> spec. The ILP module submits the fulfillment to execute the transfer and claim the funds.</li>
-<li>The sender&apos;s SPSP client receives a notification from its ILP module that the transfer has been executed, including the condition fulfillment from the recipient, and notifies the sender that the payment is completed.</li>
-</ol>
-<h4 id="invoice-1">Invoice</h4>
-<ol>
-<li>The sender&apos;s SPSP client queries the receiver endpoint.</li>
-<li>The receiver endpoint responds with the receiver info, including the invoice status, amount, and currency code.</li>
-<li>The sender&apos;s SPSP client submits the sender&apos;s info, including the sender&apos;s ILP address to the receiver endpoint.</li>
-<li>The receiver endpoint responds with an <a href="../0011-interledger-payment-request">Interledger Payment Request</a> corresponding to the destination amount.</li>
-<li>The sender&apos;s SPSP client uses its ILP module to get a quote in their currency or asset type for the ILP transfer.</li>
-<li>The sender accepts the quote.</li>
-<li>The sender&apos;s SPSP client uses its ILP module to initiate the ILP transfer.</li>
-<li>The receiver&apos;s ILP module registers the incoming transfer held pending the fulfillment of the Crypto Condition. It validates that the transfer matches the packet and regenerates the condition fulfillment using the method recommended in the <a href="../0011-interledger-payment-request">Interledger Payment Request</a> spec. The ILP module submits the fulfillment to execute the transfer and claim the funds.</li>
-<li>The sender&apos;s SPSP client receives a notification from its ILP module that the transfer has been executed, including the condition fulfillment from the recipient, and notifies the sender that the payment is completed.</li>
+<li>The sender&apos;s SPSP Client queries the receiver&apos;s SPSP Endpoint.</li>
+<li>The SPSP Endpoint responds with the receiver info, including the receiver&apos;s ILP address and the shared secret to be used in PSK.</li>
+<li>The sender constructs an ILP payment using the receiver&apos;s ILP address.</li>
+<li>The sender uses PSK to generate the payment condition and format additional data intended for the reciever to be sent with the payment.</li>
+<li>The sender prepares a local transfer to a connector with the condition and ILP packet attached.</li>
+<li>The receiver&apos;s PSK module registers the incoming transfer, parses and validates the ILP packet and the incoming transfer.</li>
+<li>The receiver MAY submit the incoming payment to an external system for review to ensure that the funds are wanted.</li>
+<li>If the payment is expected, the receiver&apos;s PSK module submits the condition fulfillment to the ledger to execute the transfer. If not, the PSK module rejects the incoming transfer.</li>
+<li>If the receiver executed the transfer, the sender&apos;s SPSP client receives a notification from its ILP module that the transfer has been executed, including the condition fulfillment from the receiver, and notifies the sender that the payment is completed. If the receiver rejected the transfer, the sender&apos;s SPSP client receives a notification with the receiver-specified error message detailing why the payment was rejected.</li>
 </ol>
 <h2 id="specification">Specification</h2>
-<p>The receiver endpoint is a URI used by the sender to query information about the sender and set up payments. The receiver URI MAY contain query string parameters. The sender SHOULD treat the URI as opaque.</p>
-<p>The receiver endpoint MUST respond to HTTP <code>GET</code> and <code>POST</code> requests in the following manner:</p>
-<h3 id="query-get-receiver">Query (<code>GET &lt;receiver&gt;</code>)</h3>
-<p>The sender queries the receiver endpoint to get information about the type of payment that can be made to this receiver:</p>
-<h4 id="request-1">Request</h4>
-<pre><code class="lang-http">GET /api/receivers/bob HTTP/1.1
+<p>The SPSP endpoint is a URI used by the sender to query information about the sender and set up payments. The SPSP endpoint URI MAY contain query string parameters. The sender SHOULD treat the URI as opaque.</p>
+<p>The SPSP Endpoint MUST respond to HTTPS <code>GET</code> requests in the following manner:</p>
+<h3 id="query-get-spsp-endpoint">Query (<code>GET &lt;SPSP Endpoint&gt;</code>)</h3>
+<p>The sender queries the SPSP endpoint to get information about the type of payment that can be made to this receiver:</p>
+<h4 id="request">Request</h4>
+<pre><code class="lang-http">GET /api/spsp/bob HTTP/1.1
 Host: red.ilpdemo.org
 Accept: application/json
 </code></pre>
-<h4 id="response-1">Response</h4>
+<h4 id="response">Response</h4>
 <pre><code class="lang-http">HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-  &quot;type&quot;: &quot;payee&quot;,
-  &quot;account&quot;: &quot;ilpdemo.red.bob&quot;,
-  &quot;currency_code&quot;: &quot;USD&quot;,
-  &quot;currency_symbol&quot;: &quot;$&quot;,
-  &quot;name&quot;: &quot;Bob Dylan&quot;,
-  &quot;image_url&quot;: &quot;https://red.ilpdemo.org/api/receivers/bob/profile_pic.jpg&quot;
+  &quot;destination_account&quot;: &quot;example.ilpdemo.red.bob&quot;,
+  &quot;shared_secret&quot;: &quot;6jR5iNIVRvqeasJeCty6C-YB5X9FhSOUPCL_5nha5Vs&quot;,
+  &quot;maximum_destination_amount&quot;: &quot;100000&quot;,
+  &quot;minimum_destination_amount&quot;: &quot;10&quot;,
+  &quot;ledger_info&quot;: {
+    &quot;currency_code&quot;: &quot;USD&quot;,
+    &quot;currency_symbol&quot;: &quot;$&quot;,
+    &quot;scale&quot;: 2,
+    &quot;precision&quot;: 10
+  },
+  &quot;receiver_info&quot;: {
+    &quot;name&quot;: &quot;Bob Dylan&quot;,
+    &quot;image_url&quot;: &quot;https://red.ilpdemo.org/api/spsp/bob/profile_pic.jpg&quot;
+  }
 }
 </code></pre>
 <p><a href="https://red.ilpdemo.org/api/receivers/bob">Try this request</a></p>
@@ -248,32 +226,16 @@ Content-Type: application/json
 <tbody>
 <tr>
 <td style="text-align:left"><code>max-age=&lt;i&gt;</code></td>
-<td style="text-align:left">The client should cache this response for <code>&lt;i&gt;</code> seconds. <code>&lt;i&gt;</code> MUST be a positive integer.</td>
+<td style="text-align:left">The client should cache this response for <code>&lt;i&gt;</code> seconds. <code>&lt;i&gt;</code> MUST be a positive integer</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>no-cache</code></td>
-<td style="text-align:left">The client must not cache this response. (This may be useful on invoice-type receivers, which are unique per payment.)</td>
+<td style="text-align:left">The client must not cache this response</td>
 </tr>
 </tbody>
 </table>
 <h5 id="response-body">Response Body</h5>
-<p>The response body is a JSON object. The fields provided are different depending on the <code>type</code> value of the object. Possible values for <code>type</code> are:</p>
-<p><code>payee</code>
-: This is a general receiving account for peer-to-peer payments.</p>
-<p><code>invoice</code>
-: This is an invoice, meaning it can be paid only once and only with a specific amount.</p>
-<h5 id="payee">Payee</h5>
-<p>Payee information consists of basic account details. Amounts are chosen by the sender.</p>
-<p>Example Receiver:</p>
-<pre><code class="lang-json">{
-  &quot;type&quot;: &quot;payee&quot;,
-  &quot;account&quot;: &quot;ilpdemo.red.bob&quot;,
-  &quot;currency_code&quot;: &quot;USD&quot;,
-  &quot;currency_symbol&quot;: &quot;$&quot;,
-  &quot;name&quot;: &quot;Bob Dylan&quot;,
-  &quot;image_url&quot;: &quot;https://red.ilpdemo.org/api/receivers/bob/profile_pic.jpg&quot;
-}
-</code></pre>
+<p>The response body is a JSON object that includes basic account details necessary for setting up payments.</p>
 <table class="table table-striped">
 <thead>
 <tr>
@@ -284,198 +246,100 @@ Content-Type: application/json
 </thead>
 <tbody>
 <tr>
-<td><code>type</code></td>
-<td><code>&quot;payee&quot;</code></td>
-<td>Receiver type</td>
+<td><code>destination_account</code></td>
+<td><a href="../0015-ilp-addresses/0015-ilp-addresses.md">ILP Address</a></td>
+<td>ILP Address of the receiver&apos;s account</td>
 </tr>
 <tr>
-<td><code>account</code></td>
-<td>ILP Address</td>
-<td>ILP Address of the recipient&apos;s account</td>
+<td><code>shared_secret</code></td>
+<td>32 bytes, <a href="https://en.wikipedia.org/wiki/Base64#URL_applications">base64-url encoded</a></td>
+<td>The shared secret to be used in the <a href="../0016-pre-shared-key/0016-pre-shared-key.md">Pre-Shared Key protocol</a></td>
 </tr>
 <tr>
-<td><code>currency_code</code></td>
+<td><code>maximum_destination_amount</code></td>
+<td>Integer String</td>
+<td>Maximum amount, denoted in the minimum divisible units of the ledger, the receiver will accept. This amount may be determined by the ledger&apos;s maximum account balance or transfer amount. If the receiver expects a specific amount to be delivered, this may be set equal to the <code>minimum_destination_amount</code></td>
+</tr>
+<tr>
+<td><code>minimum_destination_amount</code></td>
+<td>Integer String</td>
+<td>Minimum amount, denoted in the minimum divisible units of the ledger, the receiver will accept. This amount may be determined by the minimum transfer amount of the ledger. If the receiver expects a specific amounts to be delivered, this may be set equal to the <code>maximum_destination_amount</code></td>
+</tr>
+<tr>
+<td><code>ledger_info</code></td>
+<td>Object</td>
+<td>Details about the destination ledger</td>
+</tr>
+<tr>
+<td><code>ledger_info.currency_code</code></td>
 <td>String</td>
 <td>Currency code to identify the receiver&apos;s currency. Currencies that have <a href="https://en.wikipedia.org/wiki/ISO_4217">ISO 4217</a> codes should use those. Sender UIs SHOULD be able to render non-standard codes</td>
 </tr>
 <tr>
-<td><code>currency_symbol</code></td>
+<td><code>ledger_info.currency_symbol</code></td>
 <td>String</td>
 <td>Symbol for the receiver&apos;s currency intended for display in the sender&apos;s UI (e.g. <code>&quot;$&quot;</code> or <code>&quot;shares&quot;</code>). Sender UIs SHOULD be able to render non-standard symbols</td>
 </tr>
 <tr>
-<td><code>name</code></td>
-<td>String</td>
-<td>Full name of the individual, company or organization the receiver represents</td>
+<td><code>ledger_info.scale</code></td>
+<td>Integer</td>
+<td>The scale of the amounts on the destination ledger (e.g. an amount of <code>&quot;1000&quot;</code> with a scale of <code>2</code> translates to <code>10.00</code> units of the destination ledger&apos;s currency)</td>
 </tr>
 <tr>
-<td><code>image_url</code></td>
+<td><code>ledger_info.precision</code></td>
+<td>Integer</td>
+<td>The maximum precision supported by the ledger</td>
+</tr>
+<tr>
+<td><code>receiver_info</code></td>
+<td>Object</td>
+<td>Arbitrary additional information about the receiver. This field has no schema and the receiver may include any fields they choose. The field names listed below are recommended merely for interoperability purposes.</td>
+</tr>
+<tr>
+<td><code>receiver_info.name</code></td>
+<td>String</td>
+<td><em>(OPTIONAL)</em> Full name of the individual, company or organization the receiver represents</td>
+</tr>
+<tr>
+<td><code>receiver_info.image_url</code></td>
 <td>HTTPS URL</td>
-<td>URL that a picture of the recipient can be fetched from. The image MUST be square and SHOULD be 128x128 pixels.</td>
+<td><em>(OPTIONAL)</em> URL where the sender can get a picture representation of the receiver</td>
 </tr>
 </tbody>
 </table>
-<p>If this receiver is not available, an error can be generated at this stage:</p>
+<p><strong>Note:</strong> Currency amounts are denominated as integer strings instead of native JSON numbers to avoid losing precision during JSON parsing. Applications MUST represent these numbers in a data type that has precision equal or greater than an unsigned 64-bit integer.</p>
+<h5 id="errors">Errors</h5>
+<h6 id="receiver-does-not-exist">receiver Does Not Exist</h6>
 <pre><code class="lang-http">HTTP/1.1 404 Not Found
 Content-Type: application/json
 
 {
-  &quot;id&quot;: &quot;InvalidReceiverIdError&quot;,
+  &quot;id&quot;: &quot;InvalidReceiverError&quot;,
   &quot;message&quot;: &quot;Invalid receiver ID&quot;
 }
 </code></pre>
-<h5 id="invoice-2">Invoice</h5>
-<p>Invoice information includes an exact amount as well as the status of the invoice. (Invoices can only be paid once.)</p>
-<p>Example Receiver:</p>
-<pre><code class="lang-json">{
-  &quot;type&quot;: &quot;invoice&quot;,
-  &quot;account&quot;: &quot;ilpdemo.red.amazon.111-7777777-1111111&quot;,
-  &quot;currency_code&quot;: &quot;USD&quot;,
-  &quot;currency_symbol&quot;: &quot;$&quot;,
-  &quot;amount&quot;: &quot;10.40&quot;,
-  &quot;status&quot;: &quot;unpaid&quot;,
-  &quot;invoice_info&quot;: &quot;https://www.amazon.com/gp/your-account/order-details?ie=UTF8&amp;orderID=111-7777777-1111111&quot;
-}
-</code></pre>
-<table class="table table-striped">
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>type</code></td>
-<td><code>&quot;invoice&quot;</code></td>
-<td>Receiver type</td>
-</tr>
-<tr>
-<td><code>account</code></td>
-<td>ILP Address</td>
-<td>ILP Address of the recipient&apos;s account</td>
-</tr>
-<tr>
-<td><code>currency_code</code></td>
-<td>String</td>
-<td>Currency code to identify the receiver&apos;s currency. Currencies that have <a href="https://en.wikipedia.org/wiki/ISO_4217">ISO 4217</a> codes should use those. Sender UIs SHOULD be able to render non-standard codes</td>
-</tr>
-<tr>
-<td><code>currency_symbol</code></td>
-<td>String</td>
-<td>Symbol for the receiver&apos;s currency intended for display in the sender&apos;s UI (e.g. <code>&quot;$&quot;</code> or <code>&quot;shares&quot;</code>). Sender UIs SHOULD be able to render non-standard symbols</td>
-</tr>
-<tr>
-<td><code>amount</code></td>
-<td>Decimal String</td>
-<td>Value of the invoice in the recipient&apos;s currency</td>
-</tr>
-<tr>
-<td><code>status</code></td>
-<td>Enum: <code>&quot;paid&quot;</code>, <code>&quot;unpaid&quot;</code>, <code>&quot;cancelled&quot;</code></td>
-<td>State of the invoice</td>
-</tr>
-<tr>
-<td><code>invoice_info</code></td>
-<td>URI</td>
-<td>URI where additional information about the invoice can be found.</td>
-</tr>
-</tbody>
-</table>
-<h3 id="setup-post-receiver">Setup (<code>POST &lt;receiver&gt;</code>)</h3>
-<p>When the sender is ready to make a payment, it submits a payment object to the receiver.</p>
-<h4 id="request-2">Request</h4>
-<h5 id="for-a-payee">For a Payee</h5>
-<pre><code class="lang-http">POST /api/receiver/bob HTTP/1.1
-Host: red.ilpdemo.org
-Accept: application/json
-
-{
-  &quot;amount&quot;: &quot;10.40&quot;,
-  &quot;sender_identifier&quot;: &quot;alice@blue.ilpdemo.org&quot;,
-  &quot;memo&quot;: &quot;Hey Bob!&quot;
-}
-</code></pre>
-<table class="table table-striped">
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>amount</code></td>
-<td>Decimal String</td>
-<td><em>Destination amount</em> the receiver will receive</td>
-</tr>
-<tr>
-<td><code>sender_identifier</code></td>
-<td>String</td>
-<td>Identifier of the sender</td>
-</tr>
-<tr>
-<td><code>memo</code></td>
-<td>String</td>
-<td>Message for the recipient linked to the payment</td>
-</tr>
-</tbody>
-</table>
-<h5 id="for-an-invoice">For an Invoice</h5>
-<pre><code class="lang-http">POST /api/receiver/bob HTTP/1.1
-Host: red.ilpdemo.org
-Accept: application/json
-
-{
-  &quot;sender_identifier&quot;: &quot;alice@blue.ilpdemo.org&quot;
-}
-</code></pre>
-<table class="table table-striped">
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>sender_identifier</code></td>
-<td>String</td>
-<td>Identifier of the sender</td>
-</tr>
-</tbody>
-</table>
-<h4 id="response-2">Response</h4>
-<pre><code class="lang-http">HTTP/1.1 201 Created
-Content-Type: application/json
-
-{
-    &quot;address&quot;: &quot;ilpdemo.red.bob.b9c4ceba-51e4-4a80-b1a7-2972383e98af&quot;,
-    &quot;amount&quot;: &quot;10.40&quot;,
-    &quot;expires_at&quot;: &quot;2016-08-16T12:00:00Z&quot;,
-    &quot;data&quot;: {
-        &quot;sender_identifier&quot;: &quot;alice@blue.ilpdemo.org&quot;
-    },
-    &quot;additional_headers&quot;: &quot;asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv&quot;,
-    &quot;condition&quot;: &quot;cc:0:3:wey2IMPk-3MsBpbOcObIbtgIMs0f7uBMGwebg1qUeyw:32&quot;
-}
-</code></pre>
-<p>The response is an <a href="../0011-interledger-payment-request">Interledger Payment Request</a>.</p>
-<p>The setup is what primes the receiver to expect the incoming payment. The receiver generates the payment request and condition the sender must use to create the ILP Packet. The fulfillment of the condition will serve as the sender&apos;s proof of payment.</p>
-<p>The receiver has the opportunity to reject an incoming payment before any funds move, for instance because of daily limits:</p>
-<pre><code class="lang-http">HTTP/1.1 422 Unprocessable Entity
-Content-Type: application/json
-
-{
-  &quot;id&quot;: &quot;LimitExceededError&quot;,
-  &quot;error&quot;: &quot;Daily incoming funds limit exceeded&quot;
-}
-</code></pre>
+<h3 id="payment-setup">Payment Setup</h3>
+<p>The sender uses the receiver details to create the ILP packet:</p>
+<ul>
+<li>The <code>account</code> in the ILP packet is the <code>destination_account</code> provided by the receiver</li>
+<li><p>The <code>amount</code> is determined by the sender:</p>
+<ul>
+<li>The sender uses the <code>ledger_info.scale</code> to determine the integer amount to include in the ILP packet (e.g. if they want the receiver to receive 10 units on their ledger, a <code>ledger_info.scale</code> value of 2 would indicate they should set the <code>amount</code> to 1000). In cases where the sender knows the integer amount the receiver should get, for example if that amount was requested by the receiver out of band, the sender does not need to use the <code>ledger_info.scale</code></li>
+<li>The sender SHOULD NOT set an amount greater than the <code>maximum_destination_amount</code> or lower than the <code>minimum_destination_amount</code>, as this will be rejected by the receiver</li>
+<li>The sender SHOULD NOT set an amount with a precision greater than the <code>ledger_info.precision</code>, as this will be rejected by the destination ledger</li>
+</ul>
+</li>
+<li><p>The <code>data</code> is encoded using the <a href="../0016-pre-shared-key/0016-pre-shared-key.md">Pre-Shared Key protocol</a>:</p>
+<ul>
+<li>The key is the <code>shared_secret</code> provided by the receiver</li>
+<li>Additional data may be included in the PSK details. SPSP data MUST be JSON.</li>
+<li>Private PSK headers SHOULD include <code>Content-Type: application/json</code> and <code>Content-Length: &lt;byte length of data&gt;</code></li>
+</ul>
+</li>
+</ul>
+<p>Note that the sender can send as many payments as they want using the same receiver info. The sender SHOULD query the receiver again once the time indicated in the <a href="#response-headers"><code>Cache-Control</code> header</a> has passed.</p>
 <h2 id="appendix-a-optional-webfinger-discovery">Appendix A: (Optional) Webfinger Discovery</h2>
-<p>Whenever possible, receiver URLs should be exchanged out-of-band and discovery should be skipped. However, in some cases, it may be useful to have a standardized user-friendly identifier. This discovery method describes how to resolve such an identifier to an SPSP receiver endpoint.</p>
+<p>Whenever possible, receiver URLs should be exchanged out-of-band and discovery should be skipped. However, in some cases, it may be useful to have a standardized user-friendly identifier. This discovery method describes how to resolve such an identifier to an SPSP endpoint.</p>
 <p>First, the sender uses Webfinger (<a href="https://tools.ietf.org/html/rfc7033">RFC 7033</a>) to look up an identifier (e.g. <code>bob@red.ilpdemo.org</code>):</p>
 <pre><code class="lang-http">GET /.well-known/webfinger?resource=acct%3Abob%40red.ilpdemo.org HTTP/1.1
 Host: red.ilpdemo.org
@@ -488,8 +352,8 @@ Content-Type: application/json
   &quot;subject&quot;: &quot;acct:bob@red.ilpdemo.org&quot;,
   &quot;links&quot;: [
     {
-      &quot;rel&quot;: &quot;https://interledger.org/rel/receiver&quot;,
-      &quot;href&quot;: &quot;https://red.ilpdemo.org/api/receivers/bob&quot;
+      &quot;rel&quot;: &quot;https://interledger.org/rel/spsp/v2&quot;,
+      &quot;href&quot;: &quot;https://red.ilpdemo.org/api/spsp/bob&quot;
     }
   ]
 }
