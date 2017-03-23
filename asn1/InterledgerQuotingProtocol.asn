@@ -21,6 +21,11 @@ QuoteLiquidityRequest ::= SEQUENCE {
     destinationAccount Address,
     -- How much time the receiver needs to fulfill the payment (in milliseconds)
     destinationHoldDuration UInt32
+
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
 }
 
 QuoteLiquidityResponse ::= SEQUENCE {
@@ -39,6 +44,11 @@ QuoteLiquidityResponse ::= SEQUENCE {
     -- non-committal, meaning that the liquidity is only likely to be available,
     -- but not reserved and therefore not guaranteed.
     expiresAt Timestamp
+
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
 }
 
 -- Quoting with a specified source amount to determine destination amount
@@ -48,6 +58,11 @@ QuoteBySourceAmountRequest ::= SEQUENCE {
     sourceAmount UInt64,
     -- How much time the receiver needs to fulfill the payment (in milliseconds)
     destinationHoldDuration UInt32
+
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
 }
 
 QuoteBySourceAmountResponse ::= SEQUENCE {
@@ -56,6 +71,11 @@ QuoteBySourceAmountResponse ::= SEQUENCE {
     destinationAmount UInt64,
     -- How long the sender should put money on hold (in milliseconds)
     sourceHoldDuration UInt32
+
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
 }
 
 -- Quoting with a specified destination amount to determine source amount
@@ -65,6 +85,11 @@ QuoteByDestinationAmountRequest ::= SEQUENCE {
     destinationAmount UInt64,
     -- How much time the receiver needs to fulfill the payment (in milliseconds)
     destinationHoldDuration UInt32
+
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
 }
 
 QuoteByDestinationAmountResponse ::= SEQUENCE {
@@ -73,6 +98,11 @@ QuoteByDestinationAmountResponse ::= SEQUENCE {
     sourceAmount UInt64,
     -- How long the sender should put money on hold (in milliseconds)
     sourceHoldDuration UInt32
+
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
 }
 
 END
