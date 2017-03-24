@@ -59,25 +59,35 @@ Receivers SHOULD follow these guidelines if implementing a custom system:
 * Receivers SHOULD include a payment request-specific nonce in the ILP packet to ensure that conditions are unique even when multiple payments would otherwise have identical packets.
 * Receivers SHOULD include an expiry date so that they do not accept incoming payments that are paid too long after their creation.
 
-## Payment Request Specification
+## Interledger Payment Request Format
 
-### JSON
-
-```json
-{
-  "packet": "AYGyAAAAAAAAAAo6ZXhhbXBsZS5pbHBkZW1vLmJsdWUuYm9iLkR0azB1Y3U4OHFJQm1iRFEwelhxa2lkTWZhOHRQakJZUW1QU0svMS4wCk5vbmNlOiBvdHotT25NbThURHo3NThGYWY4cXRRCkVuY3J5cHRpb246IGFlcy0yNTYtZ2NtIEdFRUR0MXk4NmlkSVFMa2xWbnpiRWcKCuXPle38YB02KVAHPtVNqRgP7Ok6D-QRAA",
-  "condition": "oHeVy7WAEhrJF3U4NeLt5QT6Fr3L2YeBCmB88Xu9sEY"
-}
-```
+Here is a summary of the fields in the Interledger Payment Request format:
 
 | Field | Type | Short Description |
 |:--|:--|:--|
-| `packet` | [Base64-Url](https://en.wikipedia.org/wiki/Base64#URL_applications) Encoded ILP Packet | ILP Payment packet including the destination address and amount |
-| `condition` | 32 Bytes, Base64-Url Encoded | Execution condition for the payment |
+| `version` | UInt8 | IPR Version, `2` for now |
+| `packet` | OCTET STRING | ILP Payment packet including the destination address and amount |
+| `condition` | UInt256 | Execution condition for the payment |
 
-In IPR the sender only uses the `account` and `amount` from the ILP packet and MUST treat the `data` as opaque. The sender MUST NOT modify the ILP packet at all, or the receiver will reject the payment.
+#### version
 
-### Binary
+    UInt8 ::= INTEGER (0..127)
 
-**TODO**
+IPR version. This document specifies version 2.
+
+#### packet
+
+    OCTET STRING (SIZE(0..65535))
+
+The [ILP Payment Packet](../0003-interledger-protocol/0003-interledger-protocol.md#specification).
+
+In IPR the sender only uses the `account` and `amount` from the ILP packet and MUST treat the `data` as opaque.
+
+The sender MUST NOT modify the ILP packet at all, or the receiver will reject the payment.
+
+#### condition
+
+    UInt256 ::= OCTET STRING (SIZE(32))
+
+The ILP payment condition, which is the SHA-256 hash of the fulfillment that will be used to trigger the execution of the payment.
 
