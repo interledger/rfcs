@@ -45,19 +45,17 @@ The [Pre-Shared Key](../0016-pre-shared-key/0016-pre-shared-key.md) protocol use
 
 To use a PSK implementation, the receiver follows these steps:
 
-1. The receiver MAY derive a receiver secret and address as detailed in [PSK: Shared Secret Generation](../0016-pre-shared-key/0016-pre-shared-key.md#shared-secret-generation) but the receiver DOES NOT share the secret key.
+1. The receiver MAY derive a receiver secret and address as detailed in [PSK: Shared Secret Generation](../0016-pre-shared-key/0016-pre-shared-key.md#shared-secret-generation) but in IPR the receiver MUST NOT share the secret key.
 2. The receiver creates the payment packet and condition _using the steps normally executed by the sender_: [PSK: Payment Creation](../0016-pre-shared-key/0016-pre-shared-key.md#1-payment-creation).
 3. The receiver communicates the payment request, including the packet and condition, to the sender.
-4. If the receiver used the derived secret from `1.`, they regenerate that secret from the packet as specified in [PSK: Shared Secret Regeneration](../0016-pre-shared-key/0016-pre-shared-key.md#shared-secret-regeneration).
+4. If the receiver used the derived secret from step 1, they regenerate that secret from the packet as specified in [PSK: Shared Secret Regeneration](../0016-pre-shared-key/0016-pre-shared-key.md#shared-secret-regeneration).
 5. The receiver generates the fulfillment from the secret and packet as specified in [PSK: Payment Fulfillment](../0016-pre-shared-key/0016-pre-shared-key.md#2-payment-fulfillment).
 
 ### Alternative Methods and General Best Practices
 
-Receivers MAY use any method they choose for generating the condition, such as using a random fulfillment for each request. However, this also requires storing every outstanding fulfillment and packet in a database.
+Receivers MAY use any method they choose for generating the condition, such as using a random fulfillment for each request. The receiver MUST be able to identify and verify the ILP Packet for every outstanding payment and produce the corresponding fulfillment. A PSK implementation handles these requirements without storing every fulfillment and packet in a database, by using the condition as a Message Authentication Code (MAC) of the payment request.
 
-A PSK implementation will already provide these features, but receivers that choose a different method for generating the conditions SHOULD consider these recommendations:
-
-* It is RECOMMENDED that receivers use the condition as a Message Authentication Code (MAC) of their payment request, by making the fulfillment an HMAC of the packet and a secret key. This allows receivers to verify that incoming transfers match requests they created without needing to store all outstanding requests.
+Receivers SHOULD follow these guidelines if implementing a custom system:
 * Receivers SHOULD include a payment request-specific nonce in the ILP packet to ensure that conditions are unique even when multiple payments would otherwise have identical packets.
 * Receivers SHOULD include an expiry date so that they do not accept incoming payments that are paid too long after their creation.
 
