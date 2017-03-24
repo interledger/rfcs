@@ -20,7 +20,7 @@ QuoteLiquidityRequest ::= SEQUENCE {
     requestId UInt128,
     destinationAccount Address,
     -- How much time the receiver needs to fulfill the payment (in milliseconds)
-    destinationHoldDuration UInt32
+    destinationHoldDuration UInt32,
 
     -- Enable ASN.1 Extensibility
     extensions SEQUENCE {
@@ -38,12 +38,12 @@ QuoteLiquidityResponse ::= SEQUENCE {
     -- https://interledger.org/rfcs/0015-ilp-addresses/
     destinationPrefix Address,
     -- How long the sender should put money on hold (in milliseconds)
-    sourceHoldDuration UInt32
+    sourceHoldDuration UInt32,
     -- Maximum time where the connector (and any connectors after it) expects to
     -- be able to honor this liquidity curve. Note that a quote in ILP is
     -- non-committal, meaning that the liquidity is only likely to be available,
     -- but not reserved and therefore not guaranteed.
-    expiresAt Timestamp
+    expiresAt Timestamp,
 
     -- Enable ASN.1 Extensibility
     extensions SEQUENCE {
@@ -57,7 +57,7 @@ QuoteBySourceAmountRequest ::= SEQUENCE {
     destinationAccount Address,
     sourceAmount UInt64,
     -- How much time the receiver needs to fulfill the payment (in milliseconds)
-    destinationHoldDuration UInt32
+    destinationHoldDuration UInt32,
 
     -- Enable ASN.1 Extensibility
     extensions SEQUENCE {
@@ -70,7 +70,7 @@ QuoteBySourceAmountResponse ::= SEQUENCE {
     -- Amount that will arrive at the receiver
     destinationAmount UInt64,
     -- How long the sender should put money on hold (in milliseconds)
-    sourceHoldDuration UInt32
+    sourceHoldDuration UInt32,
 
     -- Enable ASN.1 Extensibility
     extensions SEQUENCE {
@@ -84,7 +84,7 @@ QuoteByDestinationAmountRequest ::= SEQUENCE {
     destinationAccount Address,
     destinationAmount UInt64,
     -- How much time the receiver needs to fulfill the payment (in milliseconds)
-    destinationHoldDuration UInt32
+    destinationHoldDuration UInt32,
 
     -- Enable ASN.1 Extensibility
     extensions SEQUENCE {
@@ -97,7 +97,7 @@ QuoteByDestinationAmountResponse ::= SEQUENCE {
     -- Amount the sender needs to send based on the requested destination amount
     sourceAmount UInt64,
     -- How long the sender should put money on hold (in milliseconds)
-    sourceHoldDuration UInt32
+    sourceHoldDuration UInt32,
 
     -- Enable ASN.1 Extensibility
     extensions SEQUENCE {
