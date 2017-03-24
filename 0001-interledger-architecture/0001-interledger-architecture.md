@@ -133,6 +133,8 @@ It MUST support sending an authenticated message of up to 65535 bytes to the hol
 
 It MUST support a way to look up a fulfillment by condition hash. It SHOULD automatically reject new transfers (that have not been prepared yet) that have an execution condition for which the ledger already knows the fulfillment. This aids in [error recovery](#error-recovery).
 
+It MUST support receivers (and ONLY receivers) rejecting incoming transfers. Receivers MUST be able to submit a rejection message of up to 65535 bytes. The sender of the transfer MUST be notified that the transfer has been rejected and the notification MUST include the rejection message.
+
 ### Example Protocols
 
 #### Five Bells Ledger Protocol (5BLP)
