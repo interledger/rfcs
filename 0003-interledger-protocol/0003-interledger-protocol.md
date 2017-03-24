@@ -143,7 +143,18 @@ The mapping from addresses to local accounts on a ledger is defined by the ledge
 
 ### Connectors
 
-Connectors implement the interledger protocol to forward payments between ledgers. Connectors also implement the [Connector to Connector Protocol (CCP)](../0010-connector-to-connector-protocol/) to coordinate routing and other interledger control information.
+Connectors implement the interledger protocol to forward payments between ledgers and relay errors back along the path.
+
+Connectors also implement the [Connector to Connector Protocol (CCP)](../0010-connector-to-connector-protocol/) to coordinate routing and other interledger control information.
+
+### Errors
+
+Errors may be generated at any point as an Interledger payment is being prepared or by the receiver. Connectors that are notified of an outgoing transfer being rejected MUST reject the corresponding incoming transfer with the same error.
+
+Connectors SHOULD include their ILP address in the [`forwardedBy`](#forwardedby) field in the error. Connectors SHOULD NOT modify errors
+in any other way.
+
+See below for the [ILP Error Format](#ilp-error-format) and [ILP Error Codes](#ilp-error-codes).
 
 ## Specification
 
@@ -201,6 +212,94 @@ Not all ledgers support held transfers. In the case of a ledger that doesn't, th
 2. The receiver MAY trust the sender. The sender will notify the receiver about the intent to transfer. If the receiver provides a fulfillment for the condition before the expiry date, the sender will perform a regular transfer to the receiver.
 
 3. The sender and receiver MAY appoint a mutually trusted third-party which has an account on the local ledger. The sender performs a regular transfer into a neutral third-party account. In the first step, funds are transfered into the account belonging to the neutral third-party.
+
+### ILP Error Format
+
+Here is a summary of the fields in the ILP error format:
+
+| Field | Type | Short Description |
+|:--|:--|:--|
+| code | IA5String | [ILP Error Code](#ilp-error-codes)
+| triggeredBy | Address | ILP address of the entity that originally emitted the error |
+| forwardedBy | SEQUENCE OF Address | ILP addresses of connectors that relayed the error message |
+| triggeredAt | Timestamp | Time when the error was initially emitted |
+| data | OCTET STRING | Error data provided for debugging purposes |
+
+#### code
+
+    IA5String (SIZE(3))
+
+See [ILP Error Codes](#ilp-error-codes) for the list of error codes and their meanings.
+
+#### triggeredBy
+
+[ILP Address](#account) of the entity that originally emitted the error.
+
+#### forwardedBy
+
+[ILP Addresses](#account) of the connectors that relayed the error message.
+
+#### triggeredAt
+
+    Timestamp ::= GeneralizedTime
+
+Date and time when the error was initially emitted.
+
+#### data
+
+    OCTET STRING (SIZE(0..8192))
+
+Error data provided for debugging purposes. Protocols built on top of ILP SHOULD specify the encoding format of error `data`.
+
+### ILP Error Codes
+
+Inspired by [HTTP Status Codes](https://tools.ietf.org/html/rfc2616#section-10), ILP errors are categorized based on the intended behavior of the caller when they get the given error.
+
+#### S__ - Sender Error
+
+Sender errors indicate that the payment is invalid and should not be retried unless the details are changed.
+
+| Code | Name | Description |
+|---|---|---|
+| **S00** | **Bad Request** | Generic sender error. |
+| **S01** | **Invalid Packet** | The ILP packet was syntactically invalid. |
+| **S02** | **Unreachable** | There was no way to forward the payment, because the destination ILP address was wrong or the connector does not have a route to the destination. |
+| **S03** | **Invalid Amount** | The amount is invalid, e.g. it contains more digits of precision than are available on the destination ledger or the amount is greater than the total amount of the given asset in existence. |
+| **S04** | **Insufficient Destination Amount** | The amount was insufficient (e.g. you tried to pay a $100 invoice with $10). |
+| **S05** | **Wrong Condition** | The receiver generated a different condition and cannot fulfill the payment. |
+| **S06** | **Unexpected Payment** | The receiver was not expecting a payment like this (the memo and destination address don't make sense in that combination, for example if the receiver does not understand the transport protocol used) |
+| **S07** | **Cannot Receive** | The receiver is unable to accept this payment due to a constraint, e.g. a limit was exceeded. |
+
+**S08** - **S50** are reserved for future use.
+**S51** - **S99** are for application-defined errors.
+
+#### T__ - Temporary Error
+
+Temporary errors indicate a failure on the part of the receiver or an intermediary system that is unexpected or likely to be resolved soon. Senders SHOULD retry the same payment again, possibly after a short delay.
+
+| Code | Name | Description |
+|---|---|---|
+| **T00** | **Internal Error** | Like HTTP 500. Something threw an exception, that's all we know. Try again later after we've had time to fix it. |
+| **T01** | **Ledger Unreachable** | The connector has a route or partial route to the destination but was unable to reach the next ledger. Try again later. |
+| **T02** | **Ledger Busy** | The ledger is rejecting requests due to overloading. Try again later. |
+| **T03** | **Connector Busy** | The connector is rejecting requests due to overloading. Try again later. |
+| **T04** | **Insufficient Liquidity** | The connector would like to fulfill your request, but it doesn't currently have enough money. Try again later. |
+
+**T05** - **T50** are reserved for future use.
+**T51** - **T99** are for application-defined errors.
+
+#### R__ - Relative Error
+
+Relative errors indicate that the payment did not have enough of a margin in terms of money or time. However, it is impossible to tell whether the sender did not provide enough error margin or the path suddenly became too slow or illiquid. The sender MAY retry the payment with a larger safety margin.
+
+| Code | Name | Description
+|---|---|---|
+| **R01** | **Transfer Timed Out** | The transfer timed out, i.e. the next party in the chain did not respond. This could be because you set your timeout too low or because something look longer than it should. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. |
+| **R02** | **Insufficient Source Amount** | Either you didn't send enough money or there wasn't enough liquidity. The sender MAY try again with a higher amount, but they SHOULD NOT do this indefinitely or a malicious connector could steal money from them. |
+| **R03** | **Insufficient Timeout** | The connector could not forward the payment, because the timeout was too low to subtract its safety margin. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. |
+
+**R04** - **R50** are reserved for future use.
+**R51** - **R99** are for application-defined errors.
 
 ### Payment Channels
 
