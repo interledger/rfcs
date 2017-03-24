@@ -7,14 +7,15 @@ IMPORTS
     UInt64
     FROM GenericTypes
 
-    Address
+    Address,
+    Timestamp
     FROM InterledgerTypes
 
     MetadataEntry
     FROM MetadataEntry
 ;
 
-InterledgerProtocolPaymentMessage ::= SEQUENCE {
+InterledgerProtocolPayment ::= SEQUENCE {
     -- Amount which must be received at the destination
     amount UInt64,
     -- Destination ILP Address
@@ -25,6 +26,23 @@ InterledgerProtocolPaymentMessage ::= SEQUENCE {
     extensions SEQUENCE {
         ...
     }
+}
+
+InterledgerProtocolError ::= SEQUENCE {
+    -- Standardized error code
+    code IA5String (SIZE (3)),
+    -- Corresponding error name
+    codeName IA5String,
+    -- Participant that originally emitted the error
+    triggeredBy Address,
+    -- Participants that forwarded the error
+    -- TODO: This could be more trouble than it's worth - could get really big etc.
+    forwardedBy SEQUENCE OF Address,
+    -- Time of emission
+    triggeredAt Timestamp,
+    -- Additional data
+    contentType IA5String,
+    data OCTET STRING (SIZE (0..8192))
 }
 
 END
