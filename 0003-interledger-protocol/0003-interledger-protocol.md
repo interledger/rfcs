@@ -38,17 +38,15 @@ Interledger payments do not carry a dedicated time-to-live or remaining-hops fie
 
 ### Definitions
 
-##### Transfer
-&emsp;Change in ownership of some asset
+- **Transfer:** A zero-sum set of balance changes that causes the change in ownership of some asset.
+- **Ledger:** A system which records transfers.
+- **Account:** A balance of one asset in a ledger, with an owner and metadata.
+- **Payment:** A series of transfers that delivers money from a sender to a receiver, possibly in different ledgers.
+- **Sender:** The originator of a payment. This is the entity whose account is ultimately debited.
+- **Receiver:** The beneficiary of a payment. This is the entity whose account is ultimately credited.
+- **Connector:** An entity and system which relays a payment across ledgers by participating in two transfers. The connector's account is credited in one ledger and debited in another ledger.
+- **Destination Ledger:** The ledger where the receiver's account is.
 
-##### Ledger
-&emsp;System which records transfers
-
-##### Connector
-&emsp;System which relays transfers between two ledgers
-
-##### Payment
-&emsp;An exchange of assets involving one or more transfers on different ledgers
 
 ## Overview
 
@@ -82,7 +80,7 @@ The protocol uses transfer holds to ensure a sender's funds are delivered to the
 
 3. The local ledger interface creates a local ledger transfer, including the crytographic condition, then authorizes this transfer on the local ledger.
 
-4. The ledger puts the sender's funds on hold -- it does not transfer the funds to the connector -- and notifies the connector.
+4. The ledger puts the sender's funds on hold—it does not transfer the funds to the connector—and notifies the connector.
 
 5. The connector host's local ledger interface receives the notification and passes it to the interledger module.
 
@@ -90,7 +88,7 @@ The protocol uses transfer holds to ensure a sender's funds are delivered to the
 
 7. The local ledger interface creates a local ledger transfer, including the crytographic condition, then authorizes this transfer on the local ledger.
 
-8. The ledger puts the connector's funds on hold -- it does not transfer the funds to the destination -- and notifies the destination host.
+8. The ledger puts the connector's funds on hold—it does not transfer the funds to the destination—and notifies the destination host.
 
 9. The destination host's local ledger interface receives the notification and passes it to the interledger module.
 
@@ -147,6 +145,36 @@ Connectors implement the interledger protocol to forward payments between ledger
 
 Connectors also implement the [Connector to Connector Protocol (CCP)](../0010-connector-to-connector-protocol/) to coordinate routing and other interledger control information.
 
+### Packet
+
+The ILP Packet is the core data structure of the interledger protocol. The ILP Packet is attached to each transfer in the Interledger payment, so the recipient of the transfer can confirm the reason for the transfer.
+
+The ILP Packet has two major consumers, who use it differently:
+
+- Connectors use the [ILP Address][] contained in the packet to route the payment.
+- The receiver of the payment uses the packet to identify the packet and which condition to fulfill.
+
+[ILP Address]: ../0015-ilp-addresses/0015-ilp-addresses.md
+
+
+#### Relation to ILQP Packets
+
+The [Interledger Quoting Protocol](../0008-interledger-quoting-protocol/0008-interledger-quoting-protocol.md) is another protocol that exists in the Interledger layer of the Interledger protocol suite. (For more information, see [Interledger Architecture](../0001-interledger-architecture/0001-interledger-architecture.md).) ILP Packets share a type space with ILQP Packets, to avoid ambiguity in case the wrong packet is attached to a transfer or other message.
+
+The type value `1` indicates an ILP Packet. The type values `2` through `7` indicate ILQP Packets.
+
+#### Life-Cycle of the ILP Packet
+
+The exact use of the ILP Packet depends on the transport protocol you use. In [IPR][], the receiver generates and communicates the packet to the sender. In [PSK][], the sender generates the packet according to agreed-upon rules with a pre-shared secret.
+[IPR]: ../0011-interledger-payment-request/0011-interledger-payment-request.md
+
+When the sender prepares a transfer to start the payment, the sender attaches the ILP Packet to the transfer, in the memo field if possible. If a ledger does not support attaching the entire ILP Packet to a transfer as a memo, users of that ledger can transmit the ILP Packet using another system, but MUST be able to correlate transfers and ILP Packets. ***Rome's note: Doesn't this also have some sort of trust implications, like the system for correlating transfers must be trusted to the same extent as the ledger because it could be used to steal money if it's malicious?***
+
+When a connector sees an incoming prepared transfer with an ILP Packet, the connector reads the ILP Packet to get the ILP Address of the payment's receiver. If the connector has a route to the receiver's account, the connector prepares a transfer to continue the payment, and attaches the same ILP Packet to the new transfer.
+
+When the receiver sees the incoming prepared transfer, the receiver reads the ILP Packet to confirm the details of the packet. The receiver confirms that the amount from the ILP Packet matches the amount actually delivered by the transfer. The receiver decodes the data of the ILP Packet and matches the condition to the packet. (Depending on the transport protocol, the packet's data MAY contain the condition.) The receiver MUST confirm the integrity of the ILP Packet, for example with a [hash-based message authentication code (HMAC)](https://en.wikipedia.org/wiki/Hash-based_message_authentication_code). If the receiver finds the transfer acceptable, the receiver releases the fulfillment for the transfer, which can be used to execute all the prepared transfers.
+
+
 ### Errors
 
 Errors may be generated at any point as an Interledger payment is being prepared or by the receiver. Connectors that are notified of an outgoing transfer being rejected MUST reject the corresponding incoming transfer with the same error.
@@ -156,52 +184,23 @@ in any other way.
 
 See below for the [ILP Error Format](#ilp-error-format) and [ILP Error Codes](#ilp-error-codes).
 
+
+
 ## Specification
 
-### ILP Payment Format
+### ILP Packet
 
-Here is a summary of the fields in the ILP payment packet format:
 
-| Field | Type | Short Description |
-|:--|:--|:--|
-| amount | UInt64 | Amount the destination account should receive, denominated in the asset of the destination ledger |
-| account | Address | Address corresponding to the destination account |
-| data | OCTET STRING | Transport layer data attached to the payment |
+The ILP Packet is represented as binary data. In addition to being faster to transmit and encode/decode, the binary format of the packet gives it a canonical format so it can be hashed consistently. The formal definition of the ILP Packet is the [ASN.1 Interledger Protocol module](../asn1/InterledgerProtocol.asn). The ILP Packet consists of the following data, in order:
 
-#### amount
+| Field     | Type            | Description                                    |
+|:----------|:----------------|:-----------------------------------------------|
+| `type`    | UInt8           | The value `1` indicates this is an ILP Packet (`InterledgerProtocolPaymentMessage`). See [Relation to ILQP Packets](#relation-to-ilqp-packets) below. |
+| `amount`  | UInt64          | The amount to deliver, in discrete units of the destination ledger's asset type. The scale of the units is determined by the destination ledger's smallest indivisible unit. |
+| `account` | [ILP Address][] | The ILP address of the account where the receiver should ultimately receive the payment. Represented with a subset of ASCII characters. Length-prefixed, up to 1023 bytes. |
+| `data`    | Octet String    | Arbitrary data for the receiver. Length-prefixed, up to 32767 bytes. This data is set by the transport layer of the payment. (For example, this may contain [PSK Headers][PSK].) |
 
-    UInt64 ::= INTEGER (0..18446744073709551615)
-
-Amount in discrete units of the receiving ledger's asset type. Note that the amount is counted in terms of the smallest indivisible unit on the receiving ledger.
-
-#### account
-
-    -- Readable names for special characters that may appear in ILP addresses
-    hyphen IA5String ::= "-"
-    period IA5String ::= "."
-    underscore IA5String ::= "_"
-    tilde IA5String ::= "~"
-
-    -- A standard interledger address
-    Address ::= IA5String
-      (FROM
-        ( hyphen
-        | period
-        | "0".."9"
-        | "A".."Z"
-        | underscore
-        | "a".."z"
-        | tilde )
-      )
-      (SIZE (1..1023))
-
-[Interledger Address](../0015-ilp-addresses/) of the receiving account.
-
-#### data
-
-    OCTET STRING (SIZE(0..32767))
-
-Arbitrary data that is attached to the payment. The contents are defined by the transport layer protocol.
+[PSK]: ../0016-pre-shared-key/0016-pre-shared-key.md
 
 ### Holds Without Native Ledger Support
 
