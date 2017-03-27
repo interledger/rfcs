@@ -121,7 +121,7 @@ Unsubscribe from ledger events.
 #### isConnected
 <code>ledgerPlugin.isConnected() ⇒ Boolean</code>
 
-Query whether the plugin is currently connected.
+Query whether the plugin is currently connected and has an active websocket.
 
 #### getInfo
 <code>ledgerPlugin.getInfo() ⇒ [LedgerInfo](#class-ledgerinfo)</code>
