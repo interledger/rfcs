@@ -172,7 +172,7 @@ When the sender prepares a transfer to start the payment, the sender attaches th
 
 When a connector sees an incoming prepared transfer with an ILP Payment Packet, the connector reads the ILP Payment Packet to get the ILP Address of the payment's receiver. If the connector has a route to the receiver's account, the connector prepares a transfer to continue the payment, and attaches the same ILP Payment Packet to the new transfer.
 
-When the receiver sees the incoming prepared transfer, the receiver reads the ILP Payment Packet to confirm the details of the packet. The receiver confirms that the amount from the ILP Payment Packet matches the amount actually delivered by the transfer. The receiver decodes the data of the ILP Payment Packet and matches the condition to the packet. (Depending on the transport protocol, the packet's data MAY contain the condition.) The receiver MUST confirm the integrity of the ILP Payment Packet, for example with a [hash-based message authentication code (HMAC)](https://en.wikipedia.org/wiki/Hash-based_message_authentication_code). If the receiver finds the transfer acceptable, the receiver releases the fulfillment for the transfer, which can be used to execute all the prepared transfers.
+When the receiver sees the incoming prepared transfer, the receiver reads the ILP Payment Packet to confirm the details of the packet. The receiver confirms that the amount from the ILP Payment Packet matches the amount actually delivered by the transfer. The receiver decodes the data of the ILP Payment Packet and matches the condition to the packet. The receiver MUST confirm the integrity of the ILP Payment Packet, for example with a [hash-based message authentication code (HMAC)](https://en.wikipedia.org/wiki/Hash-based_message_authentication_code). If the receiver finds the transfer acceptable, the receiver releases the fulfillment for the transfer, which can be used to execute all the prepared transfers.
 
 
 ### Errors
@@ -191,7 +191,7 @@ See below for the [ILP Error Format](#ilp-error-format) and [ILP Error Codes](#i
 ### ILP Payment Packet
 
 
-The ILP Payment Packet is represented as binary data. In addition to being faster to transmit and encode/decode, the binary format of the packet gives it a canonical format so it can be hashed consistently. The formal definition of the ILP Payment Packet is the [ASN.1 Interledger Protocol module](../asn1/InterledgerProtocol.asn). The ILP Payment Packet consists of the following data, in order:
+The ILP Payment Packet is represented as binary data, encoded using [Canonical Octet Encoding Rules (Canonical OER)](https://www.iso.org/standard/66141.html). In addition to being faster to transmit and encode/decode, the binary format of the packet gives it a canonical format so it can be hashed consistently. The formal definition of the ILP Payment Packet is the [ASN.1 Interledger Protocol module](../asn1/InterledgerProtocol.asn). The ILP Payment Packet consists of the following data, in order:
 
 | Field     | Type            | Description                                    |
 |:----------|:----------------|:-----------------------------------------------|
