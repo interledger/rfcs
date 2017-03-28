@@ -7,22 +7,41 @@ This repository contains a collection of various specifications and documentatio
 
 ## Index
 
-Here is a list of published Interledger RFCs.
+Here is a list of the main Interledger RFCs:
 
-* **[IL-RFC 1: Interledger Architecture](0001-interledger-architecture/0001-interledger-architecture.md)**
+* **[1: Interledger Architecture](0001-interledger-architecture/0001-interledger-architecture.md)**
 
-  Basic overview of the Interledger architecture.
+  Overview of the Interledger architecture and protocol stack.
 
-* **[IL-RFC 2: Crypto-conditions](https://github.com/rfcs/crypto-conditions/)**
+* **[3: Interledger Protocol (ILP)](0003-interledger-protocol/0003-interledger-protocol.md)**
 
-  Cryptographic conditions provide a flexible mechanism for delegation and authentication. Conditions include hashlocks, signatures and operators to compose them.
+  Specifies the Interledger Protocol and Interledger Packet, which are used for sending payment instructions across different ledgers and connectors. This is the core protocol in the Interledger stack.
 
-  The crypto conditions spec has been moved to https://github.com/rfcs/crypto-conditions/
-
-* **[IL-RFC 3: Interledger Protocol](0003-interledger-protocol/0003-interledger-protocol.md)**
-
-  Describes the Interledger protocol, including the format of the Interledger header, used for sending payment instructions across different ledgers and connectors.
-
-* **[IL-RFC 4: Ledger Plugin Interface](0004-ledger-plugin-interface/0004-ledger-plugin-interface.md)**
+* **[4: Ledger Plugin Interface](0004-ledger-plugin-interface/0004-ledger-plugin-interface.md)**
 
   JavaScript interface for ledger plugins, which implement all functionality necessary to make Interledger payments through a ledger. This can be used as a model for defining such plugins in other languages.
+
+* **[8: Interledger Quoting Protocol (ILQP)](0008-interledger-quoting-protocol/0008-interledger-quoting-protocol.md)**
+
+  Specifies the protocol used for requesting a quote for an Interledger payment from a connector.
+
+* **[9: Simple Payment Setup Protocol (SPSP)](0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md)**
+
+  A basic Application Layer protocol that uses HTTPS to exchange details needed to set up an Interledger payment.
+
+* **[10: Connector-To-Connector Protocol (CCP)](0010-connector-to-connector-protocol/0010-connector-to-connector-protocol.md)**
+
+  The protocol used by connectors to communicate routing information.
+
+* **[11: Interledger Payment Request (IPR)](0011-interledger-payment-request/0011-interledger-payment-request.md)**
+
+  A Transport Layer protocol in which the receiver generates the ILP Packet and condition.
+
+* **[15: ILP Addresses](0015-ilp-addresses/0015-ilp-addresses.md)**
+
+  Specifies the Interledger Address format for ledgers and accounts.
+
+* **[16: Pre-Shared Key (PSK)](0016-pre-shared-key/0016-pre-shared-key.md)**
+
+  The recommended Transport Layer protocol for most use cases, which uses a secret shared between the sender and receiver to generate the condition, authenticate the packet, and encrypt application data.
+
