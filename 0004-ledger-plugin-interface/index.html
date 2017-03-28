@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Payments across payment networks">
 
-    <title>Ledger Plugin Interface | Interledger</title>
+    <title>Ledger Plugin Interface (Javascript) | Interledger</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/css/bootstrap.min.css" rel="stylesheet">
@@ -170,9 +170,9 @@
           </nav>
         </div>
         <div class="col-sm-8 markdown-body">
-          <h1 id="ledger-plugin-interface">Ledger Plugin Interface</h1>
+          <h1 id="ledger-plugin-interface-javascript">Ledger Plugin Interface (Javascript)</h1>
 <p class="intro">The Interledger Protocol is a protocol suite for connecting blockchains and other ledgers.</p>
-<p>This spec defines a ledger abstraction interface for Interledger clients and connectors to communicate and route payments across different ledger protocols.</p>
+<p>This spec defines a Javascript ledger abstraction interface for Interledger clients and connectors to communicate and route payments across different ledger protocols. While the exact methods and events defined here are specific to the Javascript implementation, this may be used as a guide for ledger abstractions in other languages.</p>
 <p>To send ILP payments through a new ledger, one must implement a ledger plugin that exposes the interface defined below. This can be used with the ILP Client and Connector and should work out of the box.</p>
 <p>This spec depends on the <a href="../0003-interledger-protocol/">ILP spec</a>.</p>
 <h2 id="class-ledgerplugin">Class: LedgerPlugin</h2>
