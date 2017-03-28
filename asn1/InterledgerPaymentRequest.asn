@@ -12,10 +12,10 @@ IMPORTS
 InterledgerPaymentRequest ::= SEQUENCE {
     -- IPR Version
     version UInt8,
-    -- ILP Payment Packet
-    packet OCTET STRING,
     -- Cryptographic condition
-    condition UInt256
+    condition UInt256,
+    -- ILP Payment Packet
+    packet OCTET STRING
 }
 
 END

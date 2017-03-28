@@ -32,16 +32,14 @@ InterledgerProtocolError ::= SEQUENCE {
     -- Standardized error code
     code IA5String (SIZE (3)),
     -- Corresponding error name
-    codeName IA5String,
+    name IA5String,
     -- Participant that originally emitted the error
     triggeredBy Address,
     -- Participants that forwarded the error
-    -- TODO: This could be more trouble than it's worth - could get really big etc.
     forwardedBy SEQUENCE OF Address,
     -- Time of emission
     triggeredAt Timestamp,
     -- Additional data
-    contentType IA5String,
     data OCTET STRING (SIZE (0..8192))
 }
 
