@@ -1,140 +1,93 @@
 # Interledger Payment Request (IPR)
 
-## Preface
-
-This document specifies the Interledger Payment Request (IPR) data format. It is intended for use in protocols in which the recipient of an Interledger payment first communicates a request for payment to the sender.
-
-This document provides an example flow to illustrate how IPR could be used in a higher level protocol. This document also details a method for generating Interledger transfer conditions that enable recipients to use the condition as an integrity check on incoming transfers and packets, without maintaining state about all outstanding payment requests.
+The Interledger Payment Request (IPR) transport protocol is an end-to-end protocol in which the receiver of an Interledger payment first communicates a request for payment to the sender. This document also recommends a method for receivers to generate payment requests such that they can verify incoming payments without storing all outstanding requests.
 
 ## Introduction
 
 ### Motivation
 
-The Interledger Protocol uses holds based on Crypto Conditions and expiries to ensure a sender's funds are delivered to the destination or returned to the sender's account.
+The Interledger Protocol uses holds based on cryptographic conditions and expiries to ensure a sender's funds are delivered to the destination or returned to the sender's account.
 
-A common approach is for conditions to be generated and fulfilled by the receivers of Interledger transfers. This document specifies one such approach that enables receivers to verify that an incoming transfer matches a payment request they previously created, without the receiver needing to keep a record of all outstanding payment requests.
+One approach is for conditions to be generated and fulfilled by the receivers of Interledger payments. When the sender of the payment receives the fulfillment, they can be certain that the receiver received the payment.
+
+Receiver-generated conditions are also useful in building non-repudiable application layer protocols. The receiver would generate the condition and cryptographically sign a statement that the preimage of the specified hash indicates the sender has settled a particular debt. The receiver would only disclose the hash preimage upon receipt of payment. Once the sender gets the preimage, they would be able to demonstrate to third parties that they paid the receiver using the preimage and the original signed statement.
+
+In most cases, non-repudiability is unnecessary, as it is sufficient for the sender to get proof that the receiver received the payment even if that proof cannot be used to convince third parties. In such cases, the [Pre-Shared Key](../0016-pre-shared-key/0016-pre-shared-key.md) transport protocol is recommended because it does not require end-to-end communication for every payment.
 
 ### Scope
 
-This document defines a suggested format for representing payment requests and an approach for receiver-generated conditions. Protocols built on top of Interledger MAY use the format provided here, though they can use any format they choose instead.
+This document defines a suggested format for representing payment requests and an approach for receiver-generated conditions. Protocols built on top of IPR MAY use the format provided here, though they can use any format they choose instead.
 
 While this document also provides a recommendation for generating transfer conditions, conditions are often opaque to all parties aside from the receiver. Receivers MAY use any condition they choose, however this specification includes best practices that receivers SHOULD take into consideration.
 
-This document does **not** specify how payment requests are communicated from a recipient to a sender.
+This document does **not** specify how payment requests are communicated from a receiver to a sender.
 
 ### Model of Operation
 
 Interledger Payment Requests are intended to be used in higher-level protocols as follows:
 
-1. Recipient creates the payment request and generates the condition using one of algorithms outlined in [Condition Generation](#condition-generation).
-2. Recipient communicates the payment request to the sender.
-3. Sender generates an ILP Packet from the payment request.
-4. Sender prepares a local ledger transfer to a connector, held pending the execution condition given in the payment request and with the ILP Packet attached.
-5. Connectors forward the payment until it reaches the recipient.
-6. Recipient receives a notification of a held transfer with an ILP Packet attached.
-7. Recipient checks the transfer amount against the ILP Packet and checks the payment request has not expired.
-8. Recipient regenerates the condition and fulfillment from the ILP Packet attached to the incoming transfer, using the same algorithm as before, and fulfills the transfer's condition. If the condition generated does not match the one in the transfer it means that the ILP Packet has been tampered with and the transfer goes unfulfilled.
+1. The receiver creates the ILP Packet and generates the condition using one of algorithms outlined in [Condition Generation Recommendations](#condition-generation-recommendations).
+2. The receiver communicates the payment request, which includes the ILP Packet and condition, to the sender.
+3. The sender quotes the requested ILP packet and initiates an ILP payment with the packet and execution condition from the payment request. The sender uses the `account` and `amount` from the packet but they MUST treat the `data` as opaque. The sender MUST NOT modify the packet at all, or the receiver will reject the payment.
+4. When the receiver gets a notification of the incoming transfer, they check the transfer amount against the ILP Packet and check the payment request has not expired.
+5. The receiver regenerates the condition and fulfillment from the ILP Packet attached to the incoming transfer, using the same algorithm as before, and fulfills the transfer's condition.
+6. If the condition generated by the receiver matches the one in the incoming transfer, they submit the fulfillment to execute the transfer. If the condition does not match, it means that the ILP Packet has been tampered with and the receiver rejects the incoming transfer.
 
-## Payment Request Specification
+## Condition Generation Recommendations
 
-### JSON
+It is RECOMMENDED that receivers use an implementation of the [Pre-Shared Key](../0016-pre-shared-key/0016-pre-shared-key.md) transport protocol to generate the packet and condition, because it will already include the best practices for generating conditions and enable the receiver to avoid keeping state of all outstanding payment requests.
 
-```json
-{
-    "address": "ilpdemo.red.bob.b9c4ceba-51e4-4a80-b1a7-2972383e98af",
-    "amount": "10.25",
-    "condition": "cc:0:3:hd5x8kpaDDLQu-KqMyCrlsg5QJ9g9qaFr9ytTwqyCsw:32",
-    "expires_at": "2016-08-16T12:00:00Z",
-    "data": {
-        "re": "dinner the other night"
-    },
-    "additional_headers": "asdf98zxcvlknannasdpfi09qwoijasdfk09xcv009as7zxcv"
-}
-```
+Note the receiver's method for generating the condition or encoding data in the ILP packet does not matter to the sender. The sender treats the `data` in the ILP packet as opaque and uses the condition from the payment request without needing to know how the fulfillment is generated.
+
+### Using a PSK Implementation
+
+The [Pre-Shared Key](../0016-pre-shared-key/0016-pre-shared-key.md) protocol uses the payment condition as a MAC of the payment details by setting the fulfillment to be an HMAC of the ILP packet with a key derived from a secret shared between the sender and receiver. In IPR there is no shared secret and the condition is only generated by the receiver. Nevertheless, an IPR receiver can use the same methods to generate the condition and regenerate the fulfillment on receipt of the incoming transfer.
+
+To use a PSK implementation, the receiver follows these steps:
+
+1. The receiver MAY derive a receiver secret and address as detailed in [PSK: Shared Secret Generation](../0016-pre-shared-key/0016-pre-shared-key.md#shared-secret-generation) but in IPR the receiver MUST NOT share the secret key.
+2. The receiver creates the payment packet and condition _using the steps normally executed by the sender_: [PSK: Payment Creation](../0016-pre-shared-key/0016-pre-shared-key.md#1-payment-creation).
+3. The receiver communicates the payment request, including the packet and condition, to the sender.
+4. If the receiver used the derived secret from step 1, they regenerate that secret from the packet as specified in [PSK: Shared Secret Regeneration](../0016-pre-shared-key/0016-pre-shared-key.md#shared-secret-regeneration).
+5. The receiver generates the fulfillment from the secret and packet as specified in [PSK: Payment Fulfillment](../0016-pre-shared-key/0016-pre-shared-key.md#2-payment-fulfillment).
+
+### Alternative Methods and General Best Practices
+
+Receivers MAY use any method they choose for generating the condition, such as using a random fulfillment for each request. The receiver MUST be able to identify and verify the ILP Packet for every outstanding payment and produce the corresponding fulfillment. A PSK implementation handles these requirements without storing every fulfillment and packet in a database, by using the condition as a Message Authentication Code (MAC) of the payment request.
+
+Receivers SHOULD follow these guidelines if implementing a custom system:
+* Receivers SHOULD include a payment request-specific nonce in the ILP packet to ensure that conditions are unique even when multiple payments would otherwise have identical packets.
+* Receivers SHOULD include an expiry date so that they do not accept incoming payments that are paid too long after their creation.
+
+## Interledger Payment Request Format
+
+Here is a summary of the fields in the Interledger Payment Request format:
 
 | Field | Type | Short Description |
 |:--|:--|:--|
-| `address` | ILP Address | Request-specific address |
-| `amount` | Decimal String | Amount requested by the recipient |
-| `condition` | Crypto Condition | Execution condition for the payment |
-| `expires_at` | [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) Timestamp | Expiry of the request |
-| `data` | Object | Data to be included in the ILP Packet |
-| `additional_headers` | Base64 String | Additional headers for the ILP Packet |
+| `version` | UInt8 | IPR Version, `2` for now |
+| `packet` | OCTET STRING | ILP Payment packet including the destination address and amount |
+| `condition` | UInt256 | Execution condition for the payment |
 
-#### address
+#### version
 
-The ILP Address the payment is to be routed to. This SHOULD be a request-specific address in the form `<account address>.<request ID>`, such as `ilpdemo.red.bob.b9c4ceba-51e4-4a80-b1a7-2972383e98af`.
+    UInt8 ::= INTEGER (0..127)
 
-When using the recommended [Condition Generation](#condition-generation) method, account addresses MUST include a request-specific portion to ensure that conditions are unique per-request.
+IPR version. This document specifies version 2.
 
-#### amount
+#### packet
 
-The amount requested by the recipient, such as `10.25`, denoted in the assets of the recipient's ledger.
+    OCTET STRING (SIZE(0..65535))
 
-The amount MUST be rounded based on the precision supported by the recipient's ledger.
+The [ILP Payment Packet](../0003-interledger-protocol/0003-interledger-protocol.md#specification).
 
-Recipients SHOULD ignore incoming transfers whose amounts are less than the amount specified in the payment request. Recipients MAY ignore incoming transfers whose amounts are greater than requested.
+In IPR the sender only uses the `account` and `amount` from the ILP packet and MUST treat the `data` as opaque.
+
+The sender MUST NOT modify the ILP packet at all, or the receiver will reject the payment.
 
 #### condition
 
-The Crypto Condition to be used as the execution condition for the payment. See [Condition Generation](#condition-generation) for recommendations the recipient MAY use for creating the condition.
+    UInt256 ::= OCTET STRING (SIZE(32))
 
-#### expires_at
+The ILP payment condition, which is the SHA-256 hash of the fulfillment that will be used to trigger the execution of the payment.
 
-The timestamp when the request expires. Recipients SHOULD NOT fulfill the conditions of incoming transfers that arrive after the expiry has passed. Senders MAY use the request expiry to determine the expiry of the transfer they put on hold for the first connector.
-
-#### data
-
-An arbitrary JSON object that should be included in the ILP Packet's user data header.
-
-#### additional_headers
-
-Additional binary headers, encoded as a base64 string, that should be included in the ILP Packet. The sender SHOULD treat these as opaque.
-
-### Binary
-
-**TODO**
-
-## Condition Generation
-
-It is RECOMMENDED that recipients use a Message Authentication Code (MAC) of the details of their payment request in the condition so that the condition can be used as an integrity check on incoming transfers. This allows a recipient to ensure that a transfer matches a request they previously generated, without the recipient needing to maintain a log of all outstanding payment requests.
-
-Recipients MUST include a payment request-specific component in the account ILP Address to ensure that conditions are unique per-request.
-
-### Preimage Condition from JSON
-
-This is how a [PREIMAGE-SHA-256 Crypto Condition](../0002-crypto-conditions) MAY be generated using an HMAC of a JSON-encoded Interledger Payment Request:
-
-1. The recipient takes the `address`, `amount`, `expires_at`, and `data` fields from the payment request. Any fields that are used for routing are probably not important to perform an integrity check upon, because they may be modified in transit and there is no further use for them once the ILP packet is received attached to an incoming transfer.
-2. The recipient uses a canonical encoding, such as [Canonical JSON](https://www.npmjs.com/package/canonical-json) to create a stringified version of `1.`
-3. The recipient uses a secret key to create an HMAC of `2.`
-4. The recipient uses the digest of `3.` as the preimage of a [PREIMAGE-SHA-256 Crypto Condition](../0002-crypto-conditions).
-
-The following snippet shows how this can be done in JavaScript:
-
-```js
-const crypto = require('crypto') // Node.js crypto
-const stringify = require('canonical-json') // https://www.npmjs.com/package/canonical-json
-const cc = require('five-bells-condition') // https://www.npmjs.com/package/five-bells-condition
-
-const RECIPIENT_HMAC_KEY = Buffer.from('/4t65RDqth7/rxI0j+MqtQyv04Y8mzUCMhAAofhDQIY=', 'base64')
-const requestString = stringify({
-  "address": "ilpdemo.red.bob.b9c4ceba-51e4-4a80-b1a7-2972383e98af",
-  "amount": "10.25",
-  "expires_at": "2016-08-16T12:00:00Z",
-  "data": {
-    "re": "dinner the other night"
-  }
-})
-
-const hmac = crypto.createHmac('sha256', RECIPIENT_HMAC_KEY)
-hmac.update(requestString)
-const cryptoCondition = new cc.PreimageSha256()
-cryptoCondition.setPreimage(hmac.digest())
-
-const condition = cryptoCondition.getConditionUri()
-console.log(condition) // Prints cc:0:3:BC-mUTFsZYXd89QQDiocToUWbQ-XYTh5H5lFQNwhDWE:32
-
-const fulfillment = cryptoCondition.serializeUri()
-console.log(fulfillment) // Prints cf:0:aW9EFFuRmltvYcs2ESExvf-0pbzBhUGgpqKT-oUBuuU
-```
