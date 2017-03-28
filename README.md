@@ -11,7 +11,7 @@ Here is a list of the main Interledger RFCs:
 
 * **[1: Interledger Architecture](0001-interledger-architecture/0001-interledger-architecture.md)**
 
-  Overview of the Interledger architecture and protocol stack.
+  Overview of the Interledger architecture.
 
 * **[3: Interledger Protocol (ILP)](0003-interledger-protocol/0003-interledger-protocol.md)**
 

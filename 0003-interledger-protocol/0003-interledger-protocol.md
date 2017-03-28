@@ -143,11 +143,11 @@ The mapping from addresses to local accounts on a ledger is defined by the ledge
 
 ### Connectors
 
-Connectors implement the interledger protocol to forward payments between ledgers. Connectors also implement the [Connector to Connector Protocol (CCP)](../0010-connector-to-connector-protocol/) to coordinate routing and other interledger control information.
+Connectors implement the Interledger Protocol to forward payments between ledgers. Connectors implement (or include a module that implements) the ledger protocol of the ledgers on which they hold accounts. Connectors also implement the [Connector to Connector Protocol (CCP)](../0010-connector-to-connector-protocol/) to coordinate routing and other interledger control information.
 
 ## Specification
 
-### ILP Payment Format
+### ILP Payment Packet Format
 
 Here is a summary of the fields in the ILP payment packet format:
 
@@ -192,18 +192,6 @@ Amount in discrete units of the receiving ledger's asset type. Note that the amo
 
 Arbitrary data that is attached to the payment. The contents are defined by the transport layer protocol.
 
-### Holds Without Native Ledger Support
-
-Not all ledgers support held transfers. In the case of a ledger that doesn't, the sender and recipient of the local ledger transfer MAY choose a commonly trusted party to carry out the hold functions. There are three options:
-
-1. The sender MAY trust the receiver. The sender will perform a regular transfer in the first step and the receiver will perform a transfer back if the condition has not been met in time.
-
-2. The receiver MAY trust the sender. The sender will notify the receiver about the intent to transfer. If the receiver provides a fulfillment for the condition before the expiry date, the sender will perform a regular transfer to the receiver.
-
-3. The sender and receiver MAY appoint a mutually trusted third-party which has an account on the local ledger. The sender performs a regular transfer into a neutral third-party account. In the first step, funds are transfered into the account belonging to the neutral third-party.
-
-### Payment Channels
-
 ## Appendix A: ASN.1 Module
 
 ## Appendix B: IANA Considerations
@@ -215,9 +203,11 @@ The following initial entries should be added to the Interledger Header Type reg
 | Header Type ID | Protocol | Message Type |
 |:--|:--|:--|
 | 1 | [ILP](#ilp-header-format) | IlpPayment |
-| 2 | [ILQP](../0008-interledger-quoting-protocol/) | QuoteLiquidityRequest |
-| 3 | [ILQP](../0008-interledger-quoting-protocol/) | QuoteLiquidityResponse |
-| 4 | [ILQP](../0008-interledger-quoting-protocol/) | QuoteBySourceAmountRequest |
-| 5 | [ILQP](../0008-interledger-quoting-protocol/) | QuoteBySourceAmountResponse |
-| 6 | [ILQP](../0008-interledger-quoting-protocol/) | QuoteByDestinationAmountRequest |
-| 7 | [ILQP](../0008-interledger-quoting-protocol/) | QuoteByDestinationAmountResponse |
+| 2 | [ILQP][] | QuoteLiquidityRequest |
+| 3 | [ILQP][] | QuoteLiquidityResponse |
+| 4 | [ILQP][] | QuoteBySourceAmountRequest |
+| 5 | [ILQP][] | QuoteBySourceAmountResponse |
+| 6 | [ILQP][] | QuoteByDestinationAmountRequest |
+| 7 | [ILQP][] | QuoteByDestinationAmountResponse |
+
+[ILQP]: ../0008-interledger-quoting-protocol/
