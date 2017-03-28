@@ -1,8 +1,8 @@
-# Ledger Plugin Interface
+# Ledger Plugin Interface (Javascript)
 
 The Interledger Protocol is a protocol suite for connecting blockchains and other ledgers.
 
-This spec defines a ledger abstraction interface for Interledger clients and connectors to communicate and route payments across different ledger protocols.
+This spec defines a Javascript ledger abstraction interface for Interledger clients and connectors to communicate and route payments across different ledger protocols. While the exact methods and events defined here are specific to the Javascript implementation, this may be used as a guide for ledger abstractions in other languages.
 
 To send ILP payments through a new ledger, one must implement a ledger plugin that exposes the interface defined below. This can be used with the ILP Client and Connector and should work out of the box.
 
