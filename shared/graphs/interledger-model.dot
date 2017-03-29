@@ -1,0 +1,62 @@
+graph G {
+  node [shape = box,height=.1,fontname = "helvetica"];
+  newrank=true;
+
+  app [label="Application\l" shape="plaintext" width=1.5]
+  transport [label="Transport\l" shape="plaintext" width=1.5]
+  interledger [label="Interledger\l" shape="plaintext" width=1.5]
+  ledger [label="Ledger\l" shape="plaintext" width=1.5]
+
+  subgraph cluster_0 {
+    style=filled;
+    color=lightgrey;
+    node [style=filled,color=white];
+    app1 [label=SPSP];
+    tr1 [label=PSK];
+    im1 [label="ILP"];
+    lli1 [label="L1 Plugin"];
+    app1 -- tr1 -- im1 -- lli1;
+    label = "Sender";
+    fontname = "helvetica";
+  }
+
+  subgraph cluster_1 {
+    style=filled;
+    color=lightgrey;
+    node [style=filled,color=white];
+    im2 [label="ILP"];
+    lli2[label="L1 Plugin"];
+    lli3 [label="L2 Plugin"];
+    im2:sw -- lli2:n;
+    im2:se -- lli3:n;
+    label = "Connector";
+    fontname = "helvetica";
+  }
+
+  subgraph cluster_2 {
+    style=filled;
+    color=lightgrey;
+    node [style=filled,color=white];
+    app2 [label=SPSP];
+    tr2 [label=PSK];
+    im3 [label="ILP"];
+    lli4 [label="L2 Plugin"];
+    app2 -- tr2 -- im3 -- lli4;
+    label = "Receiver";
+    fontname = "helvetica";
+  }
+
+  lli1:s -- l1:nw;
+  lli2:s -- l1:ne;
+  lli3:s -- l2:nw;
+  lli4:s -- l2:ne;
+
+  l1 [shape=box label="Ledger 1"];
+  l2 [shape=box label="Ledger 2"];
+
+  { rank=same; app app1 app2 }
+  { rank=same; transport tr1 tr2 }
+  { rank=same; interledger im1 im2 im3 }
+  { rank=same; ledger lli1 lli2 lli3 lli4 }
+  { rank=same; l1 l2 }
+}

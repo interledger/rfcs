@@ -1,10 +1,8 @@
 # Interledger Architecture
 
-This document outlines the Interledger architecture and explains how the different layers relate to each other.
+This document outlines the Interledger architecture and explains how the different layers relate to each other. The [Interledger Protocol (ILP)](#interledger-protocol-ilp) is one layer in the Interledger architecture.
 
 The Interledger architecture is heavily inspired by the Internet architecture described in [RFC 1122](https://tools.ietf.org/html/rfc1122), [RFC 1123](https://tools.ietf.org/html/rfc1123) and [RFC 1009](https://tools.ietf.org/html/rfc1009).
-
-<span class="show alert alert-danger">**This is a strawman proposal.** Choices made in this document are merely intended as a starting point.</span>
 
 ## Introduction
 
@@ -48,7 +46,7 @@ A basic objective of the Interledger design is to tolerate a wide range of ledge
 
 The Interledger architecture is separated into four layers:
 
-![Interledger architecture layers](assets/interledger-architecture-layers.png)
+![Interledger architecture layers](../shared/graphs/interledger-model.svg)
 
 
 #### Application Layer
@@ -57,38 +55,40 @@ The application layer is the top layer of the Interledger protocol suite. Protoc
 
 * Source Account
 * Destination Account
-* Amount
-* Condition
+* Destination Amount
 
 Once these parameters are decided, the application layer protocol will instantiate a transport layer protocol to initiate the payment.
 
-Application layer protocols include open protocols such as the Open Web Payment Scheme (OWPS) and proprietary protocols such as the Ripple Payment Services Protocol (RPSP).
+An example of an application layer protocol is the [Simple Payment Setup Protocol (SPSP)](#simple-payment-setup-protocol-spsp).
 
 #### Transport Layer
 
-The transport layer provides end-to-end transaction services for applications. There are three primary transport layer protocols at the moment:
+The transport layer is responsible for two things:
 
-* Optimistic Transport Protocol (OTP)
-* Universal Transport Protocol (UTP)
-* Atomic Transport Protocol (ATP)
+* Generating the condition
+* Encoding (e.g. encrypting) the application layer data
 
-OTP is a trivial transport protocol which simply transfers funds without the protection of escrow. Hence it is only suitable for very small microtransactions where efficiency matters more than reliability.
+There are currently two transport layer protocols:
 
-UTP uses escrowed transfers to guarantee that no funds leave the sender's account unless the transaction was successfully completed. It is suitable for transactions of any size and should be considered the default choice.
+* [Pre-Shared Key (PSK)](#pre-shared-key-psk)
 
-ATP uses escrowed transfers and a set of pre-agreed, trusted notaries in order to guarantee atomicity across multiple ledgers. It is relatively expensive to set up, but can be used to reduce the need for reconciliation.
+    The sender and recipient agree upon a secret key in advance. The sender uses this key to generate the condition and encrypt the application data. The recipient uses the same key to generate the fulfillment and decrypt the application data.
+
+* [Interledger Payment Request (IPR)](#interledger-payment-request-ipr)
+
+    The recipient generates the condition during the quoting phase, and the sender cannot know the fulfillment until the recipient uses it to execute the payment. This is useful for building non-repudiable application layer protocols.
 
 #### Interledger Layer
 
-All Interledger transport protocols use the Interledger Protocol (ILP) to communicate with connectors about transfer requests. This may include requesting a quote or requesting a transfer on another ledger.
+All Interledger transport protocols use the [Interledger Protocol (ILP)](#interledger-protocol-ilp) to communicate with connectors about transfer requests. This may include requesting a quote or requesting a transfer on another ledger.
 
 The Interledger layer defines a standard way to refer to ledgers, accounts and amounts. This is used in routing as well as to try and make quotes comparable.
 
 #### Ledger Layer
 
-In order to facilitate transfers between accounts, ledgers must implement some API or protocol. We call this the ledger layer. There is a wide variety of ledger layer protocols, corresponding to the many different types of ledger.
+In order to facilitate transfers between accounts, ledgers must implement some API or protocol. This is called the ledger layer. There is a wide variety of ledger layer protocols, corresponding to the many different types of ledger.
 
-## Ledger Layer
+## Ledger Layer Requirements
 
 ### Introduction
 
@@ -98,53 +98,60 @@ Ledger protocols are responsible for executing the individual transfers that con
 
 #### Minimal Support
 
-For minimal Interledger support, the ledger MUST have the ability for funds to be transferred from one account to another. This enables OTP transactions to pass through this ledger. It also allows third parties to act as escrow providers in order to enable UTP and ATP transactions on the ledger.
+For minimal Interledger support, a ledger MUST have the ability to transfer funds from one account to another. All additional functionality can be implemented in a separate "adapter" service. To use ILP in that case, users of the ledger must also trust the adapter. For further details, see [Appendix A](#appendix-a-holds-without-native-ledger-support).
 
 #### Basic Support
 
 For basic Interledger support, a ledger MUST fulfill the requirements for minimal support and also the following:
 
-The ledger MUST provide cryptographic escrow. Escrow means that transfers can have four states:
+The ledger MUST provide authorization holds, conditional upon a cryptographic hash and timeout as described below. During an authorization hold, money is put aside for a specific transfer until that transfer's outcome has been decided.
 
-![enter image description here](https://lh3.googleusercontent.com/-QHsehrPTXgM/Vu_zs1dLWPI/AAAAAAAAEys/zchHKJj_MQs/s0/Transfer%252520States.png "Transfer States")
+Transfers using authorization holds can be in four distinct states:
+
+![Transfers start in the proposed state, transition to the prepared state and finally to the executed state, which is final. Proposed and prepared transfers can also transition to the rejected state, which is final as well.](../shared/graphs/transfer-states.svg)
 
 * Proposed -- Nothing has happened yet.
-* Prepared -- Funds are held in escrow.
+* Prepared -- Funds are held.
 * Executed -- The transfer has completed.
 * Rejected -- The transfer has been canceled (and funds returned to the sender.)
 
-<span class="show alert alert-info">**Hint:** Escrow is the financial equivalent of a [two-phase commit](http://foldoc.org/two-phase%20commit).</span>
+<span class="show alert alert-info">**Hint:** Authorization holds are the financial equivalent of a [two-phase commit](http://foldoc.org/two-phase%20commit).</span>
 
+The ledger MUST be able to release the held funds to the receiver upon receiving a 32-byte preimage whose SHA-256 hash matches a value provided by the sender. The ledger MUST accept ONLY 32 byte preimages or support specifying the fulfillment length when the transfer is prepared.
 
-The ledger MUST be able to verify a simple SHA-256 hashlock cryptographic escrow condition in order to automatically trigger the release of the escrow. It must also allow a timeout to automatically roll back an escrowed transfer.
+The ledger MUST support releasing held funds back to the sender after a timeout.
 
 The ledger MUST support attaching a short message or *memo* to each transfer.
+
+The ledger MUST support notifications to account holders when transfers are prepared, executed, or rejected that affect their accounts.
 
 #### Full Support
 
 The ledger MUST fulfill the requirements for basic support and also the following:
 
-It MUST support all cryptographic condition types with the status "recommended".
+The ledger MUST support memos up to 65535 bytes.
 
-It MUST support memos to be added for the credited and debited accounts separately and SHOULD support fairly large memo sizes.
+The ledger MUST support sending an authenticated message of up to 65535 bytes to the holder of another account on the ledger.
 
-It MUST support a way to discover connectors connected to the ledger.
+The ledger MUST support a way to look up a fulfillment by condition hash. It SHOULD automatically reject new transfers (that have not been prepared yet) that have an execution condition for which the ledger already knows the fulfillment. This aids in [error recovery](#error-recovery).
 
-It MUST support a way to look up a fulfillment by condition hash. It SHOULD automatically reject new transfers (that have not been prepared yet) that have an execution condition for which the ledger already knows the fulfillment. This aids in [UTP error recovery](#error-recovery).
+The ledger MUST support preparing, executing, and rejecting transfers in 1 second or less.
+
+The ledger MUST define an [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) prefix and scheme such that accounts on the ledger can be addressed using canonical ILP addresses.
 
 ### Example Protocols
 
-#### Simple Ledger Protocol (SLP)
+#### Five Bells Ledger Protocol (5BLP)
 
-Simple Ledger Protocol (SLP) is a RESTful, JSON-based protocol that was developed specifically to provide the minimum functionality required for full Interledger support.
+Five Bells Ledger Protocol (5BLP) is a RESTful, JSON-based protocol that was developed specifically to provide the minimum functionality required for full Interledger support.
 
-A reference implementation of a ledger using SLP can be found [here](https://github.com/interledger/five-bells-ledger).
+A reference implementation of a ledger using 5BLP can be found [here](https://github.com/interledger/five-bells-ledger).
 
 #### Blockchain Protocols (e.g. Bitcoin)
 
 Blockchains are distributed, peer-to-peer systems that provide consensus over a single shared state. Any blockchain that supports escrowed funds transfers is in principle capable of acting as a ledger connected to the Interledger.
 
-Bitcoin for instance supports multiple credits and debits as well as SHA-256 hashlocked escrow transfers which means it can participate in OTP/ILP and UTP/ILP Interledger transactions. Bitcoin's BIP-65 enhancement proposal provides the timeouts required for Basic level support.
+For example, Bitcoin supports SHA-256 hashlocked escrow transfers which means it can participate in ILP Interledger transactions. Bitcoin's [BIP-65](https://github.com/bitcoin/bips/blob/master/bip-0065.mediawiki) proposal provided the timeouts required for Basic level support.
 
 #### Legacy Protocols (e.g. ACH, ISO 20022)
 
@@ -174,59 +181,41 @@ When initiating an Interledger transaction, the sender will make a transfer to a
 
 Note that the exact method of transmitting this data packet is dependent on the ledger layer protocol. Typically, it will be included in the transfer in a memo field. However, some ledgers may specify a different method for transporting the ILP packet.
 
+The protocol is specified in [IL-RFC 3](../0003-interledger-protocol/0003-interledger-protocol.md) and the flow is described in the [Interledger whitepaper](https://interledger.org/interledger.pdf).
+
+<span class="show alert alert-info">**Note:** Interledger only supports Universal mode as described in the whitepaper. Atomic mode can be used by adjacent subsets of participants in an Interledger payment if desired, however this is not part of the standard.</span>
+
+##### Error Recovery
+
+An ILP execution chain can be interrupted if a connector fails to deliver the condition fulfillment. In this case, the sender thinks the transaction failed and retries it using the same condition as the original transaction. At some point during the retry, a connector inevitably prepares a transfer on a ledger which already knows the corresponding fulfillment. (This may be the recipient's ledger or a ledger before it in the chain.) When this happens, the ledger fails the transfer and provides the fulfillment to the connector which prepared it. This connector can pass the fulfillment back up the chain to receive money without sending any.
+
+In other words, the failed connector loses money and some other connector gains money, but from the sender and the recipient's perspective everything has executed normally.
+
 #### Interledger Quoting Protocol (ILQP)
 
-Before an Interledger transfer takes place, the sender will request quotes from connectors which are connected to the same ledger. These quote requests happen via the [Interledger Quoting Protocol (ILQP)](../0008-interledger-quoting-protocol/).
+Before an Interledger payment occurs, the sender requests quotes from connectors which are connected to the same ledger as the sender. The sender and the connector use the [Interledger Quoting Protocol](../0008-interledger-quoting-protocol/) to communicate these quotes.
 
 Senders MAY cache quotes and send repeated transfers through the same connector.
-
-#### Interledger Control Protocol (ILCP)
-
-The Interledger Control Protocol (ILCP) is a protocol used by connectors to exchange routing information and communicate payment errors.
-
-**TODO**: add link
 
 ## Transport Layer
 
 ### Introduction
 
-Transport layer protocols are responsible for coordinating the different transfers that make up an Interledger transaction. The safety guarantees afforded to the participants of a transaction vary depending on the type of transport protocol used.
+Transport layer protocols used by the senders and receivers of Interledger payments to determine the payment condition and other details. The guarantees afforded to the sender vary depending on the type of transport protocol used.
 
 ### Protocols
 
-#### Optimistic Transport Protocol (OTP)
+#### Pre-Shared Key (PSK)
 
-The Optimistic Transport Protocol (OTP) is the trivial case of a transport protocol. It simply makes a transfer to the next connector. The connector may or may not make the requested transfer and the sender is out the money either way.
+The Pre-Shared Key (PSK) protocol is an end-to-end protocol in which the sender and receiver use a shared secret to generate the payment condition, authenticate the ILP packet, and encrypt application data. Using PSK, the sender is guaranteed that fulfillment of their transfer indicates the receiver got the payment, provided that no one aside from the sender and receiver have the secret and the sender did not submit the fulfillment. PSK is recommended for most use cases.
 
-For most cases, OTP will not be appropriate. However, it may make sense in the case of recurring microtransactions where a few lost transactions are not a big deal.
+The protocol is specified in [IL-RFC 16](../0016-pre-shared-key/0016-pre-shared-key.md).
 
-<span class="show alert alert-warning">**TODO:** Need to figure out how OTP can detect dropped transfers and adjust the route accordingly.</span>
+#### Interledger Payment Request (IPR)
 
-#### Universal Transport Protocol (UTP)
+The Interledger Payment Request (IPR) protocol is an end-to-end protocol in which the receiver generates the payment details and condition. In IPR, the sender does not share the secret used to generate the condition and fulfillment with the sender or anyone else, but the sender must ask the recipient to generate and share a condition before sending each payment. IPR is primarily useful for building non-repudiable application layer protocols, in which the sender's posession of the fulfillment proves to third parties that the sender has paid the receiver for a specific obligation.
 
-The Universal Transport Protocol (UTP) is the standard and recommended transport protocol. It sets up a cascading chain of escrowed transfers in order to ensure delivery of funds.
-
-The protocol flow is described in the [Interledger whitepaper](https://interledger.org/interledger.pdf).
-
-##### Error Recovery
-
-A UTP execution chain can be interrupted if a connector fails to deliver the condition fulfillment. In that case the sender will think that the transaction failed and retry it. While retrying, some connector will try to create a prepared transfer on a ledger which already knows the corresponding fulfillment, which will cause the request to fail. The connector will notice this and simply pass back the fulfillment without paying anything.
-
-In other words, the failed connector will lose money and some other connector will win money, but from the sender and recipient's point of view everything has executed normally.
-
-#### Atomic Transport Protocol (ATP)
-
-The Atomic Transport Protocol (ATP) is the most conservative, but also most complex of the standard Interledger transport protocols. In addition to the ledgers and connectors, it also involves a set of impartial notaries, which must be agreed upon by the sender, recipient and connectors involved in the transaction.
-
-Since each party chooses their own set of notaries to trust, there may not be any overlap and ATP could not be used in that case. Notaries may be selected using an automatic process or preselected by a group with standing agreements among the participants.
-
-The protocol flow is described in the [Interledger whitepaper](https://interledger.org/interledger.pdf).
-
-##### As a Sub-Protocol
-
-ATP can be used as a sub-protocol for part of a UTP transaction. This happens when a connector decides to create an ATP transfer as the next hop. It takes on both the risk of being unable to pass on the receipt and the risk of the notaries failing. This makes sense to do if the next connector quotes a better price for an ATP transfer than for a UTP transfer.
-
-Similarly, an ATP transaction can turn into a UTP transaction when a connector decides to use UTP for the next hop. It takes on the risk of not being able to pass on the receipt to the notaries. This makes sense if ATP is not available.
+The protocol is specified in [IL-RFC 11](../0011-interledger-payment-request/0011-interledger-payment-request.md).
 
 ## Application Layer
 
@@ -236,17 +225,26 @@ Application layer protocols deal with the exchange of payment details and associ
 
 ### Simple Payment Setup Protocol (SPSP)
 
-The Simple Payment Setup Protocol (SPSP) is an application layer protocol for negotiating payment details. SPSP handles account and amount discovery, condition creation, quoting and setup. SPSP uses Webfinger ([RFC 7033](https://tools.ietf.org/html/rfc7033)) and an HTTP-based protocol for querying account and amount details, [ILQP](#interledger-quoting-protocol-ilqp) for quoting, and [UTP](#universal-transport-protocol-utp) for payment execution.
+The Simple Payment Setup Protocol (SPSP) is an application layer protocol for negotiating payment details. SPSP handles account and amount discovery, condition creation, quoting and setup. SPSP uses Webfinger ([RFC 7033](https://tools.ietf.org/html/rfc7033)) and an HTTP-based protocol for querying account and amount details, [ILQP](#interledger-quoting-protocol-ilqp) for quoting, and [ILP](#interledger-protocol-ilp) for payment execution.
 
-The protocol is described in [IL-RFC 9](../0009-simple-payment-setup-protocol/).
+The protocol is described in [IL-RFC 9](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md).
 
 ### Defining Other Application Layer Protocols
 
 Creators of other application layer protocols should consider the following:
 
 1. Account discovery
-2. Amount and condition communication
-3. Additional details communicated in memo
-4. Condition types supported or required
-5. Transport protocol
-6. Incoming payment validation (amount, condition, etc.)
+2. Amount and condition negotiation and communication
+3. Additional details communicated in ILP packet data
+4. Transport protocol
+
+## Appendix A: Holds Without Native Ledger Support
+
+Not all ledgers support held transfers. In the case of a ledger that doesn't, the sender and recipient of the local ledger transfer MAY choose a commonly trusted party to carry out the hold functions. There are three options:
+
+1. The sender MAY trust the receiver. The sender will perform a regular transfer in the first step and the receiver will perform a transfer back if the condition has not been met in time.
+
+2. The receiver MAY trust the sender. The sender will notify the receiver about the intent to transfer. If the receiver provides a fulfillment for the condition before the expiry date, the sender will perform a regular transfer to the receiver.
+
+3. The sender and receiver MAY appoint a mutually trusted third-party which has an account on the local ledger. The sender performs a regular transfer into a neutral third-party account. In the first step, funds are transfered into the account belonging to the neutral third-party.
+

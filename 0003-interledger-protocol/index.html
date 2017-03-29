@@ -119,15 +119,7 @@
                 </li>
               
                 <li>
-                  <a href="#ilp-header-format">ILP Header Format</a>
-                </li>
-              
-                <li>
-                  <a href="#holds-without-native-ledger-support">Holds Without Native Ledger Support</a>
-                </li>
-              
-                <li>
-                  <a href="#payment-channels">Payment Channels</a>
+                  <a href="#ilp-payment-packet-format">ILP Payment Packet Format</a>
                 </li>
               
                 <li class="nav-label">
@@ -177,48 +169,10 @@
 <h2 id="overview">Overview</h2>
 <h3 id="relation-to-other-protocols">Relation to Other Protocols</h3>
 <p>The following diagram illustrates the place of the interledger protocol in the protocol hierarchy:</p>
-<p><img src="../0001-interledger-architecture/assets/interledger-architecture-layers.png" alt="Interledger model" class="img-responsive"></p>
+<p><img src="../shared/graphs/interledger-model.svg" alt="Interledger model" class="img-responsive"></p>
 <p>The interledger protocol interfaces on one side to the higher level end-to-end protocols and on the other side to the local ledger protocol. In this context a &quot;ledger&quot; may be a small ledger owned by an individual or organization or a large public ledger such as Bitcoin.</p>
 <h3 id="model-of-operation">Model of Operation</h3>
-<h4 id="without-holds-optimistic-mode">Without Holds (&quot;Optimistic Mode&quot;)</h4>
-<p>The protocol MAY be used without the security provided by holds -- sometimes referred to as &quot;Optimistic Mode&quot;. The model of operation for transmitting funds from one application to another without holds is illustrated by the following scenario:</p>
-<p>We suppose the source and destination have accounts on different ledgers connected by a single connector.</p>
-<pre><code>    (1)                                               (11)
-Application                                       Application
-       \                                              /
-       (2)                    (6)                  (10)
-Interledger Module    Interledger Module    Interledger Module
-          \               /       \                /
-           (3)          (5)       (7)            (9)
-          LLI-1       LLI-1      LLI-2          LLI-2
-             \   (4)   /             \    (8)   /
-           Local Ledger 1           Local Ledger 2
-</code></pre><ol>
-<li><p>The sending application chooses an amount and calls on its local interledger module to send that amount as a payment and passes the destination address and other parameters as arguments of the call.</p>
-</li>
-<li><p>The interledger module prepares an ILP packet and attaches the data to it. The interledger module determines a destination account on the local ledger for this interledger address. In this case it is the account of a connector. It passes the chosen amount and the local destination account to the local ledger interface.</p>
-</li>
-<li><p>The local ledger interface creates a local ledger transfer, then authorizes this transfer on the local ledger.</p>
-</li>
-<li><p>The ledger executes the transfer and notifies the connector.</p>
-</li>
-<li><p>The connector host&apos;s local ledger interface receives the notification and passes it to the interledger module.</p>
-</li>
-<li><p>The connector&apos;s interledger module extracts the ILP packet from the notification and determines from the interledger address that the payment is to be forwarded to another account in a second ledger. The interledger module converts the amount according to its locally available liquidity and determines the local account on the other ledger corresponding to the destination host. It calls on the local ledger interface for the destination ledger to send the transfer, which includes the same ILP packet.</p>
-</li>
-<li><p>This local ledger interface creates a local ledger transfer and authorizes it.</p>
-</li>
-<li><p>The ledger executes the transfer and notifies the destination host.</p>
-</li>
-<li><p>The destination host&apos;s local ledger interface receives the notification and passes it to the interledger module.</p>
-</li>
-<li><p>The interledger module extracts the ILP packet and determines that the payment is for an application in this host. It passes the transfer data to the application.</p>
-</li>
-<li><p>The destination application receives the notification of incoming funds and reacts accordingly.</p>
-</li>
-</ol>
-<h4 id="with-holds-universal-mode">With Holds (&quot;Universal Mode&quot;)</h4>
-<p>The protocol MAY be used with transfer holds to ensure a sender&apos;s funds are delivered to the destination or returned to the sender&apos;s account. The model of operation is illustrated with the following example:</p>
+<p>The protocol uses transfer holds to ensure a sender&apos;s funds are delivered to the destination or returned to the sender&apos;s account. The model of operation is illustrated with the following example:</p>
 <pre><code>  (1,21)                                               (11)
 Application                                        Application
        \                                               /
@@ -282,15 +236,15 @@ Interledger Module    Interledger Module    Interledger Module
 <p>&quot;A name indicates what we seek. An address indicates where it is. A route indicates how to get there. The internet protocol deals primarily with addresses. It is the task of higher level (i.e., end-to-end or application) protocols to make the mapping from names to addresses.&quot;</p>
 </blockquote>
 <p>The interledger module translates interledger addresses to local ledger addresses. Connectors and local ledger interfaces are responsible for translating addresses into interledger routes and local routes, respectively.</p>
-<p>Addresses are hierarchically structured strings consisting of segments delimited by the period (<code>.</code>) character. In order to distinguish the present address format from future or alternative versions, the protocol prefix <code>ilp:</code> MUST be used:</p>
-<pre><code>ilp:us.bank1.bob
-</code></pre><p>Care must be taken in mapping interledger addresses to local ledger accounts. Examples of address mappings may be found in &quot;Address Mappings&quot; ((TODO)).</p>
+<p>Addresses are hierarchically structured strings consisting of segments delimited by the period (<code>.</code>) character.</p>
+<pre><code>g.us.bank1.bob
+</code></pre><p>More information about ILP addresses can be found in the <a href="../0015-ilp-addresses/">ILP Address Specification</a>.</p>
+<p>The mapping from addresses to local accounts on a ledger is defined by the ledger protocol.</p>
 <h3 id="connectors">Connectors</h3>
-<p>Connectors implement the interledger protocol to forward payments between ledgers. Connectors also implement the <a href="../0010-connector-to-connector-protocol/">Connector to Connector Protocol (CCP)</a> to coordinate routing and other interledger control information.</p>
-<p><img src="assets/ilp-ledger-relation.png" alt="Interledger is an overlay across ledgers" class="img-responsive"></p>
+<p>Connectors implement the Interledger Protocol to forward payments between ledgers. Connectors implement (or include a module that implements) the ledger protocol of the ledgers on which they hold accounts. Connectors also implement the <a href="../0010-connector-to-connector-protocol/">Connector to Connector Protocol (CCP)</a> to coordinate routing and other interledger control information.</p>
 <h2 id="specification">Specification</h2>
-<h3 id="ilp-header-format">ILP Header Format</h3>
-<p>Here is a summary of the fields in the ILP header format:</p>
+<h3 id="ilp-payment-packet-format">ILP Payment Packet Format</h3>
+<p>Here is a summary of the fields in the ILP payment packet format:</p>
 <table class="table table-striped">
 <thead>
 <tr>
@@ -301,60 +255,48 @@ Interledger Module    Interledger Module    Interledger Module
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left">version</td>
-<td style="text-align:left">INTEGER(0..255)</td>
-<td style="text-align:left">ILP protocol version (currently <code>1</code>)</td>
-</tr>
-<tr>
-<td style="text-align:left">destinationAddress</td>
-<td style="text-align:left">IlpAddress</td>
-<td style="text-align:left">Address corresponding to the destination account</td>
-</tr>
-<tr>
-<td style="text-align:left">destinationAmount</td>
-<td style="text-align:left">IlpAmount</td>
+<td style="text-align:left">amount</td>
+<td style="text-align:left">UInt64</td>
 <td style="text-align:left">Amount the destination account should receive, denominated in the asset of the destination ledger</td>
 </tr>
 <tr>
-<td style="text-align:left">condition</td>
-<td style="text-align:left">IlpCondition</td>
-<td style="text-align:left">Execution condition for the transfers</td>
+<td style="text-align:left">account</td>
+<td style="text-align:left">Address</td>
+<td style="text-align:left">Address corresponding to the destination account</td>
 </tr>
 <tr>
-<td style="text-align:left">expiresAt</td>
-<td style="text-align:left">IlpTimestamp</td>
-<td style="text-align:left">Maximum expiry time of the last transfer that the recipient will accept</td>
+<td style="text-align:left">data</td>
+<td style="text-align:left">OCTET STRING</td>
+<td style="text-align:left">Transport layer data attached to the payment</td>
 </tr>
 </tbody>
 </table>
-<h4 id="version">version</h4>
-<pre><code>INTEGER(0..255)
-</code></pre><p>The version of the Interledger Protocol being used. This document describes version <code>1</code>.</p>
-<h4 id="destinationaddress">destinationAddress</h4>
-<pre><code>IlpAddress :== SEQUENCE OF OCTET STRING
-</code></pre><p>Hierarchical routing label.</p>
-<h4 id="destinationamount">destinationAmount</h4>
-<pre><code>IlpAmount :== SEQUENCE { mantissa INTEGER, exponent INTEGER(-128..127) }
-</code></pre><p>Base 10 encoded amount.</p>
-<h4 id="condition">condition</h4>
-<pre><code>IlpCondition :== Condition&lt;/code&gt;
-</code></pre><p>Crypto-condition in binary format as defined in <a href="#draft-thomas-crypto-conditions-00">draft-thomas-crypto-conditions-00</a>.</p>
-<p>When processing a transfer carrying a condition a ledger MUST place a hold on the funds. While the funds are on hold, neither the sender nor recipient are able to access them. Upon receiving a condition fulfillment, a ledger MUST transfer the funds to the recipient if the funds are held, the fulfillment is a valid fulfillment of the transfer condition and the transfer has not yet expired. (&quot;Universal Mode&quot;)</p>
-<p>The condition is an optional field. If no condition is provided, the funds are immediately credited to the recipient of the transfer. (&quot;Optimistic Mode&quot;)</p>
-<h4 id="expiresat">expiresAt</h4>
-<pre><code>IlpExpiry :== GeneralizedTime
-</code></pre><p>Ledgers MAY require that all transfers with a condition also carry an expiry timestamp. Ledgers MUST reject transfers that carry an expiry timestamp, but no condition. Ledgers MUST reject transfers whose expiry transfer time has been reached or exceeded and whose condition has not yet been fulfilled. When rejecting a transfer, the ledger MUST lift the hold and make the funds available to the sender again.</p>
-<h3 id="holds-without-native-ledger-support">Holds Without Native Ledger Support</h3>
-<p>Not all ledgers support held transfers. In the case of a ledger that doesn&apos;t, the sender and recipient of the local ledger transfer MAY choose a commonly trusted party to carry out the hold functions. There are three options:</p>
-<ol>
-<li><p>The sender MAY trust the receiver. The sender will perform a regular transfer in the first step and the receiver will perform a transfer back if the condition has not been met in time.</p>
-</li>
-<li><p>The receiver MAY trust the sender. The sender will notify the receiver about the intent to transfer. If the receiver provides a fulfillment for the condition before the expiry date, the sender will perform a regular transfer to the receiver.</p>
-</li>
-<li><p>The sender and receiver MAY appoint a mutually trusted third-party which has an account on the local ledger. The sender performs a regular transfer into a neutral third-party account. In the first step, funds are transfered into the account belonging to the neutral third-party.</p>
-<h3 id="payment-channels">Payment Channels</h3>
-</li>
-</ol>
+<h4 id="amount">amount</h4>
+<pre><code>UInt64 ::= INTEGER (0..18446744073709551615)
+</code></pre><p>Amount in discrete units of the receiving ledger&apos;s asset type. Note that the amount is counted in terms of the smallest indivisible unit on the receiving ledger.</p>
+<h4 id="account">account</h4>
+<pre><code>-- Readable names for special characters that may appear in ILP addresses
+hyphen IA5String ::= &quot;-&quot;
+period IA5String ::= &quot;.&quot;
+underscore IA5String ::= &quot;_&quot;
+tilde IA5String ::= &quot;~&quot;
+
+-- A standard interledger address
+Address ::= IA5String
+  (FROM
+    ( hyphen
+    | period
+    | &quot;0&quot;..&quot;9&quot;
+    | &quot;A&quot;..&quot;Z&quot;
+    | underscore
+    | &quot;a&quot;..&quot;z&quot;
+    | tilde )
+  )
+  (SIZE (1..1023))
+</code></pre><p><a href="../0015-ilp-addresses/">Interledger Address</a> of the receiving account.</p>
+<h4 id="data">data</h4>
+<pre><code>OCTET STRING (SIZE(0..32767))
+</code></pre><p>Arbitrary data that is attached to the payment. The contents are defined by the transport layer protocol.</p>
 <h2 id="appendix-a-asn1-module">Appendix A: ASN.1 Module</h2>
 <h2 id="appendix-b-iana-considerations">Appendix B: IANA Considerations</h2>
 <h3 id="header-type-registry">Header Type Registry</h3>
@@ -363,29 +305,45 @@ Interledger Module    Interledger Module    Interledger Module
 <thead>
 <tr>
 <th style="text-align:left">Header Type ID</th>
-<th style="text-align:left">Description</th>
+<th style="text-align:left">Protocol</th>
+<th style="text-align:left">Message Type</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left">0</td>
-<td style="text-align:left"><a href="#ilp-header-format">Interledger Protocol (ILP)</a></td>
-</tr>
-<tr>
 <td style="text-align:left">1</td>
-<td style="text-align:left"><a href="../0005-optimistic-transport-protocol/">Optimistic Transport Protocol (OTP)</a></td>
+<td style="text-align:left"><a href="#ilp-header-format">ILP</a></td>
+<td style="text-align:left">IlpPayment</td>
 </tr>
 <tr>
 <td style="text-align:left">2</td>
-<td style="text-align:left"><a href="../0006-universal-transport-protocol/">Universal Transport Protocol (UTP)</a></td>
+<td style="text-align:left"><a href="../0008-interledger-quoting-protocol/">ILQP</a></td>
+<td style="text-align:left">QuoteLiquidityRequest</td>
 </tr>
 <tr>
 <td style="text-align:left">3</td>
-<td style="text-align:left"><a href="../0007-atomic-transport-protocol/">Atomic Transport Protocol (ATP)</a></td>
+<td style="text-align:left"><a href="../0008-interledger-quoting-protocol/">ILQP</a></td>
+<td style="text-align:left">QuoteLiquidityResponse</td>
 </tr>
 <tr>
 <td style="text-align:left">4</td>
-<td style="text-align:left"><a href="../0008-interledger-quoting-protocol/">Interledger Quoting Protocol (ILQP)</a></td>
+<td style="text-align:left"><a href="../0008-interledger-quoting-protocol/">ILQP</a></td>
+<td style="text-align:left">QuoteBySourceAmountRequest</td>
+</tr>
+<tr>
+<td style="text-align:left">5</td>
+<td style="text-align:left"><a href="../0008-interledger-quoting-protocol/">ILQP</a></td>
+<td style="text-align:left">QuoteBySourceAmountResponse</td>
+</tr>
+<tr>
+<td style="text-align:left">6</td>
+<td style="text-align:left"><a href="../0008-interledger-quoting-protocol/">ILQP</a></td>
+<td style="text-align:left">QuoteByDestinationAmountRequest</td>
+</tr>
+<tr>
+<td style="text-align:left">7</td>
+<td style="text-align:left"><a href="../0008-interledger-quoting-protocol/">ILQP</a></td>
+<td style="text-align:left">QuoteByDestinationAmountResponse</td>
 </tr>
 </tbody>
 </table>

@@ -1,0 +1,14 @@
+digraph G {
+  node [shape = box,height=.1,fontname = "helvetica"];
+
+  Proposed -> Prepared -> Executed
+  Proposed:s -> Rejected:w
+  Prepared:s -> Rejected:w
+
+  Executed -> Rejected [style=invis]
+
+  Executed [group=g]
+  Rejected [group=g]
+
+  { rank=same Proposed Prepared Executed }
+}
