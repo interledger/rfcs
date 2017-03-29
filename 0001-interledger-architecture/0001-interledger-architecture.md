@@ -139,6 +139,8 @@ The ledger MUST support preparing, executing, and rejecting transfers in 1 secon
 
 The ledger MUST define an [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) prefix and scheme such that accounts on the ledger can be addressed using canonical ILP addresses.
 
+It MUST support receivers (and ONLY receivers) rejecting incoming transfers. Receivers MUST be able to submit a rejection message of up to 65535 bytes. The sender of the transfer MUST be notified that the transfer has been rejected and the notification MUST include the rejection message.
+
 ### Example Protocols
 
 #### Five Bells Ledger Protocol (5BLP)
