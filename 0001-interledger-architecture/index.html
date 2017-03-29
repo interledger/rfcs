@@ -229,6 +229,7 @@
 <p>The ledger MUST support a way to look up a fulfillment by condition hash. It SHOULD automatically reject new transfers (that have not been prepared yet) that have an execution condition for which the ledger already knows the fulfillment. This aids in <a href="#error-recovery">error recovery</a>.</p>
 <p>The ledger MUST support preparing, executing, and rejecting transfers in 1 second or less.</p>
 <p>The ledger MUST define an <a href="../0015-ilp-addresses/0015-ilp-addresses.md">ILP Address</a> prefix and scheme such that accounts on the ledger can be addressed using canonical ILP addresses.</p>
+<p>It MUST support receivers (and ONLY receivers) rejecting incoming transfers. Receivers MUST be able to submit a rejection message of up to 65535 bytes. The sender of the transfer MUST be notified that the transfer has been rejected and the notification MUST include the rejection message.</p>
 <h3 id="example-protocols">Example Protocols</h3>
 <h4 id="five-bells-ledger-protocol-5blp">Five Bells Ledger Protocol (5BLP)</h4>
 <p>Five Bells Ledger Protocol (5BLP) is a RESTful, JSON-based protocol that was developed specifically to provide the minimum functionality required for full Interledger support.</p>
