@@ -14,4 +14,5 @@ const buildGraph = (graph) => {
 }
 
 buildGraph('../shared/graphs/interledger-model')
+buildGraph('../shared/graphs/protocol-suite')
 buildGraph('../shared/graphs/transfer-states')
