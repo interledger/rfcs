@@ -56,7 +56,7 @@ Interledger payments do not carry a dedicated time-to-live or remaining-hops fie
 
 The following diagram illustrates the place of the interledger protocol in the protocol hierarchy:
 
-![Interledger model](../shared/graphs/interledger-model.svg)
+![Interledger model](../shared/graphs/protocol-suite.svg)
 
 The interledger protocol interfaces on one side to the higher level end-to-end protocols and on the other side to the local ledger protocol. In this context a "ledger" may be a small ledger owned by an individual or organization or a large public ledger such as Bitcoin.
 

@@ -10,7 +10,7 @@ The Interledger architecture is heavily inspired by the Internet architecture de
 
 ## Interledger Model
 
-[diagram]
+![Interledger Model: Sender, Connectors, Ledgers, Receiver](../shared/graphs/interledger-model.svg)
 
 ### Ledgers
 
@@ -76,7 +76,7 @@ However, if a connector fails to deliver the fulfillment and the payment is not 
 
 The Interledger stack is separated into four layers:
 
-![Interledger architecture layers](../shared/graphs/interledger-model.svg)
+![Interledger Protocol Suite](../shared/graphs/protocol-suite.svg)
 
 ### Ledger Layer
 
