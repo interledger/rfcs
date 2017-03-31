@@ -34,14 +34,28 @@ graph G {
   }
 
   subgraph cluster_2 {
+    style=dotted;
+    color=black;
+    penwidth=1.5;
+    node [style=dotted,color=black];
+    im3 [label="ILP"];
+    lli4[label="L2 Plugin"];
+    lli5 [label="LN Plugin"];
+    im3:sw -- lli4:n [style=dotted];
+    im3:se -- lli5:n [style=dotted];
+    label = "Connector (N-1 Instances)";
+    fontname = "helvetica";
+  }
+
+  subgraph cluster_3 {
     style=filled;
     color=lightgrey;
     node [style=filled,color=white];
     app2 [label=SPSP];
     tr2 [label=PSK];
-    im3 [label="ILP"];
-    lli4 [label="L2 Plugin"];
-    app2 -- tr2 -- im3 -- lli4;
+    im4 [label="ILP"];
+    lli6 [label="LN Plugin"];
+    app2 -- tr2 -- im4 -- lli6;
     label = "Receiver";
     fontname = "helvetica";
   }
@@ -49,14 +63,17 @@ graph G {
   lli1:s -- l1:nw;
   lli2:s -- l1:ne;
   lli3:s -- l2:nw;
-  lli4:s -- l2:ne;
+  lli4:s -- l2:ne [style=dotted];
+  lli5:s -- l3:nw [style=dotted];
+  lli6:s -- l3:ne [style=dotted];
 
   l1 [shape=box label="Ledger 1"];
   l2 [shape=box label="Ledger 2"];
+  l3 [shape=box label="Ledger N" style=dotted];
 
   { rank=same; app app1 app2 }
   { rank=same; transport tr1 tr2 }
-  { rank=same; interledger im1 im2 im3 }
-  { rank=same; ledger lli1 lli2 lli3 lli4 }
-  { rank=same; l1 l2 }
+  { rank=same; interledger im1 im2 im3 im4 }
+  { rank=same; ledger lli1 lli2 lli3 lli4 lli5 lli6}
+  { rank=same; l1 l2 l3 }
 }
