@@ -66,11 +66,14 @@ For more details on the flow, see the [Interledger Protocol specification](../00
 
 <span class="show alert alert-info">**Note:** Interledger only supports Universal mode as described in the whitepaper. Atomic mode can be used by adjacent subsets of participants in an Interledger payment if desired, but this is not part of the standard.</span>
 
-### Error Recovery and Connector Risk
+### Connector Risk and Mitigation
 
-An ILP execution chain can be interrupted if a connector fails to deliver the condition fulfillment. In this case, the sender thinks the transaction failed and retries it using the same condition as the original transaction. If the retry goes through the same connector that failed the first time, that connector can claim the incoming funds without sending a second outgoing transfer.
+Interledger connectors accept some risk in exchange for the revenue they generate from facilitating payments. In the Interledger payment flow, connectors' outgoing transfers are executed before their incoming transfers. Once each connector is notified that the outgoing transfer has been executed, they have a window of time to deliver the fulfillment and execute the incoming transfer. Connectors that fail to deliver the fulfillment in time may lose money.
 
-However, if a connector fails to deliver the fulfillment and the payment is not retried through the same route, the failed connector loses money. This is the main risk connectors face in Interledger. Connectors manage this risk through a variety of strategies such as selecting reliable ledgers and appropriately setting the window of time required between transfer expiries.
+If some transfers in an Interledger payment are executed and others expire, the receiver will think the payment was completed but the sender may think the whole payment failed. Senders may retry payments that expire and they should use the same condition as the original payment. If the second attempt takes the same route, the connector that failed the first time can complete the payment by submitting the fulfillment without sending another outgoing transfer. Connectors should prefer senders (or aggregators of senders such as wallet services) and connectors that retry payments through the same route, because they increase the likelihood of completing such payments. Connectors may incentivize this behavior by offering better rates to parties known to retry failed payments through the same route.
+
+Failing to deliver the fulfillment in time is the main risk connectors face and there are a number of additional strategies connectors should employ to mitigate and manage this risk. For more details, see [IL-RFC 18](../0018-connector-risk-mitigations/0018-connector-risk-mitigations.md).
+
 
 ## Interledger Protocol Suite
 
