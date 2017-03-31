@@ -42,20 +42,15 @@ The Interledger protocol suite may be used to transact across any ledgers and co
 
 ## Interledger Security
 
-**Interledger uses *conditional transfers* to secure payments across multiple hops and even through untrusted connectors.**
-Senders are guaranteed proof that the receiver got the payment or their money back.
-Connectors take some risk, but this risk can be managed and is primarily based upon the connector's chosen ledgers and direct peers.
+**Interledger uses *conditional transfers* to secure payments across multiple hops and even through untrusted connectors.** Senders are guaranteed cryptographic proof that the receiver got the payment or their money back, no matter how many ledgers and connectors are in between. Connectors take some risk, but this risk can be managed and is primarily based upon the connector's chosen ledgers and direct peers.
 
 <span class="show alert alert-info">**Hint:** Conditional transfers or *authorization holds* are the financial equivalent of a [two-phase commit](http://foldoc.org/two-phase%20commit).</span>
 
 ### Conditional Transfers
 
-Each local transfer is first *prepared* and then either *executed* or *rejected*.
-When a transfer is prepared, the ledger puts the funds of the source account on hold with a *cryptographic condition* and *timeout*.
-If the condition is fulfilled before the timeout, the transfer is executed and the funds are transferred.
-If the timeout is reached, the transfer expires and the ledger returns the funds to the source account automatically.
+Each local transfer is first *prepared* and then either *executed* or *rejected*. When a transfer is prepared, the ledger puts the funds of the source account on hold with a *cryptographic condition* and *timeout*. If the condition is fulfilled before the timeout, the transfer is executed and the funds are transferred. If the timeout is reached, the transfer expires and the ledger returns the funds to the source account automatically.
 
-Inspired by the [Lightning Network](http://lightning.network), Interledger uses the digest of the [SHA-256](https://en.wikipedia.org/wiki/SHA-2) hash function as the condition for transfers. The fulfillment is a valid 32-byte preimage for the hash specified when the transfer was prepared. Ledgers are responsible for validating fulfillments. [Transport Layer](#transport-layer) protocols are used by the sender and receiverto generate the condition for a particular payment.
+Inspired by the [Lightning Network](http://lightning.network), Interledger uses the digest of the [SHA-256](https://en.wikipedia.org/wiki/SHA-2) hash function as the condition for transfers. The fulfillment is a valid 32-byte preimage for the hash specified when the transfer was prepared. Ledgers are responsible for validating fulfillments. [Transport Layer](#transport-layer) protocols are used by the sender and receiver to generate the condition for a particular payment.
 
 To be fully Interledger-compatible, ledgers MUST support conditional transfers, though it is possible to send Interledger payments over a ledger that does not natively support the recommended features. See [IL-RFC 17](../0017-ledger-requirements/0017-ledger-requirements.md) for the full description and tiers of ledger requirements.
 
@@ -89,15 +84,15 @@ In order to facilitate transfers between accounts, ledgers must implement some A
 
 See [IL-RFC 17](../0017-ledger-requirements/0017-ledger-requirements.md) for a full description of the ledger layer requirements.
 
-Most implementations of Interledger use a plugin architecture to abstract the differences between different ledgers. For an example of this, see [IL-RFC 4](../0004-ledger-plugin-interface/0004-ledger-plugin-interface), which defines the interface for the Javascript implementation.
+Most implementations of Interledger use a plugin architecture to abstract the differences between different ledgers. For an example of this, see [IL-RFC 4](../0004-ledger-plugin-interface/0004-ledger-plugin-interface.md), which defines the interface for the Javascript implementation.
 
 ### Interledger Layer
 
 The Interledger layer is responsible for facilitating payments across multiple ledgers. It is comprised of two key components that are used together: the Interledger Protocol (ILP) and the Interledger Quoting Protocol (ILQP).
 
-The [Interledger Protocol (ILP)](../0003-interledger-protocol/0003-interledger-protocol.md) is the core of the Interledger stack and defines a standard address packet format that instruct connectors where to send a payment.
+The [Interledger Protocol (ILP)](../0003-interledger-protocol/0003-interledger-protocol.md) is the core of the Interledger stack and defines standard address and packet formats that instruct connectors where to send a payment.
 
-[Interledger Addresses](../0015-interledger-addresses/0015-interledger-addresses.md) provide a ledger-agnostic way to address ledgers and accounts. Interledger addresses are dot-separated strings that contain prefixes to group ledgers. An example address might look like:
+[Interledger Addresses](../0015-ilp-addresses/0015-ilp-addresses.md) provide a ledger-agnostic way to address ledgers and accounts. Interledger addresses are dot-separated strings that contain prefixes to group ledgers. An example address might look like:
 `g.us.acmebank.acmecorp.sales.199` or `g.crypto.bitcoin.1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2`.
 
 When initiating an Interledger payment, the sender attaches an ILP packet to the local transfer to the connector. The packet is a binary message that includes the destination account, destination amount, and additional data for the receiver. The packet is relayed by connectors and attached to each transfer that comprises the payment. In some cases, ledger protocols may define alternative ways to communicate the packet.
