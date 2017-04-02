@@ -22,13 +22,13 @@ The Interledger Protocol has four basic building blocks that are used together t
 
 **Senders** want to send an asset to another party. Senders know the amount being sent and to whom. The act of sending something valuable can cost money, so senders should also be aware that what arrives could be less than what is sent, and be prepared to accept how much that could be.
 
-**Receivers** are expecting or allowing an asset to arrive from another party. Receivers may know how much to expect, or to expect something but not how much of it.  It's also possible a receiver may not be expecting anything at all. (Surprise!)
+**Receivers** are expecting or allowing an asset to arrive from another party. Receivers may know how much to expect, or to expect something to arrive but not how much.  It's also possible a receiver may not be expecting anything at all. (Surprise!)
 
-**Connectors** want to connect a sender with a receiver, or many senders with many receivers.
+**Connectors** want to connect a sender with a receiver, or many senders with many receivers. Connectors connect directly with senders and receivers, and also with other connectors in a _peer-to-peer network._ They do this so they can connect as many senders and receivers as possible, through a big or small (or medium-sized) chain of connectors.
 
-**Ledgers** are like empty books that get written in to record how much each sender or receiver has of a particular asset. For example, a ledger for a group of people could record how many US dollars each person has. In the real world, an example of a ledger might be a banks list of its customers bank accounts and the amount each has.
+**Ledgers** are like empty books that get written in to record how much each sender or receiver has of a particular asset. For example, a ledger for a group of people could record how many US dollars each person has. In the real world, an example of a ledger might be a banks list of its customers bank accounts and the amount of money each has.
 
-_Note: In a real bank, it's possible for an account to hold multiple types of assets. For example, one bank account could hold amounts of US dollars, Euro's, and Japanese Yen. To keep things simple in the Interledger Protocol, each ledger is limited to recording how much different parties have **of the same kind of asset**. If more than one asset needs to be recorded, another ledger is used. From ILP's point of view, a particular sender or receiver may have several ledgers associated with them._
+_Note: In a real bank, it's possible for an account to hold multiple types of assets. For example, one bank account could hold amounts of US dollars, Euro's, and Japanese Yen. To keep things simple in the Interledger Protocol, each ledger is limited to recording how much different parties have **of exactly the same kind of asset**. If another asset is used by a sender or receiver, another ledger is used for that party. From ILP's point of view, a particular party may have several ledgers associated with them._
 
 ### ILP Rule Types
 - Ledger
