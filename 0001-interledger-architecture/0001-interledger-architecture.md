@@ -1,252 +1,130 @@
 # Interledger Architecture
 
-This document outlines the Interledger architecture and explains how the different layers relate to each other. The [Interledger Protocol (ILP)](#interledger-protocol-ilp) is one layer in the Interledger architecture.
+Interledger provides for secure payments across multiple assets on different ledgers. The architecture consists of a conceptual model for interledger payments, a mechanism for securing payments, and a suite of protocols that implement this design.
+
+The [Interledger Protocol (ILP)](#interledger-layer) is the core of the Interledger protocol suite.
+
+Colloquially the whole Interledger stack is sometimes referred to as "ILP". Technically, however, the Interledger Protocol is only one layer in the stack.
 
 The Interledger architecture is heavily inspired by the Internet architecture described in [RFC 1122](https://tools.ietf.org/html/rfc1122), [RFC 1123](https://tools.ietf.org/html/rfc1123) and [RFC 1009](https://tools.ietf.org/html/rfc1009).
 
-## Introduction
+## Interledger Model
 
-This document is intended to provide an overview over the Interledger architecture and protocol suite.
+![Interledger Model: Sender, Connectors, Ledgers, Receiver](../shared/graphs/interledger-model.svg)
 
-## The Interledger Architecture
+### Ledgers
 
-All electronic transfers have to be recorded in stateful systems. Otherwise the same instance of an asset could be sent to two different destinations, essentially duplicating the asset. This is also known as a double-spend. We call these stateful systems *ledgers*.
+*Ledgers* are stateful systems that track the ownership of *assets*. Ledgers contain buckets of assets known as *accounts* and record *transfers* between them. Each account has a *balance*, which is the amount of the ledger's assets the account holds. Account balances may be positive or negative, representing assets or liabilities.
 
-Ledgers consist of *accounts*. Accounts are individual buckets containing a decimal amount of one type of asset, usually (but not always) associated with an owner. This amount is also called the account's *balance*. Balances can be positive or negative, representing assets or liabilities.
+**In the Interledger model, a ledger only tracks a single asset, which may be a currency, stock, commodity, etc.** One entity that maintains accounts denominated in multiple assets is described as having multiple ledgers.
 
-Assets can be transferred between accounts on the same ledger. We call these events *book transfers* or just *transfers*.
+A ledger may be operated by a single entity, as in the case of a bank, or it may be decentralized, as in the case of a blockchain or distributed ledger.
 
-A transfer of assets across ledgers requires two or more local book transfers. Some system must know the relationship between the two transfers. We call this system a *connector*. The same system may act as both a ledger and a connector.
+### Connectors
 
-The Interledger is a network of independent and diverse ledgers. Each account is part of a particular ledger; the Interledger itself is only conceptual.
+A *connector* is a system that facilitates *payments* across different ledgers. Connectors generate revenue from Interledger payments while accepting some risk.
 
-### Architectural Assumptions
+In the Interledger model, connectors are described as separate logical systems even though the same entity may operate a ledger and a connector.
 
-#### Ledgers contain only one type of asset.
+A connector receives a local transfer on one ledger in exchange for making another local transfer on a different ledger. A single interledger payment may include multiple connectors and may traverse any number of ledgers.
 
-We assume that all assets within one ledger are fungible. Within one ledger transfers can happen directly from sender to recipient and do not require a third party exchanger.
+If the ledgers represent different assets, the connectors set the exchange rate between the transfers. Connectors may generate revenue from the difference in value between incoming and outgoing transfers. Senders may request quotes from multiple connectors to determine the best price before sending a payment.
 
-When a single organization such as a bank manages accounts in multiple different assets of different types, we treat each asset as belonging to its own ledger.
+Connectors *peer* with one another to exchange information used to determine the best route for a payment.
 
-#### Connectors do not keep transfer state information.
+**Interledger ensures that senders' funds are safe throughout an multi-hop payment and cannot be stolen by faulty or malicious connectors (see [Interledger Security](#interledger-security)).**
 
-Just as Internet gateways do not keep connection state information, connectors do not keep transfer state information. All state is kept at the ledger level and connectors merely react to and trigger ledger events.
+### The Interledger
 
-Note that this does not mean that all connectors are necessarily stateless. They may keep track of their available liquidity or even maintain an internal ledger if they are transacting on behalf of third parties. But we are assuming that they do not keep authoritative state about transfers.
+The Interledger protocol suite may be used to transact across any ledgers and connectors, whether they are public or private. There is no single network that all parties must connect to to use these protocols.
 
-#### Routing complexity should be in the connectors.
+"The Interledger" is a conceptual network made up of independent and diverse ledgers linked by connectors. Each account "on the Interledger" is part of a particular ledger, but they may transact with others by sending interledger payments through different ledgers and connectors. Like "the Internet", the Interledger is not a single network but is comprised of multiple interconnected networks.
 
-Routing is a complex and difficult problem, and ought to be performed by the connectors, not the end users of the system. An important objective is to isolate user software from changes caused by the inevitable evolution of the Interledger routing architecture.
+## Interledger Security
 
-#### The system must tolerate wide ledger variation.
+**Interledger uses *conditional transfers* to secure payments across multiple hops and even through untrusted connectors.** Senders are guaranteed cryptographic proof that the receiver got the payment or their money back, no matter how many ledgers and connectors are in between. Connectors take some risk, but this risk can be managed and is primarily based upon the connector's chosen ledgers and direct peers.
 
-A basic objective of the Interledger design is to tolerate a wide range of ledger characteristics --- e.g. throughput, latency, fees, access restrictions, reliability, decentralization. In addition it must support all types of different asset characteristics --- e.g. divisibility, fungibility, interest/demurrage, issuance.
+<span class="show alert alert-info">**Hint:** Conditional transfers or *authorization holds* are the financial equivalent of a [two-phase commit](http://foldoc.org/two-phase%20commit).</span>
 
-### Interledger Protocol Suite
+### Conditional Transfers
 
-The Interledger architecture is separated into four layers:
+Each local transfer is first *prepared* and then either *executed* or *rejected*. When a transfer is prepared, the ledger puts the funds of the source account on hold with a *cryptographic condition* and *timeout*. If the condition is fulfilled before the timeout, the transfer is executed and the funds are transferred. If the timeout is reached, the transfer expires and the ledger returns the funds to the source account automatically.
 
-![Interledger architecture layers](../shared/graphs/interledger-model.svg)
+Inspired by the [Lightning Network](http://lightning.network), Interledger uses the digest of the [SHA-256](https://en.wikipedia.org/wiki/SHA-2) hash function as the condition for transfers. The fulfillment is a valid 32-byte preimage for the hash specified when the transfer was prepared. Ledgers are responsible for validating fulfillments. [Transport Layer](#transport-layer) protocols are used by the sender and receiver to generate the condition for a particular payment.
 
+To be fully Interledger-compatible, ledgers MUST support conditional transfers, though it is possible to send Interledger payments over a ledger that does not natively support the recommended features. See [IL-RFC 17](../0017-ledger-requirements/0017-ledger-requirements.md) for the full description and tiers of ledger requirements.
 
-#### Application Layer
+### Payment Flow
 
-The application layer is the top layer of the Interledger protocol suite. Protocols on this layer are responsible for negotiating the key properties of a payment:
+In Interledger payments, all component transfers are prepared before any are executed. No funds are transferred, so none can be lost if a connector fails or attempts to redirect the payment.
 
-* Source Account
-* Destination Account
-* Destination Amount
+When the *receiver* is notified of funds on hold for them, they submit the *fulfillment* of the cryptographic condition to claim their funds. Each connector uses the same fulfillment to claim their incoming transfer.
 
-Once these parameters are decided, the application layer protocol will instantiate a transport layer protocol to initiate the payment.
+The timeout of each successive transfer is shorter than the previous one, giving each connector a window of time to deliver the fulfillment even if their outgoing transfer was executed at the last possible moment.
 
-An example of an application layer protocol is the [Simple Payment Setup Protocol (SPSP)](#simple-payment-setup-protocol-spsp).
+For more details on the flow, see the [Interledger Protocol specification](../0003-interledger-protocol/0003-interledger-protocol.md) and the [Interledger whitepaper](https://interledger.org/interledger.pdf).
 
-#### Transport Layer
+<span class="show alert alert-info">**Note:** Interledger only supports Universal mode as described in the whitepaper. Atomic mode can be used by adjacent subsets of participants in an Interledger payment if desired, but this is not part of the standard.</span>
 
-The transport layer is responsible for two things:
+### Error Recovery and Connector Risk
 
-* Generating the condition
-* Encoding (e.g. encrypting) the application layer data
+An ILP execution chain can be interrupted if a connector fails to deliver the condition fulfillment. In this case, the sender thinks the transaction failed and retries it using the same condition as the original transaction. If the retry goes through the same connector that failed the first time, that connector can claim the incoming funds without sending a second outgoing transfer.
 
-There are currently two transport layer protocols:
+However, if a connector fails to deliver the fulfillment and the payment is not retried through the same route, the failed connector loses money. This is the main risk connectors face in Interledger. Connectors manage this risk through a variety of strategies such as selecting reliable ledgers and appropriately setting the window of time required between transfer expiries.
 
-* [Pre-Shared Key (PSK)](#pre-shared-key-psk)
+## Interledger Protocol Suite
 
-    The sender and recipient agree upon a secret key in advance. The sender uses this key to generate the condition and encrypt the application data. The recipient uses the same key to generate the fulfillment and decrypt the application data.
+The Interledger stack is separated into four layers:
 
-* [Interledger Payment Request (IPR)](#interledger-payment-request-ipr)
+![Interledger Protocol Suite](../shared/graphs/protocol-suite.svg)
 
-    The recipient generates the condition during the quoting phase, and the sender cannot know the fulfillment until the recipient uses it to execute the payment. This is useful for building non-repudiable application layer protocols.
-
-#### Interledger Layer
-
-All Interledger transport protocols use the [Interledger Protocol (ILP)](#interledger-protocol-ilp) to communicate with connectors about transfer requests. This may include requesting a quote or requesting a transfer on another ledger.
-
-The Interledger layer defines a standard way to refer to ledgers, accounts and amounts. This is used in routing as well as to try and make quotes comparable.
-
-#### Ledger Layer
+### Ledger Layer
 
 In order to facilitate transfers between accounts, ledgers must implement some API or protocol. This is called the ledger layer. There is a wide variety of ledger layer protocols, corresponding to the many different types of ledger.
 
-## Ledger Layer Requirements
+See [IL-RFC 17](../0017-ledger-requirements/0017-ledger-requirements.md) for a full description of the ledger layer requirements.
 
-### Introduction
+Most implementations of Interledger use a plugin architecture to abstract the differences between different ledgers. For an example of this, see [IL-RFC 4](../0004-ledger-plugin-interface/0004-ledger-plugin-interface.md), which defines the interface for the Javascript implementation.
 
-Ledger protocols are responsible for executing the individual transfers that constitute an Interledger transaction. They are also used by connectors to communicate with each other. Ledger layer protocols can differ widely depending on the type of ledger. For example, a central ledger will likely use a very different protocol than a blockchain, but for interledger purposes they are both ledgers and may be accessed using the same primitive operations as defined in this architecture.
+### Interledger Layer
 
-### Requirements
+The Interledger layer is responsible for facilitating payments across multiple ledgers. It is comprised of two key components that are used together: the Interledger Protocol (ILP) and the Interledger Quoting Protocol (ILQP).
 
-#### Minimal Support
+The [Interledger Protocol (ILP)](../0003-interledger-protocol/0003-interledger-protocol.md) is the core of the Interledger stack and defines standard address and packet formats that instruct connectors where to send a payment.
 
-For minimal Interledger support, a ledger MUST have the ability to transfer funds from one account to another. All additional functionality can be implemented in a separate "adapter" service. To use ILP in that case, users of the ledger must also trust the adapter. For further details, see [Appendix A](#appendix-a-holds-without-native-ledger-support).
+[Interledger Addresses](../0015-ilp-addresses/0015-ilp-addresses.md) provide a ledger-agnostic way to address ledgers and accounts. Interledger addresses are dot-separated strings that contain prefixes to group ledgers. An example address might look like:
+`g.us.acmebank.acmecorp.sales.199` or `g.crypto.bitcoin.1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2`.
 
-#### Basic Support
+When initiating an Interledger payment, the sender attaches an ILP packet to the local transfer to the connector. The packet is a binary message that includes the destination account, destination amount, and additional data for the receiver. The packet is relayed by connectors and attached to each transfer that comprises the payment. In some cases, ledger protocols may define alternative ways to communicate the packet.
 
-For basic Interledger support, a ledger MUST fulfill the requirements for minimal support and also the following:
 
-The ledger MUST provide authorization holds, conditional upon a cryptographic hash and timeout as described below. During an authorization hold, money is put aside for a specific transfer until that transfer's outcome has been decided.
+The [Interledger Quoting Protocol (ILQP)](../0008-interledger-quoting-protocol/0008-interledger-quoting-protocol.md) defines how senders request quotes from connectors to determine the source or destination amount for an Interledger payment. Quoting is optional and senders MAY cache quotes and send repeated payments through the same connector.
 
-Transfers using authorization holds can be in four distinct states:
+### Transport Layer
 
-![Transfers start in the proposed state, transition to the prepared state and finally to the executed state, which is final. Proposed and prepared transfers can also transition to the rejected state, which is final as well.](../shared/graphs/transfer-states.svg)
+Transport layer protocols are end-to-end protocols used by the senders and receivers of Interledger payments to determine the payment condition and other details. The guarantees afforded to the sender vary depending on the type of transport protocol used.
 
-* Proposed -- Nothing has happened yet.
-* Prepared -- Funds are held.
-* Executed -- The transfer has completed.
-* Rejected -- The transfer has been canceled (and funds returned to the sender.)
+There are currently two transport layer protocols:
 
-<span class="show alert alert-info">**Hint:** Authorization holds are the financial equivalent of a [two-phase commit](http://foldoc.org/two-phase%20commit).</span>
+* [Pre-Shared Key (PSK)](../0016-pre-shared-key/0016-pre-shared-key.md)
 
-The ledger MUST be able to release the held funds to the receiver upon receiving a 32-byte preimage whose SHA-256 hash matches a value provided by the sender. The ledger MUST accept ONLY 32 byte preimages or support specifying the fulfillment length when the transfer is prepared.
+    In Pre-Shared Key (PSK) protocol, the sender and receiver use a shared secret to generate the payment condition, authenticate the ILP packet, and encrypt application data. Using PSK, the sender is guaranteed that fulfillment of their transfer indicates the receiver got the payment, provided that no one aside from the sender and receiver have the secret and the sender did not submit the fulfillment.
 
-The ledger MUST support releasing held funds back to the sender after a timeout.
+    **PSK is recommended for most use cases.**
 
-The ledger MUST support attaching a short message or *memo* to each transfer.
+* [Interledger Payment Request (IPR)](../0011-interledger-payment-request/0011-interledger-payment-request.md)
 
-The ledger MUST support notifications to account holders when transfers are prepared, executed, or rejected that affect their accounts.
+    In the Interledger Payment Request (IPR) protocol, the receiver generates the payment details and condition. The receiver does not share the secret used to generate the condition and fulfillment with the sender or anyone else, but the sender must ask the recipient to generate and share a condition before sending each payment. IPR is primarily useful for building non-repudiable application layer protocols, in which the sender's posession of the fulfillment proves to third parties that the sender has paid the receiver for a specific obligation.
 
-#### Full Support
+### Application Layer
 
-The ledger MUST fulfill the requirements for basic support and also the following:
+The application layer is the top layer of the Interledger protocol suite. Protocols on this layer are responsible for:
 
-The ledger MUST support memos up to 65535 bytes.
+1. Destination account discovery
+2. Destination amount negotiation
+3. Transport protocol selection and communication of associated details, such as the shared secret or condition
+4. Additional details to be communicated in ILP packet data
 
-The ledger MUST support sending an authenticated message of up to 65535 bytes to the holder of another account on the ledger.
-
-The ledger MUST support a way to look up a fulfillment by condition hash. It SHOULD automatically reject new transfers (that have not been prepared yet) that have an execution condition for which the ledger already knows the fulfillment. This aids in [error recovery](#error-recovery).
-
-The ledger MUST support preparing, executing, and rejecting transfers in 1 second or less.
-
-The ledger MUST define an [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) prefix and scheme such that accounts on the ledger can be addressed using canonical ILP addresses.
-
-It MUST support receivers (and ONLY receivers) rejecting incoming transfers. Receivers MUST be able to submit a rejection message of up to 65535 bytes. The sender of the transfer MUST be notified that the transfer has been rejected and the notification MUST include the rejection message.
-
-### Example Protocols
-
-#### Five Bells Ledger Protocol (5BLP)
-
-Five Bells Ledger Protocol (5BLP) is a RESTful, JSON-based protocol that was developed specifically to provide the minimum functionality required for full Interledger support.
-
-A reference implementation of a ledger using 5BLP can be found [here](https://github.com/interledger/five-bells-ledger).
-
-#### Blockchain Protocols (e.g. Bitcoin)
-
-Blockchains are distributed, peer-to-peer systems that provide consensus over a single shared state. Any blockchain that supports escrowed funds transfers is in principle capable of acting as a ledger connected to the Interledger.
-
-For example, Bitcoin supports SHA-256 hashlocked escrow transfers which means it can participate in ILP Interledger transactions. Bitcoin's [BIP-65](https://github.com/bitcoin/bips/blob/master/bip-0065.mediawiki) proposal provided the timeouts required for Basic level support.
-
-#### Legacy Protocols (e.g. ACH, ISO 20022)
-
-Legacy protocols often do not provide escrow functionality. In this case, the protocol can either be upgraded, or a highly trusted participant (e.g. a bank) can act as an escrow provider.
-
-#### Proprietary Wallet Protocols (e.g. PayPal API)
-
-There are large numbers of proprietary ledgers out there. This includes web-based and mobile wallets. These types of systems can usually be extended with cryptographic escrow functionality by their operator in order to connect them to the Interledger.
-
-#### Other Proprietary Protocols (e.g. Skype API)
-
-Some proprietary protocols intentionally do not provide general ledger functionality. A common example are stored-value systems, such as gift cards, loyalty points or pre-paid accounts. Such systems can still be connected to the Interledger in a limited capacity. For example a pre-paid account ledger could be set up to act as a receiving ledger, but not as a sending or intermediate ledger.
-
-By creating two classes of users -- resellers and end users -- and only allowing transfers if the sender is a reseller and the recipient is a user, merchants can create Interledger-capable ledgers which behave like stored-value systems. Such systems allow deposits, but do not allow withdrawals.
-
-## Interledger Layer
-
-### Introduction
-
-The Interledger Protocol (ILP) ensures that different connectors are interoperable and can work together to route transactions.
-
-### Protocols
-
-#### Interledger Protocol (ILP)
-
-When initiating an Interledger transaction, the sender will make a transfer to a connector using their local Ledger layer protocol. Within this transfer, the sender will include an [ILP Packet](../0003-interledger-protocol/) which tells the receiving connector the final destination, the amount to be transferred and -- if applicable -- the condition.
-
-Note that the exact method of transmitting this data packet is dependent on the ledger layer protocol. Typically, it will be included in the transfer in a memo field. However, some ledgers may specify a different method for transporting the ILP packet.
-
-The protocol is specified in [IL-RFC 3](../0003-interledger-protocol/0003-interledger-protocol.md) and the flow is described in the [Interledger whitepaper](https://interledger.org/interledger.pdf).
-
-<span class="show alert alert-info">**Note:** Interledger only supports Universal mode as described in the whitepaper. Atomic mode can be used by adjacent subsets of participants in an Interledger payment if desired, however this is not part of the standard.</span>
-
-##### Error Recovery
-
-An ILP execution chain can be interrupted if a connector fails to deliver the condition fulfillment. In this case, the sender thinks the transaction failed and retries it using the same condition as the original transaction. At some point during the retry, a connector inevitably prepares a transfer on a ledger which already knows the corresponding fulfillment. (This may be the recipient's ledger or a ledger before it in the chain.) When this happens, the ledger fails the transfer and provides the fulfillment to the connector which prepared it. This connector can pass the fulfillment back up the chain to receive money without sending any.
-
-In other words, the failed connector loses money and some other connector gains money, but from the sender and the recipient's perspective everything has executed normally.
-
-#### Interledger Quoting Protocol (ILQP)
-
-Before an Interledger payment occurs, the sender requests quotes from connectors which are connected to the same ledger as the sender. The sender and the connector use the [Interledger Quoting Protocol](../0008-interledger-quoting-protocol/) to communicate these quotes.
-
-Senders MAY cache quotes and send repeated transfers through the same connector.
-
-## Transport Layer
-
-### Introduction
-
-Transport layer protocols used by the senders and receivers of Interledger payments to determine the payment condition and other details. The guarantees afforded to the sender vary depending on the type of transport protocol used.
-
-### Protocols
-
-#### Pre-Shared Key (PSK)
-
-The Pre-Shared Key (PSK) protocol is an end-to-end protocol in which the sender and receiver use a shared secret to generate the payment condition, authenticate the ILP packet, and encrypt application data. Using PSK, the sender is guaranteed that fulfillment of their transfer indicates the receiver got the payment, provided that no one aside from the sender and receiver have the secret and the sender did not submit the fulfillment. PSK is recommended for most use cases.
-
-The protocol is specified in [IL-RFC 16](../0016-pre-shared-key/0016-pre-shared-key.md).
-
-#### Interledger Payment Request (IPR)
-
-The Interledger Payment Request (IPR) protocol is an end-to-end protocol in which the receiver generates the payment details and condition. In IPR, the sender does not share the secret used to generate the condition and fulfillment with the sender or anyone else, but the sender must ask the recipient to generate and share a condition before sending each payment. IPR is primarily useful for building non-repudiable application layer protocols, in which the sender's posession of the fulfillment proves to third parties that the sender has paid the receiver for a specific obligation.
-
-The protocol is specified in [IL-RFC 11](../0011-interledger-payment-request/0011-interledger-payment-request.md).
-
-## Application Layer
-
-### Introduction
-
-Application layer protocols deal with the exchange of payment details and associated negotiation.
-
-### Simple Payment Setup Protocol (SPSP)
-
-The Simple Payment Setup Protocol (SPSP) is an application layer protocol for negotiating payment details. SPSP handles account and amount discovery, condition creation, quoting and setup. SPSP uses Webfinger ([RFC 7033](https://tools.ietf.org/html/rfc7033)) and an HTTP-based protocol for querying account and amount details, [ILQP](#interledger-quoting-protocol-ilqp) for quoting, and [ILP](#interledger-protocol-ilp) for payment execution.
-
-The protocol is described in [IL-RFC 9](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md).
-
-### Defining Other Application Layer Protocols
-
-Creators of other application layer protocols should consider the following:
-
-1. Account discovery
-2. Amount and condition negotiation and communication
-3. Additional details communicated in ILP packet data
-4. Transport protocol
-
-## Appendix A: Holds Without Native Ledger Support
-
-Not all ledgers support held transfers. In the case of a ledger that doesn't, the sender and recipient of the local ledger transfer MAY choose a commonly trusted party to carry out the hold functions. There are three options:
-
-1. The sender MAY trust the receiver. The sender will perform a regular transfer in the first step and the receiver will perform a transfer back if the condition has not been met in time.
-
-2. The receiver MAY trust the sender. The sender will notify the receiver about the intent to transfer. If the receiver provides a fulfillment for the condition before the expiry date, the sender will perform a regular transfer to the receiver.
-
-3. The sender and receiver MAY appoint a mutually trusted third-party which has an account on the local ledger. The sender performs a regular transfer into a neutral third-party account. In the first step, funds are transfered into the account belonging to the neutral third-party.
+An example of an application layer protocol is the [Simple Payment Setup Protocol (SPSP)](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md).
+SPSP uses Webfinger ([RFC 7033](https://tools.ietf.org/html/rfc7033)) and an HTTPS-based protocol for communicating account, amount, and Pre-Shared Key details from the receiver to the sender.
 
