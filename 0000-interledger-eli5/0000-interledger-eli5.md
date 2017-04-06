@@ -1,4 +1,4 @@
-## Interledger Protocol Explained Like I'm Five
+## Interledger Protocol: Explained Like I'm Five
 
 ### Introduction
 
