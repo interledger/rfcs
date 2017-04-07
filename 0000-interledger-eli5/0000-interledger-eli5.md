@@ -32,15 +32,15 @@ _Note: In a real bank, it's possible for an account to hold multiple types of as
 
 ### How ILP Works: Trusted & Trustless
 
-When you have an asset stored somewhere, like money in an account at the bank, what do you really have?  The thing you have is the _trust_ that when you go to that place and ask for your thing back, that it will be given to you.  In the case of a bank, you show them your bankcard, ask for your money and it's given to you. Usually that process is automated, you put your card into one of the banks ATM's, tell it you want your money, and out it comes.
+When you have an asset stored somewhere, like money in an account at the bank, what do you really have?  The thing you have is the _trust_ that when you go to that place and ask for your thing back, that it will be given to you.  In the case of a bank, you show them your bankcard and ask for your money. Usually that process is automated, you put your card into one of the banks ATM's, tell it you want your money, and out it comes.
 
 If you didn't trust a particular bank to give you your money back when you ask for it, you probably wouldn't give it to them in the first place.
 
-This is important because this idea of trust is at the core of how the pieces of ILP fit together, and - interestingly - how this arrangement enables _trustless payments_.  More on that next.
+This is important because this idea of trust is at the core of how the pieces of ILP fit together, and - interestingly - how this arrangement enables _trustless payments_.  Let's see how it works:
 
 **Payment Setup: Being Prepared**
 
-As much as possible about an ILP payment is prepared in advance to be sure each party is happy with what's going to happen, and that the funds will remain safe whilst being moved.  Setup goes like this:
+As much as possible about an ILP payment is prepared in advance to be sure each party is happy with what's going to happen, and that the funds will remain safe whilst being moved.  It goes like this:
 
 1) A sender asks a connector: "Do you _know and trust_ this receiver?"
 
@@ -50,6 +50,6 @@ As much as possible about an ILP payment is prepared in advance to be sure each 
 
 4) The sender decides whether or not to use that connector, based on how much it will cost.  If it's a "no", the sender can start over asking a different connector, or asking the same one again (who may figure out a better way this time).  When the sender is happy with the cost, the payment can go ahead.
 
-For each payment, a chain with links of trust is formed between the sender, connector(s) and the receiver.  Each link in the chain trusts the one next to it, but doesn't need to trust any other links in the chain.  What's great about this, is it means the sender and the receiver don't need to trust each other, or even know who each other is - that's what makes ILP payments "trustless".
+For each payment, a chain with links of trust is formed between the sender, connector (or connectors) and the receiver.  Each link in the chain trusts the one next to it, but doesn't need to trust any other links in the chain.  What's great about this, is it means the sender and the receiver don't need to trust each other, or even know who each other is - that's what makes ILP payments "trustless".
 
 _[...]_
