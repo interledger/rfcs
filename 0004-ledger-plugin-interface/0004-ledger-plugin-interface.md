@@ -132,10 +132,8 @@ Retrieve some metadata about the ledger. Plugin must be connected, otherwise the
 ```json
 {
   "prefix": "us.fed.some-bank.",
-  "precision": 10,
-  "scale": 4,
   "currencyCode": "USD",
-  "currencySymbol": "$",
+  "currencyScale": 4,
   "connectors": [ "us.fed.some-bank.chloe" ]
 }
 ```
@@ -155,7 +153,9 @@ The mapping from the ILP address to the local ledger address is dependent on the
 #### getBalance
 <code>ledgerPlugin.getBalance() ⇒ Promise.&lt;String></code>
 
-Return an integer string representing the current balance. Plugin must be connected, otherwise the promise should reject.
+Return a (base-ten) integer string (`..., '-3', '-2', '-1', '0', '1', '2', '3', ...`) representing the current balance, in the ledger's base unit. For example, on a ledger with `currencyCode` 'USD' and `currencyScale` 6,
+the base unit would be micro-dollars.
+A balance of '1230000' should then be interpreted as equivalent to 1.23 US dollars. The maximum and minimum balance are up to the ledger to determine. Plugin must be connected, otherwise the promise should reject.
 
 #### getFulfillment
 <code>ledgerPlugin.getFulfillment( transferId ) ⇒ Promise.&lt;String></code>
@@ -399,7 +399,7 @@ left undefined (but not any other false-y value) if unused.
 | `String` | [from](#from) | ILP Address of the source account |
 | `String` | [to](#to) | ILP Address of the destination account |
 | `String` | [ledger](#ledger) | ILP Address prefix of the ledger |
-| `String` | [amount](#amount) | Integer transfer amount |
+| `String` | [amount](#amount) | Integer transfer amount, in the ledger's base unit |
 | `String` | [ilp](#ilp) | Base64-encoded ILP packet |
 | `Object` | [noteToSelf](#notetoself) | Host-provided memo that should be stored with the transfer |
 | `String` | [executionCondition](#executioncondition) | Cryptographic hold condition |
@@ -459,7 +459,7 @@ ILP Address prefix of the ledger that this transfer is going through on.
 #### amount
 <code>**amount**:String</code>
 
-An integer amount, represented as a string. MUST be positive.
+An integer amount, represented as a string of base-ten digits. MUST be `>= 0` and `< 2^64`.
 
 #### ilp
 <code>**ilp**:String</code>
@@ -590,10 +590,8 @@ Metadata describing the ledger. This data is returned by the [`getInfo`](#getinf
 | Type | Name | Description |
 |:--|:--|:--|
 | `String` | [prefix](#prefix) | The plugin's ILP address prefix |
-| `Number` | [precision](#precision) | Total number of digits allowed |
-| `Number` | [scale](#scale) | Digits allowed after decimal |
-| `String` | [currencyCode](#currencycode) | ISO three-letter currency code |
-| `String` | [currencySymbol](#currencysymbol) | UTF8 currency symbol |
+| `String` | [currencyCode](#currencyCode) | [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) three-letter currency code |
+| `Number` | [currencyScale](#currencyScale) | Integer `(..., -2, -1, 0, 1, 2, ...)`, such that one of the ledger's base units equals `10^-<currencyScale> <currencyCode>` |
 | `String[]` | [connectors](#connectors) | ILP addresses of recommended connectors |
 
 ### Fields
@@ -605,25 +603,21 @@ The ledger plugin's ILP address prefix. This is used to determine whether a give
 
 The prefix may be configured, automatically detected, or hard-coded, depending on the ledger. For example, a Bitcoin ledger plugin may have the address hard-coded, while a [`five-bells-ledger`](https://github.com/interledger/five-bells-ledger) would use an API call to get the prefix.
 
-#### precision
-<code>**precision**:Number</code>
-
-The total number of digits (base 10) of precision allowed by the ledger.
-
-#### scale
-<code>**scale**:Number</code>
-
-The number of digits allowed after the decimal point.
-
 #### currencyCode
 <code>**currencyCode**:String</code>
 
-The ISO 4217 currency code (if any) used by the ledger.
+The [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code (if any) used by the ledger. A custom all-caps three-letter code, not used by ISO 4217, otherwise.
+Ledger administrators who choose a custom currency code MAY request a custom currency symbol for their chosen currency code be listed by software modules that map currency codes to currency symbols,
+for instance on node package manager (npm) in the case of JavaScript.
+To translate an integer amount or balance from the ledger, the currencyCode by itself is not enough. It has to be used in combination with the currencyScale (below) to determine how many
+of the ledger's base units correspond to one currency unit.
 
-#### currencySymbol
-<code>**currencySymbol**:String</code>
+#### currencyScale
+<code>**currencyScale**:String</code>
 
-The currency symbol as one or more UTF8 characters.
+The order of magnitude to express one full currency unit in ledger's base units. For instance, if the integer values represented on the ledger are to be interpreted as
+dollar-cents (for the purpose of settling a user's account balance, for instance), then the ledger's
+currencyCode is `USD` and its currencyScale is `2`.
 
 #### connectors
 <code>**connectors**:String[]</code>

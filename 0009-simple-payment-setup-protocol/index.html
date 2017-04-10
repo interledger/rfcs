@@ -183,9 +183,7 @@ Content-Type: application/json
   &quot;minimum_destination_amount&quot;: &quot;10&quot;,
   &quot;ledger_info&quot;: {
     &quot;currency_code&quot;: &quot;USD&quot;,
-    &quot;currency_symbol&quot;: &quot;$&quot;,
-    &quot;scale&quot;: 2,
-    &quot;precision&quot;: 10
+    &quot;currency_scale&quot;: 2
   },
   &quot;receiver_info&quot;: {
     &quot;name&quot;: &quot;Bob Dylan&quot;,
@@ -276,19 +274,9 @@ Content-Type: application/json
 <td>Currency code to identify the receiver&apos;s currency. Currencies that have <a href="https://en.wikipedia.org/wiki/ISO_4217">ISO 4217</a> codes should use those. Sender UIs SHOULD be able to render non-standard codes</td>
 </tr>
 <tr>
-<td><code>ledger_info.currency_symbol</code></td>
-<td>String</td>
-<td>Symbol for the receiver&apos;s currency intended for display in the sender&apos;s UI (e.g. <code>&quot;$&quot;</code> or <code>&quot;shares&quot;</code>). Sender UIs SHOULD be able to render non-standard symbols</td>
-</tr>
-<tr>
-<td><code>ledger_info.scale</code></td>
+<td><code>ledger_info.currency_scale</code></td>
 <td>Integer</td>
 <td>The scale of the amounts on the destination ledger (e.g. an amount of <code>&quot;1000&quot;</code> with a scale of <code>2</code> translates to <code>10.00</code> units of the destination ledger&apos;s currency)</td>
-</tr>
-<tr>
-<td><code>ledger_info.precision</code></td>
-<td>Integer</td>
-<td>The maximum precision supported by the ledger</td>
 </tr>
 <tr>
 <td><code>receiver_info</code></td>
@@ -324,9 +312,8 @@ Content-Type: application/json
 <li>The <code>account</code> in the ILP packet is the <code>destination_account</code> provided by the receiver</li>
 <li><p>The <code>amount</code> is determined by the sender:</p>
 <ul>
-<li>The sender uses the <code>ledger_info.scale</code> to determine the integer amount to include in the ILP packet (e.g. if they want the receiver to receive 10 units on their ledger, a <code>ledger_info.scale</code> value of 2 would indicate they should set the <code>amount</code> to 1000). In cases where the sender knows the integer amount the receiver should get, for example if that amount was requested by the receiver out of band, the sender does not need to use the <code>ledger_info.scale</code></li>
+<li>The sender uses the <code>ledger_info.currency_scale</code> to determine the integer amount to include in the ILP packet (e.g. if they want the receiver to receive 10 units of <code>ledger_info.currency_code</code> on their ledger, a <code>ledger_info.currency_scale</code> value of 2 would indicate they should set the <code>amount</code> to 1000). In cases where the sender knows the integer amount the receiver should get, for example if that amount was requested by the receiver out of band, the sender does not need to use <code>ledger_info.currency_code</code> and <code>ledger_info.currency_scale</code></li>
 <li>The sender SHOULD NOT set an amount greater than the <code>maximum_destination_amount</code> or lower than the <code>minimum_destination_amount</code>, as this will be rejected by the receiver</li>
-<li>The sender SHOULD NOT set an amount with a precision greater than the <code>ledger_info.precision</code>, as this will be rejected by the destination ledger</li>
 </ul>
 </li>
 <li><p>The <code>data</code> is encoded using the <a href="../0016-pre-shared-key/0016-pre-shared-key.md">Pre-Shared Key protocol</a>:</p>

@@ -423,10 +423,8 @@ Rejects with <code>TypeError</code> if <code>options.timeout</code> is passed bu
 <h6 id="example-return-value-1">Example Return Value</h6>
 <pre><code class="lang-json">{
   &quot;prefix&quot;: &quot;us.fed.some-bank.&quot;,
-  &quot;precision&quot;: 10,
-  &quot;scale&quot;: 4,
   &quot;currencyCode&quot;: &quot;USD&quot;,
-  &quot;currencySymbol&quot;: &quot;$&quot;,
+  &quot;currencyScale&quot;: 4,
   &quot;connectors&quot;: [ &quot;us.fed.some-bank.chloe&quot; ]
 }
 </code></pre>
@@ -439,7 +437,9 @@ Rejects with <code>TypeError</code> if <code>options.timeout</code> is passed bu
 <p><code>us.fed.some-bank.my-account</code></p>
 <h4 id="getbalance">getBalance</h4>
 <p><code>ledgerPlugin.getBalance() &#x21D2; Promise.&lt;String&gt;</code></p>
-<p>Return an integer string representing the current balance. Plugin must be connected, otherwise the promise should reject.</p>
+<p>Return a (base-ten) integer string (<code>..., &apos;-3&apos;, &apos;-2&apos;, &apos;-1&apos;, &apos;0&apos;, &apos;1&apos;, &apos;2&apos;, &apos;3&apos;, ...</code>) representing the current balance, in the ledger&apos;s base unit. For example, on a ledger with <code>currencyCode</code> &apos;USD&apos; and <code>currencyScale</code> 6,
+the base unit would be micro-dollars.
+A balance of &apos;1230000&apos; should then be interpreted as equivalent to 1.23 US dollars. The maximum and minimum balance are up to the ledger to determine. Plugin must be connected, otherwise the promise should reject.</p>
 <h4 id="getfulfillment">getFulfillment</h4>
 <p><code>ledgerPlugin.getFulfillment( transferId ) &#x21D2; Promise.&lt;String&gt;</code></p>
 <p>Return the fulfillment of a transfer if it has already been executed.</p>
@@ -670,7 +670,7 @@ left undefined (but not any other false-y value) if unused.</p>
 <tr>
 <td style="text-align:left"><code>String</code></td>
 <td style="text-align:left"><a href="#amount">amount</a></td>
-<td style="text-align:left">Integer transfer amount</td>
+<td style="text-align:left">Integer transfer amount, in the ledger&apos;s base unit</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>String</code></td>
@@ -729,7 +729,7 @@ left undefined (but not any other false-y value) if unused.</p>
 <p>ILP Address prefix of the ledger that this transfer is going through on.</p>
 <h4 id="amount">amount</h4>
 <p><code><strong>amount</strong>:String</code></p>
-<p>An integer amount, represented as a string. MUST be positive.</p>
+<p>An integer amount, represented as a string of base-ten digits. MUST be <code>&gt;= 0</code> and <code>&lt; 2^64</code>.</p>
 <h4 id="ilp">ilp</h4>
 <p><code><strong>ilp</strong>:String</code></p>
 <p>An <a href="../0003-interledger-protocol/">ILP packet</a>, denoting the payment&apos;s final destination.</p>
@@ -858,24 +858,14 @@ left undefined (but not any other false-y value) if unused.</p>
 <td style="text-align:left">The plugin&apos;s ILP address prefix</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>Number</code></td>
-<td style="text-align:left"><a href="#precision">precision</a></td>
-<td style="text-align:left">Total number of digits allowed</td>
-</tr>
-<tr>
-<td style="text-align:left"><code>Number</code></td>
-<td style="text-align:left"><a href="#scale">scale</a></td>
-<td style="text-align:left">Digits allowed after decimal</td>
-</tr>
-<tr>
 <td style="text-align:left"><code>String</code></td>
-<td style="text-align:left"><a href="#currencycode">currencyCode</a></td>
-<td style="text-align:left">ISO three-letter currency code</td>
+<td style="text-align:left"><a href="#currencyCode">currencyCode</a></td>
+<td style="text-align:left"><a href="https://en.wikipedia.org/wiki/ISO_4217">ISO 4217</a> three-letter currency code</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>String</code></td>
-<td style="text-align:left"><a href="#currencysymbol">currencySymbol</a></td>
-<td style="text-align:left">UTF8 currency symbol</td>
+<td style="text-align:left"><code>Number</code></td>
+<td style="text-align:left"><a href="#currencyScale">currencyScale</a></td>
+<td style="text-align:left">Integer <code>(..., -2, -1, 0, 1, 2, ...)</code>, such that one of the ledger&apos;s base units equals <code>10^-&lt;currencyScale&gt; &lt;currencyCode&gt;</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><code>String[]</code></td>
@@ -889,18 +879,18 @@ left undefined (but not any other false-y value) if unused.</p>
 <p><code><strong>prefix</strong>:String</code></p>
 <p>The ledger plugin&apos;s ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin&apos;s <code>sendTransfer</code> method.</p>
 <p>The prefix may be configured, automatically detected, or hard-coded, depending on the ledger. For example, a Bitcoin ledger plugin may have the address hard-coded, while a <a href="https://github.com/interledger/five-bells-ledger"><code>five-bells-ledger</code></a> would use an API call to get the prefix.</p>
-<h4 id="precision">precision</h4>
-<p><code><strong>precision</strong>:Number</code></p>
-<p>The total number of digits (base 10) of precision allowed by the ledger.</p>
-<h4 id="scale">scale</h4>
-<p><code><strong>scale</strong>:Number</code></p>
-<p>The number of digits allowed after the decimal point.</p>
 <h4 id="currencycode">currencyCode</h4>
 <p><code><strong>currencyCode</strong>:String</code></p>
-<p>The ISO 4217 currency code (if any) used by the ledger.</p>
-<h4 id="currencysymbol">currencySymbol</h4>
-<p><code><strong>currencySymbol</strong>:String</code></p>
-<p>The currency symbol as one or more UTF8 characters.</p>
+<p>The <a href="https://en.wikipedia.org/wiki/ISO_4217">ISO 4217</a> currency code (if any) used by the ledger. A custom all-caps three-letter code, not used by ISO 4217, otherwise.
+Ledger administrators who choose a custom currency code MAY request a custom currency symbol for their chosen currency code be listed by software modules that map currency codes to currency symbols,
+for instance on node package manager (npm) in the case of JavaScript.
+To translate an integer amount or balance from the ledger, the currencyCode by itself is not enough. It has to be used in combination with the currencyScale (below) to determine how many
+of the ledger&apos;s base units correspond to one currency unit.</p>
+<h4 id="currencyscale">currencyScale</h4>
+<p><code><strong>currencyScale</strong>:String</code></p>
+<p>The order of magnitude to express one full currency unit in ledger&apos;s base units. For instance, if the integer values represented on the ledger are to be interpreted as
+dollar-cents (for the purpose of settling a user&apos;s account balance, for instance), then the ledger&apos;s
+currencyCode is <code>USD</code> and its currencyScale is <code>2</code>.</p>
 <h4 id="connectors">connectors</h4>
 <p><code><strong>connectors</strong>:String[]</code></p>
 <p>The ILP addresses of recommended connectors.</p>
