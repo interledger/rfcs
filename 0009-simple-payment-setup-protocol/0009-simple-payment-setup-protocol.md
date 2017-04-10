@@ -80,9 +80,7 @@ Content-Type: application/json
   "minimum_destination_amount": "10",
   "ledger_info": {
     "currency_code": "USD",
-    "currency_symbol": "$",
-    "scale": 2,
-    "precision": 10
+    "currency_scale": 2
   },
   "receiver_info": {
     "name": "Bob Dylan",
@@ -123,9 +121,7 @@ The response body is a JSON object that includes basic account details necessary
 | `minimum_destination_amount` | Integer String | Minimum amount, denoted in the minimum divisible units of the ledger, the receiver will accept. This amount may be determined by the minimum transfer amount of the ledger. If the receiver expects a specific amounts to be delivered, this may be set equal to the `maximum_destination_amount` |
 | `ledger_info` | Object | Details about the destination ledger |
 | `ledger_info.currency_code` | String | Currency code to identify the receiver's currency. Currencies that have [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) codes should use those. Sender UIs SHOULD be able to render non-standard codes |
-| `ledger_info.currency_symbol` | String | Symbol for the receiver's currency intended for display in the sender's UI (e.g. `"$"` or `"shares"`). Sender UIs SHOULD be able to render non-standard symbols |
-| `ledger_info.scale` | Integer | The scale of the amounts on the destination ledger (e.g. an amount of `"1000"` with a scale of `2` translates to `10.00` units of the destination ledger's currency) |
-| `ledger_info.precision` | Integer | The maximum precision supported by the ledger |
+| `ledger_info.currency_scale` | Integer | The scale of the amounts on the destination ledger (e.g. an amount of `"1000"` with a scale of `2` translates to `10.00` units of the destination ledger's currency) |
 | `receiver_info` | Object | Arbitrary additional information about the receiver. This field has no schema and the receiver may include any fields they choose. The field names listed below are recommended merely for interoperability purposes. |
 | `receiver_info.name` | String | _(OPTIONAL)_ Full name of the individual, company or organization the receiver represents |
 | `receiver_info.image_url` | HTTPS URL | _(OPTIONAL)_ URL where the sender can get a picture representation of the receiver |
@@ -153,9 +149,8 @@ The sender uses the receiver details to create the ILP packet:
 * The `account` in the ILP packet is the `destination_account` provided by the receiver
 * The `amount` is determined by the sender:
 
-    * The sender uses the `ledger_info.scale` to determine the integer amount to include in the ILP packet (e.g. if they want the receiver to receive 10 units on their ledger, a `ledger_info.scale` value of 2 would indicate they should set the `amount` to 1000). In cases where the sender knows the integer amount the receiver should get, for example if that amount was requested by the receiver out of band, the sender does not need to use the `ledger_info.scale`
+    * The sender uses the `ledger_info.currency_scale` to determine the integer amount to include in the ILP packet (e.g. if they want the receiver to receive 10 units of `ledger_info.currency_code` on their ledger, a `ledger_info.currency_scale` value of 2 would indicate they should set the `amount` to 1000). In cases where the sender knows the integer amount the receiver should get, for example if that amount was requested by the receiver out of band, the sender does not need to use `ledger_info.currency_code` and `ledger_info.currency_scale`
     * The sender SHOULD NOT set an amount greater than the `maximum_destination_amount` or lower than the `minimum_destination_amount`, as this will be rejected by the receiver
-    * The sender SHOULD NOT set an amount with a precision greater than the `ledger_info.precision`, as this will be rejected by the destination ledger
 
 * The `data` is encoded using the [Pre-Shared Key protocol](../0016-pre-shared-key/0016-pre-shared-key.md):
 
