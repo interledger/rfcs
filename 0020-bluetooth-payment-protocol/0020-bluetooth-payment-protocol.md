@@ -2,7 +2,11 @@
 
 This document specifies a protocol for communicating and authorizing Interledger Payment Requests over Bluetooth (Low Energy). It is primarily intended for use in in-person retail payment contexts.
 
-This protocol may be implemented by Customer devices such as smartphones or very low-power, offline devices such as tapFi's.
+This protocol may be implemented by Customer devices such as smartphones or very low-power, offline devices such as [tapFi](https://github.com/joaopedrovbs/tapFi).
+
+Once a Customer becomes active by broadcasting it's payment service over BLE, Merchants can connect
+and request signature for payments over a secure Bluetooth channel. The channel is closed once
+a payment is signed or the Customer cancels the purshase for security or authentication reasons.
 
 ## Definitions
 
@@ -14,30 +18,19 @@ This protocol may be implemented by Customer devices such as smartphones or very
 - `ILP Address`: [Interledger](https://github.com/interledger/rfcs/blob/master/0015-ilp-addresses/0015-ilp-addresses.md) address in the form of `g.us.somebank.youraccount`
 - `Merchant Certificate Authority`: Like CA's for TLS certificates, Merchant CAs sign the certificates of trusted merchants. CAs MUST maintain blacklists of compromised keys
 - `Redemption URI`: URI where the Merchant can submit Customer-authorized IPRs to initiate an ILP payment to their account (Note: the service that implements this MUST store previously redeemed IPRs to avoid duplicate payments)
+- `Write Long Characteristic`: GATT Sub-Procedure that Writes to Characteristics with more than 20 bytes
+
 
 ## GATT Services: BLE Description
+> Generic Attribute Profile (GATT) is how information is transmited between connected BLE devices, by
+exposing Services that contains Characteristics. Each Characteristic works like a single "register".
 
 #### ILP Account Information
-
 > Service that provides identity of the Customer
 
 **Characteristics:**
 
 - `name`: (Read)
-
-#### ILP Payment Broadcast
-
-> Ok. It's more like "Pay me, but i don't mind knowing that you specifically paid me."
-
-> I think that can be used in places like inside a bus (the bus just advertises it's price and you can open the app, and see "buyable things"). More like an "open rfid tag"... I know that can be useful, but haven't figure out the best case yet. Payment would go from Customer to Merchant, but the Device would just broadcast "items" to be purchased, or maybe a single payment with description
-
-> Examples:
-
-> IceCream seller on the park. He could create a "promo" and broadcast that. Customers would then see that "local promotion" around them, and be able to purchase before even getting there. A confirmation code would be issued by the transaction, that can be confirmed by the merchant. But probably, the customer would only "show" the confirmation screen as a proof of payment
-
-> You are could give "tip" for a restaurant's specific ledger. Or donate to artists, and charity in McDonnalds (that coin box)
-
-> You could pay for temporary tickets (Train/Bus), being broadcasted by the vehicle itself (the confirmation code would be your "ticket")
 
 
 #### ILP Payment Request
@@ -78,7 +71,7 @@ This protocol may be implemented by Customer devices such as smartphones or very
 4. If the device manufacturer is trusted to produce secure devices, the ledger operator signs the device public key and a per-payment spending limit with their own key.
 5. Customer stores the ledger operator's signature, certificate, per-payment and total spending limit on the device (**TODO**: would it make more sense to have the manufacturer include the ledger signature and cert in the device?).
 
-## Payment Flow
+### Payment Flow
 
 **[MERC]** indicates steps taken by the Merchant
 
