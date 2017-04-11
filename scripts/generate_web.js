@@ -29,9 +29,10 @@ renderer.heading = function (text, level, raw) {
   + '>\n';
 }
 
-// Override relative links to .md files to the folder
+// Override relative links from .md files to the base folder
 // (Allows github to be linked properly, and website as well)
 renderer.link = function (href, title, text) {
+  // Converts something like `../xxxx-<anything>/xxxx-<anything>.md` to `../xxxx-<anything>`
   href = href.replace(/^(\.{2}\/\d{4}-.*)\/(\d{4}-.*\.md)$/g, '$1')
   return marked.Renderer.prototype.link.call(this, href, title, text);
 };
