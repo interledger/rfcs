@@ -1,0 +1,16 @@
+@startuml
+
+group new LedgerPlugin(opts), connect(options) => Promise.<null>
+  router -> pluginA +: new LedgerPlugin
+  router -> pluginA : connect (options)
+  pluginA <--> ledgerA : set bidirectional channel \n(Websocket, gRPC, \nweb-hooks callbacks,...)
+  ...
+  note over pluginA : listen for events:\n *open\n *message\n *error\n *close
+  pluginA -> pluginA : pluginA.isConnected = true
+  pluginA ->o router : *connect event*
+  ... connect other plugins, create pairs ...
+  router -> router : subscribePairs
+  note over router: listen for events:\n *incoming_prepare\n *incoming_transfer\n *outgoing_cancel\n *outgoing_reject\n *outgoing_fulfill\n *incoming_message\n DOUBT: Listen before subcribing pairs?
+end
+
+@enduml

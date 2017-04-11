@@ -1,0 +1,30 @@
+@startuml
+
+group sendMessage(transfer)=> Promise.<null>
+  alt  usecase 1 message received from ledger, forward to interested peers
+      ledgerA -> pluginA : incoming_message
+      pluginA ->o router : *incoming_message event*
+      note over router: REF: src/lib/MessageRouter.js
+      router -> router   : handleRequest
+      router -> pluginB  : sendMessage(dest_ILPAccount, incomming_message) \n (transfer affected account)
+      pluginB --> ledgerB : message (dest_ILPAccount, message)
+      alt InvalidFields || NotAccepted?
+          ledgerB --> pluginB : (InvalidFields|NotAccepted|)Error
+      end
+      alt dest_ILPAccount match any dest_ILPAccount?
+          ledgerB -> ledgerB : forward to listening subscriptor
+          ledgerB --> pluginB : empty
+      else
+          ledgerB --> pluginB : NotSubscriptionsError
+      end
+  else usecase 2: broadcast routes
+      router -> router : getPlugin(adjacentLedger)
+      router -> pluginA : sendMessage(,...'broadcast_routes')
+  else usecase 3: receive broadcasted routes
+      ledgerA -> pluginA : broadcast_routes message 
+      pluginA ->o router : *incoming_message event*
+      router -> router   : receiveRoutes
+  end
+end
+
+@enduml

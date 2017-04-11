@@ -1,0 +1,14 @@
+group rejectIncomingTransfer(transferId:String, rejectMessage:Buffer)
+  note over router: reject before timeout 
+  alt sendTransfer failure during settlement
+     pluginB ->o router : *outgoing_cancel | outgoing_reject event*
+  else rejected:
+     ledgerA -> pluginA: source transfer 
+     pluginA ->o router : *incoming_transfer event*
+     router -> router  : not accepted
+  end
+  router -> pluginA : rejectIncomingTransfer(transferId, rejectMessage)
+  pluginA <--> ledgerA : 
+  pluginA -> router : empty||\n(TransferNotFound|AlreadyFulfilled|\nNotAccepted|TransferNotConditional)Error
+end
+

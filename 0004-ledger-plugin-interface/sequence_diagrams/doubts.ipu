@@ -1,0 +1,15 @@
+note over ledgerA, ledgerB
+  DOUBT: getFulfillment doesn't look to be used in the ilp-connector (Outdated API?)
+
+  DOUBT: getBalance    doesn't look to be used in the ilp-connector  (Outdated API?)
+
+  DOUBT: outgoing_transfer ,  outgoing_prepare, incoming_fulfill, incoming_cancel,  events doesn't look to be used (in model/subscriptions subscribePairs)
+  
+  DOUBT: REF: https://github.com/interledger/rfcs/blob/master/0004-ledger-plugin-interface/0004-ledger-plugin-interface.md#outgoingmessage
+         "If the event is incoming_fulfill, then it means you fulfilled the transfer. outgoing_fulfill means the receiver of your outgoing transfer has fulfilled the condition."
+
+  DOUBT: It looks "incoming" means from the ledger to the plugin when speaking about transfer but the opposite when speaking about fulfillments. (subscribePairs@subscriptions)
+  
+  DOUBT: in subscribePairs outgoing_cancel && outgoing_reject are treated by rejectSourceTransfer
+end note
+

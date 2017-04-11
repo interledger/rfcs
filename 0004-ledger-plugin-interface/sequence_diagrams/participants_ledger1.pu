@@ -1,0 +1,2 @@
+participant "ledger sender\n(payent)"   as ledgerA
+participant "plugin1" as pluginA
