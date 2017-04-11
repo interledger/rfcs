@@ -127,7 +127,7 @@
 <li>The sender constructs the PSK data:<ol>
 <li>The sender starts with the PSK status line: <code>PSK/1.0\n</code></li>
 <li>The sender appends the <a href="#public-headers">public headers</a> (including the nonce), followed by <code>\n\n</code>.</li>
-<li>If the public <code>Encryption</code> header starts with <code>aes-256-gcm</code>, then the remainder of the PSK data after the public headers will be encrypted using AES-256-GCM with the pre-shared secret key, using the nonce as the initialization vector. The AES-256-GCM authentication tag is attached to the <code>Encryption</code> header. Note: The ciphertext is raw binary data, and is not base64 encoded. If the public <code>Encryption</code> header is set to <code>none</code>, then the remainder of the PSK data will be appended in unaltered cleartext.</li>
+<li>If the public <code>Encryption</code> header starts with <code>aes-256-gcm</code>, then the remainder of the PSK data after the public headers (padded with <a href="https://en.wikipedia.org/wiki/Padding_(cryptography">PKCS</a>#PKCS7)) will be encrypted using AES-256-GCM with the pre-shared secret key, using the nonce as the initialization vector. The 16-byte AES-256-GCM authentication tag is attached to the <code>Encryption</code> header, encoded in base64url. Note: The ciphertext is raw binary data, and is not base64 encoded. If the public <code>Encryption</code> header is set to <code>none</code>, then the remainder of the PSK data will be appended in unaltered cleartext.</li>
 <li>The sender appends the <a href="#private-headers">private headers</a>, followed by <code>\n\n</code>.</li>
 <li>The sender appends the application data (in its raw binary format).</li>
 </ol>
@@ -159,7 +159,7 @@ Header: data_everyone_can_see
 <p>PSK payments use an HMAC of the PSK details as a fulfillment, to prove that the contents are unmodified. The pre-shared secret key is the key used in the HMAC.</p>
 <p>The data attached to these headers is an encrypted binary blob. This encrypted blob contains the private PSK headers.</p>
 <p>Despite the fact that connectors can read the public headers&apos; data, connectors should not be required to do so, nor should they rely on PSK details being present on all transfers. This information is only intended for the initial sender and final receiver of a payment.</p>
-<p>The decryption key is derived from the pre-shared secret key, and the AES-256-GCM initialization vector is set to the value of the <code>Nonce</code> header (<code>fpwpAhlN588</code> in the above example). The nonce MUST be generated with cryptographically-secure randomness. <strong>If the nonce is reused with the same shared secret, it could leak unencrypted data or allow money to be stolen by malicious parties.</strong> The AES-256-GCM authentication tag used for decryption is attached to the <code>Encryption</code> header (<code>58EowcXBk3qBIvJ0kmvdCh</code> in the above example).</p>
+<p>The decryption key is derived from the pre-shared secret key, and the AES-256-GCM initialization vector is set to the value of the <code>Nonce</code> header (<code>fpwpAhlN588</code> in the above example). The nonce MUST be generated with cryptographically-secure randomness. <strong>If the nonce is reused with the same shared secret, it could leak unencrypted data or allow money to be stolen by malicious parties.</strong> The 16-byte AES-256-GCM authentication tag used for decryption is attached to the <code>Encryption</code> header, encoded in base64url (<code>58EowcXBk3qBIvJ0kmvdCh</code> in the above example). The encryption MUST use <a href="https://en.wikipedia.org/wiki/Padding_(cryptography">PKCS</a>#PKCS7) for padding.</p>
 <table class="table table-striped">
 <thead>
 <tr>
@@ -174,7 +174,7 @@ Header: data_everyone_can_see
 </tr>
 <tr>
 <td><code>Encryption</code></td>
-<td><em>(Required)</em> Supported values are <code>aes-256-gcm &lt;AUTH_TAG&gt;</code> and <code>none</code>. If it is set to <code>aes-256-gcm</code>, then private headers and application data will be AES-256-GCM encrypted, and <code>&lt;AUTH_TAG&gt;</code> will be the authentication tag returned by the cipher. If it is set to <code>none</code>, then private headers and application data will be in cleartext. This cleartext will still be appended to the public headers after an empty line. If the value is neither <code>aes-256-gcm</code> nor <code>none</code>, the receiver MUST reject the incoming payment with an <code>S06: UnexpectedPayment</code> error.</td>
+<td><em>(Required)</em> Supported values are <code>aes-256-gcm &lt;AUTH_TAG&gt;</code> and <code>none</code>. If it is set to <code>aes-256-gcm</code>, then private headers and application data will be AES-256-GCM encrypted, and <code>&lt;AUTH_TAG&gt;</code> will be the 16-byte authentication tag returned by the cipher, encoded in base64url. If it is set to <code>none</code>, then private headers and application data will be in cleartext. This cleartext will still be appended to the public headers after an empty line. If the value is neither <code>aes-256-gcm</code> nor <code>none</code>, the receiver MUST reject the incoming payment with an <code>S06: UnexpectedPayment</code> error.</td>
 </tr>
 <tr>
 <td><code>Key</code></td>
@@ -256,9 +256,10 @@ nonce = random_bytes(16)
 // set the public &apos;Encryption&apos; header to &apos;none&apos; instead of &apos;aes-256-gcm&apos;. The
 // receiver side must always check the public &apos;Encryption&apos; header to check
 // whether or not encryption is enabled. This pseudocode only describes the
-// case where encryption is turned on, for simplicity.
-// The nonce is used as the IV (initialization vector) of AES-256-GCM.
-// The auth tag of GCM will be attached to the &apos;encryption&apos; header.
+// case where encryption is turned on, for simplicity.  The nonce is used as
+// the IV (initialization vector) of AES-256-GCM. The 16-byte auth tag of GCM
+// will be attached to the &apos;encryption&apos; header in base64url. The encrypted data
+// should be automatically padded with PKCS.
 
 payment_encryption_key = hmac_sha_256(shared_secret, &apos;ilp_psk_encryption&apos;)
 encrypted_data, auth_tag = aes_256_gcm({

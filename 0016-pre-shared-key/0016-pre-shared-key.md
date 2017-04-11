@@ -17,7 +17,7 @@ A disadvantage of PSK is that it is repudiable. Although the sender does get cry
 3. The sender constructs the PSK data:
     1. The sender starts with the PSK status line: `PSK/1.0\n`
     2. The sender appends the [public headers](#public-headers) (including the nonce), followed by `\n\n`.
-    3. If the public `Encryption` header starts with `aes-256-gcm`, then the remainder of the PSK data after the public headers will be encrypted using AES-256-GCM with the pre-shared secret key, using the nonce as the initialization vector. The AES-256-GCM authentication tag is attached to the `Encryption` header. Note: The ciphertext is raw binary data, and is not base64 encoded. If the public `Encryption` header is set to `none`, then the remainder of the PSK data will be appended in unaltered cleartext.
+    3. If the public `Encryption` header starts with `aes-256-gcm`, then the remainder of the PSK data after the public headers (padded with [PKCS](https://en.wikipedia.org/wiki/Padding_(cryptography)#PKCS7)) will be encrypted using AES-256-GCM with the pre-shared secret key, using the nonce as the initialization vector. The 16-byte AES-256-GCM authentication tag is attached to the `Encryption` header, encoded in base64url. Note: The ciphertext is raw binary data, and is not base64 encoded. If the public `Encryption` header is set to `none`, then the remainder of the PSK data will be appended in unaltered cleartext.
     4. The sender appends the [private headers](#private-headers), followed by `\n\n`.
     5. The sender appends the application data (in its raw binary format).
 4. The sender creates the condition of their payment by taking the HMAC of the full ILP packet with the pre-shared secret key, and computing the SHA-256 hash of it.
@@ -61,12 +61,12 @@ The data attached to these headers is an encrypted binary blob. This encrypted b
 
 Despite the fact that connectors can read the public headers' data, connectors should not be required to do so, nor should they rely on PSK details being present on all transfers. This information is only intended for the initial sender and final receiver of a payment.
 
-The decryption key is derived from the pre-shared secret key, and the AES-256-GCM initialization vector is set to the value of the `Nonce` header (`fpwpAhlN588` in the above example). The nonce MUST be generated with cryptographically-secure randomness. **If the nonce is reused with the same shared secret, it could leak unencrypted data or allow money to be stolen by malicious parties.** The AES-256-GCM authentication tag used for decryption is attached to the `Encryption` header (`58EowcXBk3qBIvJ0kmvdCh` in the above example).
+The decryption key is derived from the pre-shared secret key, and the AES-256-GCM initialization vector is set to the value of the `Nonce` header (`fpwpAhlN588` in the above example). The nonce MUST be generated with cryptographically-secure randomness. **If the nonce is reused with the same shared secret, it could leak unencrypted data or allow money to be stolen by malicious parties.** The 16-byte AES-256-GCM authentication tag used for decryption is attached to the `Encryption` header, encoded in base64url (`58EowcXBk3qBIvJ0kmvdCh` in the above example). The encryption MUST use [PKCS](https://en.wikipedia.org/wiki/Padding_(cryptography)#PKCS7) for padding.
 
 | Header | Value |
 |--------|-------|
 | `Nonce` | _(Required)_ A [base64url-encoded](https://en.wikipedia.org/wiki/Base64#URL_applications) nonce, used to generate ensure uniqueness of the PSK data and as an initialization vector (IV) for AES-256-GCM encryption. The nonce **MUST** be 16 bytes, and **MUST** be generated with cryptographically-secure randomness. |
-| `Encryption` | _(Required)_ Supported values are `aes-256-gcm <AUTH_TAG>` and `none`. If it is set to `aes-256-gcm`, then private headers and application data will be AES-256-GCM encrypted, and `<AUTH_TAG>` will be the authentication tag returned by the cipher. If it is set to `none`, then private headers and application data will be in cleartext. This cleartext will still be appended to the public headers after an empty line. If the value is neither `aes-256-gcm` nor `none`, the receiver MUST reject the incoming payment with an `S06: UnexpectedPayment` error. |
+| `Encryption` | _(Required)_ Supported values are `aes-256-gcm <AUTH_TAG>` and `none`. If it is set to `aes-256-gcm`, then private headers and application data will be AES-256-GCM encrypted, and `<AUTH_TAG>` will be the 16-byte authentication tag returned by the cipher, encoded in base64url. If it is set to `none`, then private headers and application data will be in cleartext. This cleartext will still be appended to the public headers after an empty line. If the value is neither `aes-256-gcm` nor `none`, the receiver MUST reject the incoming payment with an `S06: UnexpectedPayment` error. |
 | `Key` | _(Optional)_ The algorithm by which the receiver generates the shared secret. In the normal use of PSK 1.0 described in this spec, the secret is generated by the receiver only and the sender does not know the algorithm used. In other cases, for example using [Diffie-Hellman](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange), the sender would include the algorithm and a sender-specified key for the recipient to use to derive the shared secret. If the receiver does not understand the `Key` value, the receiver MUST reject the incoming payment with the error message `S06: UnexpectedPayment`. |
 | ... | _(Optional)_ Additional headers. These can be read by any connectors. |
 
@@ -134,9 +134,10 @@ nonce = random_bytes(16)
 // set the public 'Encryption' header to 'none' instead of 'aes-256-gcm'. The
 // receiver side must always check the public 'Encryption' header to check
 // whether or not encryption is enabled. This pseudocode only describes the
-// case where encryption is turned on, for simplicity.
-// The nonce is used as the IV (initialization vector) of AES-256-GCM.
-// The auth tag of GCM will be attached to the 'encryption' header.
+// case where encryption is turned on, for simplicity.  The nonce is used as
+// the IV (initialization vector) of AES-256-GCM. The 16-byte auth tag of GCM
+// will be attached to the 'encryption' header in base64url. The encrypted data
+// should be automatically padded with PKCS.
 
 payment_encryption_key = hmac_sha_256(shared_secret, 'ilp_psk_encryption')
 encrypted_data, auth_tag = aes_256_gcm({
