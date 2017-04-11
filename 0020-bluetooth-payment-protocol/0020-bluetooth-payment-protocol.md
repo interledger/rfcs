@@ -10,12 +10,12 @@ a payment is signed or the Customer cancels the purshase for security or authent
 
 ## Definitions
 
-- `IPR`: [Interledger Payment Request](https://github.com/interledger/rfcs/blob/master/0011-interledger-payment-request/0011-interledger-payment-request.md)
+- `IPR`: [Interledger Payment Request](../0011-interledger-payment-request/0011-interledger-payment-request.md)
 - `Merchant`: The one requesting a payment
 - `Customer`: The one authorizing and paying for payment requests
 - `Connection`: Short time binding between `Merchant` and `Customer`
 - `ILP Account`: An Interledger-enabled account on a ledger
-- `ILP Address`: [Interledger](https://github.com/interledger/rfcs/blob/master/0015-ilp-addresses/0015-ilp-addresses.md) address in the form of `g.us.somebank.youraccount`
+- `ILP Address`: [Interledger](../0015-ilp-addresses/0015-ilp-addresses.md) address in the form of `g.us.somebank.youraccount`
 - `Merchant Certificate Authority`: Like CA's for TLS certificates, Merchant CAs sign the certificates of trusted merchants. CAs MUST maintain blacklists of compromised keys
 - `Redemption URI`: URI where the Merchant can submit Customer-authorized IPRs to initiate an ILP payment to their account (Note: the service that implements this MUST store previously redeemed IPRs to avoid duplicate payments)
 - `Write Long Characteristic`: GATT Sub-Procedure that Writes to Characteristics with more than 20 bytes
