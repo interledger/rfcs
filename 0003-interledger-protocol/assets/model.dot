@@ -1,0 +1,25 @@
+graph G {
+  node [shape = record,height=.1];
+
+  host1[label = "{<im1> Interledger Module|{|<lli1> L1 Plugin}}"];
+  host2[label = "{<im2> Interledger Module|{<lli2> L1 Plugin|<lli3> L2 Plugin}}"];
+  host3[label = "{<im3> Interledger Module|{<lli4> L2 Plugin|}}"];
+
+  host1:lli1:s -- l1:nw;
+  host2:lli2:s -- l1:ne;
+  host2:lli3:s -- l2:nw;
+  host3:lli4:s -- l2:ne;
+
+  app1 -- host1:im1;
+  app2 -- host3:im3;
+
+  app1 [shape=box label=Application];
+  app2 [shape=box label=Application];
+
+  l1 [shape=box label="Ledger 1"];
+  l2 [shape=box label="Ledger 2"];
+
+  { rank=same; app1 app2 }
+  { rank=same; host1 host2 host3 }
+  { rank=same; l1 l2 }
+}
