@@ -12,7 +12,13 @@ Interledger (aka _Interledger Protocol_, or _ILP_) is a set of rules about how t
 
 Interledger, like the Internet, isn't only used by people. It can be used by a computer, a group of computers, or a group of people and/or computers acting together as a company or corporation. The word _party_ is sometimes used to describe a person, thing, or any group of people or things that can _participate in an action._
 
-The Interledger Protocol has four basic building blocks that participate together in the action of transmitting an asset from one party to another.
+The Interledger Protocol has four basic building blocks that participate together in the action of transmitting an asset from one party to another.  
+
+Assets come in many types, and the world has many systems to keep track of who owns which ones, and to exchange the different kinds of asset for each other.  But the systems don't always connect to each other very well, if they connect at all.
+
+The building blocks of ILP were created to fit together in enough ways to transmit an asset of any kind, through any system or systems, anywhere in the world, and handle any necessary exchanges of asset types along the way.  
+
+What the Internet did for information, Interledger hopes to do for value.
 
 ### ILP Basics: Building Blocks
 
@@ -39,9 +45,9 @@ If you didn't trust a particular bank to give you your money back when you ask f
 
 This is important because this idea of trust is at the core of how the pieces of ILP fit together, and - interestingly - how this arrangement enables _trustless payments_.  Let's see how it works:
 
-**Payment Setup: Being Prepared**
+**Payment Setup: Where & How Much?**
 
-As much as possible about an ILP payment is prepared in advance to be sure each party is happy with what's going to happen, and that the funds will remain safe while in transition.  While it's possible for a sender to make a payment to a receiver on the same ledger, examining that scenario won't involve much of what makes ILP interesting.  So let's take the example that the sender and receiver are on different ledgers.
+As much as possible about an ILP payment is worked out in advance to be sure each party is happy with what's going to happen, and that the funds will remain safe while in transition.  While it's possible for a sender to make a payment to a receiver on the same ledger, examining that scenario won't involve much of what makes ILP interesting.  So let's take the example that the sender and receiver are on different ledgers.
 
 Setup goes like this:
 
@@ -53,13 +59,13 @@ Setup goes like this:
 
 4) The sender decides whether or not to use that connector, based on how much it will cost.  If it's a "no", the sender can start over asking a different connector, or asking the same one again (who may figure out a better way this time).  When the sender is happy with the cost, the payment can go ahead.
 
-For each payment, a chain with links of trust is formed between the sender, connector - or connectors - and the receiver.  Each link in the chain trusts the one before it not to waste its time or run away with the assets, but no link needs to trust any other links in the chain or even know about them.  What's great about this, is it means the sender and the receiver don't need to trust each other, or even know who each other is.  
+For each payment, a chain with links of trust is formed between the sender, connector - or connectors - and the receiver.  Each link in the chain trusts the one before it not to waste its time, but no link needs to trust any other links in the chain or even know about them.  What's great about this, is it means the sender and the receiver don't need to trust each other, or even know who each other is.  
 
 _Key point: If a sender makes a payment with ILP, it is assured that either the receiver will receive the amount the sender agreed to, or the sender will get their original amount returned.  The sender doesn't need to trust anyone in-between, and the receiver can be sure the sender agreed to the transfer (and so won't later try get the asset back).  This is what makes ILP payments "trustless"._
 
 **Payment Security**
 
-Even with all the preparation, there are still a couple of things that could go wrong.  For example, what happens if a connector lies? There are a couple of ways connectors could choose to either be annoying and cause delays, or even try and steal assets.  It's unlikely, but if it did happen, ILP guarantees the sender will get their original asset back in their account.  Then of course, the sender could try sending again a different way.  In a small number of cases, this situation may result in a connector next to the bad one losing money.  That's why connectors charge a little bit for making payments, and it's also why they want to choose carefully to link up with only good connectors.  Also, if a connector did lie, all connectors will know about it and "unfriend" them to make it difficult for that connector to be involved in an ILP payment again.
+Even with all this worked out, there are still a couple of things that could go wrong.  For example, what happens if a connector lies about how much the payment will cost?  There are a couple of ways connectors could be annoying and cause delays, or even try and steal.  It's unlikely, but if it did happen, ILP guarantees the sender will get their original asset back in their account.  Then of course, the sender could try sending again a different way.  In a small number of cases, this situation may result in a connector losing money.  That's why connectors charge a little bit for making payments, and it's also why they want to choose carefully to link up with ledgers they can trust.  Also, if a connector did lie, all connectors will know about it and "unfriend" them to make it difficult for that connector to be involved in an ILP payment again.
 
 Much of what happens throughout an ILP payment is actually only there to protect the asset from exactly this kind of thing during its transition from one ledger to another.  One of the main things used is called a _cryptographic condition_.  This is a complex topic, so we're going to use an analogy to represent it.  Instead of a "cryptographic condition", let's call this thing a _special box._
 
@@ -90,17 +96,17 @@ Here's what happens next:
 - "Also, here's four special boxes.  Keep one, and give the other three to this connector."
 - "Finally, tell the connector if they give you a password that opens this box, you'll erase the entry in the holding account, and record instead that the $10 USD is in the connectors account!"
 
-2) The ledger manager erases $10 USD from the senders account, puts $10 USD in the holding account, tells the connector about everything, keeps a box, and gives the connector the other two boxes.  Now, its the connectors turn to do a similar thing on the JPY ledger.  The connector says to the JPY ledger manager: 
+2) The USD ledger manager erases $10 USD from the senders account, puts $10 USD in the holding account, tells the connector about everything, keeps a box, and gives the connector the other two boxes.  Now, its the connectors turn to do a similar thing on the JPY ledger.  The connector says to the JPY ledger manager: 
 
 - "I'm going to give someone on your ledger ¥1050 JPY.  Can you take ¥1050 from my account, and put it in your special 'holding' account?
 - "Then, can you take these boxes, keep one, and give the other to the receiver?"
 - "Finally, wait for a password from the receiver - if the password opens your box, put the ¥1050 in the receivers account, tell the receiver you've done that, and let me know too!"
 
-3) The ledger manager does all this, and gives the receiver the last box.  The receiver hears all about the payment and puts the password they previously arranged with the sender into the box.  The box opens!  So, the receiver knows this box came from the sender, and that this payment is a real payment the sender wants to make.  The receiver also knows that right now, some Japanese Yen are on hold for the receiver in the JPY ledger, waiting for this password.  The receiver wants the money, and trusts the JPY ledger manager, so gives the JPY ledger manager the password.
+3) The JPY ledger manager does all this, and gives the receiver the last box.  The receiver hears all about the payment and puts the password they previously arranged with the sender into the box.  The box opens!  So, the receiver knows this box came from the sender, and that this payment is a real payment the sender wants to make.  The receiver also knows that right now, some Japanese Yen are on hold for the receiver in the JPY ledger, waiting for this password.  The receiver wants the money, and trusts the JPY ledger manager, so gives the JPY ledger manager the password.
 
-4) The JPY ledger manager puts the password in the box, and it opens! The ledger manager is now sure that the box came from the original sender, and that the receiver and the sender agreed and are happy with whats happening. The JPY ledger manager changes the entries in the ledger, so that the holding account doesn't have the ¥1050 JPY, and the receiver's account has it instead.  The JPY ledger manager tells the connector what happened, and because the JPY ledger manager trusts the connector, gives the connector the password.
+4) The JPY ledger manager puts this password from the receiver into the box, and it opens! The JPY ledger manager changes the entries in the ledger, so that the holding account doesn't have the ¥1050 JPY, and the receiver's account has it instead.  The ledger manager then tells the connector what happened, and hands this password on to them.
 
-5) The connector tries the password in the box, and of course - it opens.  The connector now knows this password will open the box the USD ledger manager has, and the ledger manager will put $10 USD into the connector's account on the USD ledger.  The connector trusts the USD ledger manager, and so gives the password to them.
+5) The connector tries the password in the box, and of course - it opens.  The connector now knows this password will open the box the USD ledger manager has, and the ledger manager will put $10 USD into the connector's account on the USD ledger.  The connector trusts the USD ledger manager, and so hands the password on to them.
 
 6) The USD ledger manager tries the password and when the box opens, puts the USD from the holding account into the connectors account.
 
@@ -115,9 +121,9 @@ Something interesting about all of this, is that on the Interledger, it may well
 _Note: The reason for the "holding" part is that it protects the assets.  If anything goes wrong with the payment while the assets are on hold - for example, if the receiver rejects the payment - the assets can simply be taken from the holding accounts and put back into the accounts they came from.  In fact, in the case of the example given, if the receiver rejected the payment the assets would **have** to be put back.  Because if the receiver rejected the payment, no password would have been given that could open the boxes, so none of the ledger managers would have done anything._
 
 
-**Asset Transformation & Connectors**
+**Asset Exchange & Connectors**
 
-What's particularly useful about about ILP payments, is that the _kind_ of asset being sent doesn't need to be the same kind as the asset that is received.  The asset may even change forms a few times during a payment.
+What's particularly useful about about ILP payments, is that the _kind_ of asset being sent doesn't need to be the same kind as the asset that is received.  The asset may be exchanged a few times during a payment.
 
 In the example above, if there wasn't such a convenient connector available for USD and JPY, the payment could have involved two or more connectors.  For example, the first connector could be happy to gain more US Dollars on the senders ledger, and provide some Mexican Peso's on another ledger.  A second connector may be happy to gain some Mexican Peso's on the first connectors ledger, and lose some Japanese Yen on the receivers ledger.  In this case the payment would have involved seven parties acting together.  One sender, two connectors, one receiver and three ledgers.
 
