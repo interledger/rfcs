@@ -2,7 +2,7 @@
 
 This document specifies a protocol for communicating and authorizing Interledger Payment Requests over Bluetooth (Low Energy). It is primarily intended for use in in-person retail payment contexts.
 
-This protocol may be implemented by Customer devices such as smartphones or very low-power, offline devices such as [tapFi](https://github.com/joaopedrovbs/tapFi).
+This protocol may be implemented on Customer devices such as smartphones or very low-power offline devices as our example[tapFi](https://github.com/joaopedrovbs/tapFi).
 
 Once a Customer becomes active by broadcasting it's payment service over BLE, Merchants can connect
 and request signature for payments over a secure Bluetooth channel. The channel is closed once
@@ -10,12 +10,12 @@ a payment is signed or the Customer cancels the purshase for security or authent
 
 ## Definitions
 
-- `IPR`: [Interledger Payment Request](../0011-interledger-payment-request/0011-interledger-payment-request.md)
+- `IPR`: [Interledger Payment Request](../0011-interledger-payment-request/)
 - `Merchant`: The one requesting a payment
-- `Customer`: The one authorizing and paying for payment requests
+- `Customer`: The one authorizing and remitting payment
 - `Connection`: Short time binding between `Merchant` and `Customer`
-- `ILP Account`: An Interledger-enabled account on a ledger
-- `ILP Address`: [Interledger](../0015-ilp-addresses/0015-ilp-addresses.md) address in the form of `g.us.somebank.youraccount`
+- `ILP Account`: An account on a Interledger-enabled ledger
+- `ILP Address`: [Interledger](../0015-ilp-addresses/) address in the form of `g.us.somebank.youraccount`
 - `Merchant Certificate Authority`: Like CA's for TLS certificates, Merchant CAs sign the certificates of trusted merchants. CAs MUST maintain blacklists of compromised keys
 - `Redemption URI`: URI where the Merchant can submit Customer-authorized IPRs to initiate an ILP payment to their account (Note: the service that implements this MUST store previously redeemed IPRs to avoid duplicate payments)
 - `Write Long Characteristic`: GATT Sub-Procedure that Writes to Characteristics with more than 20 bytes
