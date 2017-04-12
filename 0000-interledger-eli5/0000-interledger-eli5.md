@@ -45,19 +45,19 @@ If you didn't trust a particular bank to give you your money back when you ask f
 
 This is important because this idea of trust is at the core of how the pieces of ILP fit together, and - interestingly - how this arrangement enables _trustless payments_.  Let's see how it works:
 
-**Payment Setup: Where & How Much?**
+**Payment Quotes: Where To & How Much?**
 
 As much as possible about an ILP payment is worked out in advance to be sure each party is happy with what's going to happen, and that the funds will remain safe while in transition.  While it's possible for a sender to make a payment to a receiver on the same ledger, examining that scenario won't involve much of what makes ILP interesting.  So let's take the example that the sender and receiver are on different ledgers.
 
-Setup goes like this:
+Before the payment is made, the sender needs to be happy with how much the payment will cost. The process, called _quoting_, goes like this:
 
-1) A sender asks a connector: "Do you know this receiver?"
+1) First, a sender asks a connector: "Do you know this receiver?"
 
 2) If the connector knows the receiver, great.  If not, the connector talks to its "peers" (its "connector friends") to see if any know the receiver, or know another connector that might know the receiver... and so on.  Through this process, a chain of connectors linking the sender to the receiver is discovered.  This chain may involve just one connector, or it may involve many.
 
-3) Connectors can each charge a little bit for their part in handling the payment.  After the chain is built, the connector closest the sender explains how much the receiver will get if the payment goes down that chain.  If it's much less than what the sender wants to send, the sender will probably choose a different connector.  So connectors try make the cost to the sender as little as possible, while still earning something.
+3) Connectors can each charge a little bit for their part in handling the payment.  After the chain is built, the connector closest the sender explains how much the receiver will get if the payment goes down that chain.  That is, the connector gives the sender a _quote_. If it's much less than what the sender wants to send, the sender will probably choose a different connector.  So connectors try make the cost to the sender as little as possible, while still earning something.
 
-4) The sender decides whether or not to use that connector, based on how much it will cost.  If it's a "no", the sender can start over asking a different connector, or asking the same one again (who may figure out a better way this time).  When the sender is happy with the cost, the payment can go ahead.
+4) The sender decides whether or not to use that connector, based on how much it will cost.  If it's a "no", the sender can start over asking a different connector, or asking the same one again (who may figure out a way to make it cheaper this time).  When the sender is happy with the cost, the payment can go ahead.
 
 For each payment, a chain with links of trust is formed between the sender, connector - or connectors - and the receiver.  Each link in the chain trusts the one before it not to waste its time, but no link needs to trust any other links in the chain or even know about them.  What's great about this, is it means the sender and the receiver don't need to trust each other, or even know who each other is.  
 
