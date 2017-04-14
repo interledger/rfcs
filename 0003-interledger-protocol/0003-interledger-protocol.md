@@ -20,7 +20,7 @@ The interledger protocol is intentionally limited in scope to provide the functi
 
 This protocol is called on by hosts through higher level protocol modules in an interledger environment. Interledger protocol modules call on local ledger protocols to carry the interledger payment to the next connector or destination account.
 
-For example, a [`Simple Payment Setup Protocol (SPSP)`](../0009-simple-payment-setup-protocol/) module would call the interledger module with the address and other parameters in the interledger packet to send a payment. The interledger module would send a transfer to the next connector or destination account along with the interledger packet and according to the parameters given. The transfer and interledger packet would be received by the next host's interledger module and handled by each each successive connector and finally the destination's SPSP module.
+For example, a [`Simple Payment Setup Protocol (SPSP)`](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) module would call the interledger module with the address and other parameters in the interledger packet to send a payment. The interledger module would send a transfer to the next connector or destination account along with the interledger packet and according to the parameters given. The transfer and interledger packet would be received by the next host's interledger module and handled by each each successive connector and finally the destination's SPSP module.
 
 In the Ripple case, for example, the interledger module would call on a local ledger module which would create a Ripple transaction with the interledger packet attached to transmit to the Ripple Consensus Ledger. The Ripple address would be derived from the interledger address by the local ledger interface and would be the address of some account in the Ripple network, which might belong to a connector to other ledgers.
 
@@ -36,19 +36,7 @@ The interledger protocol treats each interledger payment as an independent entit
 
 Interledger payments do not carry a dedicated time-to-live or remaining-hops field. Instead, the amount field acts as an implicit time-to-live: Each time the payment is forwarded, the forwarding connector will take some fee out of the inbound amount. Once a connector recognizes that the inbound amount is worth less (though not necessarily numerically smaller) than the destination amount in the ILP header, it will refuse to forward the payment.
 
-### Definitions
-
-##### Transfer
-&emsp;Change in ownership of some asset
-
-##### Ledger
-&emsp;System which records transfers
-
-##### Connector
-&emsp;System which relays transfers between two ledgers
-
-##### Payment
-&emsp;An exchange of assets involving one or more transfers on different ledgers
+See [IL-RFC 19](../0019-glossary/0019-glossary.md) for definitions of terms like Transfer, Ledger, Connector, and Payment.
 
 ## Overview
 
