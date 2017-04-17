@@ -82,29 +82,29 @@ exposing Services that contains Characteristics. Each Characteristic works like 
 3. **[MERC]** Generate IPR with __account__ and __amount__.
 4. **[MERC]** Sign the IPR using their Ed25519 keypair
 5. **[MERC]** Write to:
-  1. `:ipr` with IPR
-  2. `:iprSignature` with Signature of IPR
-  3. `:merchantPublicKey` with the Merchant Public Key 
-  4. `:merchantCertificate` with the Certificate signed by a Certificate Authority
+    1. `:ipr` with IPR
+    2. `:iprSignature` with Signature of IPR
+    3. `:merchantPublicKey` with the Merchant Public Key 
+    4. `:merchantCertificate` with the Certificate signed by a Certificate Authority
 6. **[MERC]** Write __sign__ to `:action`, to indicate data is ready to be validated/signed.
 7. **[MERC]** Listen to notifications on `:status`
-8. **[CUST]**  Write __"authenticating"__ to `:status`
+8. **[CUST]** Write __"authenticating"__ to `:status`
 9. **[CUST]** Validates payload on Characteristics. If:
-  1. [CA is NOT trusted:](#) write __"invalid"__ to `:status`. Close connection
-  2. [Payment NOT within limits:](#) write __"invalid"__ to `:status`. Close connection
-  3. [Certificate NOT valid for ILP address in IPR:](#) write __"invalid"__ to `:status`. Close connection
-  4. [Merchant signature is NOT on IPR:](#) write __"invalid"__ to `:status`. Close connection
-  5.  (**TODO**: what if the device is super simple and low-power, like a tapFi, and can't easily verify a chain of signatures? Is there any way to make it safe to skip this step?).
-10. **[CUST]**  Wait for Customer authorization (passkey/rhythm/Harry Potter wand...). If:
-  1. [Password is NOT valid:](#) write __"unauthenticated"__ to `:status`. Close connection.
-  2. [Authentication timeout:](#) write __"unauthenticated"__ to `:status`. Close connection.
-  3. [If payment is canceled:](#) write __"canceled"__ to `:status`. Close connection.
+    1. [CA is NOT trusted:](#) write __"invalid"__ to `:status`. Close connection
+    2. [Payment NOT within limits:](#) write __"invalid"__ to `:status`. Close connection
+    3. [Certificate NOT valid for ILP address in IPR:](#) write __"invalid"__ to `:status`. Close connection
+    4. [Merchant signature is NOT on IPR:](#) write __"invalid"__ to `:status`. Close connection
+    5. (**TODO**: what if the device is super simple and low-power, like a tapFi, and can't easily verify a chain of signatures? Is there any way to make it safe to skip this step?).
+10. **[CUST]** Wait for Customer authorization (passkey/rhythm/Harry Potter wand...). If:
+    1. [Password is NOT valid:](#) write __"unauthenticated"__ to `:status`. Close connection.
+    2. [Authentication timeout:](#) write __"unauthenticated"__ to `:status`. Close connection.
+    3. [If payment is canceled:](#) write __"canceled"__ to `:status`. Close connection.
 11. **[CUST]** Sign IPR using its ED25519 keypair
-  1. (**TODO**: should it include the merchant cert and/or signature on the IPR in the data being signed?)
+    1. (**TODO**: should it include the merchant cert and/or signature on the IPR in the data being signed?)
 12. **[CUST]** Writes to:
-  1. `:iprAuthorization` with signed IPR, Redemption URI, public key (**TODO**: can the pubkey be recovered from the signature?) and certificate signed by the customer's ledger (and possibly another CA) to the merchant
-  2. (Should we send the keys before signing? Sending this thing depends on if the merchant is online or not. I think It should be separated into read-only characteristics)
+    1. `:iprAuthorization` with signed IPR, Redemption URI, public key (**TODO**: can the pubkey be recovered from the signature?) and certificate signed by the customer's ledger (and possibly another CA) to the merchant
+    2. (Should we send the keys before signing? Sending this thing depends on if the merchant is online or not. I think It should be separated into read-only characteristics)
 13. **[CUST]** Write __"complete"__ to `:status`. Close connection.
 14. **[MERC]** Once notified on `:status` with __"complete"__, If:
-  1. [Online:](#) Merchant submits signed IPR, merchant certificate to the customer's submission endpoint. 
-  2. [Offline:](#) Merchant MAY accept the signed request as payment, taking the risk that the customer's ledger may not honor the signed request later.
+    1. [Online:](#) Merchant submits signed IPR, merchant certificate to the customer's submission endpoint. 
+    2. [Offline:](#) Merchant MAY accept the signed request as payment, taking the risk that the customer's ledger may not honor the signed request later.
