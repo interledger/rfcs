@@ -1,4 +1,4 @@
-## Interledger Protocol: Explained Like I'm Five
+## Interledger Protocol: Explain Like I'm Five
 
 ### Introduction
 
@@ -132,10 +132,10 @@ When looked at this way, each connector could also be seen as just another sende
 
 We've taken an elementary look at ILP and how it works.  In the course of this document, we've skipped over some complex terms commonly used to describe ILP, but we haven't skipped over basic functionality or the principles at work.
 
-Hopefully, with what you know now, you'll be able to comprehend other ILP documentation more readily, based on a firm understanding of the basic principles.  What you may not realise is just how much you know already:
+Hopefully, with what you know now, you'll be able to more readily comprehend other ILP documentation, based on a firm understanding of the basic principles.  What you may not realise is just how much you know already:
 
 **What's Really In The Special Box?**
 
-The "special box" was used as an analogy for a "cryptographic condition".  If you read about these elsewhere in the ILP documentation, you might find them associated with the terms "digest", "hash", "fulfillment" and something frightening-looking, such as "SHA-256".
+The "special box" was used as an analogy for a "cryptographic condition".  If you read about these elsewhere in the ILP documentation, you might find them associated with the terms "pre-image", "digest", "hash", "fulfillment" and if those weren't frightening enough, "SHA-256".
 
-But you already know what most of these mean.  The "digest" is the password.  The "hash" is a kind of mushed-up version of the password.  The "checking of the digest against the hash" is the same as "checking the password matches the one in the box", or if it matched, "fulfilling the condition".  Finally, "SHA-256" is just a fancy name for a particular type of special box that may be used in ILP.  There are many types of these special boxes that all do almost the same thing, and they all have scary names.  Don't let it discourage you!
+But you actually already know what most of these mean.  The "cryptographic condition" is the whole arrangement of the box, its hidden password and the checking a password matches the one inside.  The "pre-image" is just another word for the password.  The "digest", or "hash" is a kind of mushed-up version of that password.  Checking for a "valid pre-image of the hash", is the same as checking "the password matches the one in the box", and if it does match, "fulfilling the condition".  Finally, "SHA-256" is just a fancy name for a particular type of special box that may be used in ILP.  There are many types of these special boxes that all do almost the same thing, and they all have scary names.  Don't let it discourage you!
