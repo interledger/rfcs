@@ -115,7 +115,7 @@
         </div>
         <div class="col-sm-8 markdown-body">
           <h1 id="ilp-addresses">ILP Addresses</h1>
-<p class="intro"><em>ILP addresses</em> provide a way to <a href="#routing">route</a> payments to their intended destination through a recursive series of hops, including any number of ILP Connectors. (This happens after the payment is set up on by a higher-level payment setup protocol such as <a href="../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md">SPSP</a>.) Addresses are not meant to be user-facing, but allow several ASCII characters for easy debugging.</p>
+<p class="intro"><em>ILP addresses</em> provide a way to <a href="#routing">route</a> payments to their intended destination through a recursive series of hops, including any number of ILP Connectors. (This happens after the payment is set up on by a higher-level payment setup protocol such as <a href="../0009-simple-payment-setup-protocol">SPSP</a>.) Addresses are not meant to be user-facing, but allow several ASCII characters for easy debugging.</p>
 <p>Addresses can be subdivided into two categories:</p>
 <ul>
 <li><strong>Destination Addresses</strong> are complete addresses that can receive payments. A destination address always maps to one account in a ledger. (It can also provide more specific information, such as an invoice ID or a sub-account.) Destination addresses MUST NOT end in a period (<code>.</code>) character.</li>

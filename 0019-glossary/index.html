@@ -306,7 +306,7 @@ When part of an account&apos;s balance is not readily usable, it is up to the le
 <h2 id="conditional-transfer">Conditional Transfer</h2>
 <p>Each local transfer is first <em>prepared</em> and then either <em>executed</em> or <em>rejected</em>. When a transfer is prepared, the ledger puts the funds of the source account on hold with a <em>cryptographic condition</em> and <em>timeout</em>. If the condition is fulfilled before the timeout, the transfer is executed and the funds are transferred. If the timeout is reached, the transfer expires and the ledger returns the funds to the source account automatically.
 Inspired by the <a href="http://lightning.network">Lightning Network</a>, Interledger uses the digest of the <a href="https://en.wikipedia.org/wiki/SHA-2">SHA-256</a> hash function as the condition for transfers. The fulfillment is a valid 32-byte preimage for the hash specified when the transfer was prepared. Ledgers are responsible for validating fulfillments. <a href="#transport-layer">Transport Layer</a> protocols are used by the sender and receiver to generate the condition for a particular payment.
-To be fully Interledger-compatible, ledgers MUST support conditional transfers, though it is possible to send Interledger payments over a ledger that does not natively support the recommended features. See <a href="../0017-ledger-requirements/0017-ledger-requirements.md">IL-RFC 17</a> for the full description and tiers of ledger requirements.</p>
+To be fully Interledger-compatible, ledgers MUST support conditional transfers, though it is possible to send Interledger payments over a ledger that does not natively support the recommended features. See <a href="../0017-ledger-requirements">IL-RFC 17</a> for the full description and tiers of ledger requirements.</p>
 <h2 id="connector">Connector</h2>
 <p>A party who chains one transfer to the next in an interledger payment.
 A connector receives a local transfer on one ledger in exchange for making another local transfer on a different ledger. A single interledger payment may include multiple connectors and may traverse any number of ledgers.
@@ -369,7 +369,7 @@ When initiating an Interledger payment, the sender attaches an ILP packet to the
 Note that anyone can claim to have a certain Interledger address, there is no registry of them.
 Whether or not a payment ends up at the intended receiver is ultimately safe-guarded by the hashlock condition,
 not by enforcement of address ownership.
-See <a href="../0015-ilp-addresses/0015-ilp-addresses.md">IL-RFC 15</a></p>
+See <a href="../0015-ilp-addresses">IL-RFC 15</a></p>
 <h2 id="interledger-architecture">Interledger Architecture</h2>
 <p>The <a href="interledger-protocol-stack">Interledger protocol stack</a>, and the design principles behind it.</p>
 <h2 id="interledger-layer">Interledger Layer</h2>
@@ -386,9 +386,9 @@ both in choosing the onward path, and in deciding whether their incoming amount 
 amount mentioned in the ILP packet, to even merit an attempt to route the payment at all. See also <a href="#routing-table">routing table</a>.</p>
 <h2 id="interledger-payment-request-ipr">Interledger Payment Request (IPR)</h2>
 <p>A Transport Layer protocol in which the receiver generates the payment details and condition. The receiver does not share the secret used to generate the condition and fulfillment with the sender or anyone else, but the sender must ask the recipient to generate and share a condition before sending each payment. IPR is primarily useful for building non-repudiable application layer protocols, in which the sender&apos;s posession of the fulfillment proves to third parties that the sender has paid the receiver for a specific obligation.
-See <a href="../0011-interledger-payment-request/0011-interledger-payment-request.md">IL-RFC 11</a>.</p>
+See <a href="../0011-interledger-payment-request">IL-RFC 11</a>.</p>
 <h1 id="interledger-protocol-ilp">Interledger Protocol (ILP)</h1>
-<p>The core of the Interledger protocol suite, described in <a href="../0003-interledger-protocol/0003-interledger-protocol.md">IL-RFC 3</a>.
+<p>The core of the Interledger protocol suite, described in <a href="../0003-interledger-protocol">IL-RFC 3</a>.
 Colloquially the whole Interledger stack is sometimes referred to as &quot;ILP&quot;. Technically, however, the Interledger Protocol is only one layer in the
 <a href="#interledger-protocol-stack">Interledger protocol stack</a>.</p>
 <h2 id="interledger-protocol-stack">Interledger protocol stack</h2>
@@ -396,7 +396,7 @@ Colloquially the whole Interledger stack is sometimes referred to as &quot;ILP&q
 a choice of <a href="#transport-layer">transport layer</a> protocols, and the <a href="#application-layer">application layer</a>.</p>
 <h2 id="interledger-quoting-protocol-ilqp">Interledger Quoting Protocol (ILQP)</h2>
 <p>The protocol that defines how senders request quotes from connectors to determine the source or destination amount for an Interledger payment. Quoting is optional and senders MAY cache quotes and send repeated payments through the same connector.
-See <a href="../0008-interledger-quoting-protocol/0008-interledger-quoting-protocol.md">IL-RFC 8</a>.</p>
+See <a href="../0008-interledger-quoting-protocol">IL-RFC 8</a>.</p>
 <h2 id="intermediate-transfer-ledger-amount">Intermediate (transfer, ledger, amount)</h2>
 <p>Any transfer/ledger/amount that is neither directly adjacent to the sender, nor to the receiver.</p>
 <h2 id="ledger">Ledger</h2>
@@ -432,7 +432,7 @@ Also, money is put <a href="#hold">on hold</a> during this phase.</p>
 <p>The state of a transfer in which the source account&apos;s funds are put on hold by the ledger until either the expiry is reached or the condition is fulfilled. See <a href="#conditional-transfer">Conditional Transfer</a>.</p>
 <h2 id="pre-shared-key-psk">Pre-Shared Key (PSK)</h2>
 <p>The recommended transport layer for most use cases.
-In Pre-Shared Key (PSK) protocol, the sender and receiver use a shared secret to generate the payment condition, authenticate the ILP packet, and encrypt application data. Using PSK, the sender is guaranteed that fulfillment of their transfer indicates the receiver got the payment, provided that no one aside from the sender and receiver have the secret and the sender did not submit the fulfillment. See <a href="../0016-pre-shared-key/0016-pre-shared-key.md">IL-RFC 16</a>.</p>
+In Pre-Shared Key (PSK) protocol, the sender and receiver use a shared secret to generate the payment condition, authenticate the ILP packet, and encrypt application data. Using PSK, the sender is guaranteed that fulfillment of their transfer indicates the receiver got the payment, provided that no one aside from the sender and receiver have the secret and the sender did not submit the fulfillment. See <a href="../0016-pre-shared-key">IL-RFC 16</a>.</p>
 <h2 id="proposed">Proposed</h2>
 <p>[DEPRECATED] The &apos;proposed&apos; state of a payment is no longer used in practice; nowadays, payments skip this state, and are immediately created in their &apos;prepared&apos; state.
 The official <a href="https://interledger.org/interledger.pdf">Interledger whitepaper</a> still describes it, though.</p>
@@ -457,7 +457,7 @@ the outgoing is the destination transfer).</p>
 <p>The party who is the initiator (payer) of a transfer or a payment (transaction).</p>
 <h2 id="simple-payment-setup-protocol-spsp">Simple Payment Setup Protocol (SPSP)</h2>
 <p>SPSP uses Webfinger (<a href="https://tools.ietf.org/html/rfc7033">RFC 7033</a>) and an HTTPS-based protocol for communicating account, amount, and Pre-Shared Key details from the receiver to the sender.
-See <a href="../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md">IL-RFC 9</a>.</p>
+See <a href="../0009-simple-payment-setup-protocol">IL-RFC 9</a>.</p>
 <h2 id="source-transfer-ledger-amount">Source (transfer, ledger, amount)</h2>
 <p>The transfer/ledger/amount directly adjacent to the sender.</p>
 <h2 id="transaction">Transaction</h2>
