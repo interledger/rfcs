@@ -90,9 +90,11 @@ The request must specify either `source_amount` or `destination_amount` but not 
 | `source_ledger`               | ILP Address | The address of the ILP-enabled ledger where the source account is. |
 | `source_amount`               | String      | Integer number amount of currency the connector's account should receive in the source ledger. |
 | `source_expiry_duration`      | String      | Integer number of milliseconds between when the payment in the source ledger is prepared and when it must be executed. |
-| `destination_ledger`          | ILP Address | The address of the ILP-enabled ledger where the destination account is. |
+| `destination_ledger`          | ILP Address | The address of the ILP-enabled ledger where the destination account is. Equivalent to the
+[`appliesToPrefix`](https://github.com/interledger/rfcs/blob/9664732/asn1/InterledgerQuotingProtocol.asn#L36-L42) field which will possibly be used in the future. |
 | `destination_amount`          | String      | Integer number amount of currency that should be received by the destination account in the destination ledger. |
 | `destination_expiry_duration` | String      | Integer number of milliseconds between when the payment in the destination ledger is prepared and when it must be executed. |
+| `liquidity_curve`             | Number[][]  | Piece-wise linear function that was used to calculate this response, and that applies to the entire destination ledger. |
 
 ##### Example response (method = `"quote_response"`)
 
@@ -101,13 +103,17 @@ The request must specify either `source_amount` or `destination_amount` but not 
   "method": "quote_response",
   "id": "721e4126-98a1-4974-b35a-8a8f4655f934",
   "data": {
-    "source_connector_account": "mark",
-    "source_ledger": "example.eur-ledger.",
-    "source_amount": "10025",
-    "source_expiry_duration": "6000",
-    "destination_ledger": "example.usd-ledger.",
-    "destination_amount": "10571",
-    "destination_expiry_duration": "5000"
+    "source_connector_account":"example.eur-ledger.mark",
+    "source_ledger":"example.eur-ledger.",
+    "source_amount":"10025000000",
+    "source_expiry_duration":"6000",
+    "destination_ledger":"example.usd-ledger.",
+    "destination_amount":"9000000000",
+    "destination_expiry_duration":"5",
+    "liquidity_curve":[
+      ["10", "0"],
+      ["100000000000000000", "99799999999999"]
+    ]}
   }
 }
 ```
