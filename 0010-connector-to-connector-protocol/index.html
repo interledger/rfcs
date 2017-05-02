@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Payments across payment networks">
 
-    <title> | Interledger</title>
+    <title>Connector to Connector protocol | Interledger</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/css/bootstrap.min.css" rel="stylesheet">
@@ -66,13 +66,42 @@
             <ul class="nav-fixed nav nav-sidebar">
               <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
               
+                <li class="nav-label">
+                  <a href="#discovery">Discovery</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#route-broadcasts">Route broadcasts</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#please-expand-this-document">Please expand this document</a>
+                </li>
+              
             </ul>
           </nav>
         </div>
         <div class="col-sm-8 markdown-body">
-          <blockquote>
-<p class="intro">Placeholder</p>
-</blockquote>
+          <h1 id="connector-to-connector-protocol">Connector to Connector protocol</h1>
+<h2 id="discovery">Discovery</h2>
+<p class="intro">Connectors discover their peers through out-of-band communication, or by looking at <a href="https://connector.land">https://connector.land</a> and contacting the administrator of another connector.</p>
+<p>Once peered, two connectors have a ledger between them; this is often a ledger with just two accounts, often administered collaboratively by the two connectors.</p>
+<h2 id="route-broadcasts">Route broadcasts</h2>
+<p>Connectors send each other <code>broadcast_routes</code> messages, using the message sending functionality of the ledger between them.</p>
+<p>The syntax of such a method is defined by <a href="https://github.com/interledgerjs/ilp-connector/blob/v17.0.2/schemas/RoutingUpdate.json">https://github.com/interledgerjs/ilp-connector/blob/v17.0.2/schemas/RoutingUpdate.json</a> and
+ <a href="https://github.com/interledgerjs/five-bells-shared/blob/v22.0.1/schemas/Routes.json">https://github.com/interledgerjs/five-bells-shared/blob/v22.0.1/schemas/Routes.json</a>.</p>
+<p>When a route is included in a route update from Alice to Bob, Alice is stating she will probably be able to forward a payment to that destination, if the
+source amount which Bob would send her is high enough, given the destination amount, and as described by the <code>points</code> piece-wise linear function, and if
+liquidity permits.</p>
+<p>This means that even if the points series in a broadcasted route gives values for higher amounts, routability is still conditional on Bob&apos;s balance being
+sufficient when he tries to send a payment over the announced route, and Alice&apos;s balance on the next ledger being sufficient,
+and the next connector&apos;s balance on the next ledger, etcetera.</p>
+<p>Connectors also exchange quote requests, in the same way users may request a quote from a connector, see <a href="../0008-interledger-quoting-protocol">IL-RFC 8</a>.</p>
+<p>Note that the points series (&quot;liquidity curves&quot;) in route broadcasts, as well as the
+amounts in quote requests and quote responses, are expressed in integer values in the ledger&apos;s base unit of the ledger. This means you will need to divide/multiply
+by <code>10 ** currency_scale</code> for the ledger in question, to convert integers (in ledger units) to floats (in terms of the ledger&apos;s announced <code>currency_code</code>), and back.</p>
+<h2 id="please-expand-this-document">Please expand this document</h2>
+<p>This document is a stub, please help expand it! See <a href="https://github.com/interledger/rfcs">https://github.com/interledger/rfcs</a>.</p>
 
         </div>
       </div>
