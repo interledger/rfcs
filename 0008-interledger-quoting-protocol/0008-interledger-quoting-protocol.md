@@ -144,4 +144,4 @@ After getting a quote using ILQP, the client can display the quote to the user a
 
 ## Appendix A: ASN.1 Module
 
-The [InterledgerQuotingProtocol.asn](../asn1/InterledgerQuotingProtocol.asn) ASN.1 module tentatively describes the binary messages for a future version of ILQP. This is not final and is not yet deployed at the time of writing.
+The [InterledgerQuotingProtocol.asn](https://github.com/interledger/rfcs/blob/master/asn1/InterledgerQuotingProtocol.asn) ASN.1 module tentatively describes the binary messages for a future version of ILQP. This is not final and is not yet deployed at the time of writing.
