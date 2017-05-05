@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Payments across payment networks">
 
-    <title>GlossaryDestination AccountDestination AmountDestination LedgerInterledger Protocol (ILP)Transfer | Interledger</title>
+    <title>Glossary | Interledger</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/css/bootstrap.min.css" rel="stylesheet">
@@ -103,6 +103,18 @@
                 </li>
               
                 <li class="nav-label">
+                  <a href="#destination-account">Destination Account</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#destination-amount">Destination Amount</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#destination-ledger">Destination Ledger</a>
+                </li>
+              
+                <li class="nav-label">
                   <a href="#distributed-ledger">Distributed Ledger</a>
                 </li>
               
@@ -176,6 +188,10 @@
               
                 <li class="nav-label">
                   <a href="#interledger-payment-request-ipr">Interledger Payment Request (IPR)</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#interledger-protocol-ilp">Interledger Protocol (ILP)</a>
                 </li>
               
                 <li class="nav-label">
@@ -271,6 +287,10 @@
                 </li>
               
                 <li class="nav-label">
+                  <a href="#transfer">Transfer</a>
+                </li>
+              
+                <li class="nav-label">
                   <a href="#transport-layer">Transport Layer</a>
                 </li>
               
@@ -315,13 +335,13 @@ Connectors take some risk, but this risk can be managed and is primarily based u
 <p>A transaction where the destination account is the same account, on the same ledger, as the source account. This can be useful
 when rebalancing liquidity (to enable future payments), or when rebalancing stored value (to spread risk, or to take advantage
 of changing exchange rates).</p>
-<h1 id="destination-account">Destination Account</h1>
+<h2 id="destination-account">Destination Account</h2>
 <p>The account of the receiver, whose address is included in the
 <a href="#interledger-packet">interledger packet</a>.
 Note that anyone can claim to have a certain <a href="#interledger-address">Interledger address</a>; address ownership is not enforced.</p>
-<h1 id="destination-amount">Destination Amount</h1>
+<h2 id="destination-amount">Destination Amount</h2>
 <p>The amount to be received by the receiver.</p>
-<h1 id="destination-ledger">Destination Ledger</h1>
+<h2 id="destination-ledger">Destination Ledger</h2>
 <p>The ledger on which the final receiver of an Interledger payment holds their account</p>
 <h2 id="distributed-ledger">Distributed Ledger</h2>
 <p>A ledger that is operated by a group of entities and/or run on multiple servers. This term is used somewhat interchangeably with &quot;Blockchain&quot; or &quot;Decentralized Ledger&quot;.</p>
@@ -387,7 +407,7 @@ amount mentioned in the ILP packet, to even merit an attempt to route the paymen
 <h2 id="interledger-payment-request-ipr">Interledger Payment Request (IPR)</h2>
 <p>A Transport Layer protocol in which the receiver generates the payment details and condition. The receiver does not share the secret used to generate the condition and fulfillment with the sender or anyone else, but the sender must ask the recipient to generate and share a condition before sending each payment. IPR is primarily useful for building non-repudiable application layer protocols, in which the sender&apos;s posession of the fulfillment proves to third parties that the sender has paid the receiver for a specific obligation.
 See <a href="../0011-interledger-payment-request">IL-RFC 11</a>.</p>
-<h1 id="interledger-protocol-ilp">Interledger Protocol (ILP)</h1>
+<h2 id="interledger-protocol-ilp">Interledger Protocol (ILP)</h2>
 <p>The core of the Interledger protocol suite, described in <a href="../0003-interledger-protocol">IL-RFC 3</a>.
 Colloquially the whole Interledger stack is sometimes referred to as &quot;ILP&quot;. Technically, however, the Interledger Protocol is only one layer in the
 <a href="#interledger-protocol-stack">Interledger protocol stack</a>.</p>
@@ -463,7 +483,7 @@ See <a href="../0009-simple-payment-setup-protocol">IL-RFC 9</a>.</p>
 <h2 id="transaction">Transaction</h2>
 <p>See <a href="#payment">Payment</a>. Use of the term &apos;transaction&apos; is discouraged, due to possible confusion
 with for instance database transactions in source code.</p>
-<h1 id="transfer">Transfer</h1>
+<h2 id="transfer">Transfer</h2>
 <p>The movement of assets on one single ledger. Multiple transfers can be chained together into one <a href="#hop">multi-hop</a> <a href="#payment">payment</a>.
 Also sometimes called &apos;ledger transfer&apos;.</p>
 <h2 id="transport-layer">Transport Layer</h2>
