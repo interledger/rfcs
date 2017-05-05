@@ -4,7 +4,7 @@ The Interledger Quoting Protocol is a method of getting quote information from a
 
 There are two consumers of the ILQP: sending clients, and other connectors.
 
-> The JSON interface for ILQP is experimental reflects what is currently implemented on the live network, therefore it is documented here. Eventually, this protocol should be replaced completely by a binary version but since this is a connector-to-connector protocol many variations may exist in the future and it's possible this version may be retained for some connections. 
+> The JSON interface for ILQP is experimental and reflects what is currently implemented on the live network, therefore it is documented here. Eventually, this protocol should be replaced completely by a binary version but since this is a connector-to-connector protocol many variations may exist in the future and it's possible this version may be retained for some connections. 
 
 ## Background and Terminology
 
