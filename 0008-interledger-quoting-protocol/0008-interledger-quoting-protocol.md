@@ -4,17 +4,15 @@ The Interledger Quoting Protocol is a method of getting quote information from a
 
 There are two consumers of the ILQP: sending clients, and other connectors.
 
-The JSON interface for the ILQP is a temporary measure. Eventually, it should be replaced completely by a binary version.
+> The JSON interface for ILQP is experimental reflects what is currently implemented on the live network, therefore it is documented here. Eventually, this protocol should be replaced completely by a binary version but since this is a connector-to-connector protocol many variations may exist in the future and it's possible this version may be retained for some connections. 
 
 ## Background and Terminology
 
 The quoting protocol returns the price of a _hypothetical_ payment through the connector being queried. However, no part of the ILQP initiates or creates an actual payment. All the information in the ILQP is non-binding and advisory. ILQP only calculates and reports the expected cost of a payment.
 
-Accounts in ILQP are identified by their ILP Addresses. For a full explanation of ILP Addresses, see [Proposal: ILP Address Mapping](https://github.com/interledger/rfcs/issues/31) and [Fowarding/Delivery Distinction](https://github.com/interledger/rfcs/issues/77).
+Accounts ILQP are identified by their ILP Addresses. For a full explanation of ILP Addresses, see [ILP Addresses](../0015-ilp-addresses/0015-ilp-addresses.md).
 
-<!--{# ***TODO: Better reference for ILP addresses***. #}-->
-
-ILP payments can as simple as two transfers in different ledgers joined by a single connector. In other cases, they may be longer chains with multiple connectors across three or more ledgers. The response of an ILQP request only defines one link in the chain.
+ILP payments can be as simple as two transfers in different ledgers joined by a single connector. In other cases, they may be longer chains with multiple connectors across three or more ledgers. The response of an ILQP request only defines one link in the chain.
 
 **Ledgers:**
 
@@ -30,6 +28,8 @@ The sending and receiving ledger are different ledgers. Otherwise, there should 
 * The **receiver** is the party being credited at the end of the overall chain.
 * The **destination** is the party being credited in a single link of the chain.
 * A **connector** facilitates the payment between the source and destination in a single link. In a multiple-hop payment, there are multiple connectors, each of which is the destination of one link and the source of the next.
+
+> The following description of ILQP documents the current behaviour of nodes on the live Interledger, the majority of which are running [ILP Kit](https://github.com/interledgerjs/ilp-kit) software.
 
 ## Get Quote
 
@@ -144,4 +144,4 @@ After getting a quote using ILQP, the client can display the quote to the user a
 
 ## Appendix A: ASN.1 Module
 
-The [InterledgerQuotingProtocol.asn](InterledgerQuotingProtocol.asn) ASN.1 module tentatively describes the binary version of ILQP. This is not final.
+The [InterledgerQuotingProtocol.asn](../asn1/InterledgerQuotingProtocol.asn) ASN.1 module tentatively describes the binary messages for a future version of ILQP. This is not final and is not yet deployed at the time of writing.
