@@ -42,6 +42,7 @@ exec('rm -rf web', { cwd })
 exec('git clone git@github.com:interledger/rfcs.git --branch gh-pages --single-branch web', { cwd })
 exec('cp -r ????-* web', { cwd })
 exec('cp -r shared web', { cwd })
+exec('cp -r asn1 web/asn1', { cwd })
 
 const template = ejs.compile(fs.readFileSync('tmpl/rfc.ejs.html', 'utf8'))
 const files = glob.sync('????-*/????-*.md')
