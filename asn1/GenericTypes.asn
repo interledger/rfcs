@@ -1,0 +1,66 @@
+GenericTypes
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+-- Small Integers
+Int8 ::= INTEGER (-128..127)
+UInt8 ::= INTEGER (0..255)
+
+Int16 ::= INTEGER (-32768..32767)
+UInt16 ::= INTEGER (0..65535)
+
+Int32 ::= INTEGER (-2147483648..2147483647)
+UInt32 ::= INTEGER (0..4294967295)
+
+Int64 ::= INTEGER (-9223372036854775808..9223372036854775807)
+UInt64 ::= INTEGER (0..18446744073709551615)
+
+-- Large (Cryptographic) Integers
+UInt128 ::= OCTET STRING (SIZE(16))
+UInt160 ::= OCTET STRING (SIZE(20))
+UInt192 ::= OCTET STRING (SIZE(24))
+UInt224 ::= OCTET STRING (SIZE(28))
+UInt256 ::= OCTET STRING (SIZE(32))
+UInt384 ::= OCTET STRING (SIZE(48))
+UInt512 ::= OCTET STRING (SIZE(64))
+
+-- Variable-Length Integers
+VarInt ::= INTEGER
+VarUInt ::= INTEGER (0..MAX)
+
+-- Binary Floating Point (IEEE 754)
+
+Float32 ::= REAL ( -- binary32
+    0 |
+    WITH COMPONENTS {
+        mantissa (-16777215..16777215),  -- 23 bits + 1 sign bit
+        base (2),
+        -- Note that the exponent range in ASN.1 is given as the exponent relative to
+        -- the integer mantissa, i.e. mantissa * 2 ^ exponent, whereas in IEEE 754, the
+        -- exponent is relative to a binary fraction using the 23 fractional bits and
+        -- an implicit integer part of one. This is why the exponent range is offset
+        -- by 23, i.e. -149..104 instead of -126..127.
+        exponent (-149..104)
+    }
+)
+
+Float64 ::= REAL ( -- binary64
+    0 |
+    WITH COMPONENTS {
+        mantissa (-9007199254740991..9007199254740991), -- 52 bits + 1 sign bit
+        base (2),
+        -- Note the exponent range in ASN.1 is given as the exponent relative to the
+        -- integer mantissa, i.e. mantissa * 2 ^ exponent, whereas in IEEE 754, the
+        -- exponent is relative to a binary fraction using the 52 fractional bits and
+        -- an implicit integer part of one. This is why the exponent range is offset
+        -- by 53, i.e. -1075..970 instead of -1022..1023.
+        -- TODO: Why isn't this offset by 52 instead of 53?
+        exponent (-1075..970)
+    }
+)
+
+-- Variable-Length Data
+VarBytes ::= OCTET STRING
+
+END

@@ -1,0 +1,45 @@
+GenericPacket
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt8,
+    VarBytes
+    FROM GenericTypes
+
+    InterledgerProtocolPaymentMessage
+    FROM InterledgerProtocol
+
+    QuoteLiquidityRequest,
+    QuoteLiquidityResponse,
+    QuoteBySourceAmountRequest,
+    QuoteBySourceAmountResponse,
+    QuoteByDestinationAmountRequest,
+    QuoteByDestinationAmountResponse
+    FROM InterledgerQuotingProtocol
+;
+
+PACKET ::= CLASS {
+    &typeId UInt8 UNIQUE,
+    &Type
+} WITH SYNTAX {&typeId &Type}
+
+PacketSet PACKET ::= {
+    {1 InterledgerProtocolPaymentMessage} |
+    {2 QuoteLiquidityRequest} |
+    {3 QuoteLiquidityResponse} |
+    {4 QuoteBySourceAmountRequest} |
+    {5 QuoteBySourceAmountResponse} |
+    {6 QuoteByDestinationAmountRequest} |
+    {7 QuoteByDestinationAmountResponse}
+}
+
+InterledgerPacket ::= SEQUENCE {
+    -- One byte type ID
+    type PACKET.&typeId ({PacketSet}),
+    -- Length-prefixed header
+    data PACKET.&Type ({PacketSet}{@type})
+}
+
+END
