@@ -41,15 +41,15 @@ A transaction where the destination account is the same account, on the same led
 when rebalancing liquidity (to enable future payments), or when rebalancing stored value (to spread risk, or to take advantage
 of changing exchange rates).
 
-# Destination Account
+## Destination Account
 The account of the receiver, whose address is included in the
 [interledger packet](#interledger-packet).
 Note that anyone can claim to have a certain [Interledger address](#interledger-address); address ownership is not enforced.
 
-# Destination Amount
+## Destination Amount
 The amount to be received by the receiver.
 
-# Destination Ledger
+## Destination Ledger
 The ledger on which the final receiver of an Interledger payment holds their account
 
 ## Distributed Ledger
@@ -135,7 +135,7 @@ amount mentioned in the ILP packet, to even merit an attempt to route the paymen
 A Transport Layer protocol in which the receiver generates the payment details and condition. The receiver does not share the secret used to generate the condition and fulfillment with the sender or anyone else, but the sender must ask the recipient to generate and share a condition before sending each payment. IPR is primarily useful for building non-repudiable application layer protocols, in which the sender's posession of the fulfillment proves to third parties that the sender has paid the receiver for a specific obligation.
 See [IL-RFC 11](../0011-interledger-payment-request/0011-interledger-payment-request.md).
 
-# Interledger Protocol (ILP)
+## Interledger Protocol (ILP)
 The core of the Interledger protocol suite, described in [IL-RFC 3](../0003-interledger-protocol/0003-interledger-protocol.md).
 Colloquially the whole Interledger stack is sometimes referred to as "ILP". Technically, however, the Interledger Protocol is only one layer in the
 [Interledger protocol stack](#interledger-protocol-stack).
@@ -236,7 +236,7 @@ The transfer/ledger/amount directly adjacent to the sender.
 See [Payment](#payment). Use of the term 'transaction' is discouraged, due to possible confusion
 with for instance database transactions in source code.
 
-# Transfer
+## Transfer
 The movement of assets on one single ledger. Multiple transfers can be chained together into one [multi-hop](#hop) [payment](#payment).
 Also sometimes called 'ledger transfer'.
 
