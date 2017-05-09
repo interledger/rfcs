@@ -593,6 +593,8 @@ Metadata describing the ledger. This data is returned by the [`getInfo`](#getinf
 | `String` | [currencyCode](#currencyCode) | [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) three-letter currency code |
 | `Number` | [currencyScale](#currencyScale) | Integer `(..., -2, -1, 0, 1, 2, ...)`, such that one of the ledger's base units equals `10^-<currencyScale> <currencyCode>` |
 | `String[]` | [connectors](#connectors) | ILP addresses of recommended connectors |
+| `String` | [minBalance](#minbalance-optional) | Integer String, for instance `"0"`, indicating the minimum balance. Optional, defaults to zero. |
+| `String` | [maxBalance](#maxbalance-optional) | Integer String, for instance `"1000000000000"`, indicating the maximum balance. Optional, defaults to plus infinity. |
 
 ### Fields
 
@@ -623,6 +625,24 @@ currencyCode is `USD` and its currencyScale is `2`.
 <code>**connectors**:String[]</code>
 
 The ILP addresses of recommended connectors.
+
+#### minBalance (OPTIONAL)
+<code>**minBalance**:String</code>
+
+A minimum balance limits how much the ledger trusts the account holder.
+This field is optional; when not present, the minimum balance should be assumed to be `0`.
+When a plugin does return a `minBalance` field, it should be an Integer String, measured in the ledger's base unit,
+comparable to the `balance` Integer Strings for which the `getBalance` method returns a Promise.
+Applications using the plugin can expect transfers to fail if they would make the balance go below the minimum.
+
+#### maxBalance (OPTIONAL)
+<code>**maxBalance**:String</code>
+
+A maximum balance limits how much the account holder trusts the ledger.
+This field is optional; when not present, the maximum balance should be assumed to be `+Infinity`.
+When a plugin does return a `maxBalance` field, it should be an Integer String, measured in the ledger's base unit,
+comparable to the `balance` Integer Strings for which the `getBalance` method returns a Promise.
+Applications using the plugin can expect transfers to fail if they would make the balance exceed the maximum.
 
 ## Class: PluginOptions
 <code>class PluginOptions</code>
