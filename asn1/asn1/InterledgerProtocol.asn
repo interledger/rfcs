@@ -1,0 +1,46 @@
+InterledgerProtocol
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt64
+    FROM GenericTypes
+
+    Address,
+    Timestamp
+    FROM InterledgerTypes
+
+    MetadataEntry
+    FROM MetadataEntry
+;
+
+InterledgerProtocolPayment ::= SEQUENCE {
+    -- Amount which must be received at the destination
+    amount UInt64,
+    -- Destination ILP Address
+    account Address,
+    -- Information for recipient (transport layer information)
+    data OCTET STRING (SIZE (0..32767)),
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
+}
+
+InterledgerProtocolError ::= SEQUENCE {
+    -- Standardized error code
+    code IA5String (SIZE (3)),
+    -- Corresponding error name
+    name IA5String,
+    -- Participant that originally emitted the error
+    triggeredBy Address,
+    -- Participants that forwarded the error
+    forwardedBy SEQUENCE OF Address,
+    -- Time of emission
+    triggeredAt Timestamp,
+    -- Additional data
+    data OCTET STRING (SIZE (0..8192))
+}
+
+END
