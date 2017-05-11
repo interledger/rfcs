@@ -4,8 +4,6 @@ The Interledger Quoting Protocol is a method of getting quote information from a
 
 There are two consumers of the ILQP: sending clients, and other connectors.
 
-> The JSON interface for ILQP is experimental and reflects what is currently implemented on the live network, therefore it is documented here. Eventually, this protocol should be replaced completely by a binary version but since this is a connector-to-connector protocol many variations may exist in the future and it's possible this version may be retained for some connections. 
-
 ## Background and Terminology
 
 The quoting protocol returns the price of a _hypothetical_ payment through the connector being queried. However, no part of the ILQP initiates or creates an actual payment. All the information in the ILQP is non-binding and advisory. ILQP only calculates and reports the expected cost of a payment.
@@ -33,108 +31,90 @@ The sending and receiving ledger are different ledgers. Otherwise, there should 
 
 ## Get Quote
 
-Quotes are requested with `plugin.sendMessage(message)` and returned via `plugin.on("incoming_message")` (see the Ledger Plugin Interface for more details).
-The message formats described here are the `data` properties of an `OutgoingMessage`.
+Quotes are requested with `plugin.sendRequest(message)` and returned via `plugin.registerRequestHandler(fn)` (see the Ledger Plugin Interface for more details).
 
-### Request Message Format
+A quote request message's `ilp` property must be an `IlqpLiquidityRequest`, `IlqpBySourceRequest`, or `IlqpByDestinationRequest`. The response message's `ilp` must be an `IlqpLiquidityResponse`, `IlqpBySourceResponse`, or `IlqpByDestinationResponse` respectively. If an error occurs during quoting, `ilp` will be a [`IlpError`](../0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format) instead.
 
-| Field    | Type            | Description |
-|:---------|:----------------|:------------|
-| `method` | String          | `"quote_request"` |
-| `id`     | String          | A UUID to match this request to the corresponding response. |
-| `data`   | QuoteParameters | An Object describing the quote parameters. |
+## ILQP Packets
+### IlqpLiquidityRequest
 
-##### QuoteParameters
+| Field | Type | Short Description |
+|:--|:--|:--|
+| destinationAccount | Address | Address corresponding to the destination account |
+| destinationHoldDuration | UInt32 | How much time the receiver needs to fulfill the payment (in milliseconds) |
 
-| Field                         | Type        | Description |
-|:------------------------------|:------------|:------------|
-| `source_address`              | ILP Address | Address of the source's account in the source ledger. |
-| `destination_address`         | ILP Address | Address of the destination's account in the destination ledger. |
-| `source_amount`               | String      | Fixed integer amount to debit from the source's account. (Required unless `destination_amount` specified.) |
-| `destination_amount`          | String      | Fixed integer amount to credit to the destination's account. (Required unless `source_amount` specified.) |
-| `destination_expiry_duration` | String      | (Optional) Number of milliseconds before the transfer in the destination ledger expires. |
-| `source_expiry_duration`      | String      | (Optional) Number of milliseconds before the transfer in the source ledger expires. |
-| `slippage`                    | String      | (Optional) Custom slippage to assume for the exchange between ledgers, as a decimal proportion. Lower slippage means the payment is cheaper but more likely to fail due to market movement. |
+### IlqpLiquidityResponse
 
-The request must specify either `source_amount` or `destination_amount` but not both.
+| Field | Type | Short Description |
+|:--|:--|:--|
+| liquidity | LiquidityCurve | Curve describing the liquidity for the quoted route |
+| appliesToPrefix | Address | Common prefix of all addresses for which this liquidity curve applies. |
+| sourceHoldDuration | UInt32 | How long the sender should put the money on hold (in milliseconds) |
+| expiresAt | Timestamp | Maximum time where the connector expects to be able to honor this liquidity curve |
 
-##### Example request
+`LiquidityCurve` is a `SEQUENCE OF SEQUENCE { x UInt64, y UInt64 }`
+
+### IlqpBySourceRequest
+
+| Field | Type | Short Description |
+|:--|:--|:--|
+| destinationAccount | Address | Address corresponding to the destination account |
+| sourceAmount | UInt64 | Amount the sender needs to send, denominated in the asset of the source ledger |
+| destinationHoldDuration | UInt32 | How much time the receiver needs to fulfill the payment (in milliseconds) |
+
+### IlqpBySourceResponse
+
+| Field | Type | Short Description |
+|:--|:--|:--|
+| destinationAmount | UInt64 | Amount that will arrive at the receiver |
+| sourceHoldDuration | UInt32 | How long the sender should put money on hold (in milliseconds) |
+
+### IlqpByDestinationRequest
+
+| Field | Type | Short Description |
+|:--|:--|:--|
+| destinationAccount | Address | Address corresponding to the destination account |
+| destinationAmount | UInt64 | Amount that will arrive at the receiver |
+| destinationHoldDuration | UInt32 | How much time the receiver needs to fulfill the payment (in milliseconds) |
+
+### IlqpByDestinationResponse
+
+| Field | Type | Short Description |
+|:--|:--|:--|
+| sourceAmount | UInt64 | Amount the sender needs to send, denominated in the asset of the source ledger |
+| sourceHoldDuration | UInt32 | How long the sender should put money on hold (in milliseconds) |
+
+## Example Messages
+##### Example request message
 
 ```js
 {
-  "method": "quote_request",
-  "id": "721e4126-98a1-4974-b35a-8a8f4655f934",
-  "data": {
-    "source_amount": "10025",
-    "source_address": "example.eur-ledger.alice",
-    "destination_address": "example.usd-ledger.bob",
-    "source_expiry_duration": "6000",
-    "destination_expiry_duration": "5"
-  }
+  "ledger": "example.eur-ledger.",
+  "from": "example.eur-ledger.alice",
+  "to": "example.usd-ledger.bob",
+  "ilp": "BB8RZXhhbXBsZS5uZXh1cy5ib2IAAAACGHEaAAAAC7gA"
 }
 ```
 
-### Response Message Format (success)
-
-| Field    | Type           | Description |
-|:---------|:---------------|:------------|
-| `method` | String         | `"quote_response"` or `"error"` |
-| `id`     | String         | A UUID to match this request to the corresponding `quote_request`. |
-| `data`   | Quote or Error | An Object describing the quote (when method=`quote_response`) or the error (when method=`error`). |
-
-##### Quote (method = `"quote_response"`)
-
-| Field                         | Type        | Description |
-|:------------------------------|:------------|:------------|
-| `source_connector_account`    | ILP Address | The address of the connector's account in the source ledger where it should receive the first transfer. |
-| `source_ledger`               | ILP Address | The address of the ILP-enabled ledger where the source account is. |
-| `source_amount`               | String      | Integer number amount of currency the connector's account should receive in the source ledger. |
-| `source_expiry_duration`      | String      | Integer number of milliseconds between when the payment in the source ledger is prepared and when it must be executed. |
-| `destination_ledger`          | ILP Address | The address of the ILP-enabled ledger where the destination account is. Equivalent to the
-[`appliesToPrefix`](https://github.com/interledger/rfcs/blob/9664732/asn1/InterledgerQuotingProtocol.asn#L36-L42) field which will possibly be used in the future. |
-| `destination_amount`          | String      | Integer number amount of currency that should be received by the destination account in the destination ledger. |
-| `destination_expiry_duration` | String      | Integer number of milliseconds between when the payment in the destination ledger is prepared and when it must be executed. |
-| `liquidity_curve`             | Number[][]  | Piece-wise linear function that was used to calculate this response, and that applies to the entire destination ledger. |
-
-##### Example response (method = `"quote_response"`)
+##### Example response message (success)
 
 ```js
 {
-  "method": "quote_response",
-  "id": "721e4126-98a1-4974-b35a-8a8f4655f934",
-  "data": {
-    "source_connector_account":"example.eur-ledger.mark",
-    "source_ledger":"example.eur-ledger.",
-    "source_amount":"10025000000",
-    "source_expiry_duration":"6000",
-    "destination_ledger":"example.usd-ledger.",
-    "destination_amount":"9000000000",
-    "destination_expiry_duration":"5",
-    "liquidity_curve":[
-      ["10", "0"],
-      ["100000000000000000", "99799999999999"]
-    ]}
-  }
+  "ledger": "example.eur-ledger.",
+  "from": "example.usd-ledger.bob",
+  "to": "example.eur-ledger.alice",
+  "ilp": "BQ0AAAACGHEaAAAAC7gA"
 }
 ```
 
-##### Error (method = `"error"`)
-
-| Field     | Type   | Description |
-|:----------|:-------|:------------|
-| `id`      | String | The type of error. |
-| `message` | String | Additional details about the nature of the error. |
-
-##### Example response (method = `"error"`)
+##### Example response message (error)
 
 ```js
 {
-  "method": "error",
-  "id": "721e4126-98a1-4974-b35a-8a8f4655f934",
-  "data": {
-    "id": "InvalidBodyError",
-    "message": "Missing required parameter: source_address"
-  }
+  "ledger": "example.eur-ledger.",
+  "from": "example.usd-ledger.bob",
+  "to": "example.eur-ledger.alice",
+  "ilp": "CIGCRjAxDkludmFsaWQgUGFja2V0FmV4YW1wbGUudXMubGVkZ2VyMy5ib2IBAhlleGFtcGxlLnVzLmxlZGdlcjIuY29ubmllGWV4YW1wbGUudXMubGVkZ2VyMS5jb25yYWQTMjAxNzA1MTExNzIyMTguOTk2Wg17ImZvbyI6ImJhciJ9AA=="
 }
 ```
 
@@ -144,4 +124,4 @@ After getting a quote using ILQP, the client can display the quote to the user a
 
 ## Appendix A: ASN.1 Module
 
-The [InterledgerQuotingProtocol.asn](../asn1/InterledgerQuotingProtocol.asn) ASN.1 module tentatively describes the binary messages for a future version of ILQP. This is not final and is not yet deployed at the time of writing.
+The [InterledgerQuotingProtocol.asn](../asn1/InterledgerQuotingProtocol.asn) ASN.1 module describes the binary ILQP messages.
