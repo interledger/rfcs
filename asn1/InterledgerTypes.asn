@@ -4,7 +4,7 @@ AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
-    UInt64,
+    UInt64
     FROM GenericTypes
 ;
 
