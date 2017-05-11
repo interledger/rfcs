@@ -22,29 +22,29 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**getAccount**](#getaccount) ( ) `⇒ String` |
 | | [**getBalance**](#getbalance) ( ) <code>⇒ Promise.&lt;String></code> |
 | | [**getFulfillment**](#getfulfillment) ( transferId ) <code>⇒ Promise.&lt;String></code> |
-| | [**sendTransfer**](#sendTransfer) ( transfer ) <code>⇒ Promise.&lt;null></code> |
-| | [**sendMessage**](#sendMessage) ( message ) <code>⇒ Promise.&lt;null></code> |
+| | [**sendTransfer**](#sendtransfer) ( transfer ) <code>⇒ Promise.&lt;null></code> |
+| | [**sendMessage**](#sendmessage) ( message ) <code>⇒ Promise.&lt;null></code> |
 | | [**fulfillCondition**](#fulfillcondition) ( transferId, fulfillment ) <code>⇒ Promise.&lt;null></code> |
 | | [**rejectIncomingTransfer**](#rejectincomingtransfer) ( transferId, reason ) <code>⇒ Promise.&lt;null></code> |
 
 ###### Events
 | Name | Handler |
 |:--|:--|
-| [**connect**](#event-connect-) | `( ) ⇒` |
-| [**disconnect**](#event-disconnect-) | `( ) ⇒` |
-| [**error**](#event-error-) | `( ) ⇒` |
-| [**incoming_transfer**](#event-*_transfer-) | <code>( transfer:[IncomingTransfer](#incomingtransfer) ) ⇒</code> |
-| [**incoming_prepare**](#event-*_prepare-) | <code>( transfer:[IncomingTransfer](#incomingtransfer) ) ⇒</code> |
-| [**incoming_fulfill**](#event-*_fulfill-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), fulfillment:String ) ⇒</code> |
-| [**incoming_reject**](#event-*_reject-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), rejectionReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
-| [**incoming_cancel**](#event-*_cancel-) | <code>( transfer:[IncomingTransfer](#incomingtransfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
-| [**incoming_message**](#event-*_message-) | <code>( message:[IncomingMessage](#incomingmessage) ) ⇒</code> |
-| [**outgoing_transfer**](#event-*_transfer-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
-| [**outgoing_prepare**](#event-*_prepare-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
-| [**outgoing_fulfill**](#event-*_fulfill-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), fulfillment:String ) ⇒</code> |
-| [**outgoing_reject**](#event-*_reject-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), rejectionReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
-| [**outgoing_cancel**](#event-*_cancel-) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
-| [**info_change**](#event-info_change-) | <code>( info:[LedgerInfo](#class-ledgerinfo) ) ⇒</code> |
+| [**connect**](#event-connect) | `( ) ⇒` |
+| [**disconnect**](#event-disconnect) | `( ) ⇒` |
+| [**error**](#event-error) | `( ) ⇒` |
+| [**incoming_transfer**](#event-_transfer) | <code>( transfer:[IncomingTransfer](#incomingtransfer) ) ⇒</code> |
+| [**incoming_prepare**](#event-_prepare) | <code>( transfer:[IncomingTransfer](#incomingtransfer) ) ⇒</code> |
+| [**incoming_fulfill**](#event-_fulfill) | <code>( transfer:[IncomingTransfer](#incomingtransfer), fulfillment:String ) ⇒</code> |
+| [**incoming_reject**](#event-_reject) | <code>( transfer:[IncomingTransfer](#incomingtransfer), rejectionReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
+| [**incoming_cancel**](#event-_cancel) | <code>( transfer:[IncomingTransfer](#incomingtransfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
+| [**incoming_message**](#event-_message) | <code>( message:[IncomingMessage](#incomingmessage) ) ⇒</code> |
+| [**outgoing_transfer**](#event-_transfer) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
+| [**outgoing_prepare**](#event-_prepare) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
+| [**outgoing_fulfill**](#event-_fulfill) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), fulfillment:String ) ⇒</code> |
+| [**outgoing_reject**](#event-_reject) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), rejectionReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
+| [**outgoing_cancel**](#event-_cancel) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
+| [**info_change**](#event-info_change) | <code>( info:[LedgerInfo](#class-ledgerinfo) ) ⇒</code> |
 
 ###### Errors
 | Name | Description |
@@ -313,7 +313,7 @@ to you.
 
 Emitted when an outgoing/incoming transfer containing a condition is prepared.
 
-Note that the `*_prepare` event **DOES NOT** indicate that money has been transferred. The final status will only be known when either the [*_fulfill](#event-*_fulfill-) or [*_cancel](#event-*_cancel-) events are emitted.
+Note that the `*_prepare` event **DOES NOT** indicate that money has been transferred. The final status will only be known when either the [*_fulfill](#event-_fulfill) or [*_cancel](#event-_cancel) events are emitted.
 
 The ledger plugin MUST authenticate the source for all incoming transfers, whether they include money or not.
 
@@ -590,9 +590,11 @@ Metadata describing the ledger. This data is returned by the [`getInfo`](#getinf
 | Type | Name | Description |
 |:--|:--|:--|
 | `String` | [prefix](#prefix) | The plugin's ILP address prefix |
-| `String` | [currencyCode](#currencyCode) | [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) three-letter currency code |
-| `Number` | [currencyScale](#currencyScale) | Integer `(..., -2, -1, 0, 1, 2, ...)`, such that one of the ledger's base units equals `10^-<currencyScale> <currencyCode>` |
+| `String` | [currencyCode](#currencycode) | [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) three-letter currency code |
+| `Number` | [currencyScale](#currencyscale) | Integer `(..., -2, -1, 0, 1, 2, ...)`, such that one of the ledger's base units equals `10^-<currencyScale> <currencyCode>` |
 | `String[]` | [connectors](#connectors) | ILP addresses of recommended connectors |
+| `String` | [minBalance](#minbalance-optional) | Integer String, for instance `"0"`, indicating the minimum balance. Optional, defaults to zero. |
+| `String` | [maxBalance](#maxbalance-optional) | Integer String, for instance `"1000000000000"`, indicating the maximum balance. Optional, defaults to plus infinity. |
 
 ### Fields
 
@@ -623,6 +625,24 @@ currencyCode is `USD` and its currencyScale is `2`.
 <code>**connectors**:String[]</code>
 
 The ILP addresses of recommended connectors.
+
+#### minBalance (OPTIONAL)
+<code>**minBalance**:String</code>
+
+A minimum balance limits how much the ledger trusts the account holder.
+This field is optional; when not present, the minimum balance should be assumed to be `0`.
+When a plugin does return a `minBalance` field, it should be an Integer String, measured in the ledger's base unit,
+comparable to the `balance` Integer Strings for which the `getBalance` method returns a Promise.
+Applications using the plugin can expect transfers to fail if they would make the balance go below the minimum.
+
+#### maxBalance (OPTIONAL)
+<code>**maxBalance**:String</code>
+
+A maximum balance limits how much the account holder trusts the ledger.
+This field is optional; when not present, the maximum balance should be assumed to be `+Infinity`.
+When a plugin does return a `maxBalance` field, it should be an Integer String, measured in the ledger's base unit,
+comparable to the `balance` Integer Strings for which the `getBalance` method returns a Promise.
+Applications using the plugin can expect transfers to fail if they would make the balance exceed the maximum.
 
 ## Class: PluginOptions
 <code>class PluginOptions</code>

@@ -13,15 +13,14 @@ Connectors send each other `broadcast_routes` messages, using the message sendin
 The syntax of such a method is defined by https://github.com/interledgerjs/ilp-connector/blob/v17.0.2/schemas/RoutingUpdate.json and
  https://github.com/interledgerjs/five-bells-shared/blob/v22.0.1/schemas/Routes.json.
 
-When a route is included in a route update from Alice to Bob, Alice is stating she will probably be able to forward a payment to that destination, if the
-source amount which Bob would send her is high enough, given the destination amount, and as described by the `points` piece-wise linear function, and if
-liquidity permits.
+When a route is included in a route update from Alice to Bob, Alice is stating she will, at least temporarily, be able to forward a payment to that destination, if the
+source amount which Bob would send her is high enough, given the destination amount, and as described by the `points` piece-wise linear function.
 
-This means that even if the points series in a broadcasted route gives values for higher amounts, routability is still conditional on Bob's balance being
-sufficient when he tries to send a payment over the announced route, and Alice's balance on the next ledger being sufficient,
-and the next connector's balance on the next ledger, etcetera.
-
-Connectors also exchange quote requests, in the same way users may request a quote from a connector, see [IL-RFC 8](../0008-interledger-quoting-protocol/0008-interledger-quoting-protocol.md).
+Connectors also exchange quote requests,
+in the same way users may request a quote from a connector, see [IL-RFC 8](../0008-interledger-quoting-protocol/0008-interledger-quoting-protocol.md).
+This process is called remote quoting. Even though the first connector has a complete copy of all the liquidity curves, these curves might be out of date; they are used
+to determine the best route, but not to determine which combination of source amount and destination amount the sender should use for a specific payment.
+This situation is likely to change in the future.
 
 Note that the points series ("liquidity curves") in route broadcasts, as well as the
 amounts in quote requests and quote responses, are expressed in integer values in the ledger's base unit of the ledger. This means you will need to divide/multiply
