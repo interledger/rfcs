@@ -220,11 +220,11 @@
 </tr>
 <tr>
 <td style="text-align:left"></td>
-<td style="text-align:left"><a href="#sendTransfer"><strong>sendTransfer</strong></a> ( transfer ) <code>&#x21D2; Promise.&lt;null&gt;</code></td>
+<td style="text-align:left"><a href="#sendtransfer"><strong>sendTransfer</strong></a> ( transfer ) <code>&#x21D2; Promise.&lt;null&gt;</code></td>
 </tr>
 <tr>
 <td style="text-align:left"></td>
-<td style="text-align:left"><a href="#sendMessage"><strong>sendMessage</strong></a> ( message ) <code>&#x21D2; Promise.&lt;null&gt;</code></td>
+<td style="text-align:left"><a href="#sendmessage"><strong>sendMessage</strong></a> ( message ) <code>&#x21D2; Promise.&lt;null&gt;</code></td>
 </tr>
 <tr>
 <td style="text-align:left"></td>
@@ -246,63 +246,63 @@
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left"><a href="#event-connect-"><strong>connect</strong></a></td>
+<td style="text-align:left"><a href="#event-connect"><strong>connect</strong></a></td>
 <td style="text-align:left"><code>( ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-disconnect-"><strong>disconnect</strong></a></td>
+<td style="text-align:left"><a href="#event-disconnect"><strong>disconnect</strong></a></td>
 <td style="text-align:left"><code>( ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-error-"><strong>error</strong></a></td>
+<td style="text-align:left"><a href="#event-error"><strong>error</strong></a></td>
 <td style="text-align:left"><code>( ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-*_transfer-"><strong>incoming_transfer</strong></a></td>
+<td style="text-align:left"><a href="#event-_transfer"><strong>incoming_transfer</strong></a></td>
 <td style="text-align:left"><code>( transfer:<a href="#incomingtransfer">IncomingTransfer</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-*_prepare-"><strong>incoming_prepare</strong></a></td>
+<td style="text-align:left"><a href="#event-_prepare"><strong>incoming_prepare</strong></a></td>
 <td style="text-align:left"><code>( transfer:<a href="#incomingtransfer">IncomingTransfer</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-*_fulfill-"><strong>incoming_fulfill</strong></a></td>
+<td style="text-align:left"><a href="#event-_fulfill"><strong>incoming_fulfill</strong></a></td>
 <td style="text-align:left"><code>( transfer:<a href="#incomingtransfer">IncomingTransfer</a>, fulfillment:String ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-*_reject-"><strong>incoming_reject</strong></a></td>
+<td style="text-align:left"><a href="#event-_reject"><strong>incoming_reject</strong></a></td>
 <td style="text-align:left"><code>( transfer:<a href="#incomingtransfer">IncomingTransfer</a>, rejectionReason:<a href="#class-rejectionmessage">RejectionMessage</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-*_cancel-"><strong>incoming_cancel</strong></a></td>
+<td style="text-align:left"><a href="#event-_cancel"><strong>incoming_cancel</strong></a></td>
 <td style="text-align:left"><code>( transfer:<a href="#incomingtransfer">IncomingTransfer</a>, cancellationReason:<a href="#class-rejectionmessage">RejectionMessage</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-*_message-"><strong>incoming_message</strong></a></td>
+<td style="text-align:left"><a href="#event-_message"><strong>incoming_message</strong></a></td>
 <td style="text-align:left"><code>( message:<a href="#incomingmessage">IncomingMessage</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-*_transfer-"><strong>outgoing_transfer</strong></a></td>
+<td style="text-align:left"><a href="#event-_transfer"><strong>outgoing_transfer</strong></a></td>
 <td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-*_prepare-"><strong>outgoing_prepare</strong></a></td>
+<td style="text-align:left"><a href="#event-_prepare"><strong>outgoing_prepare</strong></a></td>
 <td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-*_fulfill-"><strong>outgoing_fulfill</strong></a></td>
+<td style="text-align:left"><a href="#event-_fulfill"><strong>outgoing_fulfill</strong></a></td>
 <td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a>, fulfillment:String ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-*_reject-"><strong>outgoing_reject</strong></a></td>
+<td style="text-align:left"><a href="#event-_reject"><strong>outgoing_reject</strong></a></td>
 <td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a>, rejectionReason:<a href="#class-rejectionmessage">RejectionMessage</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-*_cancel-"><strong>outgoing_cancel</strong></a></td>
+<td style="text-align:left"><a href="#event-_cancel"><strong>outgoing_cancel</strong></a></td>
 <td style="text-align:left"><code>( transfer:<a href="#outgoingtransfer">outgoingTransfer</a>, cancellationReason:<a href="#class-rejectionmessage">RejectionMessage</a> ) &#x21D2;</code></td>
 </tr>
 <tr>
-<td style="text-align:left"><a href="#event-info_change-"><strong>info_change</strong></a></td>
+<td style="text-align:left"><a href="#event-info_change"><strong>info_change</strong></a></td>
 <td style="text-align:left"><code>( info:<a href="#class-ledgerinfo">LedgerInfo</a> ) &#x21D2;</code></td>
 </tr>
 </tbody>
@@ -575,7 +575,7 @@ to you.</p>
   ) &#x21D2;
 )</code></p>
 <p>Emitted when an outgoing/incoming transfer containing a condition is prepared.</p>
-<p>Note that the <code>*_prepare</code> event <strong>DOES NOT</strong> indicate that money has been transferred. The final status will only be known when either the <a href="#event-*_fulfill-">*_fulfill</a> or <a href="#event-*_cancel-">*_cancel</a> events are emitted.</p>
+<p>Note that the <code>*_prepare</code> event <strong>DOES NOT</strong> indicate that money has been transferred. The final status will only be known when either the <a href="#event-_fulfill">*_fulfill</a> or <a href="#event-_cancel">*_cancel</a> events are emitted.</p>
 <p>The ledger plugin MUST authenticate the source for all incoming transfers, whether they include money or not.</p>
 <p>If the event is <code>outgoing_prepare</code>, then it means you prepared the transfer. <code>incoming_prepare</code> means someone prepared
 a transfer to you.</p>
@@ -859,18 +859,28 @@ left undefined (but not any other false-y value) if unused.</p>
 </tr>
 <tr>
 <td style="text-align:left"><code>String</code></td>
-<td style="text-align:left"><a href="#currencyCode">currencyCode</a></td>
+<td style="text-align:left"><a href="#currencycode">currencyCode</a></td>
 <td style="text-align:left"><a href="https://en.wikipedia.org/wiki/ISO_4217">ISO 4217</a> three-letter currency code</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>Number</code></td>
-<td style="text-align:left"><a href="#currencyScale">currencyScale</a></td>
+<td style="text-align:left"><a href="#currencyscale">currencyScale</a></td>
 <td style="text-align:left">Integer <code>(..., -2, -1, 0, 1, 2, ...)</code>, such that one of the ledger&apos;s base units equals <code>10^-&lt;currencyScale&gt; &lt;currencyCode&gt;</code></td>
 </tr>
 <tr>
 <td style="text-align:left"><code>String[]</code></td>
 <td style="text-align:left"><a href="#connectors">connectors</a></td>
 <td style="text-align:left">ILP addresses of recommended connectors</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left"><a href="#minbalance-optional">minBalance</a></td>
+<td style="text-align:left">Integer String, for instance <code>&quot;0&quot;</code>, indicating the minimum balance. Optional, defaults to zero.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left"><a href="#maxbalance-optional">maxBalance</a></td>
+<td style="text-align:left">Integer String, for instance <code>&quot;1000000000000&quot;</code>, indicating the maximum balance. Optional, defaults to plus infinity.</td>
 </tr>
 </tbody>
 </table>
@@ -894,6 +904,20 @@ currencyCode is <code>USD</code> and its currencyScale is <code>2</code>.</p>
 <h4 id="connectors">connectors</h4>
 <p><code><strong>connectors</strong>:String[]</code></p>
 <p>The ILP addresses of recommended connectors.</p>
+<h4 id="minbalance-optional">minBalance (OPTIONAL)</h4>
+<p><code><strong>minBalance</strong>:String</code></p>
+<p>A minimum balance limits how much the ledger trusts the account holder.
+This field is optional; when not present, the minimum balance should be assumed to be <code>0</code>.
+When a plugin does return a <code>minBalance</code> field, it should be an Integer String, measured in the ledger&apos;s base unit,
+comparable to the <code>balance</code> Integer Strings for which the <code>getBalance</code> method returns a Promise.
+Applications using the plugin can expect transfers to fail if they would make the balance go below the minimum.</p>
+<h4 id="maxbalance-optional">maxBalance (OPTIONAL)</h4>
+<p><code><strong>maxBalance</strong>:String</code></p>
+<p>A maximum balance limits how much the account holder trusts the ledger.
+This field is optional; when not present, the maximum balance should be assumed to be <code>+Infinity</code>.
+When a plugin does return a <code>maxBalance</code> field, it should be an Integer String, measured in the ledger&apos;s base unit,
+comparable to the <code>balance</code> Integer Strings for which the <code>getBalance</code> method returns a Promise.
+Applications using the plugin can expect transfers to fail if they would make the balance exceed the maximum.</p>
 <h2 id="class-pluginoptions">Class: PluginOptions</h2>
 <p><code>class PluginOptions</code></p>
 <p>Plugin options are passed in to the <a href="#class-ledgerplugin"><code>LedgerPlugin</code></a>
