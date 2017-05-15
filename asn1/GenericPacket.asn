@@ -26,7 +26,7 @@ PACKET ::= CLASS {
 } WITH SYNTAX {&typeId &Type}
 
 PacketSet PACKET ::= {
-    {1 InterledgerProtocolPaymentMessage} |
+    {1 InterledgerProtocolPayment} |
     {2 QuoteLiquidityRequest} |
     {3 QuoteLiquidityResponse} |
     {4 QuoteBySourceAmountRequest} |

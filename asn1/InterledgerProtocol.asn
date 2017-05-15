@@ -12,7 +12,7 @@ IMPORTS
     FROM InterledgerTypes
 ;
 
-InterledgerProtocolPaymentMessage ::= SEQUENCE {
+InterledgerProtocolPayment ::= SEQUENCE {
     -- Amount which must be received at the destination
     amount UInt64,
     -- Destination ILP Address
