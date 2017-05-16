@@ -31,11 +31,14 @@ The sending and receiving ledger are different ledgers. Otherwise, there should 
 
 ## Get Quote
 
-Quotes are requested with `plugin.sendRequest(message)`, which returns the quote response (see the Ledger Plugin Interface for more details).
+Quotes are sent through a request/response mechanism exposed by the ledger plugins or ledger layer.
 
 A quote request's `ilp` property must be an `IlqpLiquidityRequest`, `IlqpBySourceRequest`, or `IlqpByDestinationRequest`. The response's `ilp` property must be an `IlqpLiquidityResponse`, `IlqpBySourceResponse`, or `IlqpByDestinationResponse` respectively. If an error occurs during quoting, `ilp` will be a [`IlpError`](../0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format) instead.
 
 ## ILQP Packets
+
+See [interledgerjs/ilp-packet](https://github.com/interledgerjs/ilp-packet/) for an example implementation of a packet serializer/deserializer.
+
 ### IlqpLiquidityRequest
 
 | Field | Type | Short Description |
@@ -52,7 +55,9 @@ A quote request's `ilp` property must be an `IlqpLiquidityRequest`, `IlqpBySourc
 | sourceHoldDuration | UInt32 | How long the sender should put the money on hold (in milliseconds) |
 | expiresAt | Timestamp | Maximum time where the connector expects to be able to honor this liquidity curve |
 
-`LiquidityCurve` is a `SEQUENCE OF SEQUENCE { x UInt64, y UInt64 }`
+`LiquidityCurve` is encoded as a `SEQUENCE OF SEQUENCE { x UInt64, y UInt64 }`. This is a binary format, so for example the curve `[ [0, 0], [10, 265] ]` is equivalent to the base64-encoded string `"AAAAAAAAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAkBAAA="`.
+
+See [interledgerjs/ilp-routing.LiquidityCurve](https://github.com/interledgerjs/ilp-routing/blob/master/src/lib/liquidity-curve.js) for an example implementation of a LiquidityCurve serializer/deserializer.
 
 ### IlqpBySourceRequest
 
@@ -83,40 +88,6 @@ A quote request's `ilp` property must be an `IlqpLiquidityRequest`, `IlqpBySourc
 |:--|:--|:--|
 | sourceAmount | UInt64 | Amount the sender needs to send, denominated in the asset of the source ledger |
 | sourceHoldDuration | UInt32 | How long the sender should put money on hold (in milliseconds) |
-
-## Example Messages
-##### Example request message
-
-```js
-{
-  "ledger": "example.eur-ledger.",
-  "from": "example.eur-ledger.alice",
-  "to": "example.usd-ledger.bob",
-  "ilp": "BB8RZXhhbXBsZS5uZXh1cy5ib2IAAAACGHEaAAAAC7gA"
-}
-```
-
-##### Example response message (success)
-
-```js
-{
-  "ledger": "example.eur-ledger.",
-  "from": "example.usd-ledger.bob",
-  "to": "example.eur-ledger.alice",
-  "ilp": "BQ0AAAACGHEaAAAAC7gA"
-}
-```
-
-##### Example response message (error)
-
-```js
-{
-  "ledger": "example.eur-ledger.",
-  "from": "example.usd-ledger.bob",
-  "to": "example.eur-ledger.alice",
-  "ilp": "CIGCRjAxDkludmFsaWQgUGFja2V0FmV4YW1wbGUudXMubGVkZ2VyMy5ib2IBAhlleGFtcGxlLnVzLmxlZGdlcjIuY29ubmllGWV4YW1wbGUudXMubGVkZ2VyMS5jb25yYWQTMjAxNzA1MTExNzIyMTguOTk2Wg17ImZvbyI6ImJhciJ9AA=="
-}
-```
 
 ## Next Steps
 
