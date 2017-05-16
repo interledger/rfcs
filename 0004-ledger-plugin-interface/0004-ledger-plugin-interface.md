@@ -677,11 +677,15 @@ Method names are based on the popular LevelUP/LevelDOWN packages.
   },
   // Fetch a value by key
   get: (key) => {
-    // Returns Promise.<Object>
+    // Returns Promise.<String>
   },
   // Delete a value by key
   del: (key) => {
     // Returns Promise.<null>
+  },
+  // Return the store as an in-memory object
+  dump: () => {
+    // Returns Promise.<Object>
   }
 }
 ```
