@@ -31,9 +31,9 @@ The sending and receiving ledger are different ledgers. Otherwise, there should 
 
 ## Get Quote
 
-Quotes are requested with `plugin.sendRequest(message)` and returned via `plugin.registerRequestHandler(fn)` (see the Ledger Plugin Interface for more details).
+Quotes are requested with `plugin.sendRequest(message)`, which returns the quote response (see the Ledger Plugin Interface for more details).
 
-A quote request message's `ilp` property must be an `IlqpLiquidityRequest`, `IlqpBySourceRequest`, or `IlqpByDestinationRequest`. The response message's `ilp` must be an `IlqpLiquidityResponse`, `IlqpBySourceResponse`, or `IlqpByDestinationResponse` respectively. If an error occurs during quoting, `ilp` will be a [`IlpError`](../0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format) instead.
+A quote request's `ilp` property must be an `IlqpLiquidityRequest`, `IlqpBySourceRequest`, or `IlqpByDestinationRequest`. The response's `ilp` property must be an `IlqpLiquidityResponse`, `IlqpBySourceResponse`, or `IlqpByDestinationResponse` respectively. If an error occurs during quoting, `ilp` will be a [`IlpError`](../0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format) instead.
 
 ## ILQP Packets
 ### IlqpLiquidityRequest
