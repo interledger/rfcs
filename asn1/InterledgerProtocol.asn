@@ -10,9 +10,6 @@ IMPORTS
     Address,
     Timestamp
     FROM InterledgerTypes
-
-    MetadataEntry
-    FROM MetadataEntry
 ;
 
 InterledgerProtocolPayment ::= SEQUENCE {

@@ -4,7 +4,7 @@ BEGIN
 IMPORTS
     UInt32,
     UInt64,
-    UInt128,
+    UInt128
     FROM GenericTypes
 
     Address,
