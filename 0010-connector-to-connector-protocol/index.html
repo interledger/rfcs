@@ -74,6 +74,14 @@
                   <a href="#route-broadcasts">Route broadcasts</a>
                 </li>
               
+                <li>
+                  <a href="#current-situation-gratuity-quoting">Current situation: gratuity quoting</a>
+                </li>
+              
+                <li>
+                  <a href="#next-version-liquidity-routing">Next version: Liquidity Routing</a>
+                </li>
+              
                 <li class="nav-label">
                   <a href="#please-expand-this-document">Please expand this document</a>
                 </li>
@@ -94,12 +102,28 @@
 source amount which Bob would send her is high enough, given the destination amount, and as described by the <code>points</code> piece-wise linear function.</p>
 <p>Connectors also exchange quote requests,
 in the same way users may request a quote from a connector, see <a href="../0008-interledger-quoting-protocol">IL-RFC 8</a>.
-This process is called remote quoting. Even though the first connector has a complete copy of all the liquidity curves, these curves might be out of date; they are used
-to determine the best route, but not to determine which combination of source amount and destination amount the sender should use for a specific payment.
-This situation is likely to change in the future.</p>
+This process is called remote quoting.</p>
 <p>Note that the points series (&quot;liquidity curves&quot;) in route broadcasts, as well as the
 amounts in quote requests and quote responses, are expressed in integer values in the ledger&apos;s base unit of the ledger. This means you will need to divide/multiply
 by <code>10 ** currency_scale</code> for the ledger in question, to convert integers (in ledger units) to floats (in terms of the ledger&apos;s announced <code>currency_code</code>), and back.</p>
+<h3 id="current-situation-gratuity-quoting">Current situation: gratuity quoting</h3>
+<p>Even though the first connector has a complete copy of all the liquidity curves, these curves might be out of date; they are used
+to determine the best route, but not to determine which combination of source amount and destination amount the sender should use for a specific payment.
+This situation allows each connector along the path to charge a &quot;gratuity&quot; in the quote, which was not included in the broadcasted curve, like the one that sometimes included
+in the bill in a restaurant, on top of the price that was quoted in the menu.</p>
+<p>Although this strategy works well in closed networks where each participant is vetted and can be trusted, it is known to be sub-optimal for use in an open network where connectors
+may try to earn extra money by charging a higher fee than the cost price. Therefore, this &quot;gratuity quoting&quot; strategy used by the ilp-kit/ilp-connector reference implementation is
+likely to change in the future, and one proposal is currently being developed.</p>
+<h3 id="next-version-liquidity-routing">Next version: Liquidity Routing</h3>
+<p>In Liquidity Routing, the curve from the route broadcast is used directly for determining a source amount / destination amount relation, and remote quoting is only used when
+a (default) route was configured without curve information. This requires routes to be re-broadcast when their liquidity curve changes, but ilp-kit will aggregate over time, both
+for its own liquidity changes, and route changes which it forwards, into one message per 30 seconds.</p>
+<p>When combining various alternative (parallel) routes, for each section of the liquidity curve, ilp-kit will only consider routes which are as short as the shortest known route,
+and from the set of shortest paths, choose the cheapest one. Note that the routing table of each ilp-kit is used for two things:</p>
+<ul>
+<li>determine whether a payment&apos;s source amount is sufficient or not, given its destination amount</li>
+<li>if so, choose the next hop (it&apos;s then up to that peer to choose the hop after that, until the destination node is reached)</li>
+</ul>
 <h2 id="please-expand-this-document">Please expand this document</h2>
 <p>This document is a stub, please help expand it! See <a href="https://github.com/interledger/rfcs">https://github.com/interledger/rfcs</a>.</p>
 
