@@ -120,21 +120,20 @@
 <h2 id="background-and-terminology">Background and Terminology</h2>
 <p>The quoting protocol returns the price of a <em>hypothetical</em> payment through the connector being queried. However, no part of the ILQP initiates or creates an actual payment. All the information in the ILQP is non-binding and advisory. ILQP only calculates and reports the expected cost of a payment.</p>
 <p>Accounts ILQP are identified by their ILP Addresses. For a full explanation of ILP Addresses, see <a href="../0015-ilp-addresses">ILP Addresses</a>.</p>
-<p>ILP payments can be as simple as two transfers in different ledgers joined by a single connector. In other cases, they may be longer chains with multiple connectors across three or more ledgers. The response of an ILQP request only defines one link in the chain.</p>
+<p>ILP payments can be as simple as two transfers in different ledgers joined by a single connector. In other cases, they may be longer chains with multiple connectors across three or more ledgers. The response of an ILQP request combines the exchange rates of all links in the chain into one quote.</p>
 <p><strong>Ledgers:</strong></p>
 <ul>
 <li>The <strong>source ledger</strong> is where the sender and the connector both have accounts.</li>
-<li>The <strong>destination ledger</strong> is where the receiver and the connector both have accounts.</li>
+<li>The <strong>destination ledger</strong> is where the receiver and the last connector both have accounts.</li>
 </ul>
-<p>The sending and receiving ledger are different ledgers. Otherwise, there should be no reason to use ILQP.</p>
+<p>The source and destination ledger are different ledgers. Otherwise, there should be no reason to use ILQP.</p>
 <p><strong>Parties:</strong></p>
 <ul>
-<li>The <strong>sender</strong> is the party being debited at the start of the overall chain.</li>
-<li>The <strong>source</strong> is the party being debited in a single link of the chain.</li>
-<li>The <strong>receiver</strong> is the party being credited at the end of the overall chain.</li>
-<li>The <strong>destination</strong> is the party being credited in a single link of the chain.</li>
-<li>A <strong>connector</strong> facilitates the payment between the source and destination in a single link. In a multiple-hop payment, there are multiple connectors, each of which is the destination of one link and the source of the next.</li>
+<li>The <strong>sender</strong> is the party who would be debited on the source ledger by the hypothetical payment.</li>
+<li>The <strong>receiver</strong> is the party being credited on the destination ledger by the hypothetical payment.</li>
+<li>A <strong>connector</strong> forms the active link between an incoming transfer on one ledger and an outgoing transfer on the next.</li>
 </ul>
+<p>In a multiple-hop payment, there are multiple connectors, each of which creates an outgoing transfer in response to an incoming transfer. If the first connector in the chain has full (cached) pricing information, it will respond to the sender&apos;s quote request immmediately. If not, it will forward the quote request along the chain, and then relay the response it gets back.</p>
 <blockquote>
 <p>The following description of ILQP documents the current behaviour of nodes on the live Interledger, the majority of which are running <a href="https://github.com/interledgerjs/ilp-kit">ILP Kit</a> software.</p>
 </blockquote>
