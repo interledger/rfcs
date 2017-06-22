@@ -158,44 +158,13 @@ prefix      = 1*(segment separator)
 segment     = 1*( ALPHA / DIGIT / &quot;_&quot; / &quot;~&quot; / &quot;-&quot; )
 </code></pre>
 <p>You can also use the following regular expressions to verify the same requirements:</p>
-<table class="table table-striped">
-<thead>
-<tr>
-<th style="text-align:left">Address Type</th>
-<th style="text-align:left">Regular Expression</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">All addresses</td>
-<td style="text-align:left">`(?=^.{1,1023}$)^(g</td>
-<td>private</td>
-<td>example</td>
-<td>peer</td>
-<td>self</td>
-<td>test[1-3])<a href="[a-zA-Z0-9_~-]+[.]">.</a>*([a-zA-Z0-9_~-]+)?$`</td>
-</tr>
-<tr>
-<td style="text-align:left">Address prefix</td>
-<td style="text-align:left">`(?=^.{1,1023}$)^(g</td>
-<td>private</td>
-<td>example</td>
-<td>peer</td>
-<td>self</td>
-<td>test[1-3])<a href="[a-zA-Z0-9_~-]+[.]">.</a>*$`</td>
-</tr>
-<tr>
-<td style="text-align:left">Destination address</td>
-<td style="text-align:left">`(?=^.{1,1023}$)^(g</td>
-<td>private</td>
-<td>example</td>
-<td>peer</td>
-<td>self</td>
-<td>test[1-3])<a href="[a-zA-Z0-9_~-]+[.]">.</a>+[a-zA-Z0-9_~-]+$`</td>
-</tr>
-</tbody>
-</table>
-<p>(If your regular expression engine does not support lookahead, you must drop the first parenthesis and separately enforce the overall length requirement of 1023 characters or less.)</p>
+<p>All Addresses:</p>
+<pre><code>(?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])*([a-zA-Z0-9_~-]+)?$
+</code></pre><p>Address prefix:</p>
+<pre><code>(?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])*$
+</code></pre><p>Destination address</p>
+<pre><code>(?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])+[a-zA-Z0-9_~-]+$
+</code></pre><p>(If your regular expression engine does not support lookahead, you must drop the first parenthesis and separately enforce the overall length requirement of 1023 characters or less.)</p>
 <h2 id="allocation-schemes">Allocation Schemes</h2>
 <p>The allocation scheme is the first part of an address, which indicates how the address is assigned. Here is a summary of the prefixes that are currently defined:</p>
 <table class="table table-striped">
