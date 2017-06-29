@@ -23,9 +23,11 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**getBalance**](#getbalance) ( ) <code>⇒ Promise.&lt;String></code> |
 | | [**getFulfillment**](#getfulfillment) ( transferId ) <code>⇒ Promise.&lt;String></code> |
 | | [**sendTransfer**](#sendtransfer) ( transfer ) <code>⇒ Promise.&lt;null></code> |
-| | [**sendMessage**](#sendmessage) ( message ) <code>⇒ Promise.&lt;null></code> |
+| | [**sendRequest**](#sendrequest) ( message ) <code>⇒ Promise.&lt;[Message](#class-message)></code> |
 | | [**fulfillCondition**](#fulfillcondition) ( transferId, fulfillment ) <code>⇒ Promise.&lt;null></code> |
 | | [**rejectIncomingTransfer**](#rejectincomingtransfer) ( transferId, reason ) <code>⇒ Promise.&lt;null></code> |
+| | [**registerRequestHandler**](#registerrequesthandler) ( requestHandler ) <code>⇒ null</code> |
+| | [**deregisterRequestHandler**](#deregisterrequesthandler) ( ) <code>⇒ null</code> |
 
 ###### Events
 | Name | Handler |
@@ -38,12 +40,15 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**incoming_fulfill**](#event-_fulfill) | <code>( transfer:[IncomingTransfer](#incomingtransfer), fulfillment:String ) ⇒</code> |
 | [**incoming_reject**](#event-_reject) | <code>( transfer:[IncomingTransfer](#incomingtransfer), rejectionReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
 | [**incoming_cancel**](#event-_cancel) | <code>( transfer:[IncomingTransfer](#incomingtransfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
-| [**incoming_message**](#event-_message) | <code>( message:[IncomingMessage](#incomingmessage) ) ⇒</code> |
+| [**incoming_request**](#event-_request) | <code>( message:[Message](#message) ) ⇒</code> |
+| [**incoming_response**](#event-_response) | <code>( message:[Message](#message) ) ⇒</code> |
 | [**outgoing_transfer**](#event-_transfer) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
 | [**outgoing_prepare**](#event-_prepare) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
 | [**outgoing_fulfill**](#event-_fulfill) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), fulfillment:String ) ⇒</code> |
 | [**outgoing_reject**](#event-_reject) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), rejectionReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
 | [**outgoing_cancel**](#event-_cancel) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
+| [**outgoing_request**](#event-_request) | <code>( message:[Message](#message) ) ⇒</code> |
+| [**outgoing_response**](#event-_response) | <code>( message:[Message](#message) ) ⇒</code> |
 | [**info_change**](#event-info_change) | <code>( info:[LedgerInfo](#class-ledgerinfo) ) ⇒</code> |
 
 ###### Errors
@@ -188,7 +193,7 @@ General event for fatal exceptions. Emitted when the plugin experienced an unexp
 Note that all transfers will have `transferId`'s to allow the plugin user to correlate actions related to a single transfer. The `transferId` will be the same as the ID used by the underlying ledger wherever possible or applicable. If the ledger does not have transfer IDs, the plugin may generate one and use the `store` passed in to the constructor to persist them.
 
 #### sendTransfer
-<code>ledgerPlugin.sendTransfer( **transfer**:[OutgoingTransfer](#outgoingtransfer) ) ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.sendTransfer( **transfer**:[Transfer](#transfer) ) ⇒ Promise.&lt;null></code>
 
 Plugin must be connected, otherwise the promise should reject. Initiates a ledger-local transfer. A transfer can
 contain money and/or information. If there is a problem with the structure or
@@ -202,7 +207,7 @@ implement zero-amount transfers differently than other transfers.
 ###### Parameters
 | Name | Type | Description |
 |:--|:--|:--|
-| transfer | <code>[OutgoingTransfer](#outgoingtransfer)</code> | Properties of the transfer to be created |
+| transfer | <code>[Transfer](#transfer)</code> | Properties of the transfer to be created |
 
 When sending transfers, the [id](#id), [amount](#amount) and [to](#to) fields
 are required.
@@ -226,25 +231,25 @@ p.sendTransfer({
 })
 ```
 
-For a detailed description of these properties, please see [`OutgoingTransfer`](#outgoingtransfer).
+For a detailed description of these properties, please see [`Class: Transfer`](#class-transfer).
 
-#### sendMessage
-<code>ledgerPlugin.sendMessage( **message**:[OutgoingMessage](#outgoingmessage) ) ⇒ Promise.&lt;null></code>
+#### sendRequest
+<code>ledgerPlugin.sendRequest( **message**:[Message](#class-message) ) ⇒ Promise.&lt;[Message](#class-message)></code>
 
-Plugin must be connected, otherwise the promise should reject. Send a ledger-local message.
-If there is a problem with the structure or validity of the message, then `sendMessage` should reject with an error.
+Plugin must be connected, otherwise the promise should reject. Sends a ledger-local message. Returns a promise for a response message from the other side.
+If there is a problem with the structure or validity of the message, then `sendRequest` should reject with an error.
 
 Messaging is used by connectors for [quoting](../0008-interledger-quoting-protocol/) and broadcasting routes.
 
 ###### Parameters
 | Name | Type | Description |
 |:--|:--|:--|
-| message | <code>[OutgoingMessage](#outgoingmessage)</code> | Properties of the message to be created |
+| message | <code>[Message](#class-message)</code> | Properties of the message to be created |
 
-When sending messages, the [to](#to) and [data](#data) fields are required.
+When sending messages, the [to](#message-to) and [ilp](#message-ilp) fields are required.
 
 ###### Returns
-**`Promise.<null>`** A promise which resolves when the message has been submitted (but not necessarily delivered). To ensure delivery, you must build a mechanism for that on top.
+**<code>Promise.<[Message](#class-message)></code>** A promise which resolves when a response message has been received.
 
 Rejects with `InvalidFieldsError` if required fields are missing from the message or malformed.
 Rejects with `NotAcceptedError` if the message is rejected by the ledger.
@@ -253,13 +258,14 @@ Rejects with `NoSubscriptionsError` if the message cannot be delivered because t
 
 ###### Example
 ```js
-p.sendMessage({
+p.sendRequest({
   to: 'example.ledger.connector',
-  data: { foo: 'bar' }
+  ilp: '...base64url-encoded data...',
+  custom: { foo: 'bar' }
 })
 ```
 
-For a detailed description of these properties, please see [`OutgoingMessage`](#outgoingmessage).
+For a detailed description of these properties, please see [`Message`](#class-message).
 
 
 #### fulfillCondition
@@ -287,8 +293,27 @@ if transfer is not conditional.
 
 This MAY be used by receivers or connectors to reject incoming funds if they will not fulfill the condition or are unable to forward the payment. Previous hops in an Interledger transfer would have their money returned before the expiry and the sender or previous connectors MAY retry and reroute the transfer through an alternate path.
 
+#### registerRequestHandler
+<code>ledgerPlugin.registerRequestHandler( **requestHandler**: ( request: [Message](#class-message) ) ⇒ Promise&lt;[Message](#class-message)> ) ⇒ null</code>
+
+Set the callback which is used to handle incoming request messages. The callback expects one parameter (the request [Message](#class-message)) and returns a promise for the response [Message](#class-message).
+
+If a request handler is already set, this method throws a `RequestHandlerAlreadyRegisteredError`. In order to change the request handler, the old handler must first be removed via [`deregisterRequestHandler`](#deregisterRequestHandler). This is to ensure that handler are not overwritten by accident.
+
+#### deregisterRequestHandler
+<code>ledgerPlugin.deregisterRequestHandler( ) ⇒ null</code>
+
+Removes the currently used request handler. This has the same effect as if [`registerRequestHandler`](#registerrequesthandler) had never been called.
+
+If not request handler is currently set, this method does nothing.
+
 ### Event: `*_transfer`
 <code style="">ledgerPlugin.on('incoming_transfer',
+  (
+    **transfer**:[Transfer](#class-transfer),
+  ) ⇒
+)</code>
+<code style="">ledgerPlugin.on('outgoing_transfer',
   (
     **transfer**:[Transfer](#class-transfer),
   ) ⇒
@@ -310,6 +335,11 @@ to you.
     **transfer**:[Transfer](#class-transfer),
   ) ⇒
 )</code>
+<code style="">ledgerPlugin.on('outgoing_prepare',
+  (
+    **transfer**:[Transfer](#class-transfer),
+  ) ⇒
+)</code>
 
 Emitted when an outgoing/incoming transfer containing a condition is prepared.
 
@@ -321,6 +351,12 @@ If the event is `outgoing_prepare`, then it means you prepared the transfer. `in
 a transfer to you.
 
 ### Event: `*_fulfill`
+<code style="">ledgerPlugin.on('incoming_fulfill',
+  (
+    **transfer**:[Transfer](#class-transfer),
+    **fulfillment**:String
+  ) ⇒
+)</code>
 <code style="">ledgerPlugin.on('outgoing_fulfill',
   (
     **transfer**:[Transfer](#class-transfer),
@@ -337,6 +373,12 @@ If the event is `incoming_fulfill`, then it means you fulfilled the transfer. `o
 of your outgoing transfer has fulfilled the condition.
 
 ### Event: `*_reject`
+<code style="">ledgerPlugin.on('incoming_reject',
+  (
+    **transfer**:[Transfer](#class-transfer),
+    **reason**:[RejectionMessage](#class-rejectionmessage)
+  ) ⇒
+)</code>
 <code style="">ledgerPlugin.on('outgoing_reject',
   (
     **transfer**:[Transfer](#class-transfer),
@@ -353,6 +395,12 @@ If the event is `incoming_reject`, then it means you rejected the transfer. `out
 the receiver of your outgoing transfer has rejected it.
 
 ### Event: `*_cancel`
+<code style="">ledgerPlugin.on('incoming_cancel',
+  (
+    **transfer**:[Transfer](#class-transfer),
+    **reason**:[RejectionMessage](#class-rejectionmessage)
+  ) ⇒
+)</code>
 <code style="">ledgerPlugin.on('outgoing_cancel',
   (
     **transfer**:[Transfer](#class-transfer),
@@ -367,14 +415,35 @@ This will happen on a timeout, triggered by the ledger and not by the receiver.
 If the event is `incoming_cancel`, an incoming transfer was timed out by the ledger. `outgoing_cancel`
 means that a transfer you created has timed out.
 
-### Event: `incoming_message`
-<code style="">ledgerPlugin.on('incoming_message',
+### Event: `*_request`
+<code style="">ledgerPlugin.on('incoming_request',
   (
-    **message**:[IncomingMessage](#incomingmessage),
+    **message**:[Message](#message),
+  ) ⇒
+)</code>
+<code style="">ledgerPlugin.on('outgoing_request',
+  (
+    **message**:[Message](#message),
   ) ⇒
 )</code>
 
-Emitted when an incoming message arrives from the ledger.
+Emitted when an incoming request message arrives from another ledger participant (`incoming_request`) or one is sent (`outgoing_request`).
+
+Hosts MUST NOT use these events to respond to requests. In order to provide responses, provide a request handler via [`registerRequestHandler`](#registerRequestHandler). Note that there can only be one request handler active for a plugin at a time, but an unlimited number of (passive) event listeners.
+
+### Event: `*_response`
+<code style="">ledgerPlugin.on('incoming_response',
+  (
+    **message**:[Message](#message),
+  ) ⇒
+)</code>
+<code style="">ledgerPlugin.on('outgoing_response',
+  (
+    **message**:[Message](#message),
+  ) ⇒
+)</code>
+
+Emitted when a response message is sent (`outgoing_response`) or received (`incoming_response`).
 
 ### Event: `info_change`
 <code style="">ledgerPlugin.on('info_change',
@@ -394,79 +463,63 @@ left undefined (but not any other false-y value) if unused.
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
-| `String` | [id](#id) | UUID used as an external identifier |
-| `String` | [account](#account) | ILP Address of the source or destination account (deprecated) |
-| `String` | [from](#from) | ILP Address of the source account |
-| `String` | [to](#to) | ILP Address of the destination account |
-| `String` | [ledger](#ledger) | ILP Address prefix of the ledger |
-| `String` | [amount](#amount) | Integer transfer amount, in the ledger's base unit |
-| `String` | [ilp](#ilp) | Base64-encoded ILP packet |
-| `Object` | [noteToSelf](#notetoself) | Host-provided memo that should be stored with the transfer |
-| `String` | [executionCondition](#executioncondition) | Cryptographic hold condition |
-| `String` | [expiresAt](#expiresat) | Expiry time of the cryptographic hold |
-| `Object` | [custom](#custom) | Object containing ledger plugin specific options |
-
-
-### IncomingTransfer
-<code>class IncomingTransfer extends [Transfer](#class-transfer)</code>
-
-`IncomingTransfer` objects describe transfers which are **received** by the ledger plugin. The `account` field refers to the local source account that the transfer originated from.
-
-See [`Transfer`](#class-transfer) for more information.
-
-### OutgoingTransfer
-<code>class OutgoingTransfer extends [Transfer](#class-transfer)</code>
-
-`OutgoingTransfer` objects describe transfers which have been **sent** by the ledger plugin. The `account` field refers to the local destination account on the underlying ledger.
-
-See [`Transfer`](#class-transfer) for more information.
+| `String` | [id](#transfer-id) | UUID used as an external identifier |
+| `String` | [from](#transfer-from) | ILP Address of the source account |
+| `String` | [to](#transfer-to) | ILP Address of the destination account |
+| `String` | [ledger](#transfer-ledger) | ILP Address prefix of the ledger |
+| `String` | [amount](#transfer-amount) | Integer transfer amount, in the ledger's base unit |
+| `String` | [ilp](#transfer-ilp) | Base64-encoded ILP packet |
+| `Object` | [noteToSelf](#transfer-notetoself) | Host-provided memo that should be stored with the transfer |
+| `String` | [executionCondition](#transfer-executioncondition) | Cryptographic hold condition |
+| `String` | [expiresAt](#transfer-expiresat) | Expiry time of the cryptographic hold |
+| `Object` | [custom](#transfer-custom) | Object containing ledger plugin specific options |
 
 ### Fields
 
-#### id
+#### Transfer#id
 <code>**id**:String</code>
 
 External unique identifier used by the host.
 
-For [`OutgoingTransfer`](#outgoingtransfer)s, the ID is chosen by the host. The ledger plugin MAY use a different identifier internally, but MUST fail if the external ID has already been used. In the case of a connector, the ID will be deterministically chosen from the hash of the ledger and transfer IDs of the inbound transfer that triggered this outbound transfer.
-
-For [`IncomingTransfer`](#incomingtransfer)s, the ID is chosen by the ledger plugin. The ledger plugin MAY use any type of UUID, but MUST ensure that the same transfer is always referred to by the same ID and that IDs are unique per ledger.
+The ID is always chosen by the sending host. The ledger plugin MAY use a different identifier internally, but MUST fail if the external ID has already been used. In the case of a connector, the ID will be deterministically chosen from the hash of the ledger and transfer IDs of the inbound transfer that triggered this outbound transfer.
 
 Ledger plugins that support scalability (e.g. running multiple instances of a connector using the same settings) MUST ensure that external transfer IDs are unique **globally**, i.e. across all machines and instances. Otherwise a connector could accidentally process two outgoing payments for one incoming payment.
 
-#### account
+#### Transfer#account
 <code>**account**:String</code>
 
 The ILP Address of a local account.
 
 **Deprecated:** Use [`from`](#from)/[`to`](#to) instead.
 
-#### from
+#### Transfer#from
 <code>**from**:String</code>
 
 The ILP Address of the source or debit account.
 
-#### to
+#### Transfer#to
 <code>**to**:String</code>
 
 The ILP Address of the destination or credit account.
 
-#### ledger
+#### Transfer#ledger
  <code>**ledger**:String</code>
 
 ILP Address prefix of the ledger that this transfer is going through on.
 
-#### amount
+#### Transfer#amount
 <code>**amount**:String</code>
 
 An integer amount, represented as a string of base-ten digits. MUST be `>= 0` and `< 2^64`.
 
-#### ilp
+#### Transfer#ilp
 <code>**ilp**:String</code>
 
 An [ILP packet](../0003-interledger-protocol/), denoting the payment's final destination.
 
-#### noteToSelf
+If the `ilp` data is too large, the ledger plugin MUST reject with a `MaximumIlpDataSizeExceededError`.
+
+#### Transfer#noteToSelf
 <code>**noteToSelf**:Object</code>
 
 An arbitrary plain JavaScript object containing details the host needs to persist with the transfer in order to be able to react to transfer events like condition fulfillment later.
@@ -475,7 +528,7 @@ Ledger plugins MAY attach the `noteToSelf` to the transfer and let the ledger st
 
 Ledger plugins MUST ensure that the data in the `noteToSelf` either isn't shared with any untrusted party or encrypted before it is shared.
 
-#### executionCondition
+#### Transfer#executionCondition
 <code>**executionCondition**:String</code>
 
 A cryptographic challenge used for implementing holds. The underlying ledger MUST hold the transfer until the condition has been fulfilled or the `expiresAt` time has been reached.
@@ -484,17 +537,19 @@ Conditions are the base64url-encoded SHA-256 hash of a random, pseudo-random or 
 
 Ledger plugins that do not support holds MUST reject with an `HoldsNotSupportedError` if this parameter is provided.
 
-#### expiresAt
+#### Transfer#expiresAt
 <code>**expiresAt**:String</code>
 
 An ISO 8601 timestamp representing the expiry date for the transfer.
 
 Ledger plugins that do not support holds or do not support expiries MUST reject with an `ExpiryNotSupportedError` if this parameter is provided.
 
-#### custom
+#### Transfer#custom
 <code>**custom**:Object</code>
 
 Ledger plugins MAY use this object to accept and/or set additional fields for other features they support. The object MUST be serializable, i.e. only plain JSON types are allowed anywhere in the object or sub-objects.
+
+If the `custom` data is too large, the ledger plugin MUST reject with a `MaximumCustomDataSizeExceededError`.
 
 ###### Example
 ``` js
@@ -521,54 +576,46 @@ The `Message` class is used to describe local ledger message. All fields are req
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
-| `String` | account | ILP Address of the source or destination account (deprecated) |
-| `String` | from | ILP Address of the source account |
-| `String` | to | ILP Address of the destination account |
-| `String` | ledger | ILP Address prefix of the ledger |
-| `Object` | data | Data packet to be sent with the message |
+| `String` | [id](#message-id) | Unique message identifier |
+| `String` | [from](#message-from) | ILP Address of the source account |
+| `String` | [to](#message-to) | ILP Address of the destination account |
+| `String` | [ledger](#message-ledger) | ILP Address prefix of the ledger |
+| `String` | [ilp](#message-ilp) | Base64-encoded ILP packet |
+| `Object` | [custom](#message-custom) | Object containing ledger plugin specific options |
 
-### IncomingMessage
-<code>class IncomingMessage extends [Message](#class-message)</code>
+#### Message#id
+<code>**id**:String</code>
 
-`IncomingMessage` objects describe messages which are **received** by the ledger plugin. The `account` field refers to the local source account that the message originated from.
+Unique message identifier chosen by the sending host. Request and response messages contain the same ID.
 
-See [`Message`](#class-message) for more information.
-
-### OutgoingMessage
-<code>class OutgoingMessage extends [Message](#class-message)</code>
-
-`OutgoingMessage` objects describe messages which have been **sent** by the ledger plugin. The `account` field refers to the local destination account on the underlying ledger.
-
-See [`Message`](#class-message) for more information.
-
-#### account
-<code>**account**:String</code>
-
-The ILP Address of a local account.
-
-**Deprecated:** Use [`from`](#from)/[`to`](#to) instead.
-
-#### from
+#### Message#from
 <code>**from**:String</code>
 
 The ILP Address of the source or debit account.
 
-#### to
+#### Message#to
 <code>**to**:String</code>
 
 The ILP Address of the destination or credit account.
 
-#### ledger
+#### Message#ledger
 <code>**to**:String</code>
 
 The ILP Prefix of the ledger being used to transfer the message.
 
-#### data
-<code>**data**:Object</code>
+#### Message#ilp
+<code>**ilp**:String</code>
 
-An arbitrary plain JavaScript object containing the data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque.
+An [ILP packet](../0003-interledger-protocol/), used for communication among ledger participants.
 
-If the `data` is too large, the ledger plugin MUST reject with a `MaximumDataSizeExceededError`.
+If the `ilp` data is too large, the ledger plugin MUST reject with a `MaximumIlpDataSizeExceededError`.
+
+#### Message#custom
+<code>**custom**:Object</code>
+
+An arbitrary plain JavaScript object containing additional custom data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque.
+
+If the `custom` data is too large, the ledger plugin MUST reject with a `MaximumCustomDataSizeExceededError`.
 
 ###### Example
 ``` js
@@ -577,7 +624,8 @@ If the `data` is too large, the ledger plugin MUST reject with a `MaximumDataSiz
   from: 'example.ledger.alice',
   to: 'example.ledger.bob',
   ledger: 'example.ledger.',
-  data: { /* ... */ }
+  ilp: '',
+  custom: { /* ... */ }
 }
 ```
 
@@ -589,23 +637,23 @@ Metadata describing the ledger. This data is returned by the [`getInfo`](#getinf
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
-| `String` | [prefix](#prefix) | The plugin's ILP address prefix |
-| `String` | [currencyCode](#currencycode) | [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) three-letter currency code |
-| `Number` | [currencyScale](#currencyscale) | Integer `(..., -2, -1, 0, 1, 2, ...)`, such that one of the ledger's base units equals `10^-<currencyScale> <currencyCode>` |
-| `String[]` | [connectors](#connectors) | ILP addresses of recommended connectors |
-| `String` | [minBalance](#minbalance-optional) | Integer String, for instance `"0"`, indicating the minimum balance. Optional, defaults to zero. |
-| `String` | [maxBalance](#maxbalance-optional) | Integer String, for instance `"1000000000000"`, indicating the maximum balance. Optional, defaults to plus infinity. |
+| `String` | [prefix](#ledgerinfo-prefix) | The plugin's ILP address prefix |
+| `String` | [currencyCode](#ledgerinfo-currencycode) | [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) three-letter currency code |
+| `Number` | [currencyScale](#ledgerinfo-currencyscale) | Integer `(..., -2, -1, 0, 1, 2, ...)`, such that one of the ledger's base units equals `10^-<currencyScale> <currencyCode>` |
+| `String[]` | [connectors](#ledgerinfo-connectors) | ILP addresses of recommended connectors |
+| `String` | [minBalance](#ledgerinfo-minbalance-optional) | Integer String, for instance `"0"`, indicating the minimum balance. Optional, defaults to zero. |
+| `String` | [maxBalance](#ledgerinfo-maxbalance-optional) | Integer String, for instance `"1000000000000"`, indicating the maximum balance. Optional, defaults to plus infinity. |
 
 ### Fields
 
-#### prefix
+#### LedgerInfo#prefix
 <code>**prefix**:String</code>
 
 The ledger plugin's ILP address prefix. This is used to determine whether a given ILP address is local to this ledger plugin and thus can be reached using this plugin's `sendTransfer` method.
 
 The prefix may be configured, automatically detected, or hard-coded, depending on the ledger. For example, a Bitcoin ledger plugin may have the address hard-coded, while a [`five-bells-ledger`](https://github.com/interledger/five-bells-ledger) would use an API call to get the prefix.
 
-#### currencyCode
+#### LedgerInfo#currencyCode
 <code>**currencyCode**:String</code>
 
 The [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code (if any) used by the ledger. A custom all-caps three-letter code, not used by ISO 4217, otherwise.
@@ -614,19 +662,19 @@ for instance on node package manager (npm) in the case of JavaScript.
 To translate an integer amount or balance from the ledger, the currencyCode by itself is not enough. It has to be used in combination with the currencyScale (below) to determine how many
 of the ledger's base units correspond to one currency unit.
 
-#### currencyScale
+#### LedgerInfo#currencyScale
 <code>**currencyScale**:String</code>
 
 The order of magnitude to express one full currency unit in ledger's base units. For instance, if the integer values represented on the ledger are to be interpreted as
 dollar-cents (for the purpose of settling a user's account balance, for instance), then the ledger's
 currencyCode is `USD` and its currencyScale is `2`.
 
-#### connectors
+#### LedgerInfo#connectors
 <code>**connectors**:String[]</code>
 
 The ILP addresses of recommended connectors.
 
-#### minBalance (OPTIONAL)
+#### LedgerInfo#minBalance (OPTIONAL)
 <code>**minBalance**:String</code>
 
 A minimum balance limits how much the ledger trusts the account holder.
@@ -635,7 +683,7 @@ When a plugin does return a `minBalance` field, it should be an Integer String, 
 comparable to the `balance` Integer Strings for which the `getBalance` method returns a Promise.
 Applications using the plugin can expect transfers to fail if they would make the balance go below the minimum.
 
-#### maxBalance (OPTIONAL)
+#### LedgerInfo#maxBalance (OPTIONAL)
 <code>**maxBalance**:String</code>
 
 A maximum balance limits how much the account holder trusts the ledger.
@@ -655,11 +703,11 @@ an underscore, and listed in the table below.
 ###### Special Fields
 | Type | Name | Description |
 |:--|:--|:--|
-| `Object` | [_store](#_store) | Persistence layer callbacks |
+| `Object` | [_store](#pluginoptions-_store) | Persistence layer callbacks |
 
 ### Fields
 
-#### _store
+#### PluginOptions#_store
 <code>**_store**:Object</code>
 
 Provides callback hooks to the host's persistence layer.
@@ -692,11 +740,11 @@ Method names are based on the popular LevelUP/LevelDOWN packages.
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
-| `Number` | timeout | milliseconds |
+| `Number` | [timeout](#connectoptions-timeout) | milliseconds |
 
 ### Fields
 
-#### id
+#### ConnectOptions#timeout
 <code>**timeout**:Number</code>
 
 The number of milliseconds that the plugin should spend trying to connect before giving up.
