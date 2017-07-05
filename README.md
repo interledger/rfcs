@@ -5,6 +5,8 @@
 
 This repository contains a collection of various specifications and documentation related to the Interledger Protocol (ILP). These documents or requests-for-comment (RFCs) are published by various authors and publication here does not imply official status unless otherwise specified in the document.
 
+The process for submitting an RFC is documented in the [RFC Process](CONTRIBUTING.md).
+
 For the main reference implementation of the ILP stack, see [Interledger.js](https://github.com/interledgerjs).
 
 ## Index

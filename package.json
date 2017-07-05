@@ -7,6 +7,7 @@
   "devDependencies": {
     "cheerio": "^0.20.0",
     "ejs": "^2.4.1",
+    "front-matter": "^2.1.2",
     "glob": "^7.0.3",
     "marked": "^0.3.5",
     "viz.js": "^1.7.1"

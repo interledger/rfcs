@@ -7,12 +7,13 @@ machine:
     - git config --global push.default simple
 test:
   override:
-    - echo "no tests"
-  post:
     # Generate graphs for specs
     - node scripts/generate_graphs.js
     # Generate specs for website
     - node scripts/generate_web.js
+    # Copy test reports
+    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+    - cp reports/*.xml $CIRCLE_TEST_REPORTS/junit/
 deployment:
   production:
     branch: master

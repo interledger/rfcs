@@ -1,4 +1,8 @@
-# Ledger Plugin Interface (Javascript)
+---
+title: The Javascript Ledger Plugin Interface
+draft: 1
+---
+# Javascript Ledger Plugin Interface
 
 The Interledger Protocol is a protocol suite for connecting blockchains and other ledgers.
 

@@ -1,3 +1,7 @@
+---
+title: The Connector to Connector protocol
+draft: 1
+---
 # Connector to Connector protocol
 
 ## Discovery

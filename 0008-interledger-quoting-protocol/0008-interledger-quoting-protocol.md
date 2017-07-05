@@ -1,3 +1,7 @@
+---
+title: The Interledger Quoting Protocol (ILQP)
+draft: 1
+---
 # Interledger Quoting Protocol (ILQP)
 
 The Interledger Quoting Protocol is a method of getting quote information from a Connector in preparation for arranging transfers across two ledgers. The quote returned by a Connector is non-binding, but provides a basis for choosing which connectors to use.
