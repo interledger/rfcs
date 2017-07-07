@@ -40,7 +40,7 @@ Content-Type: application/json
 true
 ```
 
-### Send Request
+### Send Request (ILQP)
 
 #### Request
 
@@ -70,6 +70,53 @@ Content-Type: application/json
   "ledger": "peer.me.",
   "to": "peer.me.P74ZwUNQr3QFK7UjCU4Is9ZuWUHtMqIuA",
   "ilp": "AEEEEMgYvJmLzVHel5mLzVnLn5AwUT1BAAAAAwRA"
+}
+```
+
+### Send Request (Routing)
+
+#### Request
+
+```http
+POST /rpc/?method=send_request&prefix=peer.me HTTP/1.1
+Host: rpchost
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer ABCXYZ
+
+[
+  {
+    "ledger": "peer.me.",
+    "to": "peer.me.Y_luxphkAy6ddYzuXb9lXxS60zg5tHjrPh8zz_BfwEA",
+    "custom": {
+      "method": "broadcast_routes",
+      "data": {
+        "new_routes": [ {
+          "source_ledger": "peer.me.",
+          "destination_ledger": "g.ledger.",
+          "points": "AAAAAAAAAAAAAAAAAAAAAP////////////////////8=",
+          "min_message_window": 1,
+          "paths": [ [] ],
+          "source_account": "peer.me.P74ZwUNQr3QFK7UjCU4Is9ZuWUHtMqIuA"
+        } ],
+        hold_down_time: 600000,
+        unreachable_through_me: []
+      }
+    }
+  }
+]
+```
+
+#### Response
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "ledger": "peer.me.",
+  "to": "peer.me.P74ZwUNQr3QFK7UjCU4Is9ZuWUHtMqIuA",
+  "custom": {}
 }
 ```
 

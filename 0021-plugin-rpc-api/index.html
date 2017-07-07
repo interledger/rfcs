@@ -79,7 +79,11 @@
                 </li>
               
                 <li>
-                  <a href="#send-request">Send Request</a>
+                  <a href="#send-request-ilqp">Send Request (ILQP)</a>
+                </li>
+              
+                <li>
+                  <a href="#send-request-routing">Send Request (Routing)</a>
                 </li>
               
                 <li>
@@ -135,7 +139,7 @@ Content-Type: application/json
 
 true
 </code></pre>
-<h3 id="send-request">Send Request</h3>
+<h3 id="send-request-ilqp">Send Request (ILQP)</h3>
 <h4 id="request-2">Request</h4>
 <pre><code class="lang-http">POST /rpc/?method=send_request&amp;prefix=peer.me HTTP/1.1
 Host: rpchost
@@ -161,8 +165,48 @@ Content-Type: application/json
   &quot;ilp&quot;: &quot;AEEEEMgYvJmLzVHel5mLzVnLn5AwUT1BAAAAAwRA&quot;
 }
 </code></pre>
-<h3 id="fulfill-condition">Fulfill Condition</h3>
+<h3 id="send-request-routing">Send Request (Routing)</h3>
 <h4 id="request-3">Request</h4>
+<pre><code class="lang-http">POST /rpc/?method=send_request&amp;prefix=peer.me HTTP/1.1
+Host: rpchost
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer ABCXYZ
+
+[
+  {
+    &quot;ledger&quot;: &quot;peer.me.&quot;,
+    &quot;to&quot;: &quot;peer.me.Y_luxphkAy6ddYzuXb9lXxS60zg5tHjrPh8zz_BfwEA&quot;,
+    &quot;custom&quot;: {
+      &quot;method&quot;: &quot;broadcast_routes&quot;,
+      &quot;data&quot;: {
+        &quot;new_routes&quot;: [ {
+          &quot;source_ledger&quot;: &quot;peer.me.&quot;,
+          &quot;destination_ledger&quot;: &quot;g.ledger.&quot;,
+          &quot;points&quot;: &quot;AAAAAAAAAAAAAAAAAAAAAP////////////////////8=&quot;,
+          &quot;min_message_window&quot;: 1,
+          &quot;paths&quot;: [ [] ],
+          &quot;source_account&quot;: &quot;peer.me.P74ZwUNQr3QFK7UjCU4Is9ZuWUHtMqIuA&quot;
+        } ],
+        hold_down_time: 600000,
+        unreachable_through_me: []
+      }
+    }
+  }
+]
+</code></pre>
+<h4 id="response-3">Response</h4>
+<pre><code class="lang-http">HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  &quot;ledger&quot;: &quot;peer.me.&quot;,
+  &quot;to&quot;: &quot;peer.me.P74ZwUNQr3QFK7UjCU4Is9ZuWUHtMqIuA&quot;,
+  &quot;custom&quot;: {}
+}
+</code></pre>
+<h3 id="fulfill-condition">Fulfill Condition</h3>
+<h4 id="request-4">Request</h4>
 <pre><code class="lang-http">POST /rpc/?method=fulfill_condition&amp;prefix=peer.me HTTP/1.1
 Host: rpchost
 Accept: application/json
@@ -174,14 +218,14 @@ Authorization: Bearer ABCXYZ
   &quot;yMy5Sy5dTjQASrNjS0SywjbwH9nQaiFMWJv1QD3Q_VE&quot;
 ]
 </code></pre>
-<h4 id="response-3">Response</h4>
+<h4 id="response-4">Response</h4>
 <pre><code class="lang-http">HTTP/1.1 200 OK
 Content-Type: application/json
 
 true
 </code></pre>
 <h3 id="reject-incoming-transfer">Reject Incoming Transfer</h3>
-<h4 id="request-4">Request</h4>
+<h4 id="request-5">Request</h4>
 <pre><code class="lang-http">POST /rpc/?method=reject_incoming_transfer&amp;prefix=peer.me HTTP/1.1
 Host: rpchost
 Accept: application/json
@@ -192,14 +236,14 @@ Authorization: Bearer ABCXYZ
   &quot;0e798bd6-213b-4b2f-bc1c-040788e7bae5&quot;
 ]
 </code></pre>
-<h4 id="response-4">Response</h4>
+<h4 id="response-5">Response</h4>
 <pre><code class="lang-http">HTTP/1.1 200 OK
 Content-Type: application/json
 
 true
 </code></pre>
 <h3 id="get-limit">Get Limit</h3>
-<h4 id="request-5">Request</h4>
+<h4 id="request-6">Request</h4>
 <pre><code class="lang-http">POST /rpc/?method=get_limit&amp;prefix=peer.me HTTP/1.1
 Host: rpchost
 Accept: application/json
@@ -208,14 +252,14 @@ Authorization: Bearer ABCXYZ
 
 []
 </code></pre>
-<h4 id="response-5">Response</h4>
+<h4 id="response-6">Response</h4>
 <pre><code class="lang-http">HTTP/1.1 200 OK
 Content-Type: application/json
 
 &quot;-5000000000&quot;
 </code></pre>
 <h3 id="get-balance">Get Balance</h3>
-<h4 id="request-6">Request</h4>
+<h4 id="request-7">Request</h4>
 <pre><code class="lang-http">POST /rpc/?method=get_balance&amp;prefix=peer.me HTTP/1.1
 Host: rpchost
 Accept: application/json
@@ -224,7 +268,7 @@ Authorization: Bearer ABCXYZ
 
 []
 </code></pre>
-<h4 id="response-6">Response</h4>
+<h4 id="response-7">Response</h4>
 <pre><code class="lang-http">HTTP/1.1 200 OK
 Content-Type: application/json
 
