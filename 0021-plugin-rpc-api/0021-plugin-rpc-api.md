@@ -20,13 +20,10 @@ Authorization: Bearer ABCXYZ
 [
   {
     "id": "0e798bd6-213b-4b2f-bc1c-040788e7bae5",
-    "ledger": "peer.me.",
-    "to": "peer.me.Y_luxphkAy6ddYzuXb9lXxS60zg5tHjrPh8zz_BfwEA",
     "amount": "348807",
     "ilp": "ARwAAAAAB1TUwA5nLnVzLm5leHVzLmJvYgMEEEEA",
     "executionCondition": "7td8LdXdYkv-6WXWdMlPZ1DhROwRFdazA0m3kTz4LUI",
-    "expiresAt": "2017-06-14T11:58:18.509Z",
-    "direction": "outgoing"
+    "expiresAt": "2017-06-14T11:58:18.509Z"
   }
 ]
 ```
@@ -53,8 +50,6 @@ Authorization: Bearer ABCXYZ
 
 [
   {
-    "ledger": "peer.me.",
-    "to": "peer.me.Y_luxphkAy6ddYzuXb9lXxS60zg5tHjrPh8zz_BfwEA",
     "ilp": "ARwAAAAAB1TUwA5nLnVzLm5leHVzLmJvYgMEEEEA"
   }
 ]
@@ -67,8 +62,6 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-  "ledger": "peer.me.",
-  "to": "peer.me.P74ZwUNQr3QFK7UjCU4Is9ZuWUHtMqIuA",
   "ilp": "AEEEEMgYvJmLzVHel5mLzVnLn5AwUT1BAAAAAwRA"
 }
 ```
@@ -86,8 +79,6 @@ Authorization: Bearer ABCXYZ
 
 [
   {
-    "ledger": "peer.me.",
-    "to": "peer.me.Y_luxphkAy6ddYzuXb9lXxS60zg5tHjrPh8zz_BfwEA",
     "custom": {
       "method": "broadcast_routes",
       "data": {
@@ -114,8 +105,6 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-  "ledger": "peer.me.",
-  "to": "peer.me.P74ZwUNQr3QFK7UjCU4Is9ZuWUHtMqIuA",
   "custom": {}
 }
 ```
