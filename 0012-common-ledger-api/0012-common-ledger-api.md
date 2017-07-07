@@ -24,15 +24,15 @@ The core operations of the API are:
 - [Get Transfer][] and check its status
 - [Get Transfer Fulfillment][]
 - [Get Account][] info including balance
+- [Create or Update Account][]
 - [Send Message][] to another account
 - [Get Auth Token][] for [Authorization and Authentication](#authorization-and-authentication)
 - [Websocket][] sub-API for subscribing to transfers and accounts
 
 The ledger MAY support additional methods, including but not limited to:
 
-- Create or Update Account
 - Health check status
-- Look up transfers by account or [Crypto-Condition][]
+- Look up transfers by account or by [Crypto-Condition][]
 
 
 ## Conventions
@@ -71,35 +71,36 @@ Any valid URL is a suitable prefix. However, only the same asset served by the s
 
 These instances could be served by the same underlying software and share infrastructure, but it would not be possible to transfer directly from one to the other, since the currency denominations are different. An **ILP Connector** could facilitate cross-currency payments.
 
+#### Adding Money to the Ledger
+
+There are several ways to "add" money to the ledger. A ledger MAY use any or all of the following:
+
+- When an account is created or updated by an administrator with the [Create or Update Account][] method, the administrator MAY set the balance of the account to any legal value.
+- A ledger may be initialized in a state where its database contains accounts with positive balances.
+- An administrator MAY create an "issuer" account whose balance can be negative. To give a positive balance to an account, execute a transfer from the issuer account. If you use this technique exclusively, the issuer account's total balance is equal to the negative of all balances in the ledger summed together.
+
 
 ### Scope
 
-The Common Ledger API does not define the full range of functionality needed by a functional ledger. This API defines the parts the ILP Client needs, and leaves other parts to the discretion of the ledger implementer.
-
-Some things not included in this specification:
-
-- Account creation and management
-- Permissions management and delegation
-- A way to increase or decrease the net sum of balances in the ledger
-- Transfers that execute automatically, dependent on other transfers
-- Transfers that can credit or debit more than one account atomically
-
-For a fully-functional reference implementation, see the [five-bells-ledger](https://github.com/interledgerjs/five-bells-ledger).
+The Common Ledger API defines one way to implement sufficient functionality to operate a ledger. It is not intended to be an optimal or ideal ledger, especially since such a thing is subjective or at least hard to quantify. (Indeed, Interledger itself was conceived from the conclusion that no one ledger can serve the needs of every person in existence.) In general, this specification reflects to the existing [Five Bells Ledger reference implementation](https://github.com/interledgerjs/five-bells-ledger) so that others may implement compatible software.
 
 
 ### Authorization and Authentication
 
-The ledger MUST authenticate API clients using any of the following methods:
+The ledger MUST authenticate API clients. HTTP(S) methods MUST use one of the following systems for authentication:
 
 - [HTTP Basic Auth](https://tools.ietf.org/html/rfc2617#section-2)
 - [TLS Client Certificates](https://tools.ietf.org/html/rfc5246#section-7.4.6)
-- Token-based authentication. A ledger MUST support token-based auth for [WebSocket][] connections; the ledger MAY support token-based auth for other methods. See also: [Get Auth Token][].
 
-The ledger MUST support authenticating a client as the owner of a specific account, so that it can grant or restrict access to certain methods. A ledger MAY define additional authorization levels, especially for functions that extend this API. We suggest the following authorization levels:
+Additionally, the ledger MUST authenticate [WebSocket][] connections with token-based authentication. See also: [Get Auth Token][].
+
+The ledger MUST support authenticating a client in one of the following roles:
 
 - Administrator - Full control over all ledger operations.
 - Account owner (for a specific account) - Can perform operations relating to one specific account, such as authorizing debits from or credits to the account, and viewing the account balance.
 - Unauthorized. Read-only access to some global ledger data.
+
+A ledger MAY define additional authorization levels, especially for functions that extend this API.
 
 
 ## Data Types
@@ -107,28 +108,24 @@ The ledger MUST support authenticating a client as the owner of a specific accou
 ### Transfer Resource
 [Transfer resource]: #transfer-resource
 
-A transfer represents money being moved around _within a single ledger_. A transfer debits one account and credits another account for the exact same amount. A transfer can be conditional upon a supplied [Crypto-Condition][], in which case it executes automatically when presented with the fulfillment for the condition. (Assuming the transfer has not expired or been rejected first.) If no Crypto-Condition is specified, the transfer is unconditional, and executes as soon as it is prepared.
+A transfer represents money being moved around _within a single ledger_. A transfer debits one or more accounts and credits one or more accounts, such that the sum of all credits equals the sum of all debits. A transfer can be conditional upon a supplied [Crypto-Condition][], in which case it executes automatically when presented with the fulfillment for the condition. (Assuming the transfer has not expired or been rejected first.) If no Crypto-Condition is specified, the transfer is unconditional, and executes as soon as it is prepared.
 
-The Common Ledger API does not define a way to add or remove money from the ledger; the methods defined here always maintain a zero sum across all account balances. However, you can effectively add money to a ledger by transferring it from an "issuer" account whose balance is allowed to go negative.
 
 A transfer object contains the fields from the following table. Some fields are _Ledger-provided_, meaning they cannot be set directly by clients. Fields that are "Optional" or "Ledger-provided" in the following table may be omitted by clients submitting transfer objects to the API, but **those fields are not optional to implement**. All fields, including the `memo` fields, must be implemented for the Common Ledger API to work properly. Fields of nested objects are indicated with a dot (`.`) character; no field names contain a dot literal.
 
 | Name                   | Type                 | Description                  |
 |:-----------------------|:---------------------|:-----------------------------|
-| `client_id`            | [UUID][]             | Client-provided UUID for this resource. MUST be unique within the ledger. |
-| `ledger`               | [URL][]              | Resource identifier for the ledger where the transfer occurs. MUST be an HTTP(S) URL where you can [get the ledger metadata][Get Ledger Metadata]. |
-| `debit_account`        | [URL][]              | Resource identifier for the account debited in this transfer. MUST be an HTTP(S) URL where you can [get the account resource][Get Account]. |
-| `credit_account`       | [URL][]              | Resource identifier for the account credited in this transfer. MUST be an HTTP(S) URL where you can [get the account resource][Get Account]. This can be the same as the `debit_account`. (Transfers where the `credit_account` is the `debit_account` are used for ILP transfers to sub-ledgers.) |
-| `amount`               | String               | The [amount][] of the currency/asset being transferred. This is debited from the `debit_account` and credited to the `credit_account` when the transfer executes. |
+| `id`                   | [UUID][]             | Client-provided UUID for this resource. MUST be unique within the ledger. The path to the [Get Transfer][] method includes this identifier. |
+| `ledger`               | [URL][]              | _(Optional)_ Resource identifier for the ledger where the transfer occurs. MUST be an HTTP(S) URL where you can [get the ledger metadata][Get Ledger Metadata]. |
+| `credits`              | Array of Objects     | Array of objects defining which accounts receive how much from this transfer. A ledger MAY restrict this to length 1. |
+| `debits`               | Array of Objects     |
+
 | `execution_condition`  | [Crypto-Condition][] | _(Optional)_ The condition for executing the transfer. If omitted, the transfer executes unconditionally. |
 | `expires_at`           | [Date-Time][]        | _(Optional)_ The date when the transfer expires and can no longer be executed. |
 | `additional_info`      | Object               | _(Optional)_ Arbitrary fields attached to this transfer. (For example, the IDs of related transfers in other systems.) |
-| `memo`                 | Object               | _(Optional)_ Arbitrary data provided by the `debit_account` for the `credit_account`. The connector stores the ILP Header in this field. |
-| `note_to_self`         | Object               | _(Optional)_ Arbitrary data provided by the `debit_account` for itself. This field MUST be hidden when not authenticated as the `debit_account` or an admin. |
 | `id`                   | [URL][]              | _(Ledger-provided)_ Primary resource identifier for this transfer. MUST be an HTTP(S) URL where you can [get the transfer resource][Get Transfer]. |
-| `fulfillment`          | [URL][]              | (Ledger-provided) Path to the fulfillment for this transfer. MUST be an HTTP(S) URL where the client can [submit the fulfillment][Submit Fulfillment] or [get the fulfillment][Get Transfer Fulfillment]. MUST be provided if and only if this transfer has an `execution_condition`. |
-| `transfer_rejection`   | [URL][]              | (Ledger-provided) Path where a client can [reject this transfer][Reject Transfer]. MUST be an HTTP(S) URL. |
-| `rejection_reason`     | String               | _(Ledger-provided)_ The reason the transfer was rejected. MUST appear if and only if `state` is `rejected`. |
+| `fulfillment`          | [URL][]              | _(Ledger-provided)_ Path to the fulfillment for this transfer. MUST be an HTTP(S) URL where the client can [submit the fulfillment][Submit Fulfillment] or [get the fulfillment][Get Transfer Fulfillment]. MUST be provided if and only if this transfer has an `execution_condition`. |
+| `rejection_reason`     | String               | _(Optional)_ The reason the transfer was rejected. MUST appear if and only if `state` is `rejected`. |
 | `state`                | String               | _(Ledger-provided)_ The current state of the transfer. Valid states are `prepared`, `executed`, and `rejected`. |
 | `timeline`             | Object               | _(Ledger-provided)_ Timeline of the transfer's state transitions. |
 | `timeline.executed_at` | [Date-Time][]        | _(Ledger-provided)_ Time when the transfer was originally executed. MUST appear if and only if `state` is `executed`. This time MUST be equal to or later than the `prepared_at` time. |
@@ -136,6 +133,15 @@ A transfer object contains the fields from the following table. Some fields are 
 | `timeline.rejected_at` | [Date-Time][]        | _(Ledger-provided)_ Time when the transfer was originally rejected. MUST appear if and only if `state` is `rejected`. This time MUST be equal to or later than the `prepared_at` time. |
 
 [UUID]: http://en.wikipedia.org/wiki/Universally_unique_identifier
+
+The `credits` and `debits` fields contain objects defining how much to debit or credit to a particular account. The format for the objects in both arrays is as follows:
+
+| Field        | Type    | Description                                         |
+|:-------------|:--------|:----------------------------------------------------|
+| `account`    | [URL][] | An identifier for the account to credit or debit. This MUST be an HTTP(S) URL where the client can call the [Get Account][] method. |
+| `amount`     | String  | Positive decimal amount of money to debit from or credit to this account. See [Amounts][] for formatting rules. |
+| `memo`       | Object  | _(Optional)_ Arbitrary object with additional information about this credit or debit. (TODO: verify) Ledgers MUST implement this field, since ILP Connectors include the ILP Packet here. |
+| `authorized` | Boolean | _(Optional, debit objects only)_ Whether this account has authorized this transfer. The ledger MUST NOT allow a request to set this value to `true` unless the client is authenticated as an Administrator or as the owner of this account. |
 
 
 #### Client IDs
