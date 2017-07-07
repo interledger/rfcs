@@ -49,11 +49,17 @@ segment     = 1*( ALPHA / DIGIT / "_" / "~" / "-" )
 
 You can also use the following regular expressions to verify the same requirements:
 
-| Address Type        | Regular Expression                                     |
-|:--------------------|:-------------------------------------------------------|
-| All addresses       | `(?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])*([a-zA-Z0-9_~-]+)?$` |
-| Address prefix      | `(?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])*$` |
-| Destination address | `(?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])+[a-zA-Z0-9_~-]+$` |
+All Addresses:
+
+    (?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])*([a-zA-Z0-9_~-]+)?$
+    
+Address prefix:
+
+    (?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])*$
+
+Destination address
+
+    (?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])+[a-zA-Z0-9_~-]+$
 
 (If your regular expression engine does not support lookahead, you must drop the first parenthesis and separately enforce the overall length requirement of 1023 characters or less.)
 
