@@ -23,16 +23,35 @@ All Interledger implementations should implement the echo service, unless they h
 
 ## Protocol
 
-1. The Client sends a quote request with a destination ILP address of `[mirror's ilp address].echo.[client's ilp address]` and a destination amount of `0`. If the combined address is too long, the client aborts with an error.
-2. Upon receiving the quote request, the Mirror initiates a quote request of their own for the Client's ILP address with an amount of `0`.
-3. Upon receiving the quote response, the Mirror responds to the Client's quote request as if its destination amount had been the source amount of the quote response from step 2.
-4. Upon receiving the quote response, the Client sends a payment using the quoted amount from step 3 and the same destination ILP address and amount as in step 1. The condition for the payment is the hash of a random nonce. The memo for the payment is the string "ECHO" followed by a space character (" "), followed by a UUID, encoded as an ASCII string.
-5. Upon receiving the prepared transfer, the Mirror initiates a payment to the Client's ILP address with an amount of `0` using the incoming destination amount as the outgoing source amount.
-6. Upon receiving the prepared transfer, the Client fulfills it. From here, the payment completes normally.
+1. The Client requests a quote by source amount using the following details:
+  - Source amount: A small amount considered (by the Client) to be sufficient for a round trip
+  - Destination ILP address: Mirror's ILP address
+2. Upon receiving a quote response, the Client sends a payment using the following details:
+  - Source amount: The same source amount as in step 1
+  - Destination amount: The quoted destination amount from the quote response
+  - Destination ILP address: Mirror's ILP address
+  - Data: The string `PING` followed by a newline character (a 0x0A byte), followed by a UUID in canonical textual representation, followed by another newline character, followed by the Client's ILP address.
 
-If a Client wishes to query the bidirectional liquidity without making a payment, it may stop before step 4.
+    Example:
+    ```
+    PING
+    0c009642-f64c-45c7-b9e8-a57c95a60556
+    example.myledger.test
+    ```
+3. Upon receiving the prepared transfer, the Mirror initiates a payment using the following details:
+  - Source amount: Same as the incoming destination amount
+  - Destination amount: 0
+  - Destination ILP address: Client's ILP address (taken from the data field of the incoming payment)
+  - Data: The string `PONG` followed by a newline character (a 0x0A byte), followed by the UUID taken from the incoming payment's data field.
 
-If an error occurs between steps 5 and 6, the Mirror relays the error to the client, the same way a connector would relay an error.
+    Example:
+    ```
+    PONG
+    0c009642-f64c-45c7-b9e8-a57c95a60556
+    ```
+4. Upon receiving the prepared transfer, the Client fulfills it. From here, the payment completes normally.
+
+If an error occurs between steps 3 and 4, the Mirror should relay the error by rejecting the incoming transfer the same way a connector would when relaying an error.
 
 ## Recommended Uses
 
