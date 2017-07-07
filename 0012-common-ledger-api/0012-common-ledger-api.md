@@ -49,6 +49,7 @@ Field names in the JSON objects defined by this API never contain literal period
 
 ### Amounts
 [amount]: #amounts
+[Amounts]: #amounts
 
 The Common Ledger API represents numeric currency amounts as strings rather than native JSON numbers. This is because many standard libraries automatically decode numbers to a [IEEE 754 double precision floating point](https://en.wikipedia.org/wiki/IEEE_floating_point) representation. Using IEEE 754 double floats can introduce a loss of precision and rounding errors that are unacceptable for financial services, depending on the range and use cases needed. (In particular, digital assets that are natively represented as 64-bit unsigned integers do not fit properly into IEEE 754 double precision floats.) Amounts in the Common Ledger API MUST match the following regular expression:
 
@@ -59,7 +60,7 @@ Client applications can decode numeric strings to whatever representation provid
 
 ### Assets and Currency
 
-The Common Ledger API provides access to a ledger containing a single currency or asset. The [Get Ledger Metadata][] method reports the type of asset or currency used, as an [Asset resource][].
+The Common Ledger API provides access to a ledger containing a single currency or asset. The [Get Ledger Metadata][] method reports the type of asset or currency used.
 
 If a provider supports multiple currencies or assets, the provider can serve Common Ledger APIs separately for each such asset by serving it from a different prefix. For example, the [Prepare Transfer][] method could be available at all the following locations:
 
@@ -98,7 +99,7 @@ The ledger MUST support authenticating a client in one of the following roles:
 
 - Administrator - Full control over all ledger operations.
 - Account owner (for a specific account) - Can perform operations relating to one specific account, such as authorizing debits from or credits to the account, and viewing the account balance.
-- Unauthorized. Read-only access to some global ledger data.
+- Unauthorized. Read-only access to some global ledger data. A ledger MUST NOT allow an unauthorized user to make a change that modifies accounts or transfers in any way.
 
 A ledger MAY define additional authorization levels, especially for functions that extend this API.
 
@@ -115,18 +116,17 @@ A transfer object contains the fields from the following table. Some fields are 
 
 | Name                   | Type                 | Description                  |
 |:-----------------------|:---------------------|:-----------------------------|
-| `id`                   | [UUID][]             | Client-provided UUID for this resource. MUST be unique within the ledger. The path to the [Get Transfer][] method includes this identifier. |
-| `ledger`               | [URL][]              | _(Optional)_ Resource identifier for the ledger where the transfer occurs. MUST be an HTTP(S) URL where you can [get the ledger metadata][Get Ledger Metadata]. |
-| `credits`              | Array of Objects     | Array of objects defining which accounts receive how much from this transfer. A ledger MAY restrict this to length 1. |
-| `debits`               | Array of Objects     |
-
+| `id`                   | [UUID][]             | Client-provided UUID for this resource. MUST be unique within the ledger. The path to the [Get Transfer][] method includes this identifier. See [Transfer IDs][] for more information. |
+| `credits`              | Array of Objects     | Array of objects defining which accounts receive how much in this transfer. A ledger MAY restrict this to length 1. |
+| `debits`               | Array of Objects     | Array of objects defining which accounts send how much in this transfer. A ledger MAY restrict this to length 1. |
+| `cancellation_condition` | [Crypto-Condition][] | _(Optional)_ The condition for canceling the transfer. This field is OPTIONAL to implement. (It is no longer used by other ILP reference implementations.) MUST NOT be present unless the transfer has an `execution_condition`.  |
 | `execution_condition`  | [Crypto-Condition][] | _(Optional)_ The condition for executing the transfer. If omitted, the transfer executes unconditionally. |
 | `expires_at`           | [Date-Time][]        | _(Optional)_ The date when the transfer expires and can no longer be executed. |
 | `additional_info`      | Object               | _(Optional)_ Arbitrary fields attached to this transfer. (For example, the IDs of related transfers in other systems.) |
-| `id`                   | [URL][]              | _(Ledger-provided)_ Primary resource identifier for this transfer. MUST be an HTTP(S) URL where you can [get the transfer resource][Get Transfer]. |
 | `fulfillment`          | [URL][]              | _(Ledger-provided)_ Path to the fulfillment for this transfer. MUST be an HTTP(S) URL where the client can [submit the fulfillment][Submit Fulfillment] or [get the fulfillment][Get Transfer Fulfillment]. MUST be provided if and only if this transfer has an `execution_condition`. |
-| `rejection_reason`     | String               | _(Optional)_ The reason the transfer was rejected. MUST appear if and only if `state` is `rejected`. |
-| `state`                | String               | _(Ledger-provided)_ The current state of the transfer. Valid states are `prepared`, `executed`, and `rejected`. |
+| `ledger`               | [URL][]              | _(Ledger-provided)_ Resource identifier for the ledger where the transfer occurs. MUST be an HTTP(S) URL where you can [get the ledger metadata][Get Ledger Metadata]. |
+| `rejection_reason`     | String               | _(Ledger-provided)_ The reason the transfer was rejected. MUST appear if and only if `state` is `rejected`. |
+| `state`                | String               | _(Ledger-provided)_ The current state of the transfer. Valid states are `proposed`, `prepared`, `executed`, and `rejected`. See [Transfer States][] for more information. |
 | `timeline`             | Object               | _(Ledger-provided)_ Timeline of the transfer's state transitions. |
 | `timeline.executed_at` | [Date-Time][]        | _(Ledger-provided)_ Time when the transfer was originally executed. MUST appear if and only if `state` is `executed`. This time MUST be equal to or later than the `prepared_at` time. |
 | `timeline.prepared_at` | [Date-Time][]        | _(Ledger-provided)_ Time when the transfer was originally prepared. MUST appear, even if the transaction is unconditional. |
@@ -140,18 +140,43 @@ The `credits` and `debits` fields contain objects defining how much to debit or 
 |:-------------|:--------|:----------------------------------------------------|
 | `account`    | [URL][] | An identifier for the account to credit or debit. This MUST be an HTTP(S) URL where the client can call the [Get Account][] method. |
 | `amount`     | String  | Positive decimal amount of money to debit from or credit to this account. See [Amounts][] for formatting rules. |
-| `memo`       | Object  | _(Optional)_ Arbitrary object with additional information about this credit or debit. (TODO: verify) Ledgers MUST implement this field, since ILP Connectors include the ILP Packet here. |
+| `memo`       | Object  | _(Optional)_ Arbitrary object with additional information about this credit or debit.  |
 | `authorized` | Boolean | _(Optional, debit objects only)_ Whether this account has authorized this transfer. The ledger MUST NOT allow a request to set this value to `true` unless the client is authenticated as an Administrator or as the owner of this account. |
 
+**Note:** Ledgers MUST implement the `memo` field. ILP clients use this field to store the ILP Packet object. Specifically, the reference ILP Client puts the ILP Packet as a base64url-encoded string in the the `ilp` field of the `memo` of the credit to the Connector.
 
-#### Client IDs
 
-The transfer's `client_id` field is one of the main ways of identifying the transfer; it is unique across the ledger, so implementations MAY use it as a primary unique key in a database. The client applications, not the ledger, generate the `client_id`, so the ledger SHOULD require that the field match the canonical form for a [UUID][], which is 32 lowercase hexadecimal digits, separated by hyphens into groups of 8-4-4-4-12.
+#### Transfer IDs
+[Transfer IDs]: #transfer-ids
 
-If a client attempts to create a transfer with a `client_id` that already exists, the attempt MUST fail. (This protects clients from accidentally submitting the same transfer twice or more.)
+The transfer's `id` field is one of the main ways of identifying the transfer; it is unique across the ledger, so implementations MAY use it as a primary unique key in a database. The client applications, not the ledger, generate the `id`, so the ledger SHOULD require that the field match the canonical form for a [UUID][], which is 32 lowercase hexadecimal digits, separated by hyphens into groups of 8-4-4-4-12.
 
-Depending on what algorithm clients use to generate UUIDs, it may be possible for other account owners to guess in advance which UUIDs might be used, and could preemptively claim `client_id` values that other account owners might use. A ledger MAY discourage this "squatting" behavior by imposing a limit on how many new transfers an account can generate within a fixed period of time, or with other similar limits. (A ledger could also address this issue in other ways, such as charging a fee for preparing transfers.) Client applications SHOULD use a sufficiently hard-to-predict system for generating UUIDs, such as the random algorithm described in [RFC4122](https://www.ietf.org/rfc/rfc4122). Client applications SHOULD NOT use the same Client ID to indicate related transfers in multiple ledgers: such behavior can be easily exploited by third parties who claim an ID in a ledger as soon as it gets used in a different ledger.
+If a client attempts to create a transfer with an `id` that already exists, the attempt MUST fail. (This protects clients from accidentally submitting the same transfer twice or more.)
 
+Depending on what algorithm clients use to generate UUIDs, it may be possible for other account owners to guess in advance which UUIDs might be used, and could preemptively claim `id` values that other account owners might use. A ledger MAY discourage this "squatting" behavior by imposing a limit on how many new transfers an account can generate within a fixed period of time, or with other similar limits. (A ledger could also address this issue in other ways, such as charging a fee for preparing transfers.) Client applications SHOULD use a sufficiently hard-to-predict system for generating UUIDs, such as the random algorithm described in [RFC4122](https://www.ietf.org/rfc/rfc4122). Client applications SHOULD NOT use the same ID to indicate related transfers in multiple ledgers: such behavior can be easily exploited by third parties who claim an ID in a ledger as soon as it gets used in a different ledger.
+
+#### Transfer States
+[Transfer States]: #transfer-states
+
+The following state diagram shows the possible transitions between a transfer's `state` values:
+
+[![Transfer state diagram](5BL-transfer-states.png)](5BL-transfer-states.png)
+
+The [Prepare Transfer][] method creates a new transfer. Unless creator of the transfer is the only account to be debited and the account sets the `authorized` field of the debit to `true`, the transfer is created in the `proposed` state.
+
+A transfer in the `proposed` state can be modified by other account owners calling the [Prepare Transfer][] method to set the `authorized` field to `true` for debits to their accounts.
+
+When all a transfer's debits are authorized, the transfer executes immediately if it has no execution condition. If the transfer has an execution condition, funds from the `debits` are held and the transfer transitions to the `prepared` state.
+
+From the `prepared` state, a transfer can be executed if an account owner calls [Submit Fulfillment][] with a fulfillment that matches the transfer's `execution_condition`. This moves the held funds to the credited accounts, fully executing the transfer and moving it to the `executed` state.
+
+There are several ways a transfer in the `prepared` state can be rejected, which releases the funds back to the debited accounts:
+
+- The transfer has an `expires_at` field and the time specified by that field passes
+- The transfer has a `cancellation_condition` and an account owner calls [Submit Fulfillment][] with a fulfillment that matches the cancelllation condition.
+- The account owner of one of the accounts to be credited calls the [Reject Transfer][] method.
+
+The states `executed` and `rejected` are final.
 
 ### Account Resource
 [Account resource]: #account-resource
@@ -162,14 +187,14 @@ An account resource usually has an owner who can [authenticate](#authorization-a
 
 | Name                      | Type    | Description                            |
 |:--------------------------|:--------|:---------------------------------------|
-| `name`                    | String  | Name of the account. A ledger MAY require this to be unique. MUST match the regular expression `^[a-zA-Z0-9._~-]{1,256}$`. |
-| `fingerprint`             | String  | _(Optional)_ A fingerprint of the account owner's client certificate. This field MUST be available if and only if the ledger supports client certificate authentication. MUST match the regular expression `^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){19,127}$`. |
-| `ledger`                  | [URL][] | _(Optional)_ The path to the ledger containing this account. MUST be an HTTP(S) URL where the client can [Get Ledger Metadata][]. |
-| `minimum_allowed_balance` | String  | _(Optional)_ The minimum balance permitted on this account. The special value `"-infinity"` indicates no minimum balance. This is a string so that no precision is lost in JSON encoding/decoding. The default value SHOULD be `"0"`. |
-| `id`                      | [URL][] | _(Ledger-provided)_ The primary, unique identifier for this account. MUST be an HTTP(S) [URL][] where the client can [get this resource][Get Account]. |
-| `balance`                 | String  | _(Ledger-provided)_ Balance as decimal [amount][]. Defaults to `"0"`. This can be negative, if the account's `minimum_allowed_balance` allows it. |
+| `name`                    | String  | Name of the account. MUST be unique per account and MUST match the regular expression `^[a-zA-Z0-9._~-]{1,256}$`. After an account is created, this field is immutable. |
+| `fingerprint`             | String  | _(Optional)_ A fingerprint of the account owner's client certificate. This field MUST be available if and only if the ledger supports client certificate authentication. MUST match the regular expression `^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){19,127}$`. A ledger MAY allow the account owner to set this value. |
+| `ledger`                  | [URL][] | _(Optional)_ The path to the ledger containing this account. MUST be an HTTP(S) URL where the client can [Get Ledger Metadata][]. (When an account is created, the ledger automatically provides this value.) |
+| `minimum_allowed_balance` | String  | _(Optional)_ The minimum balance permitted on this account. The special value `"-infinity"` indicates no minimum balance. This is a string so that no precision is lost in JSON encoding/decoding. The default value SHOULD be `"0"`. A ledger MUST NOT allow non-administrator users to modify this value directly. |
+| `is_admin`                | Boolean | _(Optional)_ If `true`, authenticating as the owner of this account gives administrator-level permissions. Only a client with administrator permissions can set this to `true`. |
+| `is_disabled`             | Boolean | _(Optional)_ If `true`, this account is disabled. Defaults to `false`. Disabled accounts cannot authenticate to the API. A ledger MUST allow this to be set ONLY by administrators. |
+| `balance`                 | String  | _(Optional)_ Balance as decimal [amount][]. Defaults to `"0"` at account creation. This can be negative, if the account's `minimum_allowed_balance` allows it. A ledger MAY allow clients with administrator permissions to set this value directly. A ledger MUST NOT allow non-administrator users to modify this value directly. |
 
-A ledger MAY define additional fields for the account resource. For example, `is_admin` could be a boolean that, if true, grants administrator-level authorization when authenticated as the account owner.
 
 
 ### Message Resource
@@ -185,19 +210,6 @@ Messages are sent through the ledger's [Send Message][] method and received in a
 | `data`   | Object  | The message to send, containing arbitrary data. A ledger MAY set a maximum length on messages, but that limit MUST NOT be less than 510 UTF-8 characters or 2,048 bytes. |
 
 
-### Asset Resource
-[Asset resource]: #asset-resource
-
-There are many kinds of resources that can be tracked in a ledger. The Asset Resource describes the resource tracked in this ledger, so that client applications can display appropriate information to users. An asset resource has the following fields:
-
-| Field            | Value     | Description                                   |
-|:-----------------|:----------|:----------------------------------------------|
-| `type`           | URI       | _(Optional)_ A uniform resource identifier for this type of asset. For currencies defined in ISO 4217, the ledger SHOULD use the URI `urn:iso:std:iso:4217`. If omitted, client applications should assume the value `urn:iso:std:iso:4217`. |
-| `code`           | String    | The currency code to represent this asset. For `iso4217-currency` assets, this MUST be a three-letter uppercase [ISO 4217](http://www.iso.org/iso/home/standards/currency_codes.htm) currency code. |
-| `symbol`         | String    | Symbol to use in user interfaces with amounts of this asset. For example, "$". |
-| `decimal_digits` | Number    | _(Optional)_ The number of decimal places conventionally displayed when representing amounts of this asset in a user interface. A user interface MAY represent additional digits in any style it prefers (for example, using a smaller font to represent less significant digits). This value MUST be a non-negative integer. This MAY be different from the precision and scale used internally by the ledger, which are reported in the [Get Ledger Metadata][] field. |
-| ...              | (Various) | Depending on the `type` of the asset, additional fields may be provided. |
-
 ### Crypto-Conditions
 [Crypto-Condition]: #crypto-conditions
 [Crypto-Condition Fulfillment]: #crypto-conditions
@@ -206,7 +218,7 @@ The [Crypto-Conditions spec](https://github.com/interledger/rfcs/tree/master/000
 
 Conditions are distributable event descriptions, and fulfillments are cryptographically verifiable messages that prove an event occurred. If you transmit a fulfillment, then everyone who has the corresponding condition can agree that the condition has been met.
 
-Crypto-conditions control the execution of conditional transfers. The Common Ledger API supports conditions and fulfillments in text format.
+Crypto-conditions control the execution of conditional transfers. The Common Ledger API supports conditions and fulfillments in string format.
 
 The Crypto-Conditions specification anticipates that it will need to expand to keep up with changes in the field of cryptography, so conditions always define which rules and algorithms are necessary to verify the fulfillment. Implementations can use the condition's feature list to determine if they can properly process the fulfillment, without having seen the fulfillment itself.
 
@@ -218,43 +230,40 @@ Example fulfillment in string format:
 
     cf:0:VGhlIG9ubHkgYmFzaXMgZm9yIGdvb2QgU29jaWV0eSBpcyB1bmxpbWl0ZWQgY3JlZGl0LuKAlE9zY2FyIFdpbGRl
 
-The [five-bells-condition](https://github.com/interledgerjs/five-bells-condition) library provides a JavaScript implementation of Crypto-Conditions. For custom implementations, consider the latest version of the [IETF crypto-conditions spec](https://tools.ietf.org/html/draft-thomas-crypto-conditions-00) as the source of truth.
+The [five-bells-condition](https://github.com/interledgerjs/five-bells-condition) library provides a JavaScript implementation of Crypto-Conditions. For custom implementations, consider the latest version of the [IETF crypto-conditions spec](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02) as the source of truth.
+
+**Note:** The rest of the Interledger reference implementations have dropped support for the full range of Crypto-Conditions in favor of using SHA-256 hashlocks everywhere. For compatibility with all Interledger software, Five Bells Ledger transfers should use PREIMAGE-SHA-256 crypto-conditions only.
 
 
 ### URLs
 [URL]: #urls
 [URLs]: #urls
+[Metadata URL Name]: #urls
 [RFC6570]: https://tools.ietf.org/html/rfc6570
 
 The Common Ledger API uses URLs as the main way of identifying and looking up resources in the API. These URLs should be formatted as valid _absolute URLs_ in accordance with the [WHATWG URL Living Standard](https://url.spec.whatwg.org/). The URLs SHOULD use the `https:` scheme, except for some [WebSocket][] paths that use the `wss:` scheme instead. In development or private subnetworks, `http:` and `ws:` are acceptable instead.
 
 The `urls` field of the [Get Ledger Metadata][] method returns a list of paths to other API methods. Each member of the `urls` field describes one path, which MUST be an HTTP(S)-formatted URL unless otherwise specified. Some paths contain [RFC6570][]-formatted variable sections in curly braces. The `urls` field MUST include all of the following:
 
-| Path name              | Variables     | HTTP Method | API Method(s)         |
-|:-----------------------|:--------------|:------------|:----------------------|
-| `transfers`            | None          | POST        | [Prepare Transfer][]   |
-| `websocket`            | None          | N/A path    | [WebSocket][] (MUST be a `ws://` or `wss://` URL.) |
-| `transfer`             | `{client_id}` | GET         | [Get Transfer][]      |
-| `transfer_rejection`   | `{client_id}` | PUT         | [Reject Transfer][]   |
-| `transfer_fulfillment` | `{client_id}` | GET, PUT    | [Get Transfer Fulfillment][], [Submit Fulfillment][] |
-| `account`              | `{name}`      | GET         | [Get Account][]       |
+| Path name              | Variables | HTTP Method | API Method(s)             |
+|:-----------------------|:----------|:------------|:--------------------------|
+| `account`              | `{name}`  | GET         | [Get Account][], [Create or Update Account][] |
+| `transfer`             | `{id}`    | GET         | [Prepare Transfer][], [Get Transfer][] |
+| `transfer_fulfillment` | `{id}`    | GET, PUT    | [Get Transfer Fulfillment][], [Submit Fulfillment][] |
+| `websocket`            | None      | N/A         | [WebSocket][] (MUST be a `ws://` or `wss://` URL.) |
 
 The `urls` field of the metadata MAY also contain other methods provided by the ledger.
 
 Some resources also contain fields whose values are URLs pointing to other methods. These URLs MUST NOT contain [RFC6570][]-formatted variable sections. The following table maps URL fields to the API methods that can be accessed at those paths:
 
-| Resource | Field                | HTTP Method | API Method                   |
-|:---------|:---------------------|:------------|:-----------------------------|
-| Transfer | `id`                 | GET         | [Get Transfer][]             |
-| Transfer | `ledger`             | GET         | [Get Ledger Metadata][]      |
-| Transfer | `fulfillment`        | PUT         | [Submit Fulfillment][]       |
-| Transfer | `fulfillment`        | GET         | [Get Transfer Fulfillment][] |
-| Transfer | `transfer_rejection` | PUT         | [Reject Transfer][]          |
-| Transfer | `debit_account`      | GET         | [Get Account][]              |
-| Transfer | `credit_account`     | GET         | [Get Account][]              |
-| Message  | `from`               | GET         | [Get Account][]              |
-| Message  | `to`                 | GET         | [Get Account][]              |
-| Message  | `ledger`             | GET         | [Get Ledger Metadata][]      |
+| Resource | Field                            | HTTP Method | API Method       |
+|:---------|:---------------------------------|:------------|:-----------------|
+| Transfer | `ledger` field                   | GET         | [Get Ledger Metadata][] |
+| Transfer | `credits` member `account` field | GET         | [Get Account][]  |
+| Transfer | `debits` member `account` field  | GET         | [Get Account][]  |
+| Message  | `from` field                     | GET         | [Get Account][]  |
+| Message  | `to` field                       | GET         | [Get Account][]  |
+| Message  | `ledger` field                   | GET         | [Get Ledger Metadata][] |
 
 
 ### Date-Time
@@ -283,7 +292,7 @@ Receive information about the ledger.
 GET /
 ```
 
-**Metadata URL Name:** None (top-level path for the ledger)
+**[Metadata URL Name][]:** None (top-level path for the ledger)
 
 ##### Response Format
 
@@ -291,8 +300,9 @@ A successful result uses the HTTP response code **200 OK** and contains a JSON o
 
 | Field               | Value              | Description                       |
 |:--------------------|:-------------------|:----------------------------------|
-| `asset_info`        | [Asset resource][] | Information on the currency or other asset this ledger tracks. |
-| `ilp_prefix`        | String             | The ILP Address prefix of the ledger. This must match the regular expression `^[a-zA-Z0-9._~-]+\.$` |
+| `currency_code`   | String    | Three-letter ([ISO 4217](http://www.xe.com/iso4217.php)) code of the currency this ledger tracks. |
+| `currency_symbol` | String    | Currency symbol to use in user interfaces for the currency represented in this ledger. For example, "$". |
+| `ilp_prefix`        | String             | The ILP Address Prefix of the ledger. This must match the definition from [IL-RFC-15: ILP Addresses](https://github.com/interledger/rfcs/blob/master/0015-ilp-addresses/0015-ilp-addresses.md). |
 | `connectors`        | Array of [URLs][URL] | Accounts belonging to _recommended_ ILP Connectors. Each member of this list MUST be an HTTP(S) URL where a client can [get the connector's ledger account][Get Account]. This list MAY be empty. |
 | `precision`         | Integer            | How many total decimal digits of precision this ledger uses to represent currency amounts. |
 | `scale`             | Integer            | How many digits after the decimal place this ledger supports in currency amounts. |
@@ -321,11 +331,11 @@ HTTP/1.1 200 OK
     "name": "connie"
   }],
   "urls": {
-    "health": "http://usd-ledger.example/health",
-    "transfers": "http://usd-ledger.example/transfers",
-    "transfer_fulfillment": "http://usd-ledger.example/transfers/{client_id}/fulfillment",
-    "account": "http://usd-ledger.example/accounts/{name}",
-    "websocket": "wss://usd-ledger.example/websocket/"
+    "health": "https://red.ilpdemo.org/ledger/health",
+    "transfer": "https://red.ilpdemo.org/ledger/transfers/{id}",
+    "transfer_fulfillment": "https://red.ilpdemo.org/ledger/transfers/{id}/fulfillment",
+    "account": "https://red.ilpdemo.org/ledger/accounts/{name}",
+    "websocket": "wss://red.ilpdemo.org/ledger/websocket/"
   },
   "precision": 10,
   "scale": 2
@@ -341,15 +351,25 @@ HTTP/1.1 200 OK
 ### Prepare Transfer
 [Prepare Transfer]: #prepare-transfer
 
-Prepares a new transfer (conditional or unconditional) in the ledger. When a transfer becomes prepared, it executes immediately if there is no condition. If you specify `execution_condition`, the funds are held until the beneficiary [submits the matching fulfillment][Submit Fulfillment] or the `expires_at` time is reached.
+Prepares a new transfer (conditional or unconditional) in the ledger, or updates an existing transfer. If updating an existing transfer, only the `authorized` field of a debit can be changed. Only the owner of a particular account may set the `authorized` field of a debit to that account.
+
+An unconditional transfer executes automatically as soon as all debits are authorized. A conditional transfer holds the debited funds until it is executed by the [Submit Fulfillment][] method or it is rejected. See [Transfer States][] for more information.
 
 **Authorization:** The owner of an account MUST be able to prepare a conditional transfer that debits the account. Non-administrators MUST NOT be able to prepare a transfer that debits a different account. A ledger MAY disallow non-administrators from preparing unconditional transfers.
 
 #### Request Format
 
-POST a JSON [Transfer resource][] to the `transfers` [URL][].
+```
+PUT /transfers/{id}
+```
 
-**Metadata URL Name:** `transfers`
+**[Metadata URL Name][]:** `transfer`
+
+##### URL Parameters
+
+| Field | Value | Description |
+|-------|-------|-------------|
+| `id`  | UUID | A new [UUID][] to identify this Transfer. |
 
 ##### Body Parameters
 
@@ -357,93 +377,29 @@ The message body should be a JSON [Transfer resource][].
 
 #### Response Format
 
-A successful result uses the HTTP response code **201 Created** and contains a JSON body with the [Transfer resource][] as saved.
+A successful result uses the HTTP response code **200 OK** and contains a JSON body with the [Transfer resource][] as saved.
 
 #### Example
 
 Request:
 
 ```json
-POST /transfers
+PUT /transfers/3a2a1d9e-8640-4d2d-b06c-84f2cd613204
 Content-Type: application/json
 
 {
-  "client_id": "3a2a1d9e-8640-4d2d-b06c-84f2cd613204",
-  "ledger": "http://usd-ledger.example",
-  "debit_account": "http://usd-ledger.example/accounts/alice",
-  "credit_account": "http://usd-ledger.example/accounts/bob",
-  "amount": "50",
+  "id": "3a2a1d9e-8640-4d2d-b06c-84f2cd613204",
+  "debits": [{
+    "account": "https://red.ilpdemo.org/ledger/accounts/alice",
+    "amount": "50",
+    "authorized": true
+  }],
+  "credits": [{
+    "account": "https://red.ilpdemo.org/ledger/accounts/bob",
+    "amount": "50"
+  }],
   "execution_condition": "cc:0:3:8ZdpKBDUV-KX_OnFZTsCWB_5mlCFI3DynX5f5H2dN-Y:2",
-  "expires_at": "2016-10-25T08:41:59.795Z"
-}
-```
-
-Response:
-
-```json
-HTTP/1.1 201 Created
-
-{
-  "id": "http://usd-ledger.example/transfers/3a2a1d9e-8640-4d2d-b06c-84f2cd613204",
-  "client_id": "3a2a1d9e-8640-4d2d-b06c-84f2cd613204",
-  "ledger": "http://usd-ledger.example",
-  "debit_account": "http://usd-ledger.example/accounts/alice",
-  "credit_account": "http://usd-ledger.example/accounts/bob",
-  "amount": "50",
-  "execution_condition": "cc:0:3:8ZdpKBDUV-KX_OnFZTsCWB_5mlCFI3DynX5f5H2dN-Y:2",
-  "expires_at": "2016-10-25T08:41:59.795Z",
-  "state": "prepared",
-  "timeline": {
-    "prepared_at": "2015-06-16T00:00:01.000Z"
-  }
-}
-```
-
-#### Errors
-
-- [InsufficientFundsError][] - The `debit_account` would go below its `minimum_allowed_balance` if this transfer were executed
-- [UnprocessableEntityError][] - The request is formatted properly but contains an otherwise-unspecified semantic problem.
-- [AlreadyExistsError][] - The `client_id` supplied is already used by another transfer.
-- [InvalidUriParameterError][] - One of the [URL][] or [UUID][] parameters was not formatted properly.
-- [InvalidBodyError][] - The request body was not properly-formatted JSON, did not match the Content-Type provided, or did not match the schema for the requested resource type.
-- [UnsupportedCryptoConditionError][] - The transfer included an `execution_condition` whose feature bitstring requires functionality not implemented by this ledger.
-
-
-### Submit Fulfillment
-[Submit Fulfillment]: #submit-fulfillment
-
-Execute a transfer by submitting a [Crypto-Condition Fulfillment][]. To execute a transfer, the transfer MUST begin in the `prepared` state and the submitted fulfillment must satisfy the [Crypto-Condition][] in the transfer's `execution_condition` field. Doing so transitions the transaction to `executed`.
-
-**Authorization:** The owner of an account MUST be able to submit the fulfillment for a transfer that credits the account. A ledger MAY allow other account owners or unauthorized clients to submit a fulfillment. (If only the `credit_account` can submit a fulfillment, then crediting an account with a conditional transfer effectively requires permission from the account owner.)
-
-#### Request Format
-
-PUT to the `fulfillment` path of the transfer you want to execute, with the header `Content-Type: application/json` and a message body containing the fulfillment.
-
-**Metadata URL Name:** `transfer_fulfillment`. Suggested generic path: `/transfers/{client_id}/fulfillment`
-
-**Note:** The client _MUST_ send the `Content-Type: application/json` header on this request. We expect that future versions of the API might also accept fulfillments in binary format at the same endpoint.
-
-##### Body Parameters
-
-The message body should be a JSON object with one field, `fulfillment`, which contains a [Crypto-Condition Fulfillment][] in string format.
-
-#### Response Format
-
-A successful result uses the HTTP response code **201 Created**. The message body of the response is a JSON object containing the submitted fulfillment in the `fulfillment` field. A ledger MUST return a successful response if and only if the transfer was executed as a result of this request.
-
-If you
-
-#### Example
-
-Request:
-
-```json
-PUT /transfers/3a2a1d9e-8640-4d2d-b06c-84f2cd613204/fulfillment
-Content-Type: application/json
-
-{
-  "fulfillment": "cf:0:_v8"
+  "expires_at": "2015-06-16T00:00:01.000Z"
 }
 ```
 
@@ -452,9 +408,67 @@ Response:
 ```json
 HTTP/1.1 200 OK
 
-{
-  "fulfillment": "cf:0:_v8"
-}
+
+```
+
+#### Errors
+
+- [InsufficientFundsError][] - A debited account would go below its `minimum_allowed_balance` if this transfer were executed
+- [UnprocessableEntityError][] - The request is formatted properly but contains an otherwise-unspecified semantic problem.
+- [AlreadyExistsError][] - The `id` supplied is already used by another transfer.
+- [InvalidUriParameterError][] - One of the [URL][] or [UUID][] parameters was not formatted properly.
+- [InvalidBodyError][] - The request body was not properly-formatted JSON, did not match the Content-Type provided, or did not match the schema for the requested resource type.
+- [UnsupportedCryptoConditionError][] - The transfer included an `execution_condition` whose feature bitstring requires functionality not implemented by this ledger.
+
+
+### Submit Fulfillment
+[Submit Fulfillment]: #submit-fulfillment
+
+Execute or cancel a transfer by submitting a [Crypto-Condition Fulfillment][].
+
+To execute a transfer, the transfer MUST begin in the `prepared` state and the submitted fulfillment must satisfy the [Crypto-Condition][] in the transfer's `execution_condition` field. Doing so transitions the transaction to `executed`.
+
+To cancel a transfer, the submitted fulfillment must satisfy the [Crypto-Condition][] in the transfer's `cancellation_condition` field. Doing so transitions the transaction to `rejected`.
+
+**Authorization:** The owner of an account MUST be able to submit the fulfillment for a transfer that credits the account. A ledger MAY allow other account owners or unauthorized clients to submit a fulfillment.
+
+#### Request Format
+
+
+```
+PUT /transfers/{id}/fulfillment
+Content-Type: text/plain
+```
+
+**Caution:** This method requires the request to specify the header `Content-Type: text/plain`
+
+**[Metadata URL Name][]:** `transfer_fulfillment`.
+
+##### Body Parameters
+
+The message body should be a [Crypto-Condition Fulfillment][] in string format.
+
+#### Response Format
+
+A successful result uses the HTTP response code **200 OK**. The message body of the response is the submitted fulfillment as plain text. A ledger MUST return a successful response if and only if the transfer was executed or canceled as a result of this request.
+
+#### Example
+
+Request:
+
+```
+PUT /transfers/3a2a1d9e-8640-4d2d-b06c-84f2cd613204/fulfillment
+Content-Type: text/plain
+
+cf:0:_v8
+```
+
+Response:
+
+```
+HTTP/1.1 200 OK
+
+cf:0:_v8
 ```
 
 #### Errors
@@ -462,7 +476,7 @@ HTTP/1.1 200 OK
 - [NotFoundError][] - The transfer does not exist.
 - [UnmetConditionError][] - The fulfillment does not match the condition.
 - [TransferNotConditionalError][] - The transfer had no condition to fulfill.
-- [TransferStateError][] - The transfer was not in the `prepared` state when the request was received. This occurs if the transfer has already been executed, rejected, or expired.
+- [TransferStateError][] - The transfer was not in the `prepared` state when the request was received. See [Transfer States][] for more information.
 - [UnprocessableEntityError][] - The request is formatted properly but contains an otherwise-unspecified semantic problem.
 - [InvalidBodyError][] - The request body was not properly-formatted JSON, or did not match the schema for the request.
 
@@ -472,21 +486,24 @@ HTTP/1.1 200 OK
 
 Reject a prepared transfer. A transfer can be rejected if and only if that transfer is in the `prepared` state. Doing so transitions the transfer to the `rejected` state.
 
-**Authorization:** The `credit_account` of a transfer MUST be able to reject the transfer. Any other non-admin user MUST NOT be able to reject the transfer. Admin accounts MAY be able to reject transfers where they are not the `credit_account`.
+**Authorization:** Accounts from the `credits` field of a transfer MUST be able to reject the transfer. Any other non-admin user MUST NOT be able to reject the transfer.
 
 #### Request Format
 
-PUT to the `transfer_rejection` path of the transfer you want to execute, with a JSON object in the message body containing a rejection reason.
+```
+PUT /transfers/{id}/rejection
+Content-Type: text/plain
 
-**Metadata URL Name:** `transfer_rejection`. Suggested generic path: `/transfers/{client_id}/rejection`
+your rejection reason here
+```
+
+**[Metadata URL Name][]:** `transfer_rejection`.
+
+This request MUST use the header `Content-Type: text/plain`.
 
 ##### Body Parameters
 
-The message body should be a JSON object with one top-level field:
-
-| Field              | Value  | Description                                    |
-|:-------------------|:-------|:-----------------------------------------------|
-| `rejection_reason` | String | The reason for rejecting the transfer. This is intended to be a machine-readable identifier. |
+The message body contains the rejection reason as plain text. The rejection reason is an arbitrary string that is intended to be a machine-readable identifier indicating the reason for the transfer's rejection. This string should be no more than 2KB or 512 UTF-8 characters.
 
 #### Response Format
 
@@ -498,11 +515,9 @@ Request:
 
 ```json
 PUT /transfers/3a2a1d9e-8640-4d2d-b06c-84f2cd613204/rejection
-Content-Type: application/json
+Content-Type: text/plain
 
-{
-  "rejection_reason": "BlacklistedSender"
-}
+BlacklistedSender
 ```
 
 Response:
@@ -512,24 +527,19 @@ HTTP/1.1 200 OK
 
 {
   "ledger": "https://red.ilpdemo.org/ledger",
-  "client_id": "63a61fa9-fca2-4779-9d50-49dc691b8fbf",
-  "debit_account": "https://red.ilpdemo.org/ledger/accounts/alice",
-  "credit_account": "https://red.ilpdemo.org/ledger/accounts/bob",
+  "id": "63a61fa9-fca2-4779-9d50-49dc691b8fbf",
+  "debits": [{
+    "account": "https://red.ilpdemo.org/ledger/accounts/alice",
+    "amount": "50",
+    "authorized": true
+  }],
+  "credits": [{
+    "account": "https://red.ilpdemo.org/ledger/accounts/bob",
+    "amount": "50"
+  }],
   "amount": "199.99",
   "execution_condition": "cc:0:3:dB-8fb14MdO75Brp_Pvh4d7ganckilrRl13RS_UmrXA:66",
   "expires_at": "2018-01-01T00:00:00.000Z",
-  "memo": {
-    "ilp_header": {
-      "version": 1,
-      "destinationAddress": "ilpdemo.blue.bob",
-      "destinationAmount": "199.0"
-    }
-  },
-  "note_to_self": {
-    "foo": "bar"
-  },
-  "id": "https://red.ilpdemo.org/ledger/transfers/63a61fa9-fca2-4779-9d50-49dc691b8fbf",
-  "fulfillment": "https://red.ilpdemo.org/ledger/transfers/63a61fa9-fca2-4779-9d50-49dc691b8fbf/fulfillment",
   "state": "rejected",
   "timeline": {
     "prepared_at": "2016-10-21T22:45:01.000Z",
@@ -543,8 +553,8 @@ HTTP/1.1 200 OK
 
 - [NotFoundError][] - The transfer does not exist.
 - [UnprocessableEntityError][] - The request is formatted properly but contains an otherwise-unspecified semantic problem. This includes cases where the transfer has already been executed or rejected.
-- [InvalidBodyError][] - The request body was not properly-formatted JSON, or did not match the schema for the request.
-- [TransferStateError][] - The transfer was not in the `prepared` state when the request was received. This occurs if the transfer has already been rejected or executed.
+- [InvalidBodyError][] - The request's message body was too long or the request did not use the proper Content-Type header (text/plain).
+- [TransferStateError][] - The transfer was not in the `prepared` state when the request was received. See [Transfer States][] for more information.
 
 
 ### Get Transfer
@@ -552,13 +562,15 @@ HTTP/1.1 200 OK
 
 Check the details or status of a local transfer.
 
-**Authorization:** The owners of the `debit_account` and `credit_account` MUST be able to get the transfer. A ledger MAY allow other account owners or unauthorized clients to get a transfer.
+**Authorization:** The accounts from the `credits` and `debits` field of a transfer MUST be able to get that transfer. A ledger MAY allow other account owners or unauthorized clients to get a transfer.
 
 #### Request Format
 
-GET the path in the `id` field of a transfer object.
+```
+GET /transfers/{id}
+```
 
-**Metadata URL Name:** `transfer`. Suggested generic path: `/transfers/{client_id}`
+**[Metadata URL Name][]:** `transfer`. Suggested generic path: `/transfers/{id}`
 
 #### Response Format
 
@@ -569,7 +581,7 @@ A successful result uses the HTTP response code **200 OK** and contains a JSON b
 Request:
 
 ```
-GET /ledger/transfers/63a61fa9-fca2-4779-9d50-49dc691b8fbf
+GET /transfers/63a61fa9-fca2-4779-9d50-49dc691b8fbf
 ```
 
 Response:
@@ -579,24 +591,19 @@ HTTP/1.1 200 OK
 
 {
   "ledger": "https://red.ilpdemo.org/ledger",
-  "client_id": "63a61fa9-fca2-4779-9d50-49dc691b8fbf",
-  "debit_account": "https://red.ilpdemo.org/ledger/accounts/alice",
-  "credit_account": "https://red.ilpdemo.org/ledger/accounts/bob",
+  "id": "63a61fa9-fca2-4779-9d50-49dc691b8fbf",
+  "debits": [{
+    "account": "https://red.ilpdemo.org/ledger/accounts/alice",
+    "amount": "50",
+    "authorized": true
+  }],
+  "credits": [{
+    "account": "https://red.ilpdemo.org/ledger/accounts/bob",
+    "amount": "50"
+  }],
   "amount": "199.99",
   "execution_condition": "cc:0:3:dB-8fb14MdO75Brp_Pvh4d7ganckilrRl13RS_UmrXA:66",
   "expires_at": "2018-01-01T00:00:00.000Z",
-  "memo": {
-    "ilp_header": {
-      "version": 1,
-      "destinationAddress": "ilpdemo.blue.bob",
-      "destinationAmount": "199.0"
-    }
-  },
-  "note_to_self": {
-    "foo": "bar"
-  },
-  "id": "https://red.ilpdemo.org/ledger/transfers/63a61fa9-fca2-4779-9d50-49dc691b8fbf",
-  "fulfillment": "https://red.ilpdemo.org/ledger/transfers/63a61fa9-fca2-4779-9d50-49dc691b8fbf/fulfillment",
   "state": "rejected",
   "timeline": {
     "prepared_at": "2016-10-21T22:45:01.000Z",
@@ -608,8 +615,8 @@ HTTP/1.1 200 OK
 
 #### Errors
 
-- [NotFoundError][]
-- [InvalidUriParameterError][]
+- [NotFoundError][] - No transfer with a matching ID was found.
+- [InvalidUriParameterError][] - The transfer ID from the request was not a valid [UUID][].
 
 
 ### Get Transfer Fulfillment
@@ -617,27 +624,25 @@ HTTP/1.1 200 OK
 
 Retrieve the fulfillment for a transfer that has been executed or rejected. This is separate from the [Transfer resource][] because it can be very large.
 
-**Authorization:** The ledger MUST allow owners of the `credit_account` and `debit_account` to get the transfer's fulfillment. A ledger MAY allow other account owners or unauthorized users to get a transfer's fulfillment.
+**Authorization:** The ledger MUST allow account owners from the account's `debits` and `credits` to get the transfer's fulfillment. A ledger MAY allow other account owners or unauthorized users to get a transfer's fulfillment.
 
 #### Request Format
 
-GET the path specified in the `fulfillment` field of the transfer.
+```
+GET /transfers/{id}/fulfillment
+```
 
-**Metadata URL Name:** `transfer_fulfillment`. Suggested generic path: `/transfers/{client_id}/fulfillment`
+**[Metadata URL Name][]:** `transfer_fulfillment`.
 
 ##### URL Parameters
 
-| Field       | Value | Description                                            |
-|:------------|:------|:-------------------------------------------------------|
-| `client_id` | UUID  | The [UUID][] of the Transfer whose fulfillment to retrieve. |
+| Field | Value | Description                                                 |
+|:------|:------|:------------------------------------------------------------|
+| `id`  | UUID  | The [UUID][] of the Transfer whose fulfillment to retrieve. |
 
 #### Response Format
 
-A successful result uses the HTTP response code **200 OK**. The body contains a JSON object with the following field:
-
-| Field | Value | Description |
-|---|---|---|
-| `fulfillment` | String | The Transfer's [Crypto-Condition Fulfillment][] in text format. |
+A successful result uses the HTTP response code **200 OK** and the header `Content-Type: text/plain`. The body contains the Transfer's [Crypto-Condition Fulfillment][] in text format.
 
 #### Example
 
@@ -649,17 +654,16 @@ GET /transfers/3a2a1d9e-8640-4d2d-b06c-84f2cd613204/fulfillment
 
 Response:
 
-```json
+```
 HTTP/1.1 200 OK
+Content-Type: text/plain
 
-{
-  "fulfillment": "cf:0:_v8"
-}
+cf:0:_v8
 ```
 
 #### Errors
 
-- [NotFoundError][]
+- [NotFoundError][] - The specified transfer does not exist,
 - [InvalidUriParameterError][]
 
 
@@ -672,9 +676,11 @@ Get an account resource.
 
 #### Request Format
 
-GET the path from the `debit_account` or `credit_account` field of a transfer.
+```
+GET /accounts/{name}
+```
 
-**Metadata URL Name:** `account`. Suggested generic path: `/accounts/{name}`
+**[Metadata URL Name][]:** `account`.
 
 #### Response Format
 
@@ -710,6 +716,75 @@ Content-Type: application/json
 - [InvalidUriParameterError][]
 
 
+### Create or Update Account
+[Create or Update Account]: #create-or-update-account
+
+Update an account in the ledger.
+
+**Authorization:** The owner of an account MUST be able to update the account, except for specific fields. An administrator MAY be able to update any fields of any account.
+
+#### Request Format
+
+```
+PUT /accounts/{name}
+```
+
+**[Metadata URL Name][]:** `account`.
+
+##### URL Parameters
+
+| Field  | Type   | Description                                                |
+|:-------|:-------|:-----------------------------------------------------------|
+| `name` | String | The unique name of the account to create or update. MUST match the regular expression `^[a-zA-Z0-9._~-]{1,256}$`. |
+
+##### Request Body
+
+The request is an [Account Resource][]. Any omitted fields are left unchanged.
+
+#### Response Format
+
+A successful response uses the HTTP status code **200 OK** and contains a JSON object with the [Account Resource][] as saved.
+
+#### Example
+
+Request:
+
+```
+PUT /accounts/bob
+Content-Type: application/json
+
+{
+  "name": "bob",
+  "minimum_allowed_balance": "-10000",
+  "fingerprint": "88:90:3a:e7:e5:1c:c4:51:05:4b:0c:2b:3f:41:df:bf:0c:21:f3:78"
+}
+```
+
+Response:
+
+```
+200 OK
+Content-Type: application/json
+
+{
+  "name": "bob",
+  "minimum_allowed_balance": "-10000",
+  "ledger": "https://red.ilpdemo.org/ledger",
+  "is_disabled": false,
+  "fingerprint": "88:90:3a:e7:e5:1c:c4:51:05:4b:0c:2b:3f:41:df:bf:0c:21:f3:78"
+}
+```
+
+#### Errors
+
+- [InvalidBodyError][] - The request was not valid JSON, or did not match the schema for the request.
+- [InvalidUriParameterError][] - One of the URLs, URIs, or UUIDs in the body is not validly formatted.
+- [UnprocessableEntityError][] - The object was syntactically valid but had a semantic issue.
+- [UnauthorizedError][] - The client was not authenticated with permissions to modify the account as requested.
+
+
+
+
 ### Send Message
 [Send Message]: #send-message
 
@@ -719,13 +794,17 @@ Try to send a notification to another account. The message is only delivered if 
 
 #### Request Format
 
-POST a JSON [Message resource][] to the `message` [URL][].
+```
+POST /messages
+```
 
-**Metadata URL Name:** `message`. Suggested generic path: `message`
+**[Metadata URL Name][]:** `message`.
+
+The request body contains a [Message object][] as JSON.
 
 #### Response Format
 
-A successful response uses the HTTP response code **204 No Content** and contains no message body.
+A successful response uses the HTTP response code **201 Created** and contains no message body or an empty message body.
 
 #### Example
 
@@ -738,7 +817,6 @@ Content-Type: application/json
 {
   "from": "https://blue.ilpdemo.ripple.com/ledger/accounts/bob",
   "to": "https://blue.ilpdemo.ripple.com/ledger/accounts/alice",
-  "ledger": "https://blue.ilpdemo.ripple.com/ledger",
   "data": {
     "method": "quote_request",
     "id": "721e4126-98a1-4974-b35a-8a8f4655f934",
@@ -752,9 +830,6 @@ Content-Type: application/json
   }
 }
 ```
-
-**Note:** This example uses the [Interledger Quoting Protocol](https://github.com/interledger/rfcs/blob/master/0008-interledger-quoting-protocol/0008-interledger-quoting-protocol.md) quote request type as example data. However, the `data` field may contain arbitrary objects, so the ledger MUST NOT require a specific format for such data.
-
 
 Response:
 
@@ -778,11 +853,13 @@ Get a token that can be used to authenticate future requests.
 
 #### Request Format
 
-GET the `auth_token` [URL][].
+```
+GET /auth_token
+```
 
 Depending on the [authentication mechanism](#authorization-and-authentication) used by this ledger, the ledger MAY require the HTTP `Auth` header with a valid username and password, or the ledger may require a different method of authentication.
 
-**Metadata URL Name:** `auth_token`.
+**[Metadata URL Name][]:** `auth_token`.
 
 #### Response Format
 
@@ -818,21 +895,35 @@ Content-Type: application/json
 ## WebSocket
 [WebSocket]: #websocket
 
-**Metadata URL Name:** `websocket`. Suggested generic path: `/websocket` (with `wss://` protocol)
+**[Metadata URL Name][]:** `websocket`. Suggested generic path: `/websocket` (with `wss://` protocol)
 
 Clients can subscribe to live, read-only notifications of ledger activity by opening a [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) connection to this path and sending a subscription request.
 
 ### WebSocket Authentication
 
-A ledger MAY require clients to authenticate themselves using a token in the `token` query parameter. If the ledger supports authentication, it MAY restrict the data that can be accessed, as long as it complies with the following rules:
+Clients MUST authenticate themselves with a token from the [Get Auth Token][] method. This token can be supplied in one of two ways:
+
+- In the `token` query parameter. For example:
+
+        wss://red.ilpdemo.org/ledger/websocket/?token=9AtVZPN3t49Kx07stO813UHXv6pcES
+
+- As a "Bearer" token in the `Authorization` HTTP header of the request (before the protocol switch to WebSocket). For example:
+
+        GET /ledger/websocket
+        Authorization: Bearer 9AtVZPN3t49Kx07stO813UHXv6pcES
+        Upgrade: websocket
+
+Clients should prefer to use the `Authorization` header on WebSocket requests, if the client supports it.
+
+A ledger MAY restrict the data that can be accessed, as long as it complies with the following rules:
 
 - An account owner MUST be able to subscribe to changes to its own account.
-- An account owner MUST be able to subscribe to changes to transactions where the account is the `credit_account` _or_ `debit_account`.
+- An account owner MUST be able to subscribe to changes to transactions where the account is the in the `credits` or `debits` fields.
 - An account owner MUST be able to subscribe to messages to its account. Account owners and unauthorized users MUST NOT be able to subscribe to messages to other accounts.
 
 The authentication you use when opening the connection applies to all subscriptions made in the connection.
 
-A ledger MUST support multiple independent WebSocket connections with the same authentication. (This provides connection redundancy for notifications, which is important for ILP connectors.)
+A ledger MUST support multiple independent WebSocket connections with the same authentication. (This provides connection redundancy for notifications, which is helpful for ILP Connectors.)
 
 ### WebSocket Messages
 
@@ -858,15 +949,7 @@ This request replaces any existing account subscriptions on this WebSocket conne
 | `jsonrpc`          | String           | MUST have the value `"2.0"` to indicate this is a JSON-RPC 2.0 request. |
 | `method`           | String           | MUST be the value `"subscribe_account"`. |
 | `params`           | Object           | Information on what subscriptions to open. |
-| `params.eventType` | String           | _(Optional)_ Types of events to subscribe to. May contain a wildcard character. See [Event Types][] for a full list of types. If omitted, subscribes to all event types. |
-| `params.accounts`  | Array            | Each member of this array must be the [URL][] of an account to subscribe to, as a string. This replaces existing subscriptions; if the array length is zero, the client is unsubscribed from all account notifications. |
-
-##### EventType Values
-A client can include a wildcard in the `params.eventType` field to subscribe to a subset of event values. The ledger MUST support at least one trailing `*` as a wildcard character. For example, the following cases should all be valid:
-
-- `transfer.update` - subscribes to events with the exact `event` value `transfer.update` only.
-- `transfer.*` - subscribes to all events with the event value starting in `transfer.`, including at least `transfer.create` and `transfer.update`.
-- `*` - subscribes to all events. (Equivalent to omitting the `eventType` filter when subscribing.)
+| `params.accounts`  | Array            | Each member of this array must be the [URI][] of an account to subscribe to, as a string. This replaces existing subscriptions; if the array length is zero, the client is unsubscribed from all account notifications. |
 
 ##### Response
 The ledger acknowledges the request immediately by sending a JSON object with the following fields:
@@ -931,7 +1014,7 @@ Later, the ledger responds with [notifications](#websocket-notifications) whenev
 
 #### WebSocket Notifications
 
-The ledger sends notifications to connected clients when certain events occur, according to the current subscriptions of the clients. Every notification is sent at most once per WebSocket connection to the ledger, even if a client is subscribed to multiple categories of message that should prompt the same notification. (For example, if you are subscribed to the `credit_account` or `debit_account` of a transfer and subscribed to the transfer itself, you still receive only one notification.)
+The ledger sends notifications to connected clients when certain events occur, according to the current subscriptions of the clients. Every notification is sent at most once per WebSocket connection to the ledger, even if a client is subscribed to multiple categories of message that should prompt the same notification. If a client has multiple connections open, the ledger MUST attempt to send a message on every open connection.
 
 All event notifications from the ledger are in the format of JSON objects with the following fields:
 
@@ -953,7 +1036,7 @@ A ledger MAY define custom `event` types. A ledger MUST support at least the fol
 
 | Value             | Resource              | Description                      |
 |:------------------|:----------------------|:---------------------------------|
-| `transfer.create` | [Transfer resource][] | Occurs when a new transfer is prepared. Sent to clients subscribed to the `debit_account` and/or the `credit_account`. If the transfer is unconditional, this notification indicates the state of the transaction after execution. The `related_resources` field is omitted. |
+| `transfer.create` | [Transfer resource][] | Occurs when a new transfer is prepared. Sent to clients subscribed to the accounts from the `debits` and `credits` fields of the transfer. If the transfer is unconditional, this notification indicates the state of the transaction after execution. The `related_resources` field is omitted. |
 | `transfer.update` | [Transfer resource][] | Occurs when a transfer changes state from `prepared` to `executed` or `rejected`. If the transfer was executed, the `execution_condition_fulfillment` field of `related_resources` MUST contain the fulfillment. If the transfer was rejected, the `related_resources` field is empty. |
 | `message.send`    | [Message resource][]  | Occurs when someone else sends a message. |
 
@@ -966,14 +1049,14 @@ The Common Ledger API may return errors using HTTP codes in the range 400-599, d
 
 Every error response contains at least the following fields:
 
-| Field      | Type   | Description                                            |
-|:-----------|:-------|:-------------------------------------------------------|
-| `error_id` | String | A unique error code for this specific type of error, such as `UnmetConditionError`. |
-| `message`  | String | A longer, human-readable description for the cause of the error. |
+| Field     | Type   | Description                                             |
+|:----------|:-------|:--------------------------------------------------------|
+| `id`      | String | A unique error code for this specific type of error, such as `UnmetConditionError`. |
+| `message` | String | A longer, human-readable description for the cause of the error. |
 
 Errors may also have additional arbitrary fields describing the cause or context of the error.
 
-**Note:** Any fields other than `error_id` and `message` should be considered optional and informational. Clients MUST NOT depend on the presence of those fields. The examples in this spec contain suggestions for additional fields, but those should not be taken as requirements.
+**Note:** Any fields other than `id` and `message` should be considered optional and informational. Clients MUST NOT depend on the presence of those fields. The examples in this spec contain suggestions for additional fields, but those should not be taken as requirements.
 
 ### Unauthorized
 [Unauthorized]: #unauthorized
