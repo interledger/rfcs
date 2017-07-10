@@ -1,10 +1,10 @@
-# Common Ledger API
+# Five Bells Ledger API
 
-The Common Ledger API is a RESTful API served by a ledger (or an adapter), which provides functionality necessary for ILP compatibility. The Common Ledger API provides a single standard API that a ledger can serve in order to ease integration with other Interledger Protocol components and applications, such as the reference ILP Client and ILP Connector. This is not the only way a ledger can become ILP-enabled, but it provides a template that minimizes the integration work necessary for compatibility with ILP software.
+The Five Bells Ledger API is a RESTful API served by a ledger (or an adapter), which provides functionality necessary for ILP compatibility. The Five Bells Ledger API provides a single standard API that a ledger can serve in order to ease integration with other Interledger Protocol components and applications, such as the reference ILP Client and ILP Connector. This is not the only way a ledger can become ILP-enabled, but it provides a template that minimizes the integration work necessary for compatibility with ILP software.
 
 ## Overview
 
-The Common Ledger API defines the following data types and structures:
+The Five Bells Ledger API defines the following data types and structures:
 
 - [Transfer resource][]
 - [Account resource][]
@@ -42,7 +42,7 @@ The API is designed to be [RESTful](https://en.wikipedia.org/wiki/Representation
 
 ### JSON
 
-All methods communicate both ways using [JavaScript Object Notation (JSON)](http://www.json.org/) unless otherwise specified. A ledger MUST use the `Content-Type: application/json` header in responses to indicate that the message body contains JSON. A ledger MAY honor the `Accept` header of the request and return the data in other formats if the client requests them. A ledger MAY interpret the message bodies of requests (PUT and POST methods) as JSON, even if the `Content-Type` header is missing or indicates a different format. The Common Ledger API uses HTTP status codes to indicate the status of API operations; if the ledger encounters an error processing a request, it MUST NOT return an HTTP status code in the 200-299 range even if communication was successful.
+All methods communicate both ways using [JavaScript Object Notation (JSON)](http://www.json.org/) unless otherwise specified. A ledger MUST use the `Content-Type: application/json` header in responses to indicate that the message body contains JSON. A ledger MAY honor the `Accept` header of the request and return the data in other formats if the client requests them. A ledger MAY interpret the message bodies of requests (PUT and POST methods) as JSON, even if the `Content-Type` header is missing or indicates a different format. The Five Bells Ledger API uses HTTP status codes to indicate the status of API operations; if the ledger encounters an error processing a request, it MUST NOT return an HTTP status code in the 200-299 range even if communication was successful.
 
 Field names in the JSON objects defined by this API never contain literal period (`.`) characters. By convention, this documentation uses the `.` character to indicate fields nested inside other Object-type fields. In some cases, field values contain literal period (`.`) characters. Additionally, this field contains some objects that can hold arbitrary data. Arbitrary-data objects can contain any legal JSON, including field names with literal period (`.`) characters. Arbitrary-data objects SHOULD NOT contain duplicate keys.
 
@@ -51,7 +51,7 @@ Field names in the JSON objects defined by this API never contain literal period
 [amount]: #amounts
 [Amounts]: #amounts
 
-The Common Ledger API represents numeric currency amounts as strings rather than native JSON numbers. This is because many standard libraries automatically decode numbers to a [IEEE 754 double precision floating point](https://en.wikipedia.org/wiki/IEEE_floating_point) representation. Using IEEE 754 double floats can introduce a loss of precision and rounding errors that are unacceptable for financial services, depending on the range and use cases needed. (In particular, digital assets that are natively represented as 64-bit unsigned integers do not fit properly into IEEE 754 double precision floats.) Amounts in the Common Ledger API MUST match the following regular expression:
+The Five Bells Ledger API represents numeric currency amounts as strings rather than native JSON numbers. This is because many standard libraries automatically decode numbers to a [IEEE 754 double precision floating point](https://en.wikipedia.org/wiki/IEEE_floating_point) representation. Using IEEE 754 double floats can introduce a loss of precision and rounding errors that are unacceptable for financial services, depending on the range and use cases needed. (In particular, digital assets that are natively represented as 64-bit unsigned integers do not fit properly into IEEE 754 double precision floats.) Amounts in the Five Bells Ledger API MUST match the following regular expression:
 
 `^[-+]?[0-9]*[.]?[0-9]+([eE][-+]?[0-9]+)?$`
 
@@ -60,9 +60,9 @@ Client applications can decode numeric strings to whatever representation provid
 
 ### Assets and Currency
 
-The Common Ledger API provides access to a ledger containing a single currency or asset. The [Get Ledger Metadata][] method reports the type of asset or currency used.
+The Five Bells Ledger API provides access to a ledger containing a single currency or asset. The [Get Ledger Metadata][] method reports the type of asset or currency used.
 
-If a provider supports multiple currencies or assets, the provider can serve Common Ledger APIs separately for each such asset by serving it from a different prefix. For example, the [Prepare Transfer][] method could be available at all the following locations:
+If a provider supports multiple currencies or assets, the provider can serve Five Bells Ledger APIs separately for each such asset by serving it from a different prefix. For example, the [Prepare Transfer][] method could be available at all the following locations:
 
 - `POST https://ledger.example.com/TZS/transfers`
 - `POST https://ledger.example.com/KES/transfers`
@@ -83,7 +83,7 @@ There are several ways to "add" money to the ledger. A ledger MAY use any or all
 
 ### Scope
 
-The Common Ledger API defines one way to implement sufficient functionality to operate a ledger. It is not intended to be an optimal or ideal ledger, especially since such a thing is subjective or at least hard to quantify. (Indeed, Interledger itself was conceived from the conclusion that no one ledger can serve the needs of every person in existence.) In general, this specification reflects to the existing [Five Bells Ledger reference implementation](https://github.com/interledgerjs/five-bells-ledger) so that others may implement compatible software.
+The Five Bells Ledger API defines one way to implement sufficient functionality to operate a ledger. It is not intended to be an optimal or ideal ledger, especially since such a thing is subjective or at least hard to quantify. (Indeed, Interledger itself was conceived from the conclusion that no one ledger can serve the needs of every person in existence.) In general, this specification reflects to the existing [Five Bells Ledger reference implementation](https://github.com/interledgerjs/five-bells-ledger) so that others may implement compatible software.
 
 
 ### Authorization and Authentication
@@ -112,7 +112,7 @@ A ledger MAY define additional authorization levels, especially for functions th
 A transfer represents money being moved around _within a single ledger_. A transfer debits one or more accounts and credits one or more accounts, such that the sum of all credits equals the sum of all debits. A transfer can be conditional upon a supplied [Crypto-Condition][], in which case it executes automatically when presented with the fulfillment for the condition. (Assuming the transfer has not expired or been rejected first.) If no Crypto-Condition is specified, the transfer is unconditional, and executes as soon as it is prepared.
 
 
-A transfer object contains the fields from the following table. Some fields are _Ledger-provided_, meaning they cannot be set directly by clients. Fields that are "Optional" or "Ledger-provided" in the following table may be omitted by clients submitting transfer objects to the API, but **those fields are not optional to implement**. All fields, including the `memo` fields, must be implemented for the Common Ledger API to work properly. Fields of nested objects are indicated with a dot (`.`) character; no field names contain a dot literal.
+A transfer object contains the fields from the following table. Some fields are _Ledger-provided_, meaning they cannot be set directly by clients. Fields that are "Optional" or "Ledger-provided" in the following table may be omitted by clients submitting transfer objects to the API, but **those fields are not optional to implement**. All fields, including the `memo` fields, must be implemented for the Five Bells Ledger API to work properly. Fields of nested objects are indicated with a dot (`.`) character; no field names contain a dot literal.
 
 | Name                   | Type                 | Description                  |
 |:-----------------------|:---------------------|:-----------------------------|
@@ -218,7 +218,7 @@ The [Crypto-Conditions spec](https://github.com/interledger/rfcs/tree/master/000
 
 Conditions are distributable event descriptions, and fulfillments are cryptographically verifiable messages that prove an event occurred. If you transmit a fulfillment, then everyone who has the corresponding condition can agree that the condition has been met.
 
-Crypto-conditions control the execution of conditional transfers. The Common Ledger API supports conditions and fulfillments in string format.
+Crypto-conditions control the execution of conditional transfers. The Five Bells Ledger API supports conditions and fulfillments in string format.
 
 The Crypto-Conditions specification anticipates that it will need to expand to keep up with changes in the field of cryptography, so conditions always define which rules and algorithms are necessary to verify the fulfillment. Implementations can use the condition's feature list to determine if they can properly process the fulfillment, without having seen the fulfillment itself.
 
@@ -241,7 +241,7 @@ The [five-bells-condition](https://github.com/interledgerjs/five-bells-condition
 [Metadata URL Name]: #urls
 [RFC6570]: https://tools.ietf.org/html/rfc6570
 
-The Common Ledger API uses URLs as the main way of identifying and looking up resources in the API. These URLs should be formatted as valid _absolute URLs_ in accordance with the [WHATWG URL Living Standard](https://url.spec.whatwg.org/). The URLs SHOULD use the `https:` scheme, except for some [WebSocket][] paths that use the `wss:` scheme instead. In development or private subnetworks, `http:` and `ws:` are acceptable instead.
+The Five Bells Ledger API uses URLs as the main way of identifying and looking up resources in the API. These URLs should be formatted as valid _absolute URLs_ in accordance with the [WHATWG URL Living Standard](https://url.spec.whatwg.org/). The URLs SHOULD use the `https:` scheme, except for some [WebSocket][] paths that use the `wss:` scheme instead. In development or private subnetworks, `http:` and `ws:` are acceptable instead.
 
 The `urls` field of the [Get Ledger Metadata][] method returns a list of paths to other API methods. Each member of the `urls` field describes one path, which MUST be an HTTP(S)-formatted URL unless otherwise specified. Some paths contain [RFC6570][]-formatted variable sections in curly braces. The `urls` field MUST include all of the following:
 
@@ -1045,7 +1045,7 @@ If a ledger creates custom event types, their values should follow the conventio
 
 ## API Error Codes
 
-The Common Ledger API may return errors using HTTP codes in the range 400-599, depending on the type of error. The message body of the error response is a JSON object with additional information about the nature of the error.
+The Five Bells Ledger API may return errors using HTTP codes in the range 400-599, depending on the type of error. The message body of the error response is a JSON object with additional information about the nature of the error.
 
 Every error response contains at least the following fields:
 
