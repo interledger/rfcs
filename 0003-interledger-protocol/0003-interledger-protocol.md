@@ -68,7 +68,7 @@ The protocol uses transfer holds to ensure a sender's funds are delivered to the
                 Local Ledger 1          Local Ledger 2
 
 
-1. The sending application uses a higher-level protocol to negotiate the address, an amount, and a cryptographic condition with the destination. It calls on the interledger module to send a payment with these parameters.
+1. The sending application uses a higher-level protocol to negotiate the address, an amount, a cryptographic condition, and a timeout with the destination. It calls on the interledger module to send a payment with these parameters.
 
 2. The interledger module prepares the ILP packet, chooses the account to send the local ledger transfer to, and passes them to the local ledger interface.
 
