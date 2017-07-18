@@ -1,3 +1,7 @@
+---
+title: Glossary
+draft: 1
+---
 # Glossary
 
 ## Account

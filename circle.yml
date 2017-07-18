@@ -7,8 +7,6 @@ machine:
     - git config --global push.default simple
 test:
   override:
-    - echo "no tests"
-  post:
     # Generate graphs for specs
     - node scripts/generate_graphs.js
     # Generate specs for website

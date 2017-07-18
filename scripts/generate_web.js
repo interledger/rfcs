@@ -7,6 +7,7 @@ const path = require('path')
 const exec = require('child_process').execSync
 const marked = require('marked')
 const cheerio = require('cheerio')
+const fm = require('front-matter')
 
 // We need a custom renderer to make sure we generate the same header IDs as
 // Github.
@@ -18,15 +19,15 @@ renderer.heading = function (text, level, raw) {
     .replace(/ /g, '-')
 
   return '<h'
-  + level
-  + ' id="'
-  + this.options.headerPrefix
-  + candidateId
-  + '">'
-  + text
-  + '</h'
-  + level
-  + '>\n';
+    + level
+    + ' id="'
+    + this.options.headerPrefix
+    + candidateId
+    + '">'
+    + text
+    + '</h'
+    + level
+    + '>\n';
 }
 
 // Override relative links from .md files to the base folder
@@ -46,12 +47,44 @@ exec('cp -r asn1 web/asn1', { cwd })
 
 const template = ejs.compile(fs.readFileSync('tmpl/rfc.ejs.html', 'utf8'))
 const files = glob.sync('????-*/????-*.md')
+let buildPass = true
 
 files.forEach((file) => {
-  const markdownContent = fs.readFileSync(file, 'utf8')
-  const renderedMarkdown = marked(markdownContent, { renderer })
+
+  const fileContent = fs.readFileSync(file, 'utf8')
+  const fmContent = fm(fileContent)
+
+  if(fmContent.attributes.deprecated) {
+    console.log("Skipped deprecated RFC in " + file)
+    return
+  }
+
+  if(!fmContent.attributes.title) {
+    buildPass = false;
+    console.error("No title specified for " + file)
+    return
+  }
+  const title = fmContent.attributes.title
+
+  if(!fmContent.attributes.draft) {
+    buildPass = false;
+    console.error("Draft number required for " + file)
+    return
+  }
+  const draftNumber = fmContent.attributes.draft
+
+  if((draftNumber^0) !== draftNumber && draftNumber !== 'FINAL') {
+    buildPass = false;
+    console.error("Invalid draft number found for " + file)
+    return
+  }
+
+  const renderedMarkdown = marked(fmContent.body, { renderer })
   const $ = cheerio.load(renderedMarkdown)
-  const title = $('h1').text()
+  
+  const permalink = './draft-' + draftNumber + '.html'
+  const draftFile = 'web/' + path.dirname(file) + '/draft-' + draftNumber + '.html'
+  const indexFile = 'web/' + path.dirname(file) + '/index.html'
 
   // Ensure heading IDs are unique
   const idMap = new Map()
@@ -91,10 +124,25 @@ files.forEach((file) => {
   $('img').addClass('img-responsive')
 
   const content = $.html()
+  const renderedHtml = template({ title, content, toc, permalink })
 
-  const renderedHtml = template({ title, content, toc })
+  //Versioning
+  if (fs.existsSync(draftFile)) {
+    const existingHtml = fs.readFileSync(draftFile, 'utf8')
+    if (existingHtml != renderedHtml) {
+      console.error('Draft number must be incremented if content is changed for ' + file)
+      buildPass = false
+      return
+    }
+    console.log('No changes in ' + file)
+    return
+  }
 
-  fs.writeFileSync('web/' + path.dirname(file) + '/index.html', renderedHtml)
+  console.log('Writing ' + draftFile)
+  fs.writeFileSync(draftFile, renderedHtml)
+  console.log('Writing ' + indexFile)
+  fs.writeFileSync(indexFile, renderedHtml)
+
 })
 
 cwd = path.resolve(__dirname, '../web')
@@ -104,3 +152,5 @@ if (!status.length) {
 } else {
   console.log(status)
 }
+
+process.exit(buildPass ? 0 : 1)
