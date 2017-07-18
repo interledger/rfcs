@@ -1,3 +1,7 @@
+---
+title: Plugin RPC API
+draft: 1
+---
 # Plugin RPC API
 
 ## Description
