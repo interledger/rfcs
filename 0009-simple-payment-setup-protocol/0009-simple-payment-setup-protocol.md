@@ -1,3 +1,7 @@
+---
+title: The Simple Payment Setup Protocol (SPSP)
+draft: 1
+---
 # Simple Payment Setup Protocol (SPSP)
 
 ## Preface

@@ -1,3 +1,7 @@
+---
+title: Interledger Architecture
+draft: 1
+---
 # Interledger Architecture
 
 Interledger provides for secure payments across multiple assets on different ledgers. The architecture consists of a conceptual model for interledger payments, a mechanism for securing payments, and a suite of protocols that implement this design.

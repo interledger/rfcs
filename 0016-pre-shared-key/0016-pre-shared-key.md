@@ -1,4 +1,8 @@
-# Pre-Shared Key Transport Protocol
+---
+title: The Pre-Shared Key Transport Protocol (PSK)
+draft: 1
+---
+# Pre-Shared Key Transport Protocol (PSK)
 
 The Pre-Shared Key (PSK) protocol is an end-to-end transport protocol, used by the sender and receiver of an ILP payment to decide on a condition and fulfillment for a payment. By default, the protocol also encrypts any additional data sent along with the payment, using [AES-256-GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode). The full ILP payment is authenticated through an [HMAC-SHA-256](https://en.wikipedia.org/wiki/Hash-based_message_authentication_code) which is used to generate the fulfillment of a PSK payment. The entirety of the PSK data, including public headers, encrypted private headers, and encrypted private data, is encoded into an octet-stream that forms the data portion of the [ILP Packet](https://github.com/interledger/rfcs/blob/master/0003-interledger-protocol/0003-interledger-protocol.md). The PSK data is authenticated via AES-256-GCM in addition to the HMAC-SHA-256 which authenticates the full ILP payment.
 

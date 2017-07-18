@@ -1,3 +1,7 @@
+---
+title: Connector Risk Mitigations
+draft: 1
+---
 # Connector Risk Mitigations
 
 Interledger connectors take some risk in exchange for the revenue they generate from facilitating payments. This document outlines the major categories of risks connectors face and suggests some possible mitigations.
