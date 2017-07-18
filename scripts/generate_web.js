@@ -51,6 +51,7 @@ let buildPass = true
 
 files.forEach((file) => {
 
+  const rfcNumber = file.match(/^(\d\d\d\d)/)[0]
   const fileContent = fs.readFileSync(file, 'utf8')
   const fmContent = fm(fileContent)
 
@@ -124,7 +125,7 @@ files.forEach((file) => {
   $('img').addClass('img-responsive')
 
   const content = $.html()
-  const renderedHtml = template({ title, content, toc, draftNumber })
+  const renderedHtml = template({ title, content, toc, rfcNumber, draftNumber })
 
   //Versioning
   if (fs.existsSync(draftFile)) {
