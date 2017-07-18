@@ -124,7 +124,7 @@ files.forEach((file) => {
   $('img').addClass('img-responsive')
 
   const content = $.html()
-  const renderedHtml = template({ title, content, toc, permalink })
+  const renderedHtml = template({ title, content, toc, draftNumber })
 
   //Versioning
   if (fs.existsSync(draftFile)) {
