@@ -8,7 +8,65 @@ draft: 2
 
 Connectors discover their peers through out-of-band communication, or by looking at https://connector.land and contacting the administrator of another connector.
 
-Once peered, two connectors have a ledger between them; this is often a ledger with just two accounts, often administered collaboratively by the two connectors.
+Once peered, two connectors have a ledger between them; this is often a ledger with just two accounts.
+
+There are two ways for connectors to peer with each other: symmetric, and asymmetric. In symmetric peering, the ledger between the two connectors is administered
+collaboratively by the two connectors, optionally relying on a trusted third party (validator). In asymmetric peering, the ledger is administered by one of the two
+peers, and the other peer only keeps a non-authoritative shadow ledger.
+
+Regardless of whether the connectors peer symmetrically or asymmetrically, the initiating connector somehow needs to exchange information with the other connector.
+WebFinger can help with that.
+
+Whether discovery is done with or without use of WebFinger, each peer ends up knowing:
+
+* the protocol to use to send information like route broadcasts to the other connector
+* the protocol to use to add updates to the peering ledger
+* the currency code for the peering ledger
+* the currency scale for the peering ledger
+
+### WebFinger-based discovery
+In WebFinger-based discovery, both peers still need some out-of-band communication channel, over which one
+prospective peer tells the other:
+* their intent, "Let's peer using WebFinger!"
+* their own hostname
+* the currency code they propose for the peer ledger
+* the ledger scale they propose for the peer ledger
+
+And the other peer response with:
+* their agreement, "OK, let's peer using WebFinger for discover, and using that currency code and scale for the peer ledger!"
+* their own hostname
+
+Now, both peers look up each other's host resource, for instance:
+
+* the server wallet1.com looks up https://wallet2.com/.well-known/webfinger?resource=https://wallet2.com
+* the server wallet2.com looks up https://wallet1.com/.well-known/webfinger?resource=https://wallet1.com
+
+This way, each peer has the other peer's public key. They now use ECDH to create a shared secret, from which a ledger prefix and an auth token are derived,
+as implemented in [ilp-kit](https://github.com/interledgerjs/ilp-kit).
+
+### Discovery without WebFinger
+When the two connectors do their discovery without WebFinger, the first peer tells the other:
+* their intent, "Let's peer without WebFinger!"
+* a BTP URI for the other connector to use
+* a BTP version to use (currently either 'BTP/alpha' or 'BTP/1.0')
+* the currency code they propose for the peer ledger
+* the ledger scale they propose for the peer ledger
+
+And the other peer responds by connecting to the WebSocket indicated by the BTP URI and the protocol version. A BTP URI has one of the following formats:
+* `btp+<protocol>://<auth_username>:<auth_token>@<url>`
+* `btp+<protocol>://<auth_username>@<url>` // `auth_token === ''` is implied
+* `btp+<protocol>://<url>` // `auth_username === ''` and `auth_token === ''` are implied
+
+The `<protocol>` is either 'ws' or 'wss'. The `<url>` needs to contain a hostname, and may contain a port identifier and path part.
+
+Examples:
+* 'btp+ws://localhost:8000'
+* 'btp+wss://someUsername:someToken@amundsen.michielbdejong.com/api/17q3'
+
+Both connector-to-connector messages and ledger updates will then be transported over the BTP WebSocket.
+
+Note that one peer will play the role of WebSocket server, and the other peer will play the role of WebSocket client. Often, but not necessarily, the peer
+playing the server role will also administer the peer ledger, and the peer playing the client role will only keep a shadow ledger.
 
 ## Route broadcasts
 
