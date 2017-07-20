@@ -1,6 +1,6 @@
 ---
 title: The Simple Payment Setup Protocol (SPSP)
-draft: 1
+draft: 2
 ---
 # Simple Payment Setup Protocol (SPSP)
 
@@ -57,7 +57,7 @@ We assume that the sender knows the receiver's SPSP endpoint (see [Appendix A: (
 
 ## Specification
 
-The SPSP endpoint is a URI used by the sender to query information about the sender and set up payments. The SPSP endpoint URI MAY contain query string parameters. The sender SHOULD treat the URI as opaque.
+The SPSP endpoint is a URI used by the sender to query information about the receiver and set up payments. The SPSP endpoint URI MAY contain query string parameters. The sender SHOULD treat the URI as opaque.
 
 The SPSP Endpoint MUST respond to HTTPS `GET` requests in the following manner:
 
