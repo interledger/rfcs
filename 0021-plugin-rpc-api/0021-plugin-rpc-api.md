@@ -1,6 +1,6 @@
 ---
 title: Plugin RPC API
-draft: 1
+draft: 2
 ---
 # Plugin RPC API
 
@@ -91,6 +91,7 @@ Authorization: Bearer ABCXYZ
 [
   {
     "ledger": "peer.me.",
+    "from": "peer.me.P74ZwUNQr3QFK7UjCU4Is9ZuWUHtMqIuA",
     "to": "peer.me.Y_luxphkAy6ddYzuXb9lXxS60zg5tHjrPh8zz_BfwEA",
     "custom": {
       "method": "broadcast_routes",
@@ -103,8 +104,8 @@ Authorization: Bearer ABCXYZ
           "paths": [ [] ],
           "source_account": "peer.me.P74ZwUNQr3QFK7UjCU4Is9ZuWUHtMqIuA"
         } ],
-        hold_down_time: 600000,
-        unreachable_through_me: []
+        "hold_down_time": 600000,
+        "unreachable_through_me": []
       }
     }
   }
