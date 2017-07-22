@@ -88,12 +88,14 @@ The Five Bells Ledger API defines one way to implement sufficient functionality 
 
 ### Authorization and Authentication
 
-The ledger MUST authenticate API clients. HTTP(S) methods MUST use one of the following systems for authentication:
+The ledger MUST authenticate API clients. The RECOMMENDED method of authentication is **Token Authentication**, with tokens being served by the [Get Auth Token][] method. The Get Auth Token method SHOULD be strictly rate limited and authenticated with a secondary authentication mechanism, such as:
 
 - [HTTP Basic Auth](https://tools.ietf.org/html/rfc2617#section-2)
 - [TLS Client Certificates](https://tools.ietf.org/html/rfc5246#section-7.4.6)
 
-Additionally, the ledger MUST authenticate [WebSocket][] connections with token-based authentication. See also: [Get Auth Token][].
+The ledger MUST authenticate [WebSocket][] connections with token-based authentication.
+
+A ledger MAY allow clients to authenticate HTTPS methods other than the Get Auth Token method using HTTP Basic Auth or TLS Client Certificates. This is NOT RECOMMENDED, especially if the ledger faces the public internet, because it makes it easier for unauthorized clients to put load on (that is, DDoS) the ledger.
 
 The ledger MUST support authenticating a client in one of the following roles:
 
@@ -116,7 +118,7 @@ A transfer object contains the fields from the following table. Some fields are 
 
 | Name                   | Type                 | Description                  |
 |:-----------------------|:---------------------|:-----------------------------|
-| `id`                   | [UUID][]             | Client-provided UUID for this resource. MUST be unique within the ledger. The path to the [Get Transfer][] method includes this identifier. See [Transfer IDs][] for more information. |
+| `id`                   | [URL][]              | Client-provided ID for this resource, including a [UUID][], in the format of the [Get Transfer][] URL. MUST be unique within the ledger. See [Transfer IDs][] for more information. |
 | `credits`              | Array of Objects     | Array of objects defining which accounts receive how much in this transfer. A ledger MAY restrict this to length 1. |
 | `debits`               | Array of Objects     | Array of objects defining which accounts send how much in this transfer. A ledger MAY restrict this to length 1. |
 | `cancellation_condition` | [Crypto-Condition][] | _(Optional)_ The condition for canceling the transfer. This field is OPTIONAL to implement. (It is no longer used by other ILP reference implementations.) MUST NOT be present unless the transfer has an `execution_condition`.  |
@@ -143,15 +145,16 @@ The `credits` and `debits` fields contain objects defining how much to debit or 
 | `memo`       | Object  | _(Optional)_ Arbitrary object with additional information about this credit or debit.  |
 | `authorized` | Boolean | _(Optional, debit objects only)_ Whether this account has authorized this transfer. The ledger MUST NOT allow a request to set this value to `true` unless the client is authenticated as an Administrator or as the owner of this account. |
 
-**Note:** Ledgers MUST implement the `memo` field. ILP clients use this field to store the ILP Packet object. Specifically, the reference ILP Client puts the ILP Packet as a base64url-encoded string in the the `ilp` field of the `memo` of the credit to the Connector.
+**Note:** Ledgers MUST implement the `memo` field. ILP clients use this field to store the ILP Packet object. Specifically, the reference ILP Client puts the ILP Packet as a base64url-encoded string in the the `ilp` field of the `memo` of the credit to the Connector. To support any possible ILP Packet, the maximum size of the `memo` field MUST be at least **46 kilobytes**.
 
 
 #### Transfer IDs
 [Transfer IDs]: #transfer-ids
+[Transfer ID]: #transfer-ids
 
-The transfer's `id` field is one of the main ways of identifying the transfer; it is unique across the ledger, so implementations MAY use it as a primary unique key in a database. The client applications, not the ledger, generate the `id`, so the ledger SHOULD require that the field match the canonical form for a [UUID][], which is 32 lowercase hexadecimal digits, separated by hyphens into groups of 8-4-4-4-12.
+The transfer's `id` field is one of the main ways of identifying the transfer; it is unique across the ledger, so implementations MAY use it as a primary unique key in a database. The client applications, not the ledger, generate the `id`, so the ledger SHOULD require that the field match the proper form. If a client attempts to create a transfer with an `id` that already exists, the attempt MUST fail. (This protects clients from accidentally submitting the same transfer twice or more.)
 
-If a client attempts to create a transfer with an `id` that already exists, the attempt MUST fail. (This protects clients from accidentally submitting the same transfer twice or more.)
+The form for a transfer ID is the ledger's `transfer` [URL][], with a [UUID][] in canonical form as the `{id}` parameter. The UUID MUST be formatted as 32 lowercase hexadecimal digits separated by hyphens into groups of 8-4-4-4-12.
 
 Depending on what algorithm clients use to generate UUIDs, it may be possible for other account owners to guess in advance which UUIDs might be used, and could preemptively claim `id` values that other account owners might use. A ledger MAY discourage this "squatting" behavior by imposing a limit on how many new transfers an account can generate within a fixed period of time, or with other similar limits. (A ledger could also address this issue in other ways, such as charging a fee for preparing transfers.) Client applications SHOULD use a sufficiently hard-to-predict system for generating UUIDs, such as the random algorithm described in [RFC4122](https://www.ietf.org/rfc/rfc4122). Client applications SHOULD NOT use the same ID to indicate related transfers in multiple ledgers: such behavior can be easily exploited by third parties who claim an ID in a ledger as soon as it gets used in a different ledger.
 
@@ -298,17 +301,24 @@ GET /
 
 A successful result uses the HTTP response code **200 OK** and contains a JSON object with the following fields. (A field name like `foo[].bar` indicates that the row describes the field `bar` in _each_ object contained in the array `foo`.)
 
-| Field               | Value              | Description                       |
-|:--------------------|:-------------------|:----------------------------------|
+| Field             | Value     | Description                                  |
+|:------------------|:----------|:---------------------------------------------|
 | `currency_code`   | String    | Three-letter ([ISO 4217](http://www.xe.com/iso4217.php)) code of the currency this ledger tracks. |
 | `currency_symbol` | String    | Currency symbol to use in user interfaces for the currency represented in this ledger. For example, "$". |
-| `ilp_prefix`        | String             | The ILP Address Prefix of the ledger. This must match the definition from [IL-RFC-15: ILP Addresses](https://github.com/interledger/rfcs/blob/master/0015-ilp-addresses/0015-ilp-addresses.md). |
-| `connectors`        | Array of [URLs][URL] | Accounts belonging to _recommended_ ILP Connectors. Each member of this list MUST be an HTTP(S) URL where a client can [get the connector's ledger account][Get Account]. This list MAY be empty. |
-| `precision`         | Integer            | How many total decimal digits of precision this ledger uses to represent currency amounts. |
-| `scale`             | Integer            | How many digits after the decimal place this ledger supports in currency amounts. |
-| `urls`              | Object             | Paths to other methods exposed by this ledger. Each field name is short name for a method and the value is the path to that method. Some fields MUST be present; see [URLs][] for details. |
-| `rounding`          | String             | _(Optional)_ The type of rounding used internally by ledger for values that exceed the reported `scale` or `precision`. If provided, the value MUST be `floor`, `ceiling`, or `nearest`. |
-| ...                 | (Various)          | _(Optional)_ Additional arbitrary values as desired. |
+| `ilp_prefix`      | String    | The ILP Address Prefix of the ledger. This must match the definition from [IL-RFC-15: ILP Addresses](https://github.com/interledger/rfcs/blob/master/0015-ilp-addresses/0015-ilp-addresses.md). |
+| `connectors`      | Array     | Array of _recommended_ ILP Connectors. Each member of this list MUST be an object with two fields, as described below. This list MAY be empty. |
+| `precision`       | Integer   | How many total decimal digits of precision this ledger uses to represent currency amounts. |
+| `scale`           | Integer   | How many digits after the decimal place this ledger supports in currency amounts. |
+| `urls`            | Object    | Paths to other methods exposed by this ledger. Each field name is short name for a method and the value is the path to that method. Some fields MUST be present; see [URLs][] for details. |
+| `rounding`        | String    | _(Optional)_ The type of rounding used internally by ledger for values that exceed the reported `scale` or `precision`. If provided, the value MUST be `floor`, `ceiling`, or `nearest`. |
+| ...               | (Various) | _(Optional)_ Additional arbitrary values as desired. |
+
+Each member of the `connectors` array MUST have the following fields:
+
+| Field  | Value   | Description                                               |
+|:-------|:--------|:----------------------------------------------------------|
+| `id`   | [URL][] | HTTP(S) URL where a client can [get the connector's account at this ledger][Get Account]. |
+| `name` | String  | The connector's unique username in this ledger.           |
 
 #### Example
 
@@ -355,6 +365,8 @@ Prepares a new transfer (conditional or unconditional) in the ledger, or updates
 
 An unconditional transfer executes automatically as soon as all debits are authorized. A conditional transfer holds the debited funds until it is executed by the [Submit Fulfillment][] method or it is rejected. See [Transfer States][] for more information.
 
+A ledger SHOULD reject a request to create a `proposed` transfer, unless the client is authenticated as one of the accounts in the `debits` or `credits` of the transfer, or the client is authenticated as an administrator.
+
 **Authorization:** The owner of an account MUST be able to prepare a conditional transfer that debits the account. Non-administrators MUST NOT be able to prepare a transfer that debits a different account. A ledger MAY disallow non-administrators from preparing unconditional transfers.
 
 #### Request Format
@@ -367,9 +379,9 @@ PUT /transfers/{id}
 
 ##### URL Parameters
 
-| Field | Value | Description |
-|-------|-------|-------------|
-| `id`  | UUID | A new [UUID][] to identify this Transfer. |
+| Field | Value   | Description                                               |
+|:------|:--------|:----------------------------------------------------------|
+| `id`  | [URL][] | A new [Transfer ID][] URL, including a [UUID][]. |
 
 ##### Body Parameters
 
@@ -388,7 +400,7 @@ PUT /transfers/3a2a1d9e-8640-4d2d-b06c-84f2cd613204
 Content-Type: application/json
 
 {
-  "id": "3a2a1d9e-8640-4d2d-b06c-84f2cd613204",
+  "id": "https://red.ilpdemo.org/ledger/transfers/3a2a1d9e-8640-4d2d-b06c-84f2cd613204",
   "debits": [{
     "account": "https://red.ilpdemo.org/ledger/accounts/alice",
     "amount": "50",
@@ -409,6 +421,25 @@ Response:
 HTTP/1.1 200 OK
 
 
+{
+  "id": "https://red.ilpdemo.org/ledger/transfers/3a2a1d9e-8640-4d2d-b06c-84f2cd613204",
+  "ledger": "https://red.ilpdemo.org/ledger/",
+  "debits": [{
+    "account": "https://red.ilpdemo.org/ledger/accounts/alice",
+    "amount": "50",
+    "authorized": true
+  }],
+  "credits": [{
+    "account": "https://red.ilpdemo.org/ledger/accounts/bob",
+    "amount": "50"
+  }],
+  "execution_condition": "cc:0:3:8ZdpKBDUV-KX_OnFZTsCWB_5mlCFI3DynX5f5H2dN-Y:2",
+  "expires_at": "2015-06-16T00:00:01.000Z",
+  "state": "prepared",
+  "timeline": {
+    "prepared_at": "2015-06-15T10:33:01.461Z"
+  }
+}
 ```
 
 #### Errors
@@ -888,7 +919,7 @@ Content-Type: application/json
 #### Errors
 
 - [Unauthorized][]
-
+- [Forbidden][]
 
 
 
@@ -1064,8 +1095,7 @@ Errors may also have additional arbitrary fields describing the cause or context
 The [authentication information](#authorization-and-authentication) supplied to this request was insufficient for one of the following reasons:
 
 - This method requires authentication but none was provided
-- The credentials were provided using a system not supported by this method (e.g. Basic Auth when Client Certificates are required)
-- The credentials were malformed or don't match the known account information
+- The credentials were provided using a system not supported by this method. (For example, using Basic Auth on a method that requires token authentication.)
 
 A ledger MAY return any message body using any content type with this error. (This makes it easier to use proxy servers and stock server configuration to handle authorization.)
 
@@ -1076,6 +1106,28 @@ HTTP/1.1 401 Unauthorized
 
 {
   "error_id": "Unauthorized",
+  "message": "Auth token not found"
+}
+```
+
+
+### Forbidden
+[Forbidden]: #forbidden
+
+The request provided
+
+- The credentials were malformed or don't match the known account information
+- The authenticated role does not have permission to perform the requested operation
+
+A ledger MAY return any message body using any content type with this error. (This makes it easier to use proxy servers and stock server configuration to handle authorization.)
+
+**HTTP Status Code:** 403 Forbidden
+
+```json
+HTTP/1.1 403 Forbidden
+
+{
+  "error_id": "Forbidden",
   "message": "Client certificate doesn't match known fingerprint"
 }
 ```
