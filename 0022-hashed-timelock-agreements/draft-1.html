@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Payments across payment networks">
+
+    <title>Hashed-Timelock Agreements (HTLAs) | Interledger</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link href="/css/monokai-sublime.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    <!-- Google fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,200,600,700|Droid+Sans+Mono|Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
+
+    <!-- Font awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
+
+    <link href="/assets/favicon.ico" rel="icon" type="image/x-icon">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body data-spy="scroll" data-target="#myScrollspy" data-offset="160" class="spec">
+
+     <!-- navbar -->
+      <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><img class="logo" alt="interledger" src="/assets/ilp_icon.png"/></a>
+          </div>
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="/overview.html">Docs</a></li>
+              <li><a href="/community.html">Community</a></li>
+              <li><a href="/news.html">News</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a target="_blank" href="https://github.com/interledger">Github</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+    <!-- docs overview section -->
+
+    <div class="container docs-wrapper">
+      <div class="row">
+        <div id="sidebarContent">
+          <nav class="col-sm-4" id="myScrollspy">
+            <ul class="nav-fixed nav nav-sidebar">
+              <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
+                <li class="nav-label">
+                  <a href="./draft-1.html">ILP-RFC 0022 Draft 1</a>
+                </li>
+                <li>
+                  <a href="./draft-1.html">Permalink to this Draft</a>
+                </li>
+                <li>
+                  <a href="./">View the Latest Draft of ILP-RFC 0022</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#table-of-contents">Table of Contents</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#background-on-hashed-timelock-contracts-htlcs">Background on Hashed-Timelock Contracts (HTLCs)</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#hashed-timelock-agreements-htlas-2">Hashed-Timelock Agreements (HTLAs)</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#htlas-without-ledger-support">HTLAs Without Ledger Support</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#interledger-across-diverse-htlas">Interledger Across Diverse HTLAs</a>
+                </li>
+              
+                <li>
+                  <a href="#example-payment-flow">Example Payment Flow</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#spectrum-of-htla-types">Spectrum of HTLA Types</a>
+                </li>
+              
+                <li>
+                  <a href="#conditional-payment-channels-with-htlcs">Conditional Payment Channels (with HTLCs)</a>
+                </li>
+              
+                <li>
+                  <a href="#on-ledger-holdsescrow-using-htlcs">On-Ledger Holds/Escrow (using HTLCs)</a>
+                </li>
+              
+                <li>
+                  <a href="#simple-payment-channels">Simple Payment Channels</a>
+                </li>
+              
+                <li>
+                  <a href="#trustlines">Trustlines</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#appendix-additional-htla-types">Appendix: Additional HTLA Types</a>
+                </li>
+              
+                <li>
+                  <a href="#third-party-escrow">Third Party Escrow</a>
+                </li>
+              
+                <li>
+                  <a href="#notarized-payment-channels">Notarized Payment Channels</a>
+                </li>
+              
+                <li>
+                  <a href="#third-party-payment-channels">Third Party Payment Channels</a>
+                </li>
+              
+            </ul>
+          </nav>
+        </div>
+        <div class="col-sm-8 markdown-body">
+          <h1 id="hashed-timelock-agreements-htlas-1">Hashed-Timelock Agreements (HTLAs)</h1>
+<blockquote>
+<p class="intro">Generalization of <a href="#background-on-hashed-timelock-contracts-htlcs">Hashed-Timelock Contracts (HTLCs)</a> used to secure Interledger payments.</p>
+</blockquote>
+<p><em>This document assumes some familiarity with HTLCs and Interledger. It briefly summarizes both but it may be best read after <a href="../0001-interledger-architecture">IL-RFC 1: Interledger Architecture</a>.</em></p>
+<p>Interledger provides secure multi-hop payments using conditional transfers. Some ledgers natively provide conditional transfers using Hashed-Timelock Contracts (HTLCs). However, not all ledgers support HTLCs.</p>
+<p>Hashed-Timelock Agreements (HTLAs) are a generalization of HTLCs that can be implemented over any type of ledger, whether or not the ledger supports HTLCs. HTLAs work with public and private blockchains, centralized ledgers, payment channels, and even with cash or cases where there is no ledger. There is a spectrum of HTLA types that require varying levels of ledger functionality and bilateral trust. This document describes how HTLAs work and outlines the features and tradeoffs of the different options.</p>
+<p><strong>Note: Interledger payments can securely cross multiple types of HTLAs at the same time. The selection of HTLA type is strictly a bilateral decision. The type of HTLA used does not affect the security of others in the path.</strong> For details on this see <a href="#interledger-across-diverse-htlas">Interledger Across Diverse HTLAs</a>.</p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#background-on-hashed-timelock-contracts-htlcs">Background on Hashed-Timelock Contracts (HTLCs)</a></li>
+<li><a href="#hashed-timelock-agreements">Hashed-Timelock Agreements (HTLAs)</a></li>
+<li><a href="#htlas-without-ledger-supoprt">HTLAs Without Ledger Support</a></li>
+<li><a href="#interledger-across-diverse-htlas">Interledger Across Diverse HTLAs</a></li>
+<li><a href="#spectrum-of-htla-types">Spectrum of HTLA Types</a><ol>
+<li><a href="#conditional-payment-channels-with-htlcs">Conditional Payment Channels (with HTLCs)</a></li>
+<li><a href="#on-ledger-holds-escrow-using-htlcs">On-Ledger Holds/Escrow (using HTLCs)</a></li>
+<li><a href="#simple-payment-channels">Simple Payment Channels</a></li>
+<li><a href="#trustlines">Trustlines</a></li>
+</ol>
+</li>
+<li><a href="#appendix-additional-htla-types">Appendix: Additional HTLA Types</a></li>
+</ol>
+<hr>
+<h2 id="background-on-hashed-timelock-contracts-htlcs">Background on Hashed-Timelock Contracts (HTLCs)</h2>
+<p>A <a href="https://en.bitcoin.it/wiki/Hashed_Timelock_Contracts">Hashed-Timelock Contract (HTLC)</a> is a conditional transfer where the condition is enforced by the ledger. It is a concept from the Bitcoin community that is used in the <a href="https://lightning.network">Lightning Network</a>.</p>
+<p>When the transfer is &quot;prepared&quot;, the sender&apos;s funds are put on hold by the ledger, pending the fulfillment of a predefined condition. The condition is a hashlock, or the digest of a cryptographic hash function, such as SHA-256 in Lightning and Interledger. The &quot;contract&quot; stipulates that the recipient may claim the funds by presenting a valid preimage of the hash digest before a given timeout. After the timeout, the funds are automatically returned to the sender. This is the Hashed-Timelock Contract.</p>
+<p>HTLCs are enforced by the ledger, so the parties transacting only need to trust the ledger to correctly execute the contract. However, this mechanism requires support from the ledger and only works with ledgers that implement hashlocks and timeouts.</p>
+<p>Interledger is designed to work with all ledgers, so it must support both ledgers with and without support for hashlocks and timeouts.</p>
+<h2 id="hashed-timelock-agreements-htlas-2">Hashed-Timelock Agreements (HTLAs)</h2>
+<p>A contract is a certain type of agreement that is enforced by a third party. Hashed-Timelock Agreements (HTLAs) generalize the idea of HTLCs to include agreements that are enforced by a ledger. The principle has been in use in Interledger since the project was started but the HTLA term was proposed more recently in <a href="https://lists.w3.org/Archives/Public/public-interledger/2017Jun/0009.html">this thread on the Interledger mailing list</a>.</p>
+<p>HTLAs enable secure Interledger payments through all types of ledgers, including those that do not support conditional transfers.</p>
+<h2 id="htlas-without-ledger-support">HTLAs Without Ledger Support</h2>
+<p>Two parties using an HTLA over a ledger that does not support hashlocks and timeouts could proceed in the following manner. The sender would send a message to the recipient telling them that they want to &quot;prepare&quot; a transfer with a given hashlock and timeout. The parties agree that if the recipient presents the preimage of the hash before the timeout, the transfer is executed and the sender owes the recipient the money. Debts are settled using simple transfers on the ledger.</p>
+<p>In the case of a post-funded agreement, the sender can settle their debt with the recipient either for every payment, if their ledger is fast and has low fees, or once the total amount owed reaches the parties&apos; trust/credit limit. In this case, the recipient must trust the sender to pay what they owe. The risk can be limited by capping how much the sender can send before they settle up.</p>
+<p>For pre-funded agreements, the sender transfers either the amount of an individual payment or a bulk amount to the recipient. The recipient then deducts the amount of each &quot;conditional transfer&quot; executed from the pre-funded amount. In this case, the sender must trust the recipient not to steal the pre-funded amount, but this risk can obviously be limited by capping the pre-funded amount.</p>
+<p>HTLAs thus work with ledgers that support hashlocks and timeouts (as HTLCs) and with ledgers that do not.</p>
+<p>For more details on HTLAs without ledger support see the sections below on <a href="#simple-payment-channels">Simple Payment Channels</a> and <a href="#trustlines">Trustlines</a>.</p>
+<h2 id="interledger-across-diverse-htlas">Interledger Across Diverse HTLAs</h2>
+<p>A single Interledger payment can cross multiple different types of HTLAs. The Interledger Protocol ensures that the security of each HTLA is independent of the other HTLA types used in the path.</p>
+<p>This is a critical point for understanding HTLAs and Interledger, so we will use an example flow to illustrate it.</p>
+<h3 id="example-payment-flow">Example Payment Flow</h3>
+<p>In this rendition of the classic Alice to Bob payment, Alice has an account on a blockchain that implements HTLCs and Bob has an account with a bank that does not implement HTLCs:</p>
+<pre><code>        On-Ledger HTLC                 Payment Channel                  Trustline
+Alice --(Blockchain A)--&gt; Connector 1 --(Blockchain B)--&gt; Connector 2 --(Bank C)--&gt; Bob
+</code></pre><p>Each <code>--(...)--&gt;</code> represents a different type of HTLA, but all of them use the same hashlock.</p>
+<p>The Interledger protocol flow (detailed below) ensures that each participant only needs to care about the HTLAs in which they are directly involved. Failure in a different part of the path -- or the selection of a seemingly unwise HTLA type -- does not affect any other agreements.</p>
+<h4 id="interledger-protocol-payment-flow">Interledger Protocol payment flow:</h4>
+<ol>
+<li><code>Alice</code> and <code>Bob</code> agree on the hashlock <code>H</code>. The preimage <code>P</code> is only known to <code>Bob</code>.</li>
+<li><code>Alice</code> prepares the transfer to <code>Connector 1</code> by creating and funding an HTLC on <code>Blockchain A</code> with hashlock <code>H</code> (see <a href="#on-ledger-holds-escrow-using-htlcs">On-Ledger Holds/Escrow</a>).</li>
+<li><code>Connector 1</code> prepares a transfer to <code>Connector 2</code> via their shared payment channel, also using hashlock <code>H</code> (see <a href="#simple-payment-channels">Simple Payment Channels</a>).</li>
+<li><code>Connector 2</code> prepares a transfer to <code>Bob</code> on their shared trustline using Hashlock <code>H</code> (see <a href="#trustlines">Trustlines</a>).</li>
+<li>If <code>Bob</code> produces the preimage <code>P</code> before the transfer timeout, <code>Connector 2</code> will &quot;pay&quot; <code>Bob</code> by increasing his balance on their trustline.</li>
+<li>If <code>Connector 2</code> sends <code>P</code> to <code>Connector 1</code> before their transfer times out, <code>Connector 1</code> will send a signed claim to pay <code>Connector 2</code>. (Note that whether or not <code>Connector 1</code> actually does this is irrelevant to the other parties in the path. <code>Connector 2</code> has already paid out to <code>Bob</code> and that cannot be undone. <code>Connector 1</code> can submit the preimage to <code>Blockchain A</code> and still refuse to give the claim to <code>Connector 2</code>. This is a known and manageable risk for <code>Connector 2</code> and no other parties are affected by it.)</li>
+<li>If <code>Connector 1</code> submits <code>P</code> to <code>Blockchain A</code> before the timeout, the transfer will be executed and <code>Alice</code> will receive the proof <code>P</code> that <code>Bob</code> was paid. (Note again that whether the HTLC on <code>Blockchain A</code> is properly executed only matters to <code>Alice</code> and <code>Connector 1</code>. The properties of a ledger only matter to the parties holding accounts on that ledger.)</li>
+</ol>
+<p>One way to think of this is that HTLAs abstract away what it means to &quot;get paid&quot;. That is just an agreement between two parties and no one else cares how that is structured. All that matters is that each individual is happy with the agreements they&apos;re directly a part of. Since all of the hashlocks will be the same, either all of the transfers will happen or none of them will (barring the connector fulfillment failure).</p>
+<p>For more details on the Interledger protocol suite and security, see <a href="../0001-interledger-architecture">IL-RFC 1: Interledger Architecture</a>.</p>
+<p><em>Internet &quot;hat tip&quot;: the importance of being able to integrate <strong>any</strong> type of network was demonstrated by <a href="https://tools.ietf.org/html/rfc1149">RFC 1149: A Standard for the Transmission of IP Datagrams on Avian Carriers</a>.</em></p>
+<h2 id="spectrum-of-htla-types">Spectrum of HTLA Types</h2>
+<p>The various types of HTLAs present a tradeoffs between complexity and risk. The more functionality a ledger provides, the less the users of that ledger need to trust one another.</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th></th>
+<th>Conditional Payment Channels (with HTLCs)</th>
+<th>On-Ledger Holds/Escrow (using HTLCs)</th>
+<th>Simple Payment Channels</th>
+<th>Trustlines</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ledger Support Required</strong></td>
+<td>High</td>
+<td>High</td>
+<td>Medium</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><strong>Implementation Complexity</strong></td>
+<td>High</td>
+<td>Medium</td>
+<td>Low</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><strong>Bilateral Risk</strong></td>
+<td>Low</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+</tr>
+</tbody>
+</table>
+<h3 id="conditional-payment-channels-with-htlcs">Conditional Payment Channels (with HTLCs)</h3>
+<ul>
+<li><strong>Ledger Features Required:</strong> Payment Channels with HTLC Updates</li>
+<li><strong>Non-Functional Ledger Requirements:</strong> Fast*</li>
+<li><strong>Money at Risk:</strong> None</li>
+<li><strong>Examples:</strong> <a href="https://lightning.network">Lightning-Style Channels</a>*</li>
+</ul>
+<p>With conditional payment channels, participants set up the channel by depositing funds in a shared, temporary account on the ledger. When a conditional transfer is prepared, the sender sends the recipient a signed update to the channel that includes a hashlock and timeout. The recipient may redeem the transfer amount if and only if they can present the hash preimage before the timeout. If the sender and recipient agree that the preimage was delivered before the timeout, they can exchange signed statements with the newly agreed upon channel balance. If there is a dispute, the recipient can present the last claim and the hashlock preimage to the ledger and the ledger will determine whether the preimage is valid and was submitted before the timeout.</p>
+<p>Using conditional payment channels, the sender and recipient can transact without any funds being at risk, because all disputes will be mediated by the ledger. This can be used as a mechanism to enable a greater volume of payments &quot;through&quot; a ledger than the ledger can natively support.</p>
+<p>* <strong>Note on ledger speed:</strong> Conditional payment channels may be most appropriate for fast ledgers, because the timeout of each transfer must account for the ledger&apos;s processing time. The recipient relies on the fact that they can redeem their funds even if there is a dispute with the sender by presenting their claims and the hashlock preimages to the ledger. However, there are numerous reasons for senders and connectors to want or require that Interledger payments execute or fail quickly (for example for retries and to reduce exchange rate risk). As a result, conditional payment channels may only work with Interledger if the ledger can process claims in a few seconds or less.</p>
+<h3 id="on-ledger-holdsescrow-using-htlcs">On-Ledger Holds/Escrow (using HTLCs)</h3>
+<ul>
+<li><strong>Ledger Features Required:</strong> Transfers with HTLCs</li>
+<li><strong>Non-Functional Ledger Requirements:</strong> Fast, Low Fees, High Throughput</li>
+<li><strong>Money at Risk:</strong> None</li>
+<li><strong>Examples:</strong> <a href="https://github.com/interledgerjs/ilp-plugin-ethereum">Ethereum Escrow Contract</a>, <a href="https://ripple.com/build/transactions/#escrowcreate">XRP Escrow</a></li>
+</ul>
+<p>If a ledger provides support for HTLCs and is fast and inexpensive enough, participants can send all Interledger payments directly through the ledger. The sender prepares the conditional transfer by putting funds into a ledger-provided hold account pending a given hashlock and timeout. If the recipient presents the hash preimage before the timeout, the ledger executes the transfer and deposits the funds into the recipient&apos;s account automatically. If the timeout is reached, the ledger returns the funds to the sender.</p>
+<p>Using ledger-provided conditional transfers enables parties to transact with no risk, but the ledger must be capable of processing a high volume of payments quickly and with low fees.</p>
+<h3 id="simple-payment-channels">Simple Payment Channels</h3>
+<ul>
+<li><strong>Ledger Features Required:</strong> Unconditional, Unidirectional Payment Channels</li>
+<li><strong>Non-Functional Ledger Requirements:</strong> N/A</li>
+<li><strong>Money at Risk:</strong> Total Prepared/Fulfilled Without Claims</li>
+<li><strong>Examples:</strong> <a href="https://github.com/bitcoin/bips/blob/master/bip-0065.mediawiki">Bitcoin CLTV Channels</a>, <a href="https://ripple.com/build/payment-channels-tutorial/">XRP PayChan</a></li>
+</ul>
+<p>Simple payment channels allow parties to send a greater volume of payments than the ledger can process itself. To set up a simple, unidirectional payment channel the sender puts funds into a temporary account on the ledger shared with the recipient. Funds can only be withdrawn from the ledger by presenting a claim signed by both parties that specifies the portion of the funds that will be transferred to the recipient and amount that will be returned to the sender. The sender effectively pays the recipient by sending signed claims to the recipient (not the ledger) that entitle the recipient to withdraw a greater portion of the channel&apos;s funds.</p>
+<p>To use a simple payment channel in an HTLA, the sender &quot;prepares&quot; the conditional transfer simply by sending a message to the recipient (including the hashlock and timeout). If the recipient presents the hash preimage before the timeout, the sender sends a new signed claim to the recipient to cover the total amount of the transfers sent thus far.</p>
+<p>The agreement between the sender and recipient dictates how disputes are handled, including cases in which the recipient thinks they submitted the preimage in time and the sender thinks otherwise. Both parties should enforce their own view of the timeout, rather than deferring to the other party.</p>
+<p>In this post-funded model, the recipient must trust the sender for the total amount of the prepared or executed transfers that is not yet covered by payment channel claims. The recipient limits their risk by capping the amount of the transfers they are willing to accept from the sender without the corresponding claims. The risk could be flipped from the recipient to the sender by making the sender pre-fund each transfer by the claim along with the message to prepare the transfer. Pre-funding with simple payment channels is slightly more complex because the recipient needs to send another payment channel update back to the sender if the transfer is rolled back.</p>
+<p>The functionality necessary for simple payment channels is present in nearly all major blockchains today, including Bitcoin (even without <a href="https://en.bitcoin.it/wiki/Segregated_Witness">SegWit</a>), Ethereum, XRP, Zcash, and Chain.</p>
+<h3 id="trustlines">Trustlines</h3>
+<ul>
+<li><strong>Ledger Features Required:</strong> Transfers Between Accounts</li>
+<li><strong>Non-Functional Ledger Requirements:</strong> N/A</li>
+<li><strong>Money at Risk:</strong> Total Trustline Balance</li>
+<li><strong>Examples:</strong> <a href="https://github.com/interledgerjs/ilp-plugin-virtual"><code>ilp-plugin-virtual</code></a></li>
+</ul>
+<p>When a ledger does not provide any support for Interledger, parties can still connect to the Interledger using trustlines. The sender prepares the transfer by sending the recipient a message including the hashlock and timeout. If the recipient produces the hash preimage before the timeout, the sender&apos;s debt is increased by the transfer amount. Like with simple payment channels, the participants must agree on how to solve disputes, including disagreements about whether a hash preimage was submitted in time. The sender can continue sending payments until they reach the maximum balance allowed by the recipient. At that point, the sender settles their balance by making a transfer on the ledger.</p>
+<p>In this model, one of the parties must trust the other for the full outstanding balance of the trustline. This may be suitable in cases where the sender and recipient are friends or have a long-standing business relationship.</p>
+<p>Notably, trustlines work over any type of &quot;ledger&quot; -- including cash! As long as there is a way to transfer funds between the sender and recipient, they can send Interledger payments and settle only when the trust limit is reached. If the payment flows in both directions are balanced, there may never even be a need to settle.</p>
+<h2 id="appendix-additional-htla-types">Appendix: Additional HTLA Types</h2>
+<p>This appendix includes additional HTLA types that are possible but were not mentioned above either because they are less desirable or have yet to be implemented.</p>
+<h3 id="third-party-escrow">Third Party Escrow</h3>
+<p>A third party escrow provider can be used if the ledger supports fast, inexpensive transfers but does not support holds and the sender and recipient do not trust one another. In this case, the sender prepares a transfer by sending the funds to the escrow provider, along with the hashlock and timeout. If the recipient submits the hashlock preimage before the timeout, the escrow provider transfers the funds to the recipient. If not, the escrow provider transfers the funds back.</p>
+<p>It is preferable for ledgers to implement holds natively, but this HTLA type may be used in cases where that is not possible or not happening. Both the sender and recipient must trust the escrow provider for the full value of each transfer, either because of reputation or legal arrangement. If the sender and recipient do trust one another up to some limit, they can avoid the need for a third party by using Trustlines.</p>
+<h3 id="notarized-payment-channels">Notarized Payment Channels</h3>
+<p>Disputes may arise in payment channel-based HTLAs because of disagreements over timeouts. Since there is no single source of truth as to whether the hashlock preimage was submitted in time, clock skew or network delays could cause the recipient to think the transfer should be executed while the sender thinks it expired.</p>
+<p>To mitigate the risk of timeout disputes, the sender and recipient could agree to use a third party notary to act as the timekeeper. The sender prepares the transfer by submitting the details to the notary and the recipient (unless the notary also acts as a message broker). The recipient submits the preimage to the notary, who enforces the timeout. The notary signs a statement attesting to whether the preimage was recieved in time and gives the signed message to both the sender and recipient.</p>
+<p>Third-party notaries could be used with simple or more complex payment channels. In the simple, unconditional type, the notary&apos;s decision is not used in the actual payment channel updates but the notary merely as the decision-maker in the agreement between the sender and recipient. In the more complex variety, the payment channels could be constructed such that the channel updates are conditional upon the signed statement from the notary. When using third-party notaries the sender and recipient must trust the notary not to be colluding with one of the parties and to not sign two conflicting statements.</p>
+<h3 id="third-party-payment-channels">Third Party Payment Channels</h3>
+<p>Falling in-between the guarantees of Third Party Escrow and Notarized Payment Channels, a &quot;Third Party Payment Channel&quot; involves escrowing money in a payment channel and giving a third party authority to create claims. To set up the payment channel, the sender funds a temporary account on the ledger as in a Simple Payment Channel. However, the third party&apos;s key is authorized to create claims on the channel balance instead of using the sender&apos;s public key.</p>
+<p>When the sender prepares a transfer, they send a message to the recipient including the hashlock and timeout. To execute the transfer, the recipient submits the preimage to the third party. If the third party gets the preimage before the timeout, they pay the recipient from the sender&apos;s funds by signing a new claim.</p>
+<p>In this model, the recipient does not need to trust the sender at all. The recipient instead trusts the third party to honestly enforce the timeouts and sign claims when preimages are submitted in time. This means that the recipient only needs to trust the third party for the transfers that have been executed but are not yet covered by claims.</p>
+<p>The sender has to trust the third party not to create a claim for more than they owe, which means they trust the third party for the payment channel&apos;s whole balance. However, unless the third party is colluding with the receiver, they have no incentive to pay out more than the sender owes.</p>
+
+        </div>
+      </div>
+
+    </div> <!-- /container -->
+
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="col-sm-4 col-xs-12">
+              <p>Interledger Team</p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="text-center">See list of <a target="_blank" href="https://www.w3.org/community/interledger/participants">Contributors</a></p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="pull-right">Documentation licensed under <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0.</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-68500608-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    <script src="/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
