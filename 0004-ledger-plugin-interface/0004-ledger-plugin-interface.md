@@ -1,6 +1,6 @@
 ---
 title: The Javascript Ledger Plugin Interface
-draft: 1
+draft: 2
 ---
 # Javascript Ledger Plugin Interface
 
@@ -250,7 +250,7 @@ Messaging is used by connectors for [quoting](../0008-interledger-quoting-protoc
 |:--|:--|:--|
 | message | <code>[Message](#class-message)</code> | Properties of the message to be created |
 
-When sending messages, the [to](#message-to) and [ilp](#message-ilp) fields are required.
+When sending messages, the [to](#messageto) and [ilp](#messageilp) fields are required.
 
 ###### Returns
 **<code>Promise.<[Message](#class-message)></code>** A promise which resolves when a response message has been received.
@@ -467,16 +467,16 @@ left undefined (but not any other false-y value) if unused.
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
-| `String` | [id](#transfer-id) | UUID used as an external identifier |
-| `String` | [from](#transfer-from) | ILP Address of the source account |
-| `String` | [to](#transfer-to) | ILP Address of the destination account |
-| `String` | [ledger](#transfer-ledger) | ILP Address prefix of the ledger |
-| `String` | [amount](#transfer-amount) | Integer transfer amount, in the ledger's base unit |
-| `String` | [ilp](#transfer-ilp) | Base64-encoded ILP packet |
-| `Object` | [noteToSelf](#transfer-notetoself) | Host-provided memo that should be stored with the transfer |
-| `String` | [executionCondition](#transfer-executioncondition) | Cryptographic hold condition |
-| `String` | [expiresAt](#transfer-expiresat) | Expiry time of the cryptographic hold |
-| `Object` | [custom](#transfer-custom) | Object containing ledger plugin specific options |
+| `String` | [id](#transferid) | UUID used as an external identifier |
+| `String` | [from](#transferfrom) | ILP Address of the source account |
+| `String` | [to](#transferto) | ILP Address of the destination account |
+| `String` | [ledger](#transferledger) | ILP Address prefix of the ledger |
+| `String` | [amount](#transferamount) | Integer transfer amount, in the ledger's base unit |
+| `String` | [ilp](#transferilp) | Base64-encoded ILP packet |
+| `Object` | [noteToSelf](#transfernotetoself) | Host-provided memo that should be stored with the transfer |
+| `String` | [executionCondition](#transferexecutioncondition) | Cryptographic hold condition |
+| `String` | [expiresAt](#transferexpiresat) | Expiry time of the cryptographic hold |
+| `Object` | [custom](#transfercustom) | Object containing ledger plugin specific options |
 
 ### Fields
 
@@ -580,12 +580,12 @@ The `Message` class is used to describe local ledger message. All fields are req
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
-| `String` | [id](#message-id) | Unique message identifier |
-| `String` | [from](#message-from) | ILP Address of the source account |
-| `String` | [to](#message-to) | ILP Address of the destination account |
-| `String` | [ledger](#message-ledger) | ILP Address prefix of the ledger |
-| `String` | [ilp](#message-ilp) | Base64-encoded ILP packet |
-| `Object` | [custom](#message-custom) | Object containing ledger plugin specific options |
+| `String` | [id](#messageid) | Unique message identifier |
+| `String` | [from](#messagefrom) | ILP Address of the source account |
+| `String` | [to](#messageto) | ILP Address of the destination account |
+| `String` | [ledger](#messageledger) | ILP Address prefix of the ledger |
+| `String` | [ilp](#messageilp) | Base64-encoded ILP packet |
+| `Object` | [custom](#messagecustom) | Object containing ledger plugin specific options |
 
 #### Message#id
 <code>**id**:String</code>
@@ -641,12 +641,12 @@ Metadata describing the ledger. This data is returned by the [`getInfo`](#getinf
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
-| `String` | [prefix](#ledgerinfo-prefix) | The plugin's ILP address prefix |
-| `String` | [currencyCode](#ledgerinfo-currencycode) | [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) three-letter currency code |
-| `Number` | [currencyScale](#ledgerinfo-currencyscale) | Integer `(..., -2, -1, 0, 1, 2, ...)`, such that one of the ledger's base units equals `10^-<currencyScale> <currencyCode>` |
-| `String[]` | [connectors](#ledgerinfo-connectors) | ILP addresses of recommended connectors |
-| `String` | [minBalance](#ledgerinfo-minbalance-optional) | Integer String, for instance `"0"`, indicating the minimum balance. Optional, defaults to zero. |
-| `String` | [maxBalance](#ledgerinfo-maxbalance-optional) | Integer String, for instance `"1000000000000"`, indicating the maximum balance. Optional, defaults to plus infinity. |
+| `String` | [prefix](#ledgerinfoprefix) | The plugin's ILP address prefix |
+| `String` | [currencyCode](#ledgerinfocurrencycode) | [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) three-letter currency code |
+| `Number` | [currencyScale](#ledgerinfocurrencyscale) | Integer `(..., -2, -1, 0, 1, 2, ...)`, such that one of the ledger's base units equals `10^-<currencyScale> <currencyCode>` |
+| `String[]` | [connectors](#ledgerinfoconnectors) | ILP addresses of recommended connectors |
+| `String` | [minBalance](#ledgerinfominbalance-optional) | Integer String, for instance `"0"`, indicating the minimum balance. Optional, defaults to zero. |
+| `String` | [maxBalance](#ledgerinfomaxbalance-optional) | Integer String, for instance `"1000000000000"`, indicating the maximum balance. Optional, defaults to plus infinity. |
 
 ### Fields
 
