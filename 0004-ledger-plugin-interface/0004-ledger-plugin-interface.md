@@ -44,15 +44,15 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**incoming_fulfill**](#event-_fulfill) | <code>( transfer:[IncomingTransfer](#incomingtransfer), fulfillment:String ) ⇒</code> |
 | [**incoming_reject**](#event-_reject) | <code>( transfer:[IncomingTransfer](#incomingtransfer), rejectionReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
 | [**incoming_cancel**](#event-_cancel) | <code>( transfer:[IncomingTransfer](#incomingtransfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
-| [**incoming_request**](#event-_request) | <code>( message:[Message](#message) ) ⇒</code> |
-| [**incoming_response**](#event-_response) | <code>( message:[Message](#message) ) ⇒</code> |
+| [**incoming_request**](#event-_request) | <code>( message:[Message](#class-message) ) ⇒</code> |
+| [**incoming_response**](#event-_response) | <code>( message:[Message](#class-message) ) ⇒</code> |
 | [**outgoing_transfer**](#event-_transfer) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
 | [**outgoing_prepare**](#event-_prepare) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
 | [**outgoing_fulfill**](#event-_fulfill) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), fulfillment:String ) ⇒</code> |
 | [**outgoing_reject**](#event-_reject) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), rejectionReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
 | [**outgoing_cancel**](#event-_cancel) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
-| [**outgoing_request**](#event-_request) | <code>( message:[Message](#message) ) ⇒</code> |
-| [**outgoing_response**](#event-_response) | <code>( message:[Message](#message) ) ⇒</code> |
+| [**outgoing_request**](#event-_request) | <code>( message:[Message](#class-message) ) ⇒</code> |
+| [**outgoing_response**](#event-_response) | <code>( message:[Message](#class-message) ) ⇒</code> |
 | [**info_change**](#event-info_change) | <code>( info:[LedgerInfo](#class-ledgerinfo) ) ⇒</code> |
 
 ###### Errors
@@ -197,7 +197,7 @@ General event for fatal exceptions. Emitted when the plugin experienced an unexp
 Note that all transfers will have `transferId`'s to allow the plugin user to correlate actions related to a single transfer. The `transferId` will be the same as the ID used by the underlying ledger wherever possible or applicable. If the ledger does not have transfer IDs, the plugin may generate one and use the `store` passed in to the constructor to persist them.
 
 #### sendTransfer
-<code>ledgerPlugin.sendTransfer( **transfer**:[Transfer](#transfer) ) ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.sendTransfer( **transfer**:[Transfer](#class-transfer) ) ⇒ Promise.&lt;null></code>
 
 Plugin must be connected, otherwise the promise should reject. Initiates a ledger-local transfer. A transfer can
 contain money and/or information. If there is a problem with the structure or
@@ -211,7 +211,7 @@ implement zero-amount transfers differently than other transfers.
 ###### Parameters
 | Name | Type | Description |
 |:--|:--|:--|
-| transfer | <code>[Transfer](#transfer)</code> | Properties of the transfer to be created |
+| transfer | <code>[Transfer](#class-transfer)</code> | Properties of the transfer to be created |
 
 When sending transfers, the [id](#id), [amount](#amount) and [to](#to) fields
 are required.
@@ -422,12 +422,12 @@ means that a transfer you created has timed out.
 ### Event: `*_request`
 <code style="">ledgerPlugin.on('incoming_request',
   (
-    **message**:[Message](#message),
+    **message**:[Message](#class-message),
   ) ⇒
 )</code>
 <code style="">ledgerPlugin.on('outgoing_request',
   (
-    **message**:[Message](#message),
+    **message**:[Message](#class-message),
   ) ⇒
 )</code>
 
@@ -438,12 +438,12 @@ Hosts MUST NOT use these events to respond to requests. In order to provide resp
 ### Event: `*_response`
 <code style="">ledgerPlugin.on('incoming_response',
   (
-    **message**:[Message](#message),
+    **message**:[Message](#class-message),
   ) ⇒
 )</code>
 <code style="">ledgerPlugin.on('outgoing_response',
   (
-    **message**:[Message](#message),
+    **message**:[Message](#class-message),
   ) ⇒
 )</code>
 
