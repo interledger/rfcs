@@ -234,7 +234,7 @@ Implementations of ILP SHOULD NOT depend on the `name` instead of the `code`. Th
 
     Timestamp ::= GeneralizedTime
 
-Date and time when the error was initially emitted.
+Date and time when the error was initially emitted. This MUST be expressed in the UTC + 0 (Z) timezone.
 
 #### data
 

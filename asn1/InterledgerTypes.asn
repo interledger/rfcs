@@ -36,6 +36,9 @@ Address ::= IA5String
 -- Interledger protocols depend on causality, we cannot use POSIX time and
 -- since we do not wish to create our own time standard, we end up using ISO
 -- 8601.
+-- Implementations MUST express timestamps in the format 'YYYYMMDDTHHmmSS.fffZ'
+-- compatible with RFC 3339, with fixed upper-case 'T' and 'Z', with all times
+-- expressed in the 'Z' timezone - a UTC offset of 00:00.
 
 Timestamp ::= GeneralizedTime
 
