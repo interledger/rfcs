@@ -1,6 +1,6 @@
 ---
 title: The Interledger Protocol (ILP)
-draft: 2
+draft: 3
 ---
 # Interledger Protocol (ILP)
 

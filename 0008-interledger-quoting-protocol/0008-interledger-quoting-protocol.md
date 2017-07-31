@@ -1,6 +1,6 @@
 ---
 title: The Interledger Quoting Protocol (ILQP)
-draft: 1
+draft: 2
 ---
 # Interledger Quoting Protocol (ILQP)
 
