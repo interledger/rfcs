@@ -8,7 +8,7 @@ IMPORTS
     VarBytes
     FROM GenericTypes
 
-    InterledgerProtocolPaymentMessage,
+    InterledgerProtocolPayment,
     InterledgerProtocolError
     FROM InterledgerProtocol
 
