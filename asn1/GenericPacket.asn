@@ -25,7 +25,9 @@ IMPORTS
     FulfillRequest,
     FulfillResponse,
     RejectRequest,
-    RejectResponse
+    RejectResponse,
+    TransferStateRequest,
+    TransferStateResponse
     FROM LedgerLedgerLotocol
     
     CustomRequest,
@@ -54,7 +56,9 @@ PacketSet PACKET ::= {
     {13 RejectRequest} |
     {14 RejectResponse} |
     {15 CustomRequest} |
-    {16 CustomResponse}
+    {16 CustomResponse} |
+    {17 TransferStateRequest} |
+    {18 TransferStateResponse}
 }
 
 InterledgerPacket ::= SEQUENCE {
