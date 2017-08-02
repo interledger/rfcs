@@ -19,6 +19,18 @@ IMPORTS
     QuoteByDestinationAmountRequest,
     QuoteByDestinationAmountResponse
     FROM InterledgerQuotingProtocol
+
+    PrepareRequest,
+    PrepareResponse,
+    FulfillRequest,
+    FulfillResponse,
+    RejectRequest,
+    RejectResponse
+    FROM LedgerLedgerLotocol
+    
+    CustomRequest,
+    CustomResponse
+    FROM CustomMessagingProtocol
 ;
 
 PACKET ::= CLASS {
@@ -34,7 +46,15 @@ PacketSet PACKET ::= {
     {5 QuoteBySourceAmountResponse} |
     {6 QuoteByDestinationAmountRequest} |
     {7 QuoteByDestinationAmountResponse} |
-    {8 InterledgerProtocolError}
+    {8 InterledgerProtocolError} |
+    {9 PrepareRequest} |
+    {10 PrepareResponse} |
+    {11 FulfillRequest} |
+    {12 FulfillResponse} |
+    {13 RejectRequest} |
+    {14 RejectResponse} |
+    {15 CustomRequest} |
+    {16 CustomResponse}
 }
 
 InterledgerPacket ::= SEQUENCE {
