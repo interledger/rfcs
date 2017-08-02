@@ -89,19 +89,6 @@ TransferStateResponse ::= SEQUENCE {
   sideProtocolData SideProtocolData
 }
 
-BalanceRequest ::= SEQUENCE {
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-BalanceResponse ::= SEQUENCE {
-  currentBalance VarInt,
-  minBalance VarInt,
-  maxBalance VarInt,
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
 CustomRequest ::= SEQUENCE {
   -- Additional data for protocol extensibility
   sideProtocolData SideProtocolData
@@ -130,10 +117,8 @@ CallSet CALL ::= {
     {8 RejectResponse} |
     {9 TransferStateRequest} |
     {10 TransferStateResponse} |
-    {11 BalanceRequest} |
-    {12 BalanceResponse} |
-    {13 CustomRequest} |
-    {14 CustomResponse}
+    {11 CustomRequest} |
+    {12 CustomResponse}
 }
 
 LedgerLedgerLotocolPacket ::= SEQUENCE {
