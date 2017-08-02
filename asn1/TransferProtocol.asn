@@ -1,0 +1,78 @@
+TransferProtocol
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt8,
+    UInt32,
+    UInt64,
+    UInt128,
+    UInt256
+    FROM GenericTypes
+
+    SideProtocolDate
+    FROM GenericPacket
+
+    Address,
+    Timestamp
+    FROM InterledgerTypes
+;
+
+PrepareRequest ::= SEQUENCE {
+  transferId UInt128,
+  amount UInt64,
+  condition UInt256,
+  expiresAt Timestamp,
+  packet InterledgerPacket,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+PrepareResponse ::= SEQUENCE {
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+FulfillRequest ::= SEQUENCE {
+  transferId UInt128,
+  fulfillment UInt256,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+FulfillResponse ::= SEQUENCE {
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+RejectRequest ::= SEQUENCE {
+  transferId UInt128,
+  rejectionReason InterledgerPacket,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+RejectResponse ::= SEQUENCE {
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+TransferStateRequest ::= SEQUENCE {
+  transferId UInt128,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+TransferStateResponse ::= SEQUENCE {
+  state CHOICE {
+    fulfillment UInt256,
+    rejectionReason InterledgerPacket,
+    prepared NULL,
+    nonExistent NULL
+  },
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+END

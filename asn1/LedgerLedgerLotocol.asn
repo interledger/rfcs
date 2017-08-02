@@ -4,133 +4,20 @@ AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
-    UInt8,
-    UInt32,
-    UInt64,
-    UInt128,
-    UInt256
+    UInt32
     FROM GenericTypes
 
-    Address,
-    Timestamp
-    FROM InterledgerTypes
+    InterledgerPacket
+    FROM GenericPacket
 ;
 
-SideProtocolData ::= SEQUENCE OF SEQUENCE {
-  protocolName IA5String,
-  protocolData OCTET STRING
-}
-
-PacketRequest ::= SEQUENCE {
-  packet InterledgerPacket,
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-PacketResponse ::= SEQUENCE {
-  packet InterledgerPacket,
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-PrepareRequest ::= SEQUENCE {
-  transferId UInt128,
-  amount UInt64,
-  condition UInt256,
-  expiresAt Timestamp,
-  packet InterledgerPacket,
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-PrepareResponse ::= SEQUENCE {
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-FulfillRequest ::= SEQUENCE {
-  transferId UInt128,
-  fulfillment UInt256,
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-FulfillResponse ::= SEQUENCE {
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-RejectRequest ::= SEQUENCE {
-  transferId UInt128,
-  rejectionReason InterledgerPacket,
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-RejectResponse ::= SEQUENCE {
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-TransferStateRequest ::= SEQUENCE {
-  transferId UInt128,
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-TransferStateResponse ::= SEQUENCE {
-  state CHOICE {
-    fulfillment UInt256,
-    rejectionReason InterledgerPacket,
-    prepared NULL,
-    nonExistent NULL
-  },
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-CustomRequest ::= SEQUENCE {
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-CustomResponse ::= SEQUENCE {
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-CALL ::= CLASS {
-    &typeId UInt8 UNIQUE,
-    &Type
-} WITH SYNTAX {&typeId &Type}
-
-CallSet CALL ::= {
-    -- All requests MUST use odd typeIds
-    -- All responses MUST use even typeIds
-    {1 PacketRequest} |
-    {2 PacketResponse} |
-    {3 PrepareRequest} |
-    {4 PrepareResponse} |
-    {5 FulfillRequest} |
-    {6 FulfillResponse} |
-    {7 RejectRequest} |
-    {8 RejectResponse} |
-    {9 TransferStateRequest} |
-    {10 TransferStateResponse} |
-    {11 CustomRequest} |
-    {12 CustomResponse}
-}
-
 LedgerLedgerLotocolPacket ::= SEQUENCE {
-    -- One byte type ID
-    type CALL.&typeId ({CallSet}),
     -- Allow multiple accounts to be multiplexed on one connection
     accountId UInt32,
     -- Used to associate requests and corresponding responses
     -- If requestId = 0, the server MUST not send a response
     requestId UInt32,
-    -- Length-prefixed main data
-    data CALL.&Type ({CallSet}{@type})
+    packet InterledgerPacket
 }
 
 END
