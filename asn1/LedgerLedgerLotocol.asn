@@ -21,19 +21,19 @@ SideProtocolData ::= SEQUENCE OF SEQUENCE {
   protocolData OCTET STRING
 }
 
-MessageRequest ::= SEQUENCE {
+PacketRequest ::= SEQUENCE {
   packet InterledgerPacket,
   -- Additional data for protocol extensibility
   sideProtocolData SideProtocolData
 }
 
-MessageResponse ::= SEQUENCE {
+PacketResponse ::= SEQUENCE {
   packet InterledgerPacket,
   -- Additional data for protocol extensibility
   sideProtocolData SideProtocolData
 }
 
-TransferRequest ::= SEQUENCE {
+PrepareRequest ::= SEQUENCE {
   transferId UInt128,
   amount UInt64,
   condition UInt256,
@@ -43,7 +43,7 @@ TransferRequest ::= SEQUENCE {
   sideProtocolData SideProtocolData
 }
 
-TransferResponse ::= SEQUENCE {
+PrepareResponse ::= SEQUENCE {
   -- Additional data for protocol extensibility
   sideProtocolData SideProtocolData
 }
@@ -82,7 +82,7 @@ TransferStateResponse ::= SEQUENCE {
   state CHOICE {
     fulfillment UInt256,
     rejectionReason InterledgerPacket,
-    pending NULL,
+    prepared NULL,
     nonExistent NULL
   },
   -- Additional data for protocol extensibility
@@ -107,10 +107,10 @@ CALL ::= CLASS {
 CallSet CALL ::= {
     -- All requests MUST use odd typeIds
     -- All responses MUST use even typeIds
-    {1 MessageRequest} |
-    {2 MessageResponse} |
-    {3 TransferRequest} |
-    {4 TransferResponse} |
+    {1 PacketRequest} |
+    {2 PacketResponse} |
+    {3 PrepareRequest} |
+    {4 PrepareResponse} |
     {5 FulfillRequest} |
     {6 FulfillResponse} |
     {7 RejectRequest} |
