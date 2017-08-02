@@ -1,6 +1,6 @@
 ---
 title: The Interledger Quoting Protocol (ILQP)
-draft: 1
+draft: 2
 ---
 # Interledger Quoting Protocol (ILQP)
 
@@ -57,7 +57,7 @@ See [interledgerjs/ilp-packet](https://github.com/interledgerjs/ilp-packet/) for
 | liquidity | LiquidityCurve | Curve describing the liquidity for the quoted route |
 | appliesToPrefix | Address | Common prefix of all addresses for which this liquidity curve applies. |
 | sourceHoldDuration | UInt32 | How long the sender should put the money on hold (in milliseconds) |
-| expiresAt | Timestamp | Maximum time where the connector expects to be able to honor this liquidity curve |
+| expiresAt | Timestamp | Maximum time where the connector expects to be able to honor this liquidity curve. This MUST be expressed in the UTC + 0 (Z) timezone. |
 
 `LiquidityCurve` is encoded as a `SEQUENCE OF SEQUENCE { x UInt64, y UInt64 }`. This is a binary format, so for example the curve `[ [0, 0], [10, 265] ]` is equivalent to the base64-encoded string `"AAAAAAAAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAkBAAA="`.
 
