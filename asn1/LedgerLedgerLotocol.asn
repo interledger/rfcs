@@ -1,23 +1,94 @@
-LedgerLedgerLotocol
+LedgerLedgerLrotocol
 DEFINITIONS
 AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
-    UInt32
+    UInt8,
+    UInt32,
+    UInt64,
+    UInt128,
+    UInt256
     FROM GenericTypes
+
+    SideProtocolDate
+    FROM GenericPacket
 
     InterledgerPacket
     FROM GenericPacket
+
+    Address,
+    Timestamp
+    FROM InterledgerTypes
 ;
 
-LedgerLedgerLotocolPacket ::= SEQUENCE {
-    -- Allow multiple accounts to be multiplexed on one connection
-    accountId UInt32,
-    -- Used to associate requests and corresponding responses
-    -- If requestId = 0, the server MUST not send a response
-    requestId UInt32,
-    packet InterledgerPacket
+FreeRequest ::= SEQUENCE {
+  fromId UInt128,
+  toId UInt128,
+  requestId UInt128,
+  packet InterledgerPacket,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+PaidRequest ::= SEQUENCE {
+  fromId UInt128,
+  toId UInt128,
+  requestId UInt128,
+  amount UInt64,
+  packet InterledgerPacket,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+PrepareRequest ::= SEQUENCE {
+  fromId UInt128,
+  toId UInt128,
+  requestId UInt128,
+  amount UInt64,
+  condition UInt256,
+  expiresAt Timestamp,
+  packet InterledgerPacket,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+Ack ::= SEQUENCE {
+  requestIdRef UInt128
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+FulfillRequest ::= SEQUENCE {
+  requestIdRef UInt128,
+  fulfillment UInt256,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+RejectRequest ::= SEQUENCE {
+  requestIdRef UInt128,
+  rejectionReason InterledgerPacket,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+TransferStateRequest ::= SEQUENCE {
+  requestIdRef UInt128,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+TransferStateResponse ::= SEQUENCE {
+  requestIdRef UInt128,
+  state CHOICE {
+    fulfillment UInt256,
+    rejectionReason InterledgerPacket,
+    prepared NULL,
+    nonExistent NULL
+  },
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
 }
 
 END

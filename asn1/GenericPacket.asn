@@ -19,16 +19,6 @@ IMPORTS
     QuoteByDestinationAmountRequest,
     QuoteByDestinationAmountResponse
     FROM InterledgerQuotingProtocol
-
-    PrepareRequest,
-    PrepareResponse,
-    FulfillRequest,
-    FulfillResponse,
-    RejectRequest,
-    RejectResponse,
-    TransferStateRequest,
-    TransferStateResponse
-    FROM TransferProtocol
 ;
 
 SideProtocolData ::= SEQUENCE OF SEQUENCE {
@@ -77,14 +67,6 @@ LowPacketSet LOWPACKET ::= {
     {6 QuoteByDestinationAmountRequest} |
     {7 QuoteByDestinationAmountResponse} |
     {8 InterledgerProtocolError}
-    {9 PrepareRequest} |
-    {10 PrepareResponse} |
-    {11 FulfillRequest} |
-    {12 FulfillResponse} |
-    {13 RejectRequest} |
-    {14 RejectResponse} |
-    {15 TransferStateRequest} |
-    {16 TransferStateResponse} |
 
     {253 CustomRequest} |
     {254 CustomResponse} |
