@@ -124,8 +124,13 @@ CallSet CALL ::= {
 LedgerLedgerLotocolPacket ::= SEQUENCE {
     -- One byte type ID
     type CALL.&typeId ({CallSet}),
-    -- Allow multiple accounts to be multiplexed on one connection
-    accountId UInt32,
+    -- If the to and/or from addresses can be inferred from the
+    -- context (for example, if the connection is a bilateral
+    -- trustline), these values MAY be set to 0-byte strings
+    -- Peers MAY also use shorter aliases to avoid repeatedly
+    -- sending the full ILP Addresses over the wire
+    to Address,
+    from Address,
     -- Used to associate requests and corresponding responses
     -- If requestId = 0, the server MUST not send a response
     requestId UInt32,
