@@ -1,6 +1,6 @@
 ---
 title: The Pre-Shared Key Transport Protocol (PSK)
-draft: 1
+draft: 2
 ---
 # Pre-Shared Key Transport Protocol (PSK)
 
@@ -33,7 +33,11 @@ A disadvantage of PSK is that it is repudiable. Although the sender does get cry
 
 ## Data Format
 
-The PSK details are divided into two sets of headers. Each set of headers is formatted like those found in [HTTP Requests](https://tools.ietf.org/html/rfc7230#section-3.2). Application data is appended to the private headers, after a blank line. This object is then encrypted and appended to the public headers as binary data, after a blank line. Both private and public headers are parsed in the exact same way as HTTP headers. All strings are UTF-8 encoded.
+The PSK details are divided into two sets of headers. Each set of headers is formatted like those found in [HTTP Requests](https://tools.ietf.org/html/rfc7230#section-3.2) and follows the format `Header-Name: Header-Value`. Note that implementations have to validate inputs before using it as part of `Header-Name` or `Header-Value`. 
+
+**PSK Headers MUST NOT contain any line feed characters such as `\n`**. Implementations failing to enforce this requirement may be vulnerable to [Header Injection Attacks](https://en.wikipedia.org/wiki/HTTP_header_injection).
+
+Application data is appended to the private headers, after a blank line. This object is then encrypted and appended to the public headers as binary data, after a blank line. Both private and public headers are parsed in the exact same way as HTTP headers. All strings are UTF-8 encoded.
 
 ### Nonce
 
