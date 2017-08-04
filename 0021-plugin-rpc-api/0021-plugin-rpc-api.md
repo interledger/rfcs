@@ -1,21 +1,42 @@
 ---
 title: Plugin RPC API
-draft: 2
+draft: 3
 ---
 # Plugin RPC API
 
+This spec depends on the [LPI spec](../0004-ledger-plugin-interface/).
+
 ## Description
 
-> TODO
+This specification details how to serialize Interledger's Ledger Plugin Interface over http.
 
 ## Specification
 
-### Send Transfer
+For every method of the LedgerPlugin class, it defines a Remote Procedure Call (RPC) method.
+All RPC methods are implemented as a http or
+https POST to an endpoint URL, with the method name as the 'method' query parameter.
+The post body is a JSON document representing the array of method arguments.
+
+For each `incoming_*` event defined by the LPI spec, a corresponding RPC call will be made in the opposite direction,
+namely:
+* `incoming_transfer` -> `sendTransfer`
+* `incoming_fulfill` -> `fulfillCondition`
+* `incoming_reject` -> `rejectIncomingTransfer`
+* `incoming_request` -> `sendRequest`
+
+Note incoming requests are a special case, because they require a response.
+Instead of taking the request response from the currently registered request handler, a http call for the `sendRequest`
+method is made, and its response body parsed as a JSON document.
+
+Calls to `connect` and `disconnect`, `registerRequestHandler` and `deregisterRequestHandler`
+are silently ignored, and `isConnected` alwqys returns true.
+
+## Example (Send Transfer)
 
 #### Request
 
 ```http
-POST /rpc/?method=send_transfer&prefix=peer.me HTTP/1.1
+POST /rpc/?method=sendTransfer HTTP/1.1
 Host: rpchost
 Accept: application/json
 Content-Type: application/json
@@ -24,90 +45,15 @@ Authorization: Bearer ABCXYZ
 [
   {
     "id": "0e798bd6-213b-4b2f-bc1c-040788e7bae5",
-    "ledger": "peer.me.",
-    "to": "peer.me.Y_luxphkAy6ddYzuXb9lXxS60zg5tHjrPh8zz_BfwEA",
-    "amount": "348807",
-    "ilp": "ARwAAAAAB1TUwA5nLnVzLm5leHVzLmJvYgMEEEEA",
-    "executionCondition": "7td8LdXdYkv-6WXWdMlPZ1DhROwRFdazA0m3kTz4LUI",
-    "expiresAt": "2017-06-14T11:58:18.509Z",
-    "direction": "outgoing"
-  }
-]
-```
-
-#### Response
-
-```http
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-true
-```
-
-### Send Request (ILQP)
-
-#### Request
-
-```http
-POST /rpc/?method=send_request&prefix=peer.me HTTP/1.1
-Host: rpchost
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer ABCXYZ
-
-[
-  {
-    "ledger": "peer.me.",
-    "to": "peer.me.Y_luxphkAy6ddYzuXb9lXxS60zg5tHjrPh8zz_BfwEA",
-    "ilp": "ARwAAAAAB1TUwA5nLnVzLm5leHVzLmJvYgMEEEEA"
-  }
-]
-```
-
-#### Response
-
-```http
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-{
-  "ledger": "peer.me.",
-  "to": "peer.me.P74ZwUNQr3QFK7UjCU4Is9ZuWUHtMqIuA",
-  "ilp": "AEEEEMgYvJmLzVHel5mLzVnLn5AwUT1BAAAAAwRA"
-}
-```
-
-### Send Request (Routing)
-
-#### Request
-
-```http
-POST /rpc/?method=send_request&prefix=peer.me HTTP/1.1
-Host: rpchost
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer ABCXYZ
-
-[
-  {
-    "ledger": "peer.me.",
     "from": "peer.me.P74ZwUNQr3QFK7UjCU4Is9ZuWUHtMqIuA",
     "to": "peer.me.Y_luxphkAy6ddYzuXb9lXxS60zg5tHjrPh8zz_BfwEA",
-    "custom": {
-      "method": "broadcast_routes",
-      "data": {
-        "new_routes": [ {
-          "source_ledger": "peer.me.",
-          "destination_ledger": "g.ledger.",
-          "points": "AAAAAAAAAAAAAAAAAAAAAP////////////////////8=",
-          "min_message_window": 1,
-          "paths": [ [] ],
-          "source_account": "peer.me.P74ZwUNQr3QFK7UjCU4Is9ZuWUHtMqIuA"
-        } ],
-        "hold_down_time": 600000,
-        "unreachable_through_me": []
-      }
-    }
+    "ledger": "peer.me.",
+    "amount": "348807",
+    "ilp": "ARwAAAAAB1TUwA5nLnVzLm5leHVzLmJvYgMEEEEA",
+    "noteToSelf": {},
+    "executionCondition": "7td8LdXdYkv-6WXWdMlPZ1DhROwRFdazA0m3kTz4LUI",
+    "expiresAt": "2017-06-14T11:58:18.509Z",
+    "custom": "outgoing"
   }
 ]
 ```
@@ -118,106 +64,5 @@ Authorization: Bearer ABCXYZ
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-{
-  "ledger": "peer.me.",
-  "to": "peer.me.P74ZwUNQr3QFK7UjCU4Is9ZuWUHtMqIuA",
-  "custom": {}
-}
-```
-
-### Fulfill Condition
-
-#### Request
-
-```http
-POST /rpc/?method=fulfill_condition&prefix=peer.me HTTP/1.1
-Host: rpchost
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer ABCXYZ
-
-[
-  "0e798bd6-213b-4b2f-bc1c-040788e7bae5",
-  "yMy5Sy5dTjQASrNjS0SywjbwH9nQaiFMWJv1QD3Q_VE"
-]
-```
-
-#### Response
-
-```http
-HTTP/1.1 200 OK
-Content-Type: application/json
-
 true
-```
-
-### Reject Incoming Transfer
-
-#### Request
-
-```http
-POST /rpc/?method=reject_incoming_transfer&prefix=peer.me HTTP/1.1
-Host: rpchost
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer ABCXYZ
-
-[
-  "0e798bd6-213b-4b2f-bc1c-040788e7bae5"
-]
-```
-
-#### Response
-
-```http
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-true
-```
-
-### Get Limit
-
-#### Request
-
-```http
-POST /rpc/?method=get_limit&prefix=peer.me HTTP/1.1
-Host: rpchost
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer ABCXYZ
-
-[]
-```
-
-#### Response
-
-```http
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-"-5000000000"
-```
-
-### Get Balance
-
-#### Request
-
-```http
-POST /rpc/?method=get_balance&prefix=peer.me HTTP/1.1
-Host: rpchost
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer ABCXYZ
-
-[]
-```
-
-#### Response
-
-```http
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-"10230045000"
 ```

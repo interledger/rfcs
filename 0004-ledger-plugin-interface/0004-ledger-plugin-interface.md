@@ -30,6 +30,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**sendRequest**](#sendrequest) ( message ) <code>⇒ Promise.&lt;[Message](#class-message)></code> |
 | | [**fulfillCondition**](#fulfillcondition) ( transferId, fulfillment ) <code>⇒ Promise.&lt;null></code> |
 | | [**rejectIncomingTransfer**](#rejectincomingtransfer) ( transferId, reason ) <code>⇒ Promise.&lt;null></code> |
+| | [**cancelIncomingTransfer**](#cancelincomingtransfer) ( transferId, reason ) <code>⇒ Promise.&lt;null></code> |
 | | [**registerRequestHandler**](#registerrequesthandler) ( requestHandler ) <code>⇒ null</code> |
 | | [**deregisterRequestHandler**](#deregisterrequesthandler) ( ) <code>⇒ null</code> |
 
@@ -298,6 +299,11 @@ if transfer is not conditional.
 
 This MAY be used by receivers or connectors to reject incoming funds if they will not fulfill the condition or are unable to forward the payment. Previous hops in an Interledger transfer would have their money returned before the expiry and the sender or previous connectors MAY retry and reroute the transfer through an alternate path.
 
+#### cancelIncomingTransfer
+<code>ledgerPlugin.cancelIncomingTransfer( **transferId**:String, **reason**:[RejectionMessage](#class-rejectionmessage) ) ⇒ Promise.&lt;null></code>
+
+Cancel an incoming transfer.
+
 #### registerRequestHandler
 <code>ledgerPlugin.registerRequestHandler( **requestHandler**: ( request: [Message](#class-message) ) ⇒ Promise&lt;[Message](#class-message)> ) ⇒ null</code>
 
@@ -472,14 +478,20 @@ left undefined (but not any other false-y value) if unused.
 | `String` | [from](#transferfrom) | ILP Address of the source account |
 | `String` | [to](#transferto) | ILP Address of the destination account |
 | `String` | [ledger](#transferledger) | ILP Address prefix of the ledger |
-| `String` | [amount](#transferamount) | Integer transfer amount, in the ledger's base unit |
+| `String` | [amount](#transferamount) | (always required) Integer transfer amount, in the ledger's base unit |
 | `String` | [ilp](#transferilp) | Base64-encoded ILP packet |
-| `Object` | [noteToSelf](#transfernotetoself) | Host-provided memo that should be stored with the transfer |
+| `Object` | [noteToSelf](#transfernotetoself) | (always optional) Host-provided memo that should be stored with the transfer |
 | `String` | [executionCondition](#transferexecutioncondition) | Cryptographic hold condition |
 | `String` | [expiresAt](#transferexpiresat) | Expiry time of the cryptographic hold |
-| `Object` | [custom](#transfercustom) | Object containing ledger plugin specific options |
+| `Object` | [custom](#transfercustom) | (always optional) Object containing ledger plugin specific options |
 
 ### Fields
+
+The `custom` and `noteToself` fields are always optional.
+Some ledger plugins may allow unconditional transfers, for which `executionCondition`, `expiresAt` and possibly also `id` can be omitted.
+Some ledger plugins may support local transfers for which `ilp` is omitted.
+Some ledgers may not require the `from`, `to`, and/or `ledger` fields, for instance if those are always the same anyway for every transfer.
+The only field that is always required, even for unconditional transfers, is `amount`.
 
 #### Transfer#id
 <code>**id**:String</code>
@@ -588,6 +600,10 @@ The `Message` class is used to describe local ledger message. All fields are req
 | `String` | [ilp](#messageilp) | Base64-encoded ILP packet |
 | `Object` | [custom](#messagecustom) | Object containing ledger plugin specific options |
 
+Either `ilp` or `custom` (but not both) should always be included.
+Some ledger plugins may allow `id` to be omitted.
+Some ledgers may not require the `from`, `to`, and/or `ledger` fields, for instance if those are always the same anyway for every message.
+
 #### Message#id
 <code>**id**:String</code>
 
@@ -650,6 +666,8 @@ Metadata describing the ledger. This data is returned by the [`getInfo`](#getinf
 | `String` | [maxBalance](#ledgerinfomaxbalance-optional) | Integer String, for instance `"1000000000000"`, indicating the maximum balance. Optional, defaults to plus infinity. |
 
 ### Fields
+
+The `prefix`, `currencyCode`, `currencyScale` and `connectors` fields are all required.
 
 #### LedgerInfo#prefix
 <code>**prefix**:String</code>
