@@ -1,0 +1,58 @@
+TransferProtocol
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt64,
+    UInt128,
+    UInt256
+    FROM GenericTypes
+
+    Timestamp
+    FROM InterledgerTypes
+
+    InterledgerPacket
+    FROM GenericPacket
+
+    InterledgerProtocolError
+    FROM InterledgerProtocol
+;
+
+-- TODO: is it too strange for a Transfer to be an InterledgerPacket itself?
+-- (that means you technically could include a Transfer in a Transfer)
+Transfer ::= SEQUENCE {
+  transferId UInt128,
+  amount UInt64,
+  packet InterledgerPacket
+  -- TODO: is it worth putting extensions?
+}
+
+ConditionalTransfer ::= SEQUENCE {
+  transferId UInt128,
+  amount UInt64,
+  packet InterledgerPacket,
+  expiresAt Timestamp,
+  executionCondition UInt256
+}
+
+ConditionFulfillment ::= SEQUENCE {
+  transferId UInt128,
+  fulfillment UInt256
+}
+
+TransferStateRequest ::= SEQUENCE {
+  transferId UInt128
+}
+
+TransferStateResponse ::= SEQUENCE {
+  -- TODO: is it worth having this in a sequence?
+  state CHOICE {
+    fulfillment UInt256,
+    rejectionReason InterledgerProtocolError,
+    prepared NULL,
+    nonExistent NULL
+  }
+}
+
+END

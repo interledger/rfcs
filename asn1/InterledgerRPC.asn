@@ -1,0 +1,33 @@
+LedgerLedgerLotocol
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt32
+    FROM GenericTypes
+
+    Address,
+    CustomMessage
+    FROM InterledgerTypes
+
+    InterledgerPacket
+    FROM GenericPacket
+;
+
+InterledgerRpc ::= SEQUENCE {
+    -- to and from can be empty strings if they can be
+    -- inferred from the context
+    to Address,
+    from Address,
+    -- Used to associate requests and corresponding responses
+    -- If requestId = 0, the server MUST not send a response
+    requestId UInt32,
+    packet InterledgerPacket,
+    -- Additional data for protocol extensibility
+    sideProtocolData SEQUENCE OF CustomMessage
+}
+-- Note: any RPC call can be turned into a paid (or conditionally paid) request
+-- by setting the packet to either a Transfer or a ConditionalTransfer
+
+END
