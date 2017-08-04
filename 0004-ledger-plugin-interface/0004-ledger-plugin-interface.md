@@ -1,6 +1,6 @@
 ---
 title: The Javascript Ledger Plugin Interface
-draft: 2
+draft: 3
 ---
 # Javascript Ledger Plugin Interface
 
@@ -68,6 +68,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**TransferNotConditionalError**]() | A requested transfer is not conditional and cannot be rejected/fulfilled/etc. |
 | [**NotAcceptedError**]() | An operation has been rejected due to ledger-side logic |
 | [**NoSubscriptionsError**]() | A transfer or message cannot be delivered because there are no active websockets |
+| [**RequestHandlerAlreadyRegisteredError**]() | The current request handler callback must be unset before a new one can be registered |
 
 ### Instance Management
 
