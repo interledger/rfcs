@@ -59,6 +59,13 @@ Ack ::= SEQUENCE {
   sideProtocolData SideProtocolData
 }
 
+Response ::= SEQUENCE {
+  requestIdRef UInt128
+  packet InterledgerPacket,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
 FulfillRequest ::= SEQUENCE {
   requestIdRef UInt128,
   fulfillment UInt256,
