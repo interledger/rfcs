@@ -21,12 +21,44 @@ IMPORTS
     FROM InterledgerQuotingProtocol
 ;
 
-PACKET ::= CLASS {
+SideProtocolData ::= SEQUENCE OF SEQUENCE {
+  protocolName IA5String,
+  protocolData OCTET STRING
+}
+
+CustomRequest ::= SEQUENCE {
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+CustomResponse ::= SEQUENCE {
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+HIGHPACKET ::= CLASS {
+    &typeId UInt16 UNIQUE,
+    &Type
+} WITH SYNTAX {&typeId &Type}
+
+HighPacketSet HIGHPACKET ::= {
+    -- nothing here yet, will start filling up when the LowPacketSet is full
+}
+
+-- wraps a high packet into a low packet:
+HighPacketWrapper ::= SEQUENCE {
+  -- Two byte type ID
+  type HIGHPACKET.&typeId ({HighPacketSet}),
+  -- Length-prefixed header
+  data HIGHPACKET.&Type ({HighPacketSet}{@type})
+}
+
+LOWPACKET ::= CLASS {
     &typeId UInt8 UNIQUE,
     &Type
 } WITH SYNTAX {&typeId &Type}
 
-PacketSet PACKET ::= {
+LowPacketSet LOWPACKET ::= {
     {1 InterledgerProtocolPayment} |
     {2 QuoteLiquidityRequest} |
     {3 QuoteLiquidityResponse} |
@@ -35,13 +67,18 @@ PacketSet PACKET ::= {
     {6 QuoteByDestinationAmountRequest} |
     {7 QuoteByDestinationAmountResponse} |
     {8 InterledgerProtocolError}
+
+    {253 CustomRequest} |
+    {254 CustomResponse} |
+    -- any HighPacket can easily be wrapped into a LowPacket using this type:
+    {255 HighPacketWrapper}
 }
 
 InterledgerPacket ::= SEQUENCE {
     -- One byte type ID
-    type PACKET.&typeId ({PacketSet}),
+    type LOWPACKET.&typeId ({LowPacketSet}),
     -- Length-prefixed header
-    data PACKET.&Type ({PacketSet}{@type})
+    data LOWPACKET.&Type ({LowPacketSet}{@type})
 }
 
 END
