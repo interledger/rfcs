@@ -19,6 +19,17 @@ IMPORTS
     QuoteByDestinationAmountRequest,
     QuoteByDestinationAmountResponse
     FROM InterledgerQuotingProtocol
+
+    Transfer,
+    ConditionalTransfer,
+    ConditionFulfillment,
+    TransferStateRequest,
+    TransferStateResponse,
+    FROM TransferProtocol
+
+    Ack,
+    CustomMessage
+    FROM InterledgerTypes
 ;
 
 PACKET ::= CLASS {
@@ -34,7 +45,14 @@ PacketSet PACKET ::= {
     {5 QuoteBySourceAmountResponse} |
     {6 QuoteByDestinationAmountRequest} |
     {7 QuoteByDestinationAmountResponse} |
-    {8 InterledgerProtocolError}
+    {8 InterledgerProtocolError} |
+    {9 Transfer } |
+    {10 ConditionalTransfer } |
+    {11 ConditionFulfillment } |
+    {12 TransferStateRequest } |
+    {13 TransferStateResponse } |
+    {14 Ack } |
+    {15 CustomMessage }
 }
 
 InterledgerPacket ::= SEQUENCE {

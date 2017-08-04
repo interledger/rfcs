@@ -25,7 +25,7 @@ Address ::= IA5String
         | "a".."z"
         | tilde )
     )
-    (SIZE (1..1023))
+    (SIZE (0..1023))
 
 -- --------------------------------------------------------------------------
 
@@ -69,5 +69,16 @@ LiquidityCurve ::= SEQUENCE OF SEQUENCE {
   x UInt64,
   y UInt64
 }
+
+Ack ::= NULL
+
+CustomMessage ::= {
+  type IA5String,
+  -- mimeType SHOULD be defined but it MAY be an empty string if
+  -- the encoding is implied by the type
+  mimeType IA5String,
+  data OCTET STRING (SIZE (0..32767))
+}
+
 
 END
