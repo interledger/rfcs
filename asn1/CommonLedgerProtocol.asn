@@ -21,19 +21,23 @@ SideProtocolData ::= SEQUENCE OF SEQUENCE {
   protocolData OCTET STRING
 }
 
-PacketRequest ::= SEQUENCE {
+Ack ::= SEQUENCE {
+  ack NULL,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+Response ::= SEQUENCE {
   packet InterledgerPacket,
   -- Additional data for protocol extensibility
   sideProtocolData SideProtocolData
 }
 
-PacketResponse ::= SEQUENCE {
-  packet InterledgerPacket,
-  -- Additional data for protocol extensibility
+CustomResponse ::= SEQUENCE {
   sideProtocolData SideProtocolData
 }
 
-PrepareRequest ::= SEQUENCE {
+Prepare ::= SEQUENCE {
   transferId UInt128,
   amount UInt64,
   condition UInt256,
@@ -43,42 +47,27 @@ PrepareRequest ::= SEQUENCE {
   sideProtocolData SideProtocolData
 }
 
-PrepareResponse ::= SEQUENCE {
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-FulfillRequest ::= SEQUENCE {
+Fulfill ::= SEQUENCE {
   transferId UInt128,
   fulfillment UInt256,
   -- Additional data for protocol extensibility
   sideProtocolData SideProtocolData
 }
 
-FulfillResponse ::= SEQUENCE {
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-RejectRequest ::= SEQUENCE {
+Reject ::= SEQUENCE {
   transferId UInt128,
   rejectionReason InterledgerPacket,
   -- Additional data for protocol extensibility
   sideProtocolData SideProtocolData
 }
 
-RejectResponse ::= SEQUENCE {
+Message ::= SEQUENCE {
+  packet InterledgerPacket,
   -- Additional data for protocol extensibility
   sideProtocolData SideProtocolData
 }
 
 CustomRequest ::= SEQUENCE {
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-CustomResponse ::= SEQUENCE {
-  -- Additional data for protocol extensibility
   sideProtocolData SideProtocolData
 }
 
@@ -88,18 +77,14 @@ CALL ::= CLASS {
 } WITH SYNTAX {&typeId &Type}
 
 CallSet CALL ::= {
-    -- All requests MUST use odd typeIds
-    -- All responses MUST use even typeIds
-    {1 PacketRequest} |
-    {2 PacketResponse} |
-    {3 PrepareRequest} |
-    {4 PrepareResponse} |
-    {5 FulfillRequest} |
-    {6 FulfillResponse} |
-    {7 RejectRequest} |
-    {8 RejectResponse} |
-    {9 CustomRequest} |
-    {10 CustomResponse}
+    {1 Ack} |
+    {2 Response} |
+    {3 CustomResponse} |
+    {4 Prepare} |
+    {5 Fulfill} |
+    {6 Reject} |
+    {7 Message} |
+    {8 CustomRequest}
 }
 
 CommonLedgerProtocolPacket ::= SEQUENCE {
