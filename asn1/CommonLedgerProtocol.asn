@@ -1,4 +1,4 @@
-LedgerLedgerLotocol
+CommonLedgerProtocol
 DEFINITIONS
 AUTOMATIC TAGS ::=
 BEGIN
@@ -121,7 +121,7 @@ CallSet CALL ::= {
     {12 CustomResponse}
 }
 
-LedgerLedgerLotocolPacket ::= SEQUENCE {
+CommonLedgerProtocolPacket ::= SEQUENCE {
     -- One byte type ID
     type CALL.&typeId ({CallSet}),
     -- Allow multiple accounts to be multiplexed on one connection
