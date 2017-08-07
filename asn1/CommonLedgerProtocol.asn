@@ -124,8 +124,6 @@ CallSet CALL ::= {
 CommonLedgerProtocolPacket ::= SEQUENCE {
     -- One byte type ID
     type CALL.&typeId ({CallSet}),
-    -- Allow multiple accounts to be multiplexed on one connection
-    accountId UInt32,
     -- Used to associate requests and corresponding responses
     -- If requestId = 0, the server MUST not send a response
     requestId UInt32,
