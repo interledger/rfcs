@@ -72,23 +72,6 @@ RejectResponse ::= SEQUENCE {
   sideProtocolData SideProtocolData
 }
 
-TransferStateRequest ::= SEQUENCE {
-  transferId UInt128,
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-TransferStateResponse ::= SEQUENCE {
-  state CHOICE {
-    fulfillment UInt256,
-    rejectionReason InterledgerPacket,
-    prepared NULL,
-    nonExistent NULL
-  },
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
 CustomRequest ::= SEQUENCE {
   -- Additional data for protocol extensibility
   sideProtocolData SideProtocolData
@@ -115,10 +98,8 @@ CallSet CALL ::= {
     {6 FulfillResponse} |
     {7 RejectRequest} |
     {8 RejectResponse} |
-    {9 TransferStateRequest} |
-    {10 TransferStateResponse} |
-    {11 CustomRequest} |
-    {12 CustomResponse}
+    {9 CustomRequest} |
+    {10 CustomResponse}
 }
 
 CommonLedgerProtocolPacket ::= SEQUENCE {
