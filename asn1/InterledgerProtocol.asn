@@ -40,4 +40,9 @@ InterledgerProtocolError ::= SEQUENCE {
     data OCTET STRING (SIZE (0..8192))
 }
 
+InterledgerSideProtocolData ::= SEQUENCE OF SEQUENCE {
+  protocolName IA5String,
+  protocolData OCTET STRING
+}
+
 END

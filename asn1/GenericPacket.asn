@@ -9,7 +9,8 @@ IMPORTS
     FROM GenericTypes
 
     InterledgerProtocolPaymentMessage,
-    InterledgerProtocolError
+    InterledgerProtocolError,
+    InterledgerSideProtocolData,
     FROM InterledgerProtocol
 
     QuoteLiquidityRequest,
@@ -34,7 +35,8 @@ PacketSet PACKET ::= {
     {5 QuoteBySourceAmountResponse} |
     {6 QuoteByDestinationAmountRequest} |
     {7 QuoteByDestinationAmountResponse} |
-    {8 InterledgerProtocolError}
+    {8 InterledgerProtocolError} |
+    {9 InterledgerSideProtocolData}
 }
 
 InterledgerPacket ::= SEQUENCE {
