@@ -21,19 +21,21 @@ SideProtocolData ::= SEQUENCE OF SEQUENCE {
   protocolData OCTET STRING
 }
 
-Ack ::= SEQUENCE {
-  ack NULL,
+Request ::= SEQUENCE {
+  packet CHOICE {
+    null NULL,
+    packet InterledgerPacket,
+  }
   -- Additional data for protocol extensibility
   sideProtocolData SideProtocolData
 }
 
 Response ::= SEQUENCE {
-  packet InterledgerPacket,
+  packet CHOICE {
+    null NULL,
+    packet InterledgerPacket,
+  }
   -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-CustomResponse ::= SEQUENCE {
   sideProtocolData SideProtocolData
 }
 
@@ -61,36 +63,23 @@ Reject ::= SEQUENCE {
   sideProtocolData SideProtocolData
 }
 
-Message ::= SEQUENCE {
-  packet InterledgerPacket,
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-CustomRequest ::= SEQUENCE {
-  sideProtocolData SideProtocolData
-}
-
 CALL ::= CLASS {
     &typeId UInt8 UNIQUE,
     &Type
 } WITH SYNTAX {&typeId &Type}
 
 CallSet CALL ::= {
-    {1 Ack} |
+    {1 Request} |
     {2 Response} |
-    {3 CustomResponse} |
-    {4 Prepare} |
-    {5 Fulfill} |
-    {6 Reject} |
-    {7 Message} |
-    {8 CustomRequest}
+    {3 Prepare} |
+    {4 Fulfill} |
+    {5 Reject}
 }
 
 CommonLedgerProtocolPacket ::= SEQUENCE {
     -- One byte type ID
     type CALL.&typeId ({CallSet}),
-    -- Used to associate requests and corresponding responses
+    -- Used to associate responses with calls they respond to
     -- If requestId = 0, the server MUST not send a response
     requestId UInt32,
     -- Length-prefixed main data
