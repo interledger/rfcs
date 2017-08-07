@@ -40,7 +40,7 @@ CustomResponse ::= SEQUENCE {
 Prepare ::= SEQUENCE {
   transferId UInt128,
   amount UInt64,
-  condition UInt256,
+  executionCondition UInt256,
   expiresAt Timestamp,
   packet InterledgerPacket,
   -- Additional data for protocol extensibility
