@@ -1,3 +1,7 @@
+---
+title: Five Bells Ledger API
+draft: 1
+---
 # Five Bells Ledger API
 
 The Five Bells Ledger API is a RESTful API served by a ledger (or an adapter), which provides functionality necessary for ILP compatibility. The Five Bells Ledger API provides a single standard API that a ledger can serve in order to ease integration with other Interledger Protocol components and applications, such as the reference ILP Client and ILP Connector. This is not the only way a ledger can become ILP-enabled, but it provides a template that minimizes the integration work necessary for compatibility with ILP software.
