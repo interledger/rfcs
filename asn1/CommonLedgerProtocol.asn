@@ -5,15 +5,11 @@ BEGIN
 
 IMPORTS
     UInt8,
-    UInt32,
-    UInt64,
-    UInt128,
-    UInt256
+    UInt32
     FROM GenericTypes
 
-    Address,
-    Timestamp
-    FROM InterledgerTypes
+    GenericPacket
+    FROM GenericPacket
 ;
 
 SideProtocolData ::= SEQUENCE OF SEQUENCE {
@@ -21,44 +17,21 @@ SideProtocolData ::= SEQUENCE OF SEQUENCE {
   protocolData OCTET STRING
 }
 
-Request ::= SEQUENCE {
-  packet CHOICE {
-    null NULL,
-    packet InterledgerPacket,
-  }
+Request ::= NULL
+Response ::= NULL
+RequestWithPacket ::= GenericPacket
+ResponseWithPacket ::= GenericPacket
+RequestWithSideProtocolData ::=  SideProtocolData
+ResponseWithSideProtocolData ::= SideProtocolData
+
+RequestWithPacketAndSideProtocolData ::= SEQUENCE {
+  packet GenericPacket
   -- Additional data for protocol extensibility
   sideProtocolData SideProtocolData
 }
 
-Response ::= SEQUENCE {
-  packet CHOICE {
-    null NULL,
-    packet InterledgerPacket,
-  }
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-Prepare ::= SEQUENCE {
-  transferId UInt128,
-  amount UInt64,
-  condition UInt256,
-  expiresAt Timestamp,
-  packet InterledgerPacket,
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-Fulfill ::= SEQUENCE {
-  transferId UInt128,
-  fulfillment UInt256,
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
-
-Reject ::= SEQUENCE {
-  transferId UInt128,
-  rejectionReason InterledgerPacket,
+ResponseWithPacketAndSideProtocolData ::= SEQUENCE {
+  packet GenericPacket,
   -- Additional data for protocol extensibility
   sideProtocolData SideProtocolData
 }
@@ -71,9 +44,12 @@ CALL ::= CLASS {
 CallSet CALL ::= {
     {1 Request} |
     {2 Response} |
-    {3 Prepare} |
-    {4 Fulfill} |
-    {5 Reject}
+    {3 RequestWithPacket} |
+    {4 ResponseWithPacket} |
+    {5 RequestWithSideProtocolData} |
+    {6 ResponseWithSicdeProtocolData} |
+    {7 RequestWithPacketAndSideProtocolData} |
+    {8 ResponseWithPacketAndSideProtocolData}
 }
 
 CommonLedgerProtocolPacket ::= SEQUENCE {
