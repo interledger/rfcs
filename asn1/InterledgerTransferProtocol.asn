@@ -1,0 +1,38 @@
+InterledgerTransferProtocol
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt64,
+    UInt128,
+    UInt256
+    FROM GenericTypes
+
+    Timestamp
+    FROM InterledgerTypes
+    
+    InterledgerProtocolPayment,
+    InterledgerProtocolError
+    FROM InterledgerProtocol
+;
+
+TransferRequest ::= SEQUENCE {
+  transferId UInt128,
+  amount UInt64,
+  executionCondition UInt256,
+  expiresAt Timestamp,
+  packet InterledgerProtocolPayment,
+}
+
+SuccessfulTransferResponse ::= SEQUENCE {
+  transferId UInt128,
+  fulfillment UInt256
+}
+
+FailedTransferResponse ::= SEQUENCE {
+  transferId UInt128,
+  error InterledgerProtocolError
+}
+
+END
