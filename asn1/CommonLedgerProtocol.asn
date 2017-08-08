@@ -75,9 +75,7 @@ Message ::= SEQUENCE {
   sideProtocolData SideProtocolData
 }
 
-CustomRequest ::= SEQUENCE {
-  sideProtocolData SideProtocolData
-}
+CustomRequest ::= SideProtocolData
 
 CALL ::= CLASS {
     &typeId UInt8 UNIQUE,
