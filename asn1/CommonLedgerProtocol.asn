@@ -21,11 +21,11 @@ SideProtocolData ::= SEQUENCE OF SEQUENCE {
   protocolData OCTET STRING
 }
 
-Ack ::= SEQUENCE {
-  ack NULL,
-  -- Additional data for protocol extensibility
-  sideProtocolData SideProtocolData
-}
+-- Ack and Response are the response types.
+-- When using these in a CLP packet, the requestId should match
+-- the requestId of the request they respond to.
+
+Ack ::= SideProtocolData
 
 Response ::= SEQUENCE {
   packet InterledgerPacket,
@@ -33,9 +33,14 @@ Response ::= SEQUENCE {
   sideProtocolData SideProtocolData
 }
 
-CustomResponse ::= SEQUENCE {
-  sideProtocolData SideProtocolData
-}
+-- Prepare, Fulfill, Reject, Message, and CustomRequest are the request types.
+-- They are sent through the ledger, to the connector.
+-- They will trigger one of the following responses:
+-- * no response, if requestId=0
+-- * an ilp-error, produced by the ledger (e.g. if the request is malformed)
+-- * an ilp-error, produced by the connector (e.g. if no quote was found)
+-- * an ilqp-response or other ILP-packet success response from the connector
+-- * an Ack, if there was no result or error to report
 
 Prepare ::= SEQUENCE {
   transferId UInt128,
@@ -79,12 +84,11 @@ CALL ::= CLASS {
 CallSet CALL ::= {
     {1 Ack} |
     {2 Response} |
-    {3 CustomResponse} |
-    {4 Prepare} |
-    {5 Fulfill} |
-    {6 Reject} |
-    {7 Message} |
-    {8 CustomRequest}
+    {3 Prepare} |
+    {4 Fulfill} |
+    {5 Reject} |
+    {6 Message} |
+    {7 CustomRequest}
 }
 
 CommonLedgerProtocolPacket ::= SEQUENCE {
