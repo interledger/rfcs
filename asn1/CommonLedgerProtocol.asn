@@ -1,0 +1,65 @@
+CommonLedgerProtocol
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt8,
+    UInt32
+    FROM GenericTypes
+
+    GenericPacket
+    FROM GenericPacket
+;
+
+SideProtocolData ::= SEQUENCE OF SEQUENCE {
+  protocolName IA5String,
+  protocolData OCTET STRING
+}
+
+Request ::= NULL
+Response ::= NULL
+RequestWithPacket ::= GenericPacket
+ResponseWithPacket ::= GenericPacket
+RequestWithSideProtocolData ::=  SideProtocolData
+ResponseWithSideProtocolData ::= SideProtocolData
+
+RequestWithPacketAndSideProtocolData ::= SEQUENCE {
+  packet GenericPacket
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+ResponseWithPacketAndSideProtocolData ::= SEQUENCE {
+  packet GenericPacket,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+CALL ::= CLASS {
+    &typeId UInt8 UNIQUE,
+    &Type
+} WITH SYNTAX {&typeId &Type}
+
+CallSet CALL ::= {
+    {1 Request} |
+    {2 Response} |
+    {3 RequestWithPacket} |
+    {4 ResponseWithPacket} |
+    {5 RequestWithSideProtocolData} |
+    {6 ResponseWithSicdeProtocolData} |
+    {7 RequestWithPacketAndSideProtocolData} |
+    {8 ResponseWithPacketAndSideProtocolData}
+}
+
+CommonLedgerProtocolPacket ::= SEQUENCE {
+    -- One byte type ID
+    type CALL.&typeId ({CallSet}),
+    -- Used to associate responses with calls they respond to
+    -- If requestId = 0, the server MUST not send a response
+    requestId UInt32,
+    -- Length-prefixed main data
+    data CALL.&Type ({CallSet}{@type})
+}
+
+END

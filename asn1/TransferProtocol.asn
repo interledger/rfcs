@@ -1,0 +1,51 @@
+TransferProtocol
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt64,
+    UInt128,
+    UInt256
+    FROM GenericTypes
+
+    Address,
+    Timestamp
+    FROM InterledgerTypes
+;
+
+
+Prepare ::= SEQUENCE {
+  transferId UInt128,
+  amount UInt64,
+  condition UInt256,
+  expiresAt Timestamp,
+  ilp GenericPacket,
+
+  -- Enable ASN.1 Extensibility
+  extensions SEQUENCE {
+      ...
+  }
+}
+
+Fulfill ::= SEQUENCE {
+  transferId UInt128,
+  fulfillment UInt256,
+
+  -- Enable ASN.1 Extensibility
+  extensions SEQUENCE {
+      ...
+  }
+}
+
+Reject ::= SEQUENCE {
+  transferId UInt128,
+  rejectionReason GenericPacket,
+
+  -- Enable ASN.1 Extensibility
+  extensions SEQUENCE {
+      ...
+  }
+}
+
+END
