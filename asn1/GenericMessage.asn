@@ -1,0 +1,79 @@
+GenericMessage
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt8
+    UInt128
+    UInt256
+    FROM GenericTypes
+
+    Timestamp
+    FROM InterledgerTypes
+;
+
+SideProtocolData ::= SEQUENCE OF SEQUENCE {
+  protocolName IA5String,
+  protocolData OCTET STRING
+}
+
+AckResponseMessage ::= SEQUENCE {
+  -- The messageId of the request
+  correlationId UInt32,
+}
+
+ErrorResponseMessage ::= SEQUENCE {
+  -- The messageId of the request
+  correlationId UInt32,
+  -- The error data (Could define a struct here for messaging errors?)
+  error OCTET STRING (SIZE (0..8192))
+
+  sideProtocolData SideProtocolData
+}
+
+InterledgerRequestMessage ::= SEQUENCE {
+  packet InterledgerPacket,
+  sideProtocolData SideProtocolData
+}
+
+InterledgerResponseMessage ::= SEQUENCE {
+  -- The messageId of the request
+  correlationId UInt32,
+  packet InterledgerPacket,
+  sideProtocolData SideProtocolData
+}
+
+GenericRequestMessage ::= SEQUENCE {
+  sideProtocolData SideProtocolData
+}
+
+GenericResponseMessage ::= SEQUENCE {
+  correlationId UInt32,
+  sideProtocolData SideProtocolData
+}
+
+MESSAGE ::= CLASS {
+    &typeId UInt8 UNIQUE,
+    &Type
+} WITH SYNTAX {&typeId &Type}
+
+MessageSet MESSAGE ::= {
+    {1 AckResponseMessage} |
+    {2 ErrorResponseMessage} |
+    {3 InterledgerRequestMessage} |
+    {4 InterledgerResponseMessage} |
+    {5 GenericRequestMessage} |
+    {6 GenericResponseMessage} 
+}
+
+MessagePacket ::= SEQUENCE {
+    -- Unique identifier for the message
+    messageId UInt32,
+    -- One byte type ID
+    type MESSAGE.&typeId ({MessageSet}),
+    -- Length-prefixed message data
+    data MESSAGE.&Type ({MessageSet}{@type})
+}
+
+END
