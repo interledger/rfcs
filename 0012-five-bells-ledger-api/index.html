@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Payments across payment networks">
+
+    <title>Five Bells Ledger API | Interledger</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link href="/css/monokai-sublime.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    <!-- Google fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,200,600,700|Droid+Sans+Mono|Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
+
+    <!-- Font awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
+
+    <link href="/assets/favicon.ico" rel="icon" type="image/x-icon">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body data-spy="scroll" data-target="#myScrollspy" data-offset="160" class="spec">
+
+     <!-- navbar -->
+      <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><img class="logo" alt="interledger" src="/assets/ilp_icon.png"/></a>
+          </div>
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="/overview.html">Docs</a></li>
+              <li><a href="/community.html">Community</a></li>
+              <li><a href="/news.html">News</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a target="_blank" href="https://github.com/interledger">Github</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+    <!-- docs overview section -->
+
+    <div class="container docs-wrapper">
+      <div class="row">
+        <div id="sidebarContent">
+          <nav class="col-sm-4" id="myScrollspy">
+            <ul class="nav-fixed nav nav-sidebar">
+              <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
+                <li class="nav-label">
+                  <a href="./draft-1.html">ILP-RFC 0012 Draft 1</a>
+                </li>
+                <li>
+                  <a href="./draft-1.html">Permalink to this Draft</a>
+                </li>
+                <li>
+                  <a href="./">View the Latest Draft of ILP-RFC 0012</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#overview">Overview</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#conventions">Conventions</a>
+                </li>
+              
+                <li>
+                  <a href="#json">JSON</a>
+                </li>
+              
+                <li>
+                  <a href="#amounts">Amounts</a>
+                </li>
+              
+                <li>
+                  <a href="#assets-and-currency">Assets and Currency</a>
+                </li>
+              
+                <li>
+                  <a href="#scope">Scope</a>
+                </li>
+              
+                <li>
+                  <a href="#authorization-and-authentication">Authorization and Authentication</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#data-types">Data Types</a>
+                </li>
+              
+                <li>
+                  <a href="#transfer-resource">Transfer Resource</a>
+                </li>
+              
+                <li>
+                  <a href="#account-resource">Account Resource</a>
+                </li>
+              
+                <li>
+                  <a href="#message-resource">Message Resource</a>
+                </li>
+              
+                <li>
+                  <a href="#crypto-conditions">Crypto-Conditions</a>
+                </li>
+              
+                <li>
+                  <a href="#urls">URLs</a>
+                </li>
+              
+                <li>
+                  <a href="#date-time">Date-Time</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#api-methods">API Methods</a>
+                </li>
+              
+                <li>
+                  <a href="#get-ledger-metadata">Get Ledger Metadata</a>
+                </li>
+              
+                <li>
+                  <a href="#prepare-transfer">Prepare Transfer</a>
+                </li>
+              
+                <li>
+                  <a href="#submit-fulfillment">Submit Fulfillment</a>
+                </li>
+              
+                <li>
+                  <a href="#reject-transfer">Reject Transfer</a>
+                </li>
+              
+                <li>
+                  <a href="#get-transfer">Get Transfer</a>
+                </li>
+              
+                <li>
+                  <a href="#get-transfer-fulfillment">Get Transfer Fulfillment</a>
+                </li>
+              
+                <li>
+                  <a href="#get-account">Get Account</a>
+                </li>
+              
+                <li>
+                  <a href="#create-or-update-account">Create or Update Account</a>
+                </li>
+              
+                <li>
+                  <a href="#send-message">Send Message</a>
+                </li>
+              
+                <li>
+                  <a href="#get-auth-token">Get Auth Token</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#websocket">WebSocket</a>
+                </li>
+              
+                <li>
+                  <a href="#websocket-authentication">WebSocket Authentication</a>
+                </li>
+              
+                <li>
+                  <a href="#websocket-messages">WebSocket Messages</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#api-error-codes">API Error Codes</a>
+                </li>
+              
+                <li>
+                  <a href="#unauthorized">Unauthorized</a>
+                </li>
+              
+                <li>
+                  <a href="#forbidden">Forbidden</a>
+                </li>
+              
+                <li>
+                  <a href="#invaliduriparametererror">InvalidUriParameterError</a>
+                </li>
+              
+                <li>
+                  <a href="#invalidbodyerror">InvalidBodyError</a>
+                </li>
+              
+                <li>
+                  <a href="#notfounderror">NotFoundError</a>
+                </li>
+              
+                <li>
+                  <a href="#unprocessableentityerror">UnprocessableEntityError</a>
+                </li>
+              
+                <li>
+                  <a href="#insufficientfundserror">InsufficientFundsError</a>
+                </li>
+              
+                <li>
+                  <a href="#alreadyexistserror">AlreadyExistsError</a>
+                </li>
+              
+                <li>
+                  <a href="#unauthorizederror">UnauthorizedError</a>
+                </li>
+              
+                <li>
+                  <a href="#unmetconditionerror">UnmetConditionError</a>
+                </li>
+              
+                <li>
+                  <a href="#transfernotconditionalerror">TransferNotConditionalError</a>
+                </li>
+              
+                <li>
+                  <a href="#unsupportedcryptoconditionerror">UnsupportedCryptoConditionError</a>
+                </li>
+              
+                <li>
+                  <a href="#transferstateerror">TransferStateError</a>
+                </li>
+              
+            </ul>
+          </nav>
+        </div>
+        <div class="col-sm-8 markdown-body">
+          <h1 id="five-bells-ledger-api">Five Bells Ledger API</h1>
+<p class="intro">The Five Bells Ledger API is a RESTful API served by a ledger (or an adapter), which provides functionality necessary for ILP compatibility. The Five Bells Ledger API provides a single standard API that a ledger can serve in order to ease integration with other Interledger Protocol components and applications, such as the reference ILP Client and ILP Connector. This is not the only way a ledger can become ILP-enabled, but it provides a template that minimizes the integration work necessary for compatibility with ILP software.</p>
+<h2 id="overview">Overview</h2>
+<p>The Five Bells Ledger API defines the following data types and structures:</p>
+<ul>
+<li><a href="#transfer-resource">Transfer resource</a></li>
+<li><a href="#account-resource">Account resource</a></li>
+<li><a href="#message-resource">Message resource</a></li>
+<li><a href="#crypto-conditions">Crypto-Condition</a> and <a href="#crypto-conditions">Crypto-Condition Fulfillment</a></li>
+<li><a href="#api-error-codes">Error Codes</a></li>
+</ul>
+<p>The core operations of the API are:</p>
+<ul>
+<li><a href="#get-ledger-metadata">Get Ledger Metadata</a></li>
+<li><a href="#prepare-transfer">Prepare Transfer</a><ul>
+<li>If the transfer is unconditional, it executes immediately.</li>
+<li>If the transfer is conditional, it waits for a matching fulfillment.</li>
+</ul>
+</li>
+<li><a href="#submit-fulfillment">Submit Fulfillment</a><ul>
+<li>Executes a conditional transfer, if the fulfillment matches the condition.</li>
+</ul>
+</li>
+<li><a href="#reject-transfer">Reject Transfer</a></li>
+<li><a href="#get-transfer">Get Transfer</a> and check its status</li>
+<li><a href="#get-transfer-fulfillment">Get Transfer Fulfillment</a></li>
+<li><a href="#get-account">Get Account</a> info including balance</li>
+<li><a href="#create-or-update-account">Create or Update Account</a></li>
+<li><a href="#send-message">Send Message</a> to another account</li>
+<li><a href="#get-auth-token">Get Auth Token</a> for <a href="#authorization-and-authentication">Authorization and Authentication</a></li>
+<li><a href="#websocket">Websocket</a> sub-API for subscribing to transfers and accounts</li>
+</ul>
+<p>The ledger MAY support additional methods, including but not limited to:</p>
+<ul>
+<li>Health check status</li>
+<li>Look up transfers by account or by <a href="#crypto-conditions">Crypto-Condition</a></li>
+</ul>
+<h2 id="conventions">Conventions</h2>
+<p>The API is designed to be <a href="https://en.wikipedia.org/wiki/Representational_state_transfer">RESTful</a>, extensible, and modular. By design, every resource type contains links to other methods, so you can &quot;naturally&quot; discover other API paths by starting from any object. Clients SHOULD NOT hardcode any <a href="#urls">URL</a> other than the path to the <a href="#get-ledger-metadata">Get Ledger Metadata</a> method. A ledger MAY host different objects and API methods at different hostnames or base URLs, as long as all client applications can dereference the URLs in the usual way.</p>
+<h3 id="json">JSON</h3>
+<p>All methods communicate both ways using <a href="http://www.json.org/">JavaScript Object Notation (JSON)</a> unless otherwise specified. A ledger MUST use the <code>Content-Type: application/json</code> header in responses to indicate that the message body contains JSON. A ledger MAY honor the <code>Accept</code> header of the request and return the data in other formats if the client requests them. A ledger MAY interpret the message bodies of requests (PUT and POST methods) as JSON, even if the <code>Content-Type</code> header is missing or indicates a different format. The Five Bells Ledger API uses HTTP status codes to indicate the status of API operations; if the ledger encounters an error processing a request, it MUST NOT return an HTTP status code in the 200-299 range even if communication was successful.</p>
+<p>Field names in the JSON objects defined by this API never contain literal period (<code>.</code>) characters. By convention, this documentation uses the <code>.</code> character to indicate fields nested inside other Object-type fields. In some cases, field values contain literal period (<code>.</code>) characters. Additionally, this field contains some objects that can hold arbitrary data. Arbitrary-data objects can contain any legal JSON, including field names with literal period (<code>.</code>) characters. Arbitrary-data objects SHOULD NOT contain duplicate keys.</p>
+<h3 id="amounts">Amounts</h3>
+<p>The Five Bells Ledger API represents numeric currency amounts as strings rather than native JSON numbers. This is because many standard libraries automatically decode numbers to a <a href="https://en.wikipedia.org/wiki/IEEE_floating_point">IEEE 754 double precision floating point</a> representation. Using IEEE 754 double floats can introduce a loss of precision and rounding errors that are unacceptable for financial services, depending on the range and use cases needed. (In particular, digital assets that are natively represented as 64-bit unsigned integers do not fit properly into IEEE 754 double precision floats.) Amounts in the Five Bells Ledger API MUST match the following regular expression:</p>
+<p><code>^[-+]?[0-9]*[.]?[0-9]+([eE][-+]?[0-9]+)?$</code></p>
+<p>Client applications can decode numeric strings to whatever representation provides sufficient precision for their specific needs. The ledger MUST report information about the precision it uses in the <a href="#get-ledger-metadata">Get Ledger Metadata</a> response.</p>
+<h3 id="assets-and-currency">Assets and Currency</h3>
+<p>The Five Bells Ledger API provides access to a ledger containing a single currency or asset. The <a href="#get-ledger-metadata">Get Ledger Metadata</a> method reports the type of asset or currency used.</p>
+<p>If a provider supports multiple currencies or assets, the provider can serve Five Bells Ledger APIs separately for each such asset by serving it from a different prefix. For example, the <a href="#prepare-transfer">Prepare Transfer</a> method could be available at all the following locations:</p>
+<ul>
+<li><code>POST https://ledger.example.com/TZS/transfers</code></li>
+<li><code>POST https://ledger.example.com/KES/transfers</code></li>
+<li><code>POST https://ledger.example.com/stocks/MSFT/transfers</code></li>
+</ul>
+<p>Any valid URL is a suitable prefix. However, only the same asset served by the same underlying ledger can be directly transferred.</p>
+<p>These instances could be served by the same underlying software and share infrastructure, but it would not be possible to transfer directly from one to the other, since the currency denominations are different. An <strong>ILP Connector</strong> could facilitate cross-currency payments.</p>
+<h4 id="adding-money-to-the-ledger">Adding Money to the Ledger</h4>
+<p>There are several ways to &quot;add&quot; money to the ledger. A ledger MAY use any or all of the following:</p>
+<ul>
+<li>When an account is created or updated by an administrator with the <a href="#create-or-update-account">Create or Update Account</a> method, the administrator MAY set the balance of the account to any legal value.</li>
+<li>A ledger may be initialized in a state where its database contains accounts with positive balances.</li>
+<li>An administrator MAY create an &quot;issuer&quot; account whose balance can be negative. To give a positive balance to an account, execute a transfer from the issuer account. If you use this technique exclusively, the issuer account&apos;s total balance is equal to the negative of all balances in the ledger summed together.</li>
+</ul>
+<h3 id="scope">Scope</h3>
+<p>The Five Bells Ledger API defines one way to implement sufficient functionality to operate a ledger. It is not intended to be an optimal or ideal ledger, especially since such a thing is subjective or at least hard to quantify. (Indeed, Interledger itself was conceived from the conclusion that no one ledger can serve the needs of every person in existence.) In general, this specification reflects to the existing <a href="https://github.com/interledgerjs/five-bells-ledger">Five Bells Ledger reference implementation</a> so that others may implement compatible software.</p>
+<h3 id="authorization-and-authentication">Authorization and Authentication</h3>
+<p>The ledger MUST authenticate API clients. The RECOMMENDED method of authentication is <strong>Token Authentication</strong>, with tokens being served by the <a href="#get-auth-token">Get Auth Token</a> method. The Get Auth Token method SHOULD be strictly rate limited and authenticated with a secondary authentication mechanism, such as:</p>
+<ul>
+<li><a href="https://tools.ietf.org/html/rfc2617#section-2">HTTP Basic Auth</a></li>
+<li><a href="https://tools.ietf.org/html/rfc5246#section-7.4.6">TLS Client Certificates</a></li>
+</ul>
+<p>The ledger MUST authenticate <a href="#websocket">WebSocket</a> connections with token-based authentication.</p>
+<p>A ledger MAY allow clients to authenticate HTTPS methods other than the Get Auth Token method using HTTP Basic Auth or TLS Client Certificates. This is NOT RECOMMENDED, especially if the ledger faces the public internet, because it makes it easier for unauthorized clients to put load on (that is, DDoS) the ledger.</p>
+<p>The ledger MUST support authenticating a client in one of the following roles:</p>
+<ul>
+<li>Administrator - Full control over all ledger operations.</li>
+<li>Account owner (for a specific account) - Can perform operations relating to one specific account, such as authorizing debits from or credits to the account, and viewing the account balance.</li>
+<li>Unauthorized. Read-only access to some global ledger data. A ledger MUST NOT allow an unauthorized user to make a change that modifies accounts or transfers in any way.</li>
+</ul>
+<p>A ledger MAY define additional authorization levels, especially for functions that extend this API.</p>
+<h2 id="data-types">Data Types</h2>
+<h3 id="transfer-resource">Transfer Resource</h3>
+<p>A transfer represents money being moved around <em>within a single ledger</em>. A transfer debits one or more accounts and credits one or more accounts, such that the sum of all credits equals the sum of all debits. A transfer can be conditional upon a supplied <a href="#crypto-conditions">Crypto-Condition</a>, in which case it executes automatically when presented with the fulfillment for the condition. (Assuming the transfer has not expired or been rejected first.) If no Crypto-Condition is specified, the transfer is unconditional, and executes as soon as it is prepared.</p>
+<p>A transfer object contains the fields from the following table. Some fields are <em>Ledger-provided</em>, meaning they cannot be set directly by clients. All fields, including the <code>memo</code> fields, must be implemented for the Five Bells Ledger API to work properly. Fields of nested objects are indicated with a dot (<code>.</code>) character; no field names contain a dot literal.</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Name</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>id</code></td>
+<td style="text-align:left"><a href="#urls">URL</a></td>
+<td style="text-align:left">Client-provided ID for this resource, including a <a href="http://en.wikipedia.org/wiki/Universally_unique_identifier">UUID</a>, in the format of the <a href="#get-transfer">Get Transfer</a> URL. MUST be unique within the ledger. See <a href="#transfer-ids">Transfer IDs</a> for more information.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>credits</code></td>
+<td style="text-align:left">Array of Objects</td>
+<td style="text-align:left">Array of objects defining which accounts receive how much in this transfer. A ledger MAY restrict this to length 1.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>debits</code></td>
+<td style="text-align:left">Array of Objects</td>
+<td style="text-align:left">Array of objects defining which accounts send how much in this transfer. A ledger MAY restrict this to length 1.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>cancellation_condition</code></td>
+<td style="text-align:left"><a href="#crypto-conditions">Crypto-Condition</a></td>
+<td style="text-align:left">The condition for canceling the transfer. This field is OPTIONAL to implement. (It is no longer used by other ILP reference implementations.) MUST NOT be present unless the transfer has an <code>execution_condition</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>execution_condition</code></td>
+<td style="text-align:left"><a href="#crypto-conditions">Crypto-Condition</a></td>
+<td style="text-align:left">The condition for executing the transfer. If omitted, the transfer executes unconditionally.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>expires_at</code></td>
+<td style="text-align:left"><a href="#date-time">Date-Time</a></td>
+<td style="text-align:left">The date when the transfer expires and can no longer be executed.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>additional_info</code></td>
+<td style="text-align:left">Object</td>
+<td style="text-align:left">Arbitrary fields attached to this transfer. (For example, the IDs of related transfers in other systems.)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>fulfillment</code></td>
+<td style="text-align:left"><a href="#urls">URL</a></td>
+<td style="text-align:left"><em>(Ledger-provided)</em> Path to the fulfillment for this transfer. MUST be an HTTP(S) URL where the client can <a href="#submit-fulfillment">submit the fulfillment</a> or <a href="#get-transfer-fulfillment">get the fulfillment</a>. MUST be provided if and only if this transfer has an <code>execution_condition</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ledger</code></td>
+<td style="text-align:left"><a href="#urls">URL</a></td>
+<td style="text-align:left"><em>(Ledger-provided)</em> Resource identifier for the ledger where the transfer occurs. MUST be an HTTP(S) URL where you can <a href="#get-ledger-metadata">get the ledger metadata</a>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>rejection_reason</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left"><em>(Ledger-provided)</em> The reason the transfer was rejected. MUST appear if and only if <code>state</code> is <code>rejected</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>state</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left"><em>(Ledger-provided)</em> The current state of the transfer. Valid states are <code>proposed</code>, <code>prepared</code>, <code>executed</code>, and <code>rejected</code>. See <a href="#transfer-states">Transfer States</a> for more information.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>timeline</code></td>
+<td style="text-align:left">Object</td>
+<td style="text-align:left"><em>(Ledger-provided)</em> Timeline of the transfer&apos;s state transitions.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>timeline.executed_at</code></td>
+<td style="text-align:left"><a href="#date-time">Date-Time</a></td>
+<td style="text-align:left"><em>(Ledger-provided)</em> Time when the transfer was originally executed. MUST appear if and only if <code>state</code> is <code>executed</code>. This time MUST be equal to or later than the <code>prepared_at</code> time.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>timeline.prepared_at</code></td>
+<td style="text-align:left"><a href="#date-time">Date-Time</a></td>
+<td style="text-align:left"><em>(Ledger-provided)</em> Time when the transfer was originally prepared. MUST appear, even if the transaction is unconditional.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>timeline.rejected_at</code></td>
+<td style="text-align:left"><a href="#date-time">Date-Time</a></td>
+<td style="text-align:left"><em>(Ledger-provided)</em> Time when the transfer was originally rejected. MUST appear if and only if <code>state</code> is <code>rejected</code>. This time MUST be equal to or later than the <code>prepared_at</code> time.</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>credits</code> and <code>debits</code> fields contain objects defining how much to debit or credit to a particular account. The format for the objects in both arrays is as follows:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>account</code></td>
+<td style="text-align:left"><a href="#urls">URL</a></td>
+<td style="text-align:left">An identifier for the account to credit or debit. This MUST be an HTTP(S) URL where the client can call the <a href="#get-account">Get Account</a> method.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>amount</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">Positive decimal amount of money to debit from or credit to this account. See <a href="#amounts">Amounts</a> for formatting rules.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>memo</code></td>
+<td style="text-align:left">Object</td>
+<td style="text-align:left">Arbitrary object with additional information about this credit or debit.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>authorized</code></td>
+<td style="text-align:left">Boolean</td>
+<td style="text-align:left"><em>(Debit objects only)</em> Whether this account has authorized this transfer. The ledger MUST NOT allow a request to set this value to <code>true</code> unless the client is authenticated as an Administrator or as the owner of the <code>account</code> from this debit.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note:</strong> Ledgers MUST implement the <code>memo</code> field. ILP clients use this field to store the ILP Packet object. Specifically, the reference ILP Client puts the ILP Packet as a base64url-encoded string in the the <code>ilp</code> field of the <code>memo</code> of the credit to the Connector. To support any possible ILP Packet, the maximum size of the <code>memo</code> field MUST be at least <strong>46 kilobytes</strong>.</p>
+<h4 id="transfer-ids">Transfer IDs</h4>
+<p>The transfer&apos;s <code>id</code> field is one of the main ways of identifying the transfer; it is unique across the ledger, so implementations MAY use it as a primary unique key in a database. The client applications, not the ledger, generate the <code>id</code>, so the ledger SHOULD require that the field match the proper form. If a client attempts to create a transfer with an <code>id</code> that already exists, the attempt MUST fail. (This protects clients from accidentally submitting the same transfer twice or more.)</p>
+<p>The form for a transfer ID is the ledger&apos;s <code>transfer</code> <a href="#urls">URL</a>, with a <a href="http://en.wikipedia.org/wiki/Universally_unique_identifier">UUID</a> in canonical form as the <code>{id}</code> parameter. The UUID MUST be formatted as 32 lowercase hexadecimal digits separated by hyphens into groups of 8-4-4-4-12.</p>
+<p>Depending on what algorithm clients use to generate UUIDs, it may be possible for other account owners to guess in advance which UUIDs might be used, and could preemptively claim <code>id</code> values that other account owners might use. A ledger MAY discourage this &quot;squatting&quot; behavior by imposing a limit on how many new transfers an account can generate within a fixed period of time, or with other similar limits. (A ledger could also address this issue in other ways, such as charging a fee for preparing transfers.) Client applications SHOULD use a sufficiently hard-to-predict system for generating UUIDs, such as the random algorithm described in <a href="https://www.ietf.org/rfc/rfc4122">RFC4122</a>. Client applications SHOULD NOT use the same ID to indicate related transfers in multiple ledgers: such behavior can be easily exploited by third parties who claim an ID in a ledger as soon as it gets used in a different ledger.</p>
+<h4 id="transfer-states">Transfer States</h4>
+<p>The following state diagram shows the possible transitions between a transfer&apos;s <code>state</code> values:</p>
+<p><a href="5BL-transfer-states.png"><img src="5BL-transfer-states.png" alt="Transfer state diagram" class="img-responsive"></a></p>
+<p>The <a href="#prepare-transfer">Prepare Transfer</a> method creates a new transfer. Unless creator of the transfer is the only account to be debited and the account sets the <code>authorized</code> field of the debit to <code>true</code>, the transfer is created in the <code>proposed</code> state.</p>
+<p>A transfer in the <code>proposed</code> state can be modified by other account owners calling the <a href="#prepare-transfer">Prepare Transfer</a> method to set the <code>authorized</code> field to <code>true</code> for debits to their accounts.</p>
+<p>When all a transfer&apos;s debits are authorized, the transfer executes immediately if it has no execution condition. If the transfer has an execution condition, funds from the <code>debits</code> are held and the transfer transitions to the <code>prepared</code> state.</p>
+<p>From the <code>prepared</code> state, a transfer can be executed if an account owner calls <a href="#submit-fulfillment">Submit Fulfillment</a> with a fulfillment that matches the transfer&apos;s <code>execution_condition</code>. This moves the held funds to the credited accounts, fully executing the transfer and moving it to the <code>executed</code> state.</p>
+<p>There are several ways a transfer in the <code>prepared</code> state can be rejected, which releases the funds back to the debited accounts:</p>
+<ul>
+<li>The transfer has an <code>expires_at</code> field and the time specified by that field passes</li>
+<li>The transfer has a <code>cancellation_condition</code> and an account owner calls <a href="#submit-fulfillment">Submit Fulfillment</a> with a fulfillment that matches the cancelllation condition.</li>
+<li>The account owner of one of the accounts to be credited calls the <a href="#reject-transfer">Reject Transfer</a> method.</li>
+</ul>
+<p>The states <code>executed</code> and <code>rejected</code> are final.</p>
+<h3 id="account-resource">Account Resource</h3>
+<p>An account resource contains the fields in the following table. Some fields are <em>Ledger-provided</em>, meaning they cannot be set directly by clients. Fields that are &quot;Optional&quot; or &quot;Ledger-provided&quot; in the following table may be omitted by clients submitting objects to the API, but those fields are not optional to implement. Fields of nested objects are indicated with a dot (<code>.</code>) character; no fields contain a dot literal.</p>
+<p>An account resource usually has an owner who can <a href="#authorization-and-authentication">authenticate</a> to the ledger. A ledger MUST serve all the following fields to clients authenticated as the account owner. A ledger MAY serve a subset of fields, containing at least the <code>name</code> and <code>id</code> of the account, to clients not authenticated as the account owner.</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Name</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>name</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">Name of the account. MUST be unique per account and MUST match the regular expression <code>^[a-zA-Z0-9._~-]{1,256}$</code>. After an account is created, this field is immutable.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>fingerprint</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left"><em>(Optional)</em> A fingerprint of the account owner&apos;s client certificate. This field MUST be available if and only if the ledger supports client certificate authentication. MUST match the regular expression <code>^[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){19,127}$</code>. A ledger MAY allow the account owner to set this value.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ledger</code></td>
+<td style="text-align:left"><a href="#urls">URL</a></td>
+<td style="text-align:left"><em>(Optional)</em> The path to the ledger containing this account. MUST be an HTTP(S) URL where the client can <a href="#get-ledger-metadata">Get Ledger Metadata</a>. (When an account is created, the ledger automatically provides this value.)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>minimum_allowed_balance</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left"><em>(Optional)</em> The minimum balance permitted on this account. The special value <code>&quot;-infinity&quot;</code> indicates no minimum balance. This is a string so that no precision is lost in JSON encoding/decoding. The default value SHOULD be <code>&quot;0&quot;</code>. A ledger MUST NOT allow non-administrator users to modify this value directly.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>is_admin</code></td>
+<td style="text-align:left">Boolean</td>
+<td style="text-align:left"><em>(Optional)</em> If <code>true</code>, authenticating as the owner of this account gives administrator-level permissions. Only a client with administrator permissions can set this to <code>true</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>is_disabled</code></td>
+<td style="text-align:left">Boolean</td>
+<td style="text-align:left"><em>(Optional)</em> If <code>true</code>, this account is disabled. Defaults to <code>false</code>. Disabled accounts cannot authenticate to the API. A ledger MUST allow this to be set ONLY by administrators.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>balance</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left"><em>(Optional)</em> Balance as decimal <a href="#amounts">amount</a>. Defaults to <code>&quot;0&quot;</code> at account creation. This can be negative, if the account&apos;s <code>minimum_allowed_balance</code> allows it. A ledger MAY allow clients with administrator permissions to set this value directly. A ledger MUST NOT allow non-administrator users to modify this value directly.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-resource">Message Resource</h3>
+<p>Messages are sent through the ledger&apos;s <a href="#send-message">Send Message</a> method and received in a <a href="#websocket">WebSocket</a> subscription. All fields of the message are required:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Value</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>ledger</code></td>
+<td style="text-align:left"><a href="#urls">URL</a></td>
+<td style="text-align:left">The base <a href="#urls">URL</a> of this ledger. MUST be an HTTP(S) URL where the client can <a href="#get-ledger-metadata">Get Ledger Metadata</a>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>from</code></td>
+<td style="text-align:left"><a href="#urls">URL</a></td>
+<td style="text-align:left">Resource identifier of the account sending the message. MUST be an HTTP(S) URL where the client can <a href="#get-account">get account information</a>. The sender of a message MUST be authenticated as the owner of this account.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>to</code></td>
+<td style="text-align:left"><a href="#urls">URL</a></td>
+<td style="text-align:left">Resource identifier of the account receiving the message. MUST be an HTTP(S) URL where the client can <a href="#get-account">get account information</a>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>data</code></td>
+<td style="text-align:left">Object</td>
+<td style="text-align:left">The message to send, containing arbitrary data. A ledger MAY set a maximum length on messages, but that limit MUST NOT be less than 510 UTF-8 characters or 2,048 bytes.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="crypto-conditions">Crypto-Conditions</h3>
+<p>The <a href="https://github.com/interledger/rfcs/tree/master/0002-crypto-conditions">Crypto-Conditions spec</a> defines standard formats for <em>conditions</em> and <em>fulfillments</em>.</p>
+<p>Conditions are distributable event descriptions, and fulfillments are cryptographically verifiable messages that prove an event occurred. If you transmit a fulfillment, then everyone who has the corresponding condition can agree that the condition has been met.</p>
+<p>Crypto-conditions control the execution of conditional transfers. The Five Bells Ledger API supports conditions and fulfillments in string format.</p>
+<p>The Crypto-Conditions specification anticipates that it will need to expand to keep up with changes in the field of cryptography, so conditions always define which rules and algorithms are necessary to verify the fulfillment. Implementations can use the condition&apos;s feature list to determine if they can properly process the fulfillment, without having seen the fulfillment itself.</p>
+<p>Example condition in string format:</p>
+<pre><code>ni:///sha-256;47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU?fpt=preimage-sha-256&amp;cost=0
+</code></pre><p>Example fulfillment in string format (a PREIMAGE-SHA-256 fulfillment is the preimage string serialized):</p>
+<pre><code>oAKAAA
+</code></pre><p>The <a href="https://github.com/interledgerjs/five-bells-condition">five-bells-condition</a> library provides a JavaScript implementation of Crypto-Conditions. For custom implementations, consider the latest version of the <a href="https://tools.ietf.org/html/draft-thomas-crypto-conditions-03">IETF crypto-conditions spec</a> as the source of truth.</p>
+<p><strong>Note:</strong> The rest of the Interledger reference implementations have dropped support for the full range of Crypto-Conditions in favor of using SHA-256 hashlocks everywhere. For compatibility with all Interledger software, Five Bells Ledger transfers should use PREIMAGE-SHA-256 crypto-conditions only.</p>
+<h3 id="urls">URLs</h3>
+<p>The Five Bells Ledger API uses URLs as the main way of identifying and looking up resources in the API. These URLs should be formatted as valid <em>absolute URLs</em> in accordance with the <a href="https://url.spec.whatwg.org/">WHATWG URL Living Standard</a>. The URLs SHOULD use the <code>https:</code> scheme, except for some <a href="#websocket">WebSocket</a> paths that use the <code>wss:</code> scheme instead. In development or private subnetworks, <code>http:</code> and <code>ws:</code> are acceptable instead.</p>
+<p>The <code>urls</code> field of the <a href="#get-ledger-metadata">Get Ledger Metadata</a> method returns a list of paths to other API methods. Each member of the <code>urls</code> field describes one path, which MUST be an HTTP(S)-formatted URL unless otherwise specified. Some paths contain <a href="https://tools.ietf.org/html/rfc6570">RFC6570</a>-formatted variable sections in curly braces. The <code>urls</code> field MUST include all of the following:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Path name</th>
+<th style="text-align:left">Variables</th>
+<th style="text-align:left">HTTP Method</th>
+<th style="text-align:left">API Method(s)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>account</code></td>
+<td style="text-align:left"><code>{name}</code></td>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><a href="#get-account">Get Account</a>, <a href="#create-or-update-account">Create or Update Account</a></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>transfer</code></td>
+<td style="text-align:left"><code>{id}</code></td>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><a href="#prepare-transfer">Prepare Transfer</a>, <a href="#get-transfer">Get Transfer</a></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>transfer_fulfillment</code></td>
+<td style="text-align:left"><code>{id}</code></td>
+<td style="text-align:left">GET, PUT</td>
+<td style="text-align:left"><a href="#get-transfer-fulfillment">Get Transfer Fulfillment</a>, <a href="#submit-fulfillment">Submit Fulfillment</a></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>websocket</code></td>
+<td style="text-align:left">None</td>
+<td style="text-align:left">N/A</td>
+<td style="text-align:left"><a href="#websocket">WebSocket</a> (MUST be a <code>ws://</code> or <code>wss://</code> URL.)</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>urls</code> field of the metadata MAY also contain other methods provided by the ledger.</p>
+<p>Some resources also contain fields whose values are URLs pointing to other methods. These URLs MUST NOT contain <a href="https://tools.ietf.org/html/rfc6570">RFC6570</a>-formatted variable sections. The following table maps URL fields to the API methods that can be accessed at those paths:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Resource</th>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">HTTP Method</th>
+<th style="text-align:left">API Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Transfer</td>
+<td style="text-align:left"><code>ledger</code> field</td>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><a href="#get-ledger-metadata">Get Ledger Metadata</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Transfer</td>
+<td style="text-align:left"><code>credits</code> member <code>account</code> field</td>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><a href="#get-account">Get Account</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Transfer</td>
+<td style="text-align:left"><code>debits</code> member <code>account</code> field</td>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><a href="#get-account">Get Account</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Message</td>
+<td style="text-align:left"><code>from</code> field</td>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><a href="#get-account">Get Account</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Message</td>
+<td style="text-align:left"><code>to</code> field</td>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><a href="#get-account">Get Account</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Message</td>
+<td style="text-align:left"><code>ledger</code> field</td>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><a href="#get-ledger-metadata">Get Ledger Metadata</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="date-time">Date-Time</h3>
+<p>All dates and times should be expressed in <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a> date-time format with precision to the second or millisecond. The time zone offset should always be <code>Z</code>, for no offset. In other words, the date-time should be a <strong>string</strong> matching the one of the following formats:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Precision</th>
+<th style="text-align:left">Format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Second</td>
+<td style="text-align:left"><code>YYYY-MM-DDTHH:mm:ssZ</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Millisecond</td>
+<td style="text-align:left"><code>YYYY-MM-DDTHH:mm:ss.sssZ</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="api-methods">API Methods</h2>
+<h3 id="get-ledger-metadata">Get Ledger Metadata</h3>
+<p>Receive information about the ledger.</p>
+<p><strong>Authorization:</strong> This method MUST be accessible to all clients authorized as account owners or administrators. This method MAY be accessible to unauthorized users.</p>
+<h4 id="request-format-1">Request Format</h4>
+<pre><code>GET /
+</code></pre><p><strong><a href="#urls">Metadata URL Name</a>:</strong> None (top-level path for the ledger)</p>
+<h5 id="response-format-1">Response Format</h5>
+<p>A successful result uses the HTTP response code <strong>200 OK</strong> and contains a JSON object with the following fields. (A field name like <code>foo[].bar</code> indicates that the row describes the field <code>bar</code> in <em>each</em> object contained in the array <code>foo</code>.)</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Value</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>currency_code</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">Three-letter (<a href="http://www.xe.com/iso4217.php">ISO 4217</a>) code of the currency this ledger tracks.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>currency_symbol</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">Currency symbol to use in user interfaces for the currency represented in this ledger. For example, &quot;$&quot;.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ilp_prefix</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">The ILP Address Prefix of the ledger. This must match the definition from <a href="https://github.com/interledger/rfcs/blob/master/0015-ilp-addresses/0015-ilp-addresses.md">IL-RFC-15: ILP Addresses</a>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>connectors</code></td>
+<td style="text-align:left">Array</td>
+<td style="text-align:left">Array of <em>recommended</em> ILP Connectors. Each member of this list MUST be an object with two fields, as described below. This list MAY be empty.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>precision</code></td>
+<td style="text-align:left">Integer</td>
+<td style="text-align:left">How many total decimal digits of precision this ledger uses to represent currency amounts.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>scale</code></td>
+<td style="text-align:left">Integer</td>
+<td style="text-align:left">How many digits after the decimal place this ledger supports in currency amounts.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>urls</code></td>
+<td style="text-align:left">Object</td>
+<td style="text-align:left">Paths to other methods exposed by this ledger. Each field name is short name for a method and the value is the path to that method. Some fields MUST be present; see <a href="#urls">URLs</a> for details.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>rounding</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left"><em>(Optional)</em> The type of rounding used internally by ledger for values that exceed the reported <code>scale</code> or <code>precision</code>. If provided, the value MUST be <code>floor</code>, <code>ceiling</code>, or <code>nearest</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left">...</td>
+<td style="text-align:left">(Various)</td>
+<td style="text-align:left"><em>(Optional)</em> Additional arbitrary values as desired.</td>
+</tr>
+</tbody>
+</table>
+<p>Each member of the <code>connectors</code> array MUST have the following fields:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Value</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>id</code></td>
+<td style="text-align:left"><a href="#urls">URL</a></td>
+<td style="text-align:left">HTTP(S) URL where a client can <a href="#get-account">get the connector&apos;s account at this ledger</a>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>name</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">The connector&apos;s unique username in this ledger.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-1">Example</h4>
+<p>Request:</p>
+<pre><code>GET /
+</code></pre><p>Response:</p>
+<pre><code class="lang-json">HTTP/1.1 200 OK
+
+{
+  &quot;currency_code&quot;: &quot;EUR&quot;,
+  &quot;currency_symbol&quot;: &quot;&#x20AC;&quot;,
+  &quot;connectors&quot;: [{
+    &quot;id&quot;: &quot;https://red.ilpdemo.org/ledger/accounts/connie&quot;,
+    &quot;name&quot;: &quot;connie&quot;
+  }],
+  &quot;urls&quot;: {
+    &quot;health&quot;: &quot;https://red.ilpdemo.org/ledger/health&quot;,
+    &quot;transfer&quot;: &quot;https://red.ilpdemo.org/ledger/transfers/{id}&quot;,
+    &quot;transfer_fulfillment&quot;: &quot;https://red.ilpdemo.org/ledger/transfers/{id}/fulfillment&quot;,
+    &quot;account&quot;: &quot;https://red.ilpdemo.org/ledger/accounts/{name}&quot;,
+    &quot;websocket&quot;: &quot;wss://red.ilpdemo.org/ledger/websocket/&quot;
+  },
+  &quot;precision&quot;: 10,
+  &quot;scale&quot;: 2
+}
+</code></pre>
+<h4 id="errors-1">Errors</h4>
+<ul>
+<li>This method does not return any errors under normal circumstances.</li>
+</ul>
+<h3 id="prepare-transfer">Prepare Transfer</h3>
+<p>Prepares a new transfer (conditional or unconditional) in the ledger, or updates an existing transfer. If updating an existing transfer, only the <code>authorized</code> field of a debit can be changed. Only the owner of a particular account may set the <code>authorized</code> field of a debit to that account.</p>
+<p>An unconditional transfer executes automatically as soon as all debits are authorized. A conditional transfer holds the debited funds until it is executed by the <a href="#submit-fulfillment">Submit Fulfillment</a> method or it is rejected. See <a href="#transfer-states">Transfer States</a> for more information.</p>
+<p>A ledger SHOULD reject a request to create a <code>proposed</code> transfer, unless the client is authenticated as one of the accounts in the <code>debits</code> or <code>credits</code> of the transfer, or the client is authenticated as an administrator.</p>
+<p><strong>Authorization:</strong> The owner of an account MUST be able to prepare a conditional transfer that debits the account. Non-administrators MUST NOT be able to prepare a transfer that debits a different account. A ledger MAY disallow non-administrators from preparing unconditional transfers.</p>
+<h4 id="request-format-2">Request Format</h4>
+<pre><code>PUT /transfers/{id}
+</code></pre><p><strong><a href="#urls">Metadata URL Name</a>:</strong> <code>transfer</code></p>
+<h5 id="url-parameters-1">URL Parameters</h5>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Value</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>id</code></td>
+<td style="text-align:left"><a href="#urls">URL</a></td>
+<td style="text-align:left">A new <a href="#transfer-ids">Transfer ID</a> URL, including a <a href="http://en.wikipedia.org/wiki/Universally_unique_identifier">UUID</a>.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="body-parameters-1">Body Parameters</h5>
+<p>The message body should be a JSON <a href="#transfer-resource">Transfer resource</a>. The ledger MUST ignore any values specified for &quot;Ledger-provided&quot; fields in the request. The request MAY omit the following fields of the transfer resource:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Behavior if Omitted</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>cancellation_condition</code></td>
+<td style="text-align:left">The transfer cannot be canceled by crypto-condition. (The transfer can still be <a href="#get-transfer">rejected</a> by a receiver.)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>execution_condition</code></td>
+<td style="text-align:left">The transfer is unconditional, and executes immediately after all debits are authorized.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>expires_at</code></td>
+<td style="text-align:left">The transfer has no time-based expiration.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>memo</code> field of objects in <code>debits</code> array</td>
+<td style="text-align:left">No memo is associated with this debit.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>authorized</code> field of objects in <code>debits</code> array</td>
+<td style="text-align:left">The <code>authorized</code> value defaults to <code>false</code>. The transfer cannot execute until the owner of the account to be debited sets the field to true.</td>
+</tr>
+<tr>
+<td style="text-align:left">(&quot;Ledger-provided&quot; fields)</td>
+<td style="text-align:left">The ledger provides these fields in the response and subsequent <a href="#get-transfer">Get Transfer</a> responses.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="response-format-2">Response Format</h4>
+<p>A successful result uses the HTTP response code <strong>200 OK</strong> and contains a JSON body with the <a href="#transfer-resource">Transfer resource</a> as saved.</p>
+<h4 id="example-2">Example</h4>
+<p>Request:</p>
+<pre><code class="lang-json">PUT /transfers/3a2a1d9e-8640-4d2d-b06c-84f2cd613204
+Content-Type: application/json
+
+{
+  &quot;id&quot;: &quot;https://red.ilpdemo.org/ledger/transfers/3a2a1d9e-8640-4d2d-b06c-84f2cd613204&quot;,
+  &quot;debits&quot;: [{
+    &quot;account&quot;: &quot;https://red.ilpdemo.org/ledger/accounts/alice&quot;,
+    &quot;amount&quot;: &quot;50&quot;,
+    &quot;authorized&quot;: true
+  }],
+  &quot;credits&quot;: [{
+    &quot;account&quot;: &quot;https://red.ilpdemo.org/ledger/accounts/bob&quot;,
+    &quot;amount&quot;: &quot;50&quot;
+  }],
+  &quot;execution_condition&quot;: &quot;ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&amp;cost=12&quot;,
+  &quot;expires_at&quot;: &quot;2015-06-16T00:00:01.000Z&quot;
+}
+</code></pre>
+<p>Response:</p>
+<pre><code class="lang-json">HTTP/1.1 200 OK
+
+
+{
+  &quot;id&quot;: &quot;https://red.ilpdemo.org/ledger/transfers/3a2a1d9e-8640-4d2d-b06c-84f2cd613204&quot;,
+  &quot;ledger&quot;: &quot;https://red.ilpdemo.org/ledger/&quot;,
+  &quot;debits&quot;: [{
+    &quot;account&quot;: &quot;https://red.ilpdemo.org/ledger/accounts/alice&quot;,
+    &quot;amount&quot;: &quot;50&quot;,
+    &quot;authorized&quot;: true
+  }],
+  &quot;credits&quot;: [{
+    &quot;account&quot;: &quot;https://red.ilpdemo.org/ledger/accounts/bob&quot;,
+    &quot;amount&quot;: &quot;50&quot;
+  }],
+  &quot;execution_condition&quot;: &quot;ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&amp;cost=12&quot;,
+  &quot;expires_at&quot;: &quot;2015-06-16T00:00:01.000Z&quot;,
+  &quot;state&quot;: &quot;prepared&quot;,
+  &quot;timeline&quot;: {
+    &quot;prepared_at&quot;: &quot;2015-06-15T10:33:01.461Z&quot;
+  }
+}
+</code></pre>
+<h4 id="errors-2">Errors</h4>
+<ul>
+<li><a href="#insufficientfundserror">InsufficientFundsError</a> - A debited account would go below its <code>minimum_allowed_balance</code> if this transfer were executed</li>
+<li><a href="#unprocessableentityerror">UnprocessableEntityError</a> - The request is formatted properly but contains an otherwise-unspecified semantic problem.</li>
+<li><a href="#alreadyexistserror">AlreadyExistsError</a> - The <code>id</code> supplied is already used by another transfer.</li>
+<li><a href="#invaliduriparametererror">InvalidUriParameterError</a> - One of the <a href="#urls">URL</a> or <a href="http://en.wikipedia.org/wiki/Universally_unique_identifier">UUID</a> parameters was not formatted properly.</li>
+<li><a href="#invalidbodyerror">InvalidBodyError</a> - The request body was not properly-formatted JSON, did not match the Content-Type provided, or did not match the schema for the requested resource type.</li>
+<li><a href="#unsupportedcryptoconditionerror">UnsupportedCryptoConditionError</a> - The transfer included an <code>execution_condition</code> whose feature bitstring requires functionality not implemented by this ledger.</li>
+</ul>
+<h3 id="submit-fulfillment">Submit Fulfillment</h3>
+<p>Execute or cancel a transfer by submitting a <a href="#crypto-conditions">Crypto-Condition Fulfillment</a>.</p>
+<p>To execute a transfer, the transfer MUST begin in the <code>prepared</code> state and the submitted fulfillment must satisfy the <a href="#crypto-conditions">Crypto-Condition</a> in the transfer&apos;s <code>execution_condition</code> field. Doing so transitions the transaction to <code>executed</code>.</p>
+<p>To cancel a transfer, the submitted fulfillment must satisfy the <a href="#crypto-conditions">Crypto-Condition</a> in the transfer&apos;s <code>cancellation_condition</code> field. Doing so transitions the transaction to <code>rejected</code>.</p>
+<p><strong>Authorization:</strong> The owner of an account MUST be able to submit the fulfillment for a transfer that credits the account. A ledger MAY allow other account owners or unauthorized clients to submit a fulfillment.</p>
+<h4 id="request-format-3">Request Format</h4>
+<pre><code>PUT /transfers/{id}/fulfillment
+Content-Type: text/plain
+</code></pre><p><strong>Caution:</strong> This method requires the request to specify the header <code>Content-Type: text/plain</code></p>
+<p><strong><a href="#urls">Metadata URL Name</a>:</strong> <code>transfer_fulfillment</code>.</p>
+<h5 id="body-parameters-2">Body Parameters</h5>
+<p>The message body should be a <a href="#crypto-conditions">Crypto-Condition Fulfillment</a> in string format.</p>
+<h4 id="response-format-3">Response Format</h4>
+<p>A successful result uses the HTTP response code <strong>201 Created</strong> ONLY if the fulfillment was executed or canceled as a result of this request. This method returns <strong>200 OK</strong> if the fulfillment matched a condition, but the transfer had already been executed or canceled before processing this request. The message body of the response is the submitted fulfillment as plain text.</p>
+<h4 id="example-3">Example</h4>
+<p>Request:</p>
+<pre><code>PUT /transfers/3a2a1d9e-8640-4d2d-b06c-84f2cd613204/fulfillment
+Content-Type: text/plain
+
+oA6ADEhlbGxvIFdvcmxkIQ
+</code></pre><p>Response:</p>
+<pre><code>HTTP/1.1 201 Created
+
+oA6ADEhlbGxvIFdvcmxkIQ
+</code></pre><h4 id="errors-3">Errors</h4>
+<ul>
+<li><a href="#notfounderror">NotFoundError</a> - The transfer does not exist.</li>
+<li><a href="#unmetconditionerror">UnmetConditionError</a> - The fulfillment does not match the condition.</li>
+<li><a href="#transfernotconditionalerror">TransferNotConditionalError</a> - The transfer had no condition to fulfill.</li>
+<li><a href="#transferstateerror">TransferStateError</a> - The transfer was not in the <code>prepared</code> state when the request was received. See <a href="#transfer-states">Transfer States</a> for more information.</li>
+<li><a href="#unprocessableentityerror">UnprocessableEntityError</a> - The request is formatted properly but contains an otherwise-unspecified semantic problem.</li>
+<li><a href="#invalidbodyerror">InvalidBodyError</a> - The request body was not properly-formatted JSON, or did not match the schema for the request.</li>
+</ul>
+<h3 id="reject-transfer">Reject Transfer</h3>
+<p>Reject a prepared transfer. A transfer can be rejected if and only if that transfer is in the <code>prepared</code> state. Doing so transitions the transfer to the <code>rejected</code> state.</p>
+<p><strong>Authorization:</strong> Accounts from the <code>credits</code> field of a transfer MUST be able to reject the transfer. Any other non-admin user MUST NOT be able to reject the transfer.</p>
+<h4 id="request-format-4">Request Format</h4>
+<pre><code>PUT /transfers/{id}/rejection
+Content-Type: text/plain
+
+your rejection reason here
+</code></pre><p><strong><a href="#urls">Metadata URL Name</a>:</strong> <code>transfer_rejection</code>.</p>
+<p>This request MUST use the header <code>Content-Type: text/plain</code>.</p>
+<h5 id="body-parameters-3">Body Parameters</h5>
+<p>The message body contains the rejection reason as plain text. The rejection reason is an arbitrary string that is intended to be a machine-readable identifier indicating the reason for the transfer&apos;s rejection. This string should be no more than 2KB or 512 UTF-8 characters.</p>
+<h4 id="response-format-4">Response Format</h4>
+<p>A successful result uses the HTTP response code <strong>200 OK</strong> and contains a JSON object containing the updated <a href="#transfer-resource">Transfer resource</a> containing the rejection reason.</p>
+<h4 id="example-4">Example</h4>
+<p>Request:</p>
+<pre><code class="lang-json">PUT /transfers/3a2a1d9e-8640-4d2d-b06c-84f2cd613204/rejection
+Content-Type: text/plain
+
+BlacklistedSender
+</code></pre>
+<p>Response:</p>
+<pre><code class="lang-json">HTTP/1.1 200 OK
+
+{
+  &quot;ledger&quot;: &quot;https://red.ilpdemo.org/ledger&quot;,
+  &quot;id&quot;: &quot;63a61fa9-fca2-4779-9d50-49dc691b8fbf&quot;,
+  &quot;debits&quot;: [{
+    &quot;account&quot;: &quot;https://red.ilpdemo.org/ledger/accounts/alice&quot;,
+    &quot;amount&quot;: &quot;50&quot;,
+    &quot;authorized&quot;: true
+  }],
+  &quot;credits&quot;: [{
+    &quot;account&quot;: &quot;https://red.ilpdemo.org/ledger/accounts/bob&quot;,
+    &quot;amount&quot;: &quot;50&quot;
+  }],
+  &quot;amount&quot;: &quot;199.99&quot;,
+  &quot;execution_condition&quot;: &quot;ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&amp;cost=12&quot;,
+  &quot;expires_at&quot;: &quot;2018-01-01T00:00:00.000Z&quot;,
+  &quot;state&quot;: &quot;rejected&quot;,
+  &quot;timeline&quot;: {
+    &quot;prepared_at&quot;: &quot;2016-10-21T22:45:01.000Z&quot;,
+    &quot;rejected_at&quot;: &quot;2016-10-22T21:33:34.867Z&quot;
+  },
+  &quot;rejection_reason&quot;: &quot;BlacklistedSender&quot;
+}
+</code></pre>
+<h4 id="errors-4">Errors</h4>
+<ul>
+<li><a href="#notfounderror">NotFoundError</a> - The transfer does not exist.</li>
+<li><a href="#unprocessableentityerror">UnprocessableEntityError</a> - The request is formatted properly but contains an otherwise-unspecified semantic problem. This includes cases where the transfer has already been executed or rejected.</li>
+<li><a href="#invalidbodyerror">InvalidBodyError</a> - The request&apos;s message body was too long or the request did not use the proper Content-Type header (text/plain).</li>
+<li><a href="#transferstateerror">TransferStateError</a> - The transfer was not in the <code>prepared</code> state when the request was received. See <a href="#transfer-states">Transfer States</a> for more information.</li>
+</ul>
+<h3 id="get-transfer">Get Transfer</h3>
+<p>Check the details or status of a local transfer.</p>
+<p><strong>Authorization:</strong> The accounts from the <code>credits</code> and <code>debits</code> field of a transfer MUST be able to get that transfer. A ledger MAY allow other account owners or unauthorized clients to get a transfer.</p>
+<h4 id="request-format-5">Request Format</h4>
+<pre><code>GET /transfers/{id}
+</code></pre><p><strong><a href="#urls">Metadata URL Name</a>:</strong> <code>transfer</code>. Suggested generic path: <code>/transfers/{id}</code></p>
+<h4 id="response-format-5">Response Format</h4>
+<p>A successful result uses the HTTP response code <strong>200 OK</strong> and contains a JSON body with the requested <a href="#transfer-resource">Transfer resource</a>.</p>
+<h4 id="example-5">Example</h4>
+<p>Request:</p>
+<pre><code>GET /transfers/63a61fa9-fca2-4779-9d50-49dc691b8fbf
+</code></pre><p>Response:</p>
+<pre><code class="lang-json">HTTP/1.1 200 OK
+
+{
+  &quot;ledger&quot;: &quot;https://red.ilpdemo.org/ledger&quot;,
+  &quot;id&quot;: &quot;63a61fa9-fca2-4779-9d50-49dc691b8fbf&quot;,
+  &quot;debits&quot;: [{
+    &quot;account&quot;: &quot;https://red.ilpdemo.org/ledger/accounts/alice&quot;,
+    &quot;amount&quot;: &quot;50&quot;,
+    &quot;authorized&quot;: true
+  }],
+  &quot;credits&quot;: [{
+    &quot;account&quot;: &quot;https://red.ilpdemo.org/ledger/accounts/bob&quot;,
+    &quot;amount&quot;: &quot;50&quot;
+  }],
+  &quot;amount&quot;: &quot;199.99&quot;,
+  &quot;execution_condition&quot;: &quot;ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&amp;cost=12&quot;,
+  &quot;expires_at&quot;: &quot;2018-01-01T00:00:00.000Z&quot;,
+  &quot;state&quot;: &quot;rejected&quot;,
+  &quot;timeline&quot;: {
+    &quot;prepared_at&quot;: &quot;2016-10-21T22:45:01.000Z&quot;,
+    &quot;rejected_at&quot;: &quot;2016-10-22T21:33:34.867Z&quot;
+  },
+  &quot;rejection_reason&quot;: &quot;BlacklistedSender&quot;
+}
+</code></pre>
+<h4 id="errors-5">Errors</h4>
+<ul>
+<li><a href="#notfounderror">NotFoundError</a> - No transfer with a matching ID was found.</li>
+<li><a href="#invaliduriparametererror">InvalidUriParameterError</a> - The transfer ID from the request was not a valid <a href="http://en.wikipedia.org/wiki/Universally_unique_identifier">UUID</a>.</li>
+</ul>
+<h3 id="get-transfer-fulfillment">Get Transfer Fulfillment</h3>
+<p>Retrieve the fulfillment for a transfer that has been executed or rejected. This is separate from the <a href="#transfer-resource">Transfer resource</a> because it can be very large.</p>
+<p><strong>Authorization:</strong> The ledger MUST allow account owners from the account&apos;s <code>debits</code> and <code>credits</code> to get the transfer&apos;s fulfillment. A ledger MAY allow other account owners or unauthorized users to get a transfer&apos;s fulfillment.</p>
+<h4 id="request-format-6">Request Format</h4>
+<pre><code>GET /transfers/{id}/fulfillment
+</code></pre><p><strong><a href="#urls">Metadata URL Name</a>:</strong> <code>transfer_fulfillment</code>.</p>
+<h5 id="url-parameters-2">URL Parameters</h5>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Value</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>id</code></td>
+<td style="text-align:left">UUID</td>
+<td style="text-align:left">The <a href="http://en.wikipedia.org/wiki/Universally_unique_identifier">UUID</a> of the Transfer whose fulfillment to retrieve.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="response-format-6">Response Format</h4>
+<p>A successful result uses the HTTP response code <strong>200 OK</strong> and the header <code>Content-Type: text/plain</code>. The body contains the Transfer&apos;s <a href="#crypto-conditions">Crypto-Condition Fulfillment</a> in text format.</p>
+<h4 id="example-6">Example</h4>
+<p>Request:</p>
+<pre><code>GET /transfers/3a2a1d9e-8640-4d2d-b06c-84f2cd613204/fulfillment
+</code></pre><p>Response:</p>
+<pre><code>HTTP/1.1 200 OK
+Content-Type: text/plain
+
+oA6ADEhlbGxvIFdvcmxkIQ
+</code></pre><h4 id="errors-6">Errors</h4>
+<ul>
+<li><a href="#notfounderror">NotFoundError</a> - The specified transfer does not exist,</li>
+<li><a href="#invaliduriparametererror">InvalidUriParameterError</a></li>
+</ul>
+<h3 id="get-account">Get Account</h3>
+<p>Get an account resource.</p>
+<p><strong>Authorization:</strong> The owner of an account MUST be able to get the account resource. A ledger MAY allow other account owners or unauthorized users to get other account resources. A ledger MAY return a subset of fields when it returns an account resource to any client other than the account owner (for example, omitting the balance).</p>
+<h4 id="request-format-7">Request Format</h4>
+<pre><code>GET /accounts/{name}
+</code></pre><p><strong><a href="#urls">Metadata URL Name</a>:</strong> <code>account</code>.</p>
+<h4 id="response-format-7">Response Format</h4>
+<p>A successful response uses the HTTP response code <strong>200 OK</strong> and contains the <a href="#account-resource">Account resource</a> in JSON format.</p>
+<h4 id="example-7">Example</h4>
+<p>Request:</p>
+<pre><code>GET /accounts/bob
+</code></pre><p>Response:</p>
+<pre><code class="lang-json">HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  &quot;id&quot;: &quot;https://red.ilpdemo.org/ledger/accounts/bob&quot;,
+  &quot;name&quot;: &quot;bob&quot;,
+  &quot;balance&quot;: &quot;5007734.0&quot;,
+  &quot;ledger&quot;: &quot;https://red.ilpdemo.org/ledger&quot;,
+  &quot;fingerprint&quot;: &quot;88:90:3a:e7:e5:1c:c4:51:05:4b:0c:2b:3f:41:df:bf:0c:21:f3:78&quot;,
+  &quot;minimum_allowed_balance&quot;: &quot;-infinity&quot;
+}
+</code></pre>
+<h4 id="errors-7">Errors</h4>
+<ul>
+<li><a href="#notfounderror">NotFoundError</a></li>
+<li><a href="#invaliduriparametererror">InvalidUriParameterError</a></li>
+</ul>
+<h3 id="create-or-update-account">Create or Update Account</h3>
+<p>Update an account in the ledger.</p>
+<p><strong>Authorization:</strong> The owner of an account MUST be able to update the account, except for specific fields. An administrator MAY be able to update any fields of any account.</p>
+<h4 id="request-format-8">Request Format</h4>
+<pre><code>PUT /accounts/{name}
+</code></pre><p><strong><a href="#urls">Metadata URL Name</a>:</strong> <code>account</code>.</p>
+<h5 id="url-parameters-3">URL Parameters</h5>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>name</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">The unique name of the account to create or update. MUST match the regular expression <code>^[a-zA-Z0-9._~-]{1,256}$</code>.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="request-body">Request Body</h5>
+<p>The request is an <a href="#account-resource">Account Resource</a>. Any omitted fields are left unchanged.</p>
+<h4 id="response-format-8">Response Format</h4>
+<p>A successful response uses the HTTP status code <strong>200 OK</strong> and contains a JSON object with the <a href="#account-resource">Account Resource</a> as saved.</p>
+<h4 id="example-8">Example</h4>
+<p>Request:</p>
+<pre><code>PUT /accounts/bob
+Content-Type: application/json
+
+{
+  &quot;name&quot;: &quot;bob&quot;,
+  &quot;minimum_allowed_balance&quot;: &quot;-10000&quot;,
+  &quot;fingerprint&quot;: &quot;88:90:3a:e7:e5:1c:c4:51:05:4b:0c:2b:3f:41:df:bf:0c:21:f3:78&quot;
+}
+</code></pre><p>Response:</p>
+<pre><code>200 OK
+Content-Type: application/json
+
+{
+  &quot;name&quot;: &quot;bob&quot;,
+  &quot;minimum_allowed_balance&quot;: &quot;-10000&quot;,
+  &quot;ledger&quot;: &quot;https://red.ilpdemo.org/ledger&quot;,
+  &quot;is_disabled&quot;: false,
+  &quot;fingerprint&quot;: &quot;88:90:3a:e7:e5:1c:c4:51:05:4b:0c:2b:3f:41:df:bf:0c:21:f3:78&quot;
+}
+</code></pre><h4 id="errors-8">Errors</h4>
+<ul>
+<li><a href="#invalidbodyerror">InvalidBodyError</a> - The request was not valid JSON, or did not match the schema for the request.</li>
+<li><a href="#invaliduriparametererror">InvalidUriParameterError</a> - One of the URLs, URIs, or UUIDs in the body is not validly formatted.</li>
+<li><a href="#unprocessableentityerror">UnprocessableEntityError</a> - The object was syntactically valid but had a semantic issue.</li>
+<li><a href="#unauthorizederror">UnauthorizedError</a> - The client was not authenticated with permissions to modify the account as requested.</li>
+</ul>
+<h3 id="send-message">Send Message</h3>
+<p>Try to send a notification to another account. The message is only delivered if the other account is subscribed to <a href="#subscribe-to-account">account notifications</a> on a WebSocket connection. ILP Clients and ILP Connectors use this method to request and send quotes.</p>
+<p><strong>Authorization:</strong> The <code>from</code> field of the message MUST match the account owner. Unauthenticated users MUST NOT be able to send messages. A ledger MAY allow admin connections to send messages whose <code>from</code> value matches the ledger&apos;s base <a href="#urls">URL</a>.</p>
+<h4 id="request-format-9">Request Format</h4>
+<pre><code>POST /messages
+</code></pre><p><strong><a href="#urls">Metadata URL Name</a>:</strong> <code>message</code>.</p>
+<p>The request body contains a [Message object][] as JSON.</p>
+<h4 id="response-format-9">Response Format</h4>
+<p>A successful response uses the HTTP response code <strong>201 Created</strong> and contains no message body or an empty message body.</p>
+<h4 id="example-9">Example</h4>
+<p>Request:</p>
+<pre><code class="lang-json">POST /messages
+Content-Type: application/json
+
+{
+  &quot;from&quot;: &quot;https://blue.ilpdemo.ripple.com/ledger/accounts/bob&quot;,
+  &quot;to&quot;: &quot;https://blue.ilpdemo.ripple.com/ledger/accounts/alice&quot;,
+  &quot;data&quot;: {
+    &quot;method&quot;: &quot;quote_request&quot;,
+    &quot;id&quot;: &quot;721e4126-98a1-4974-b35a-8a8f4655f934&quot;,
+    &quot;data&quot;: {
+      &quot;source_amount&quot;: &quot;100.25&quot;,
+      &quot;source_address&quot;: &quot;example.eur-ledger.alice&quot;,
+      &quot;destination_address&quot;: &quot;example.usd-ledger.bob&quot;,
+      &quot;source_expiry_duration&quot;: &quot;6000&quot;,
+      &quot;destination_expiry_duration&quot;: &quot;5&quot;
+    }
+  }
+}
+</code></pre>
+<p>Response:</p>
+<pre><code>HTTP/1.1 204 No Content
+</code></pre><h4 id="errors-9">Errors</h4>
+<ul>
+<li><a href="#invalidbodyerror">InvalidBodyError</a> - The request was not valid JSON, or did not match the schema for the request.</li>
+<li><a href="#invaliduriparametererror">InvalidUriParameterError</a> - One of the URLs, URIs, or UUIDs in the body is not validly formatted.</li>
+<li><a href="#unprocessableentityerror">UnprocessableEntityError</a> - The object was syntactically valid but had a semantic issue.</li>
+</ul>
+<h3 id="get-auth-token">Get Auth Token</h3>
+<p>Get a token that can be used to authenticate future requests.</p>
+<p><strong>Note:</strong> This method is REQUIRED for ledgers to authenticate <a href="#websocket">WebSocket</a> connections. If the ledger does not authenticate WebSocket connections, this method is OPTIONAL. The ledger MAY allow clients to authenticate for any other methods of the API using the tokens returned by this method.</p>
+<h4 id="request-format-10">Request Format</h4>
+<pre><code>GET /auth_token
+</code></pre><p>Depending on the <a href="#authorization-and-authentication">authentication mechanism</a> used by this ledger, the ledger MAY require the HTTP <code>Auth</code> header with a valid username and password, or the ledger may require a different method of authentication.</p>
+<p><strong><a href="#urls">Metadata URL Name</a>:</strong> <code>auth_token</code>.</p>
+<h4 id="response-format-10">Response Format</h4>
+<p>A successful response uses the HTTP response code <strong>200 OK</strong> and contains a JSON object with a token that can be used for subsequent requests. The ledger can generate the token with <a href="https://jwt.io/">JWT</a> or any similar system.</p>
+<h4 id="example-10">Example</h4>
+<p>Request:</p>
+<pre><code>GET /auth_token
+Authorization: Basic myUsername:securePassphrase
+</code></pre><p>Response:</p>
+<pre><code class="lang-json">HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  &quot;token&quot;: &quot;9AtVZPN3t49Kx07stO813UHXv6pcES&quot;
+}
+</code></pre>
+<h4 id="errors-10">Errors</h4>
+<ul>
+<li><a href="#unauthorized">Unauthorized</a></li>
+<li><a href="#forbidden">Forbidden</a></li>
+</ul>
+<h2 id="websocket">WebSocket</h2>
+<p><strong><a href="#urls">Metadata URL Name</a>:</strong> <code>websocket</code>. Suggested generic path: <code>/websocket</code> (with <code>wss://</code> protocol)</p>
+<p>Clients can subscribe to live, read-only notifications of ledger activity by opening a <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API">WebSocket</a> connection to this path and sending a subscription request.</p>
+<h3 id="websocket-authentication">WebSocket Authentication</h3>
+<p>Clients MUST authenticate themselves with a token from the <a href="#get-auth-token">Get Auth Token</a> method. This token can be supplied in one of two ways:</p>
+<ul>
+<li><p>In the <code>token</code> query parameter. For example:</p>
+<pre><code>  wss://red.ilpdemo.org/ledger/websocket/?token=9AtVZPN3t49Kx07stO813UHXv6pcES
+</code></pre></li>
+<li><p>As a &quot;Bearer&quot; token in the <code>Authorization</code> HTTP header of the request (before the protocol switch to WebSocket). For example:</p>
+<pre><code>  GET /ledger/websocket
+  Authorization: Bearer 9AtVZPN3t49Kx07stO813UHXv6pcES
+  Upgrade: websocket
+</code></pre></li>
+</ul>
+<p>Clients should prefer to use the <code>Authorization</code> header on WebSocket requests, if the client supports it.</p>
+<p>A ledger MAY restrict the data that can be accessed, as long as it complies with the following rules:</p>
+<ul>
+<li>An account owner MUST be able to subscribe to changes to its own account.</li>
+<li>An account owner MUST be able to subscribe to changes to transactions where the account is the in the <code>credits</code> or <code>debits</code> fields.</li>
+<li>An account owner MUST be able to subscribe to messages to its account. Account owners and unauthorized users MUST NOT be able to subscribe to messages to other accounts.</li>
+</ul>
+<p>The authentication you use when opening the connection applies to all subscriptions made in the connection.</p>
+<p>A ledger MUST support multiple independent WebSocket connections with the same authentication. (This provides connection redundancy for notifications, which is helpful for ILP Connectors.)</p>
+<h3 id="websocket-messages">WebSocket Messages</h3>
+<p>After the connection is established, the client and ledger communicate by passing <a href="http://www.jsonrpc.org/specification">JSON-RPC 2.0</a> messages back and forth. Both the client application and ledger can take the roles of &quot;client&quot; and &quot;server&quot; in JSON-RPC terms. The client application can submit requests to subscribe or unsubscribe from specific categories of message. The ledger responds directly to the client&apos;s requests with confirmation messages, and also sends &quot;notification&quot; requests to the client application. (Notifications are identified by the <code>id</code> value <code>null</code>.)</p>
+<p>A ledger MUST support the following subscription command:</p>
+<ul>
+<li><a href="#subscribe-to-account">Subscribe to Account</a></li>
+</ul>
+<p>A ledger MAY support the following subscription commands, or define additional subscription commands:</p>
+<ul>
+<li><a href="#subscribe-to-transfer">Subscribe to Transfer</a></li>
+<li>Subscribe to All Transfers<ul>
+<li>This is useful when you have an application monitoring activity on all accounts and fulfilling transfers for others.</li>
+</ul>
+</li>
+</ul>
+<h4 id="subscribe-to-account">Subscribe to Account</h4>
+<p>This request replaces any existing account subscriptions on this WebSocket connection. The client sends a JSON object to the ledger with the following fields:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Value</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>id</code></td>
+<td style="text-align:left">String or Number</td>
+<td style="text-align:left">An arbitrary identifier for this request. MUST NOT be <code>null</code>. The immediate response to this request identifies itself using the same <code>id</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>jsonrpc</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">MUST have the value <code>&quot;2.0&quot;</code> to indicate this is a JSON-RPC 2.0 request.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>method</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">MUST be the value <code>&quot;subscribe_account&quot;</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>params</code></td>
+<td style="text-align:left">Object</td>
+<td style="text-align:left">Information on what subscriptions to open.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>params.accounts</code></td>
+<td style="text-align:left">Array</td>
+<td style="text-align:left">Each member of this array must be the [URI][] of an account to subscribe to, as a string. This replaces existing subscriptions; if the array length is zero, the client is unsubscribed from all account notifications.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="response-1">Response</h5>
+<p>The ledger acknowledges the request immediately by sending a JSON object with the following fields:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Value</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>id</code></td>
+<td style="text-align:left">String or Number</td>
+<td style="text-align:left">The <code>id</code> value from the request. This helps distinguish responses from other messages.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>jsonrpc</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">MUST have the value <code>&quot;2.0&quot;</code> to indicate this is a JSON-RPC 2.0 message.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>result</code></td>
+<td style="text-align:left">Number</td>
+<td style="text-align:left">Updated number of active account subscriptions on this WebSocket connection. In practice, this is usually the length of the <code>params.accounts</code> array from the request.</td>
+</tr>
+</tbody>
+</table>
+<p>Later, the ledger responds with <a href="#websocket-notifications">notifications</a> whenever any of the following occurs:</p>
+<ul>
+<li>A transfer affecting the account is prepared (<code>event</code> type: <code>transfer.create</code>)</li>
+<li>A transfer affecting the account changes state. For example, from prepared to executed or to expired. (<code>event</code> type: <code>transfer.update</code>)</li>
+<li>Someone <a href="#send-message">sends a message</a> to the account. (<code>event</code> type: <code>message.send</code>)</li>
+<li>A ledger MAY define additional types of notifications that get sent when you are subscribed to an account. Each new type of notification MUST have a unique <code>event</code> value.</li>
+</ul>
+<p>Example:</p>
+<pre><code>--&gt; {
+      &quot;jsonrpc&quot;: &quot;2.0&quot;,
+      &quot;method&quot;: &quot;subscribe_account&quot;,
+      &quot;params&quot;: {
+        &quot;accounts&quot;: [&quot;https://ledger.example/accounts/alice&quot;]
+      },
+      &quot;id&quot;: 1
+    }
+&lt;-- {
+      &quot;jsonrpc&quot;: &quot;2.0&quot;,
+      &quot;result&quot;: 1,
+      &quot;id&quot;: 1
+    }
+</code></pre><h4 id="subscribe-to-transfer">Subscribe to Transfer</h4>
+<p>The client sends a JSON object to the ledger with the following fields:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Value</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>id</code></td>
+<td style="text-align:left">String or Number</td>
+<td style="text-align:left">An arbitrary identifier for this request. MUST NOT be <code>null</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>jsonrpc</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">MUST have the value <code>&quot;2.0&quot;</code> to indicate this is a JSON-RPC 2.0 request.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>method</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">MUST be the value <code>&quot;subscribe_transfer&quot;</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>params</code></td>
+<td style="text-align:left">Object</td>
+<td style="text-align:left">Information on what subscriptions to open.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>params.transfers</code></td>
+<td style="text-align:left">Array</td>
+<td style="text-align:left">Each member of this array must be the <a href="#urls">URL</a> of a transfer to subscribe to, as a string. This array replaces any existing transfer subscriptions on this WebSocket connection. If the array length is zero, the client is unsubscribed from all transfer notifications.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="response-2">Response</h5>
+<p>The ledger acknowledges the request immediately by sending a JSON object with the following fields:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Value</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>id</code></td>
+<td style="text-align:left">String or Number</td>
+<td style="text-align:left">The <code>id</code> value from the request. This helps distinguish responses from other messages.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>jsonrpc</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">MUST have the value <code>&quot;2.0&quot;</code> to indicate this is a JSON-RPC 2.0 request.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>result</code></td>
+<td style="text-align:left">Number</td>
+<td style="text-align:left">Updated number of active transfer subscriptions on this WebSocket connection. In practice, this is usually the length of the <code>params.transfers</code> array from the request.</td>
+</tr>
+</tbody>
+</table>
+<p>Later, the ledger responds with <a href="#websocket-notifications">notifications</a> whenever any of the following occurs:</p>
+<ul>
+<li>The transfer changes state. For example, from prepared to executed or to expired. (<code>event</code> type: <code>transfer.update</code>)</li>
+</ul>
+<h4 id="websocket-notifications">WebSocket Notifications</h4>
+<p>The ledger sends notifications to connected clients when certain events occur, according to the current subscriptions of the clients. Every notification is sent at most once per WebSocket connection to the ledger, even if a client is subscribed to multiple categories of message that should prompt the same notification. If a client has multiple connections open, the ledger MUST attempt to send a message on every open connection.</p>
+<p>All event notifications from the ledger are in the format of JSON objects with the following fields:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Value</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>jsonrpc</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">MUST have the value <code>&quot;2.0&quot;</code> to indicate this is a JSON-RPC 2.0 notification.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>id</code></td>
+<td style="text-align:left">Null</td>
+<td style="text-align:left">MUST be <code>null</code> to indicate a notification.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>method</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">MUST be the value <code>&quot;notify&quot;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>params</code></td>
+<td style="text-align:left">Object</td>
+<td style="text-align:left">Nested object with information about the notification.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>params.event</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">The type of event that prompted this notification. Valid types include <code>transfer.create</code>, <code>transfer.update</code>, and others. See <a href="#event-types">Event Types</a> for more information.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>params.id</code></td>
+<td style="text-align:left"><a href="#urls">URL</a></td>
+<td style="text-align:left"><em>(Optional)</em> A <a href="http://en.wikipedia.org/wiki/Universally_unique_identifier">UUID</a> to uniquely identify this notification.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>params.resource</code></td>
+<td style="text-align:left">Object</td>
+<td style="text-align:left">An object related to <code>event</code> that occurred. In most cases, this is a <a href="#transfer-resource">Transfer resource</a> as it was created or updated.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>params.related_resources</code></td>
+<td style="text-align:left">Object</td>
+<td style="text-align:left"><em>(Not present in all responses)</em> Contains additional resources related to this notification in named sub-fields, depending on the <code>event</code> type. In particular, this MUST contain the fulfillment when a transfer is updated to the <code>executed</code> state.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="event-types">Event Types</h5>
+<p>A ledger MAY define custom <code>event</code> types. A ledger MUST support at least the following <code>event</code> values:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Value</th>
+<th style="text-align:left">Resource</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>transfer.create</code></td>
+<td style="text-align:left"><a href="#transfer-resource">Transfer resource</a></td>
+<td style="text-align:left">Occurs when a new transfer is prepared. Sent to clients subscribed to the accounts from the <code>debits</code> and <code>credits</code> fields of the transfer. If the transfer is unconditional, this notification indicates the state of the transaction after execution. The <code>related_resources</code> field is omitted.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>transfer.update</code></td>
+<td style="text-align:left"><a href="#transfer-resource">Transfer resource</a></td>
+<td style="text-align:left">Occurs when a transfer changes state from <code>prepared</code> to <code>executed</code> or <code>rejected</code>. If the transfer was executed, the <code>execution_condition_fulfillment</code> field of <code>related_resources</code> MUST contain the fulfillment. If the transfer was rejected, the <code>related_resources</code> field is empty.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>message.send</code></td>
+<td style="text-align:left"><a href="#message-resource">Message resource</a></td>
+<td style="text-align:left">Occurs when someone else sends a message.</td>
+</tr>
+</tbody>
+</table>
+<p>If a ledger creates custom event types, their values should follow the convention <code>{resource}.{event}</code>.</p>
+<h2 id="api-error-codes">API Error Codes</h2>
+<p>The Five Bells Ledger API may return errors using HTTP codes in the range 400-599, depending on the type of error. The message body of the error response is a JSON object with additional information about the nature of the error.</p>
+<p>Every error response contains at least the following fields:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Field</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>id</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">A unique error code for this specific type of error, such as <code>UnmetConditionError</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>message</code></td>
+<td style="text-align:left">String</td>
+<td style="text-align:left">A longer, human-readable description for the cause of the error.</td>
+</tr>
+</tbody>
+</table>
+<p>Errors may also have additional arbitrary fields describing the cause or context of the error.</p>
+<p><strong>Note:</strong> Any fields other than <code>id</code> and <code>message</code> should be considered optional and informational. Clients MUST NOT depend on the presence of those fields. The examples in this spec contain suggestions for additional fields, but those should not be taken as requirements.</p>
+<h3 id="unauthorized">Unauthorized</h3>
+<p>The <a href="#authorization-and-authentication">authentication information</a> supplied to this request was insufficient for one of the following reasons:</p>
+<ul>
+<li>This method requires authentication but none was provided</li>
+<li>The credentials were provided using a system not supported by this method. (For example, using Basic Auth on a method that requires token authentication.)</li>
+</ul>
+<p>A ledger MAY return any message body using any content type with this error. (This makes it easier to use proxy servers and stock server configuration to handle authorization.)</p>
+<p><strong>HTTP Status Code:</strong> 401 Unauthorized</p>
+<pre><code class="lang-json">HTTP/1.1 401 Unauthorized
+
+{
+  &quot;error_id&quot;: &quot;Unauthorized&quot;,
+  &quot;message&quot;: &quot;Auth token not found&quot;
+}
+</code></pre>
+<h3 id="forbidden">Forbidden</h3>
+<p>The request provided</p>
+<ul>
+<li>The credentials were malformed or don&apos;t match the known account information</li>
+<li>The authenticated role does not have permission to perform the requested operation</li>
+</ul>
+<p>A ledger MAY return any message body using any content type with this error. (This makes it easier to use proxy servers and stock server configuration to handle authorization.)</p>
+<p><strong>HTTP Status Code:</strong> 403 Forbidden</p>
+<pre><code class="lang-json">HTTP/1.1 403 Forbidden
+
+{
+  &quot;error_id&quot;: &quot;Forbidden&quot;,
+  &quot;message&quot;: &quot;Client certificate doesn&apos;t match known fingerprint&quot;
+}
+</code></pre>
+<h3 id="invaliduriparametererror">InvalidUriParameterError</h3>
+<p>At least one provided <a href="#urls">URL</a> or <a href="http://en.wikipedia.org/wiki/Universally_unique_identifier">UUID</a> parameter was invalid.</p>
+<p><strong>HTTP Status Code:</strong> 400 Bad Request</p>
+<pre><code class="lang-json">HTTP/1.1 400 Bad Request
+
+{
+    &quot;error_id&quot;: &quot;InvalidUriParameterError&quot;,
+    &quot;message&quot;: &quot;id is not a valid Uuid&quot;,
+    &quot;validationErrors&quot;: [{
+        &quot;message&quot;: &quot;String does not match pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$&quot;,
+        &quot;params&quot;: {
+            &quot;pattern&quot;: &quot;^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$&quot;
+        },
+        &quot;code&quot;: 202,
+        &quot;dataPath&quot;: &quot;&quot;,
+        &quot;schemaPath&quot;: &quot;/pattern&quot;,
+        &quot;subErrors&quot;: null,
+        &quot;stack&quot;: &quot;...&quot;
+    }]
+}
+</code></pre>
+<h3 id="invalidbodyerror">InvalidBodyError</h3>
+<p>The submitted JSON entity does not match the required schema.</p>
+<p><strong>HTTP Status Code:</strong> 400 Bad Request</p>
+<pre><code class="lang-json">HTTP/1.1 400 Bad Request
+
+{
+    &quot;error_id&quot;: &quot;InvalidBodyError&quot;,
+    &quot;message&quot;: &quot;Body did not match schema Transfer&quot;,
+    &quot;validationErrors&quot;: [{
+        &quot;message&quot;: &quot;Missing required property: id&quot;,
+        &quot;params&quot;: {
+            &quot;key&quot;: &quot;id&quot;
+        },
+        &quot;code&quot;: 302,
+        &quot;dataPath&quot;: &quot;&quot;,
+        &quot;schemaPath&quot;: &quot;/required/0&quot;,
+        &quot;subErrors&quot;: null,
+        &quot;stack&quot;: &quot;...&quot;
+    }]
+}
+</code></pre>
+<h3 id="notfounderror">NotFoundError</h3>
+<p>The requested resource could not be found.</p>
+<p><strong>HTTP Status Code:</strong> 404 Not Found</p>
+<pre><code class="lang-json">HTTP/1.1 404 Not Found
+
+{
+  &quot;error_id&quot;: &quot;NotFoundError&quot;,
+  &quot;message&quot;: &quot;Unknown transfer.&quot;
+}
+</code></pre>
+<h3 id="unprocessableentityerror">UnprocessableEntityError</h3>
+<p>The provided entity is syntactically correct, but there is a generic semantic problem with it.</p>
+<p><strong>HTTP Status Code:</strong> 422 Unprocessable Entity</p>
+<pre><code class="lang-json">HTTP/1.1 422 Unprocessable Entity
+
+{
+  &quot;error_id&quot;: &quot;UnprocessableEntityError&quot;,
+  &quot;message&quot;: &quot;Debits and credits are not equal&quot;
+}
+</code></pre>
+<h3 id="insufficientfundserror">InsufficientFundsError</h3>
+<p>The source account does not have sufficient funds to satisfy the request.</p>
+<p><strong>HTTP Status Code:</strong> 422 Unprocessable Entity</p>
+<pre><code class="lang-json">HTTP/1.1 422 Unprocessable Entity
+
+{
+  &quot;error_id&quot;: &quot;InsufficientFundsError&quot;,
+  &quot;message&quot;: &quot;Sender has insufficient funds.&quot;,
+  &quot;account&quot;: &quot;santiago&quot;
+}
+</code></pre>
+<h3 id="alreadyexistserror">AlreadyExistsError</h3>
+<p>The specified entity already exists and may not be modified.</p>
+<p><strong>HTTP Status Code:</strong> 422 Unprocessable Entity</p>
+<pre><code class="lang-json">HTTP/1.1 422 Unprocessable Entity
+
+{
+  &quot;error_id&quot;: &quot;AlreadyExistsError&quot;,
+  &quot;message&quot;: &quot;Can&apos;t modify transfer after execution.&quot;
+}
+</code></pre>
+<h3 id="unauthorizederror">UnauthorizedError</h3>
+<p>You do not have permissions to access or modify this resource in the requested way.</p>
+<p><strong>HTTP Status Code:</strong> 403 Forbidden</p>
+<pre><code class="lang-json">HTTP/1.1 403 Forbidden
+
+{
+  &quot;error_id&quot;: &quot;UnauthorizedError&quot;,
+  &quot;message&quot;: &quot;Only the beneficiary can post the fulfillment.&quot;
+}
+</code></pre>
+<h3 id="unmetconditionerror">UnmetConditionError</h3>
+<p>The submitted fulfillment does not meet the specified <a href="#crypto-conditions">Crypto-Condition</a>.</p>
+<p><strong>HTTP Status Code:</strong> 422 Unprocessable Entity</p>
+<pre><code class="lang-json">HTTP/1.1 422 Unprocessable Entity
+
+{
+  &quot;error_id&quot;: &quot;UnmetConditionError&quot;,
+  &quot;message&quot;: &quot;Fulfillment does not match condition.&quot;,
+  &quot;condition&quot;: &quot;ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&amp;cost=12&quot;,
+  &quot;fulfillment&quot;: &quot;oA6ADGhlbGxvIHdvcmxkLg&quot;
+}
+</code></pre>
+<h3 id="transfernotconditionalerror">TransferNotConditionalError</h3>
+<p>Occurs when a client tries to submit a fulfillment to a transfer that does not have a <a href="#crypto-conditions">Crypto-Condition</a> to fulfill.</p>
+<p><strong>HTTP Status Code:</strong> 422 Unprocessable Entity</p>
+<pre><code class="lang-json">HTTP/1.1 422 Unprocessable Entity
+
+{
+  &quot;error_id&quot;: &quot;TransferNotConditionalError&quot;,
+  &quot;message&quot;: &quot;Transfer does not have a condition.&quot;,
+  &quot;transfer_id&quot;: &quot;da405506-0fbe-4454-9b6f-c413977a7f3c&quot;
+}
+</code></pre>
+<h3 id="unsupportedcryptoconditionerror">UnsupportedCryptoConditionError</h3>
+<p>The transfer uses a <a href="#crypto-conditions">Crypto-Condition</a> with features not supported by this ledger&apos;s implementation of Crypto-Conditions.</p>
+<p><strong>HTTP Status Code:</strong> 422 Unprocessable Entity</p>
+<pre><code class="lang-json">HTTP/1.1 422 Unprocessable Entity
+
+{
+  &quot;error_id&quot;: &quot;UnsupportedCryptoConditionError&quot;,
+  &quot;message&quot;: &quot;Ledger does not support this CryptoCondition type.&quot;,
+  &quot;condition&quot;: &quot;ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&amp;cost=12&quot;,
+}
+</code></pre>
+<h3 id="transferstateerror">TransferStateError</h3>
+<p>The requested operation could not be executed because the transfer was not in the correct state when the request was received. This occurs if you try to execute or reject a transfer that has already been executed, rejected, or expired.</p>
+<p><strong>HTTP Status Code:</strong> 422 Unprocessable Entity</p>
+<pre><code class="lang-json">HTTP/1.1 422 Unprocessable Entity
+
+{
+  &quot;error_id&quot;: &quot;TransferStateError&quot;,
+  &quot;message&quot;: &quot;Transfer 3f1080b4-b296-4de5-8a16-55362ee0624f expired 594726 seconds ago&quot;,
+  &quot;expires_at&quot;: &quot;2016-10-25T08:41:59.795Z&quot;,
+  &quot;current_time&quot;: &quot;2016-10-25T08:51:54.521Z&quot;,
+  &quot;transfer_id&quot;: &quot;3f1080b4-b296-4de5-8a16-55362ee0624f&quot;
+}
+</code></pre>
+
+        </div>
+      </div>
+
+    </div> <!-- /container -->
+
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="col-sm-4 col-xs-12">
+              <p>Interledger Team</p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="text-center">See list of <a target="_blank" href="https://www.w3.org/community/interledger/participants">Contributors</a></p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="pull-right">Documentation licensed under <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0.</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-68500608-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    <script src="/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
