@@ -118,17 +118,17 @@ A ledger MAY define additional authorization levels, especially for functions th
 A transfer represents money being moved around _within a single ledger_. A transfer debits one or more accounts and credits one or more accounts, such that the sum of all credits equals the sum of all debits. A transfer can be conditional upon a supplied [Crypto-Condition][], in which case it executes automatically when presented with the fulfillment for the condition. (Assuming the transfer has not expired or been rejected first.) If no Crypto-Condition is specified, the transfer is unconditional, and executes as soon as it is prepared.
 
 
-A transfer object contains the fields from the following table. Some fields are _Ledger-provided_, meaning they cannot be set directly by clients. Fields that are "Optional" or "Ledger-provided" in the following table may be omitted by clients submitting transfer objects to the API, but **those fields are not optional to implement**. All fields, including the `memo` fields, must be implemented for the Five Bells Ledger API to work properly. Fields of nested objects are indicated with a dot (`.`) character; no field names contain a dot literal.
+A transfer object contains the fields from the following table. Some fields are _Ledger-provided_, meaning they cannot be set directly by clients. All fields, including the `memo` fields, must be implemented for the Five Bells Ledger API to work properly. Fields of nested objects are indicated with a dot (`.`) character; no field names contain a dot literal.
 
 | Name                   | Type                 | Description                  |
 |:-----------------------|:---------------------|:-----------------------------|
 | `id`                   | [URL][]              | Client-provided ID for this resource, including a [UUID][], in the format of the [Get Transfer][] URL. MUST be unique within the ledger. See [Transfer IDs][] for more information. |
 | `credits`              | Array of Objects     | Array of objects defining which accounts receive how much in this transfer. A ledger MAY restrict this to length 1. |
 | `debits`               | Array of Objects     | Array of objects defining which accounts send how much in this transfer. A ledger MAY restrict this to length 1. |
-| `cancellation_condition` | [Crypto-Condition][] | _(Optional)_ The condition for canceling the transfer. This field is OPTIONAL to implement. (It is no longer used by other ILP reference implementations.) MUST NOT be present unless the transfer has an `execution_condition`.  |
-| `execution_condition`  | [Crypto-Condition][] | _(Optional)_ The condition for executing the transfer. If omitted, the transfer executes unconditionally. |
-| `expires_at`           | [Date-Time][]        | _(Optional)_ The date when the transfer expires and can no longer be executed. |
-| `additional_info`      | Object               | _(Optional)_ Arbitrary fields attached to this transfer. (For example, the IDs of related transfers in other systems.) |
+| `cancellation_condition` | [Crypto-Condition][] | The condition for canceling the transfer. This field is OPTIONAL to implement. (It is no longer used by other ILP reference implementations.) MUST NOT be present unless the transfer has an `execution_condition`.  |
+| `execution_condition`  | [Crypto-Condition][] | The condition for executing the transfer. If omitted, the transfer executes unconditionally. |
+| `expires_at`           | [Date-Time][]        | The date when the transfer expires and can no longer be executed. |
+| `additional_info`      | Object               | Arbitrary fields attached to this transfer. (For example, the IDs of related transfers in other systems.) |
 | `fulfillment`          | [URL][]              | _(Ledger-provided)_ Path to the fulfillment for this transfer. MUST be an HTTP(S) URL where the client can [submit the fulfillment][Submit Fulfillment] or [get the fulfillment][Get Transfer Fulfillment]. MUST be provided if and only if this transfer has an `execution_condition`. |
 | `ledger`               | [URL][]              | _(Ledger-provided)_ Resource identifier for the ledger where the transfer occurs. MUST be an HTTP(S) URL where you can [get the ledger metadata][Get Ledger Metadata]. |
 | `rejection_reason`     | String               | _(Ledger-provided)_ The reason the transfer was rejected. MUST appear if and only if `state` is `rejected`. |
@@ -146,8 +146,8 @@ The `credits` and `debits` fields contain objects defining how much to debit or 
 |:-------------|:--------|:----------------------------------------------------|
 | `account`    | [URL][] | An identifier for the account to credit or debit. This MUST be an HTTP(S) URL where the client can call the [Get Account][] method. |
 | `amount`     | String  | Positive decimal amount of money to debit from or credit to this account. See [Amounts][] for formatting rules. |
-| `memo`       | Object  | _(Optional)_ Arbitrary object with additional information about this credit or debit.  |
-| `authorized` | Boolean | _(Optional, debit objects only)_ Whether this account has authorized this transfer. The ledger MUST NOT allow a request to set this value to `true` unless the client is authenticated as an Administrator or as the owner of this account. |
+| `memo`       | Object  | Arbitrary object with additional information about this credit or debit.  |
+| `authorized` | Boolean | _(Debit objects only)_ Whether this account has authorized this transfer. The ledger MUST NOT allow a request to set this value to `true` unless the client is authenticated as an Administrator or as the owner of the `account` from this debit. |
 
 **Note:** Ledgers MUST implement the `memo` field. ILP clients use this field to store the ILP Packet object. Specifically, the reference ILP Client puts the ILP Packet as a base64url-encoded string in the the `ilp` field of the `memo` of the credit to the Connector. To support any possible ILP Packet, the maximum size of the `memo` field MUST be at least **46 kilobytes**.
 
@@ -231,13 +231,17 @@ The Crypto-Conditions specification anticipates that it will need to expand to k
 
 Example condition in string format:
 
-    cc:0:3:dB-8fb14MdO75Brp_Pvh4d7ganckilrRl13RS_UmrXA:66
+```
+ni:///sha-256;47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU?fpt=preimage-sha-256&cost=0
+```
 
-Example fulfillment in string format:
+Example fulfillment in string format (a PREIMAGE-SHA-256 fulfillment is the preimage string serialized):
 
-    cf:0:VGhlIG9ubHkgYmFzaXMgZm9yIGdvb2QgU29jaWV0eSBpcyB1bmxpbWl0ZWQgY3JlZGl0LuKAlE9zY2FyIFdpbGRl
+```
+oAKAAA
+```
 
-The [five-bells-condition](https://github.com/interledgerjs/five-bells-condition) library provides a JavaScript implementation of Crypto-Conditions. For custom implementations, consider the latest version of the [IETF crypto-conditions spec](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02) as the source of truth.
+The [five-bells-condition](https://github.com/interledgerjs/five-bells-condition) library provides a JavaScript implementation of Crypto-Conditions. For custom implementations, consider the latest version of the [IETF crypto-conditions spec](https://tools.ietf.org/html/draft-thomas-crypto-conditions-03) as the source of truth.
 
 **Note:** The rest of the Interledger reference implementations have dropped support for the full range of Crypto-Conditions in favor of using SHA-256 hashlocks everywhere. For compatibility with all Interledger software, Five Bells Ledger transfers should use PREIMAGE-SHA-256 crypto-conditions only.
 
@@ -389,7 +393,16 @@ PUT /transfers/{id}
 
 ##### Body Parameters
 
-The message body should be a JSON [Transfer resource][].
+The message body should be a JSON [Transfer resource][]. The ledger MUST ignore any values specified for "Ledger-provided" fields in the request. The request MAY omit the following fields of the transfer resource:
+
+| Field                                           | Behavior if Omitted        |
+|:------------------------------------------------|:---------------------------|
+| `cancellation_condition`                        | The transfer cannot be canceled by crypto-condition. (The transfer can still be [rejected][Get Transfer] by a receiver.) |
+| `execution_condition`                           | The transfer is unconditional, and executes immediately after all debits are authorized. |
+| `expires_at`                                    | The transfer has no time-based expiration. |
+| `memo` field of objects in `debits` array       | No memo is associated with this debit. |
+| `authorized` field of objects in `debits` array | The `authorized` value defaults to `false`. The transfer cannot execute until the owner of the account to be debited sets the field to true. |
+| ("Ledger-provided" fields)                      | The ledger provides these fields in the response and subsequent [Get Transfer][] responses. |
 
 #### Response Format
 
@@ -414,7 +427,7 @@ Content-Type: application/json
     "account": "https://red.ilpdemo.org/ledger/accounts/bob",
     "amount": "50"
   }],
-  "execution_condition": "cc:0:3:8ZdpKBDUV-KX_OnFZTsCWB_5mlCFI3DynX5f5H2dN-Y:2",
+  "execution_condition": "ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&cost=12",
   "expires_at": "2015-06-16T00:00:01.000Z"
 }
 ```
@@ -437,7 +450,7 @@ HTTP/1.1 200 OK
     "account": "https://red.ilpdemo.org/ledger/accounts/bob",
     "amount": "50"
   }],
-  "execution_condition": "cc:0:3:8ZdpKBDUV-KX_OnFZTsCWB_5mlCFI3DynX5f5H2dN-Y:2",
+  "execution_condition": "ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&cost=12",
   "expires_at": "2015-06-16T00:00:01.000Z",
   "state": "prepared",
   "timeline": {
@@ -485,7 +498,7 @@ The message body should be a [Crypto-Condition Fulfillment][] in string format.
 
 #### Response Format
 
-A successful result uses the HTTP response code **200 OK**. The message body of the response is the submitted fulfillment as plain text. A ledger MUST return a successful response if and only if the transfer was executed or canceled as a result of this request.
+A successful result uses the HTTP response code **201 Created** ONLY if the fulfillment was executed or canceled as a result of this request. This method returns **200 OK** if the fulfillment matched a condition, but the transfer had already been executed or canceled before processing this request. The message body of the response is the submitted fulfillment as plain text.
 
 #### Example
 
@@ -495,15 +508,15 @@ Request:
 PUT /transfers/3a2a1d9e-8640-4d2d-b06c-84f2cd613204/fulfillment
 Content-Type: text/plain
 
-cf:0:_v8
+oA6ADEhlbGxvIFdvcmxkIQ
 ```
 
 Response:
 
 ```
-HTTP/1.1 200 OK
+HTTP/1.1 201 Created
 
-cf:0:_v8
+oA6ADEhlbGxvIFdvcmxkIQ
 ```
 
 #### Errors
@@ -573,7 +586,7 @@ HTTP/1.1 200 OK
     "amount": "50"
   }],
   "amount": "199.99",
-  "execution_condition": "cc:0:3:dB-8fb14MdO75Brp_Pvh4d7ganckilrRl13RS_UmrXA:66",
+  "execution_condition": "ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&cost=12",
   "expires_at": "2018-01-01T00:00:00.000Z",
   "state": "rejected",
   "timeline": {
@@ -637,7 +650,7 @@ HTTP/1.1 200 OK
     "amount": "50"
   }],
   "amount": "199.99",
-  "execution_condition": "cc:0:3:dB-8fb14MdO75Brp_Pvh4d7ganckilrRl13RS_UmrXA:66",
+  "execution_condition": "ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&cost=12",
   "expires_at": "2018-01-01T00:00:00.000Z",
   "state": "rejected",
   "timeline": {
@@ -693,7 +706,7 @@ Response:
 HTTP/1.1 200 OK
 Content-Type: text/plain
 
-cf:0:_v8
+oA6ADEhlbGxvIFdvcmxkIQ
 ```
 
 #### Errors
@@ -1285,8 +1298,8 @@ HTTP/1.1 422 Unprocessable Entity
 {
   "error_id": "UnmetConditionError",
   "message": "Fulfillment does not match condition.",
-  "condition": "cc:2:2b:mJUaGKCuF5n-3tfXM2U81VYtHbX-N8MP6kz8R-ASwNQ:146",
-  "fulfillment": "cf:1:DUhlbGxvIFdvcmxkISAABGDsFyuTrV5WO_STLHDhJFA0w1Rn7y79TWTr-BloNGfiv7YikfrZQy-PKYucSkiV2-KT9v_aGmja3wzN719HoMchKl_qPNqXo_TAPqny6Kwc7IalHUUhJ6vboJ0bbzMcBwo"
+  "condition": "ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&cost=12",
+  "fulfillment": "oA6ADGhlbGxvIHdvcmxkLg"
 }
 ```
 
@@ -1320,7 +1333,7 @@ HTTP/1.1 422 Unprocessable Entity
 {
   "error_id": "UnsupportedCryptoConditionError",
   "message": "Ledger does not support this CryptoCondition type.",
-  "condition": "cc:2:2b:mJUaGKCuF5n-3tfXM2U81VYtHbX-N8MP6kz8R-ASwNQ:146",
+  "condition": "ni:///sha-256;f4OxZX_x_FO5LcGBSKHWXfwtSx-j1ncoSt3SABJtkGk?fpt=preimage-sha-256&cost=12",
 }
 ```
 
