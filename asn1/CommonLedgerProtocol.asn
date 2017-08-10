@@ -96,7 +96,6 @@ CommonLedgerProtocolPacket ::= SEQUENCE {
     -- One byte type ID
     type CALL.&typeId ({CallSet}),
     -- Used to associate requests and corresponding responses
-    -- If requestId = 0, the server MUST not send a response
     requestId UInt32,
     -- Length-prefixed main data
     data CALL.&Type ({CallSet}{@type})
