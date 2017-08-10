@@ -14,7 +14,7 @@ InterledgerPaymentRequest ::= SEQUENCE {
     version UInt8,
     -- Cryptographic condition
     condition UInt256,
-    -- ILP Payment Packet
+    -- InterledgerProtocolPayment
     packet OCTET STRING
 }
 
