@@ -14,6 +14,12 @@ IMPORTS
     Address,
     Timestamp
     FROM InterledgerTypes
+
+    InterledgerPacket
+    FROM InterledgerPacket -- we rename this file from GenericPacket.asn
+
+    BalancePacket
+    FROM BalancePacket
 ;
 
 SideProtocolData ::= SEQUENCE OF SEQUENCE {
@@ -77,14 +83,16 @@ CALL ::= CLASS {
 } WITH SYNTAX {&typeId &Type}
 
 CallSet CALL ::= {
-    {1 Ack} |
-    {2 Response} |
-    {3 CustomResponse} |
-    {4 Prepare} |
-    {5 Fulfill} |
-    {6 Reject} |
-    {7 Message} |
-    {8 CustomRequest}
+    {0 CustomRequest}
+    {1 CustomResponse} |
+    {16 InterledgerRequest} |
+    {17 InterledgerResponse} |
+    {18 InterledgerPrepare} |
+    {19 InterledgerFulfill} |
+    {20 InterledgerReject} |
+    {21 InterledgerAck} |
+    {32 BalanceRequest} |
+    {33 BalanceResponse}
 }
 
 CommonLedgerProtocolPacket ::= SEQUENCE {
