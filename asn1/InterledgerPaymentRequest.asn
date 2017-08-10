@@ -1,10 +1,10 @@
-InterledgerProtocol
+InterledgerPaymentRequest
 DEFINITIONS
 AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
-    UInt8
+    UInt8,
     UInt256
     FROM GenericTypes
 ;
@@ -14,7 +14,7 @@ InterledgerPaymentRequest ::= SEQUENCE {
     version UInt8,
     -- Cryptographic condition
     condition UInt256,
-    -- ILP Payment Packet
+    -- InterledgerProtocolPayment
     packet OCTET STRING
 }
 

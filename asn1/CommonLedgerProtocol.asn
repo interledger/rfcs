@@ -1,0 +1,104 @@
+CommonLedgerProtocol
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt8,
+    UInt32,
+    UInt64,
+    UInt128,
+    UInt256
+    FROM GenericTypes
+
+    Address,
+    Timestamp
+    FROM InterledgerTypes
+
+    InterledgerPacket
+    FROM GenericPacket
+;
+
+SideProtocolData ::= SEQUENCE OF SEQUENCE {
+  protocolName IA5String,
+  protocolData OCTET STRING
+}
+
+-- Ack and Response are the response types.
+-- When using these in a CLP packet, the requestId should match
+-- the requestId of the request they respond to.
+
+Ack ::= SideProtocolData
+
+Response ::= SEQUENCE {
+  packet InterledgerPacket,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+-- Prepare, Fulfill, Reject, Message, and CustomRequest are the request types.
+-- They are sent through the ledger, to the connector.
+-- They will trigger one of the following responses:
+-- * no response, if requestId=0
+-- * an ilp-error, produced by the ledger (e.g. if the request is malformed)
+-- * an ilp-error, produced by the connector (e.g. if no quote was found)
+-- * an ilqp-response or other ILP-packet success response from the connector
+-- * an Ack, if there was no result or error to report
+
+Prepare ::= SEQUENCE {
+  transferId UInt128,
+  amount UInt64,
+  executionCondition UInt256,
+  expiresAt Timestamp,
+  packet InterledgerPacket,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+Fulfill ::= SEQUENCE {
+  transferId UInt128,
+  fulfillment UInt256,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+Reject ::= SEQUENCE {
+  transferId UInt128,
+  rejectionReason InterledgerPacket,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+Message ::= SEQUENCE {
+  packet InterledgerPacket,
+  -- Additional data for protocol extensibility
+  sideProtocolData SideProtocolData
+}
+
+CustomRequest ::= SideProtocolData
+
+CALL ::= CLASS {
+    &typeId UInt8 UNIQUE,
+    &Type
+} WITH SYNTAX {&typeId &Type}
+
+CallSet CALL ::= {
+    {1 Ack} |
+    {2 Response} |
+    {3 Prepare} |
+    {4 Fulfill} |
+    {5 Reject} |
+    {6 Message} |
+    {7 CustomRequest}
+}
+
+CommonLedgerProtocolPacket ::= SEQUENCE {
+    -- One byte type ID
+    type CALL.&typeId ({CallSet}),
+    -- Used to associate requests and corresponding responses
+    requestId UInt32,
+    -- Length-prefixed main data
+    data CALL.&Type ({CallSet}{@type})
+}
+
+END
