@@ -4,28 +4,24 @@ AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
-    UInt64
+    UInt8,
+    VarBytes
     FROM GenericTypes
 
-    Address,
-    Timestamp
-    FROM InterledgerTypes
+    PaymentRequest,
+    FulfillmentResponse
+    FROM InterledgerPaymentProtocol
+
+    QuoteLiquidityRequest,
+    QuoteLiquidityResponse,
+    QuoteBySourceAmountRequest,
+    QuoteBySourceAmountResponse,
+    QuoteByDestinationAmountRequest,
+    QuoteByDestinationAmountResponse
+    FROM InterledgerQuotingProtocol
 ;
 
-InterledgerProtocolPayment ::= SEQUENCE {
-    -- Amount which must be received at the destination
-    amount UInt64,
-    -- Destination ILP Address
-    account Address,
-    -- Information for recipient (transport layer information)
-    data OCTET STRING (SIZE (0..32767)),
-    -- Enable ASN.1 Extensibility
-    extensions SEQUENCE {
-        ...
-    }
-}
-
-InterledgerProtocolError ::= SEQUENCE {
+ErrorResponse ::= SEQUENCE {
     -- Standardized error code
     code IA5String (SIZE (3)),
     -- Corresponding error name
@@ -35,9 +31,37 @@ InterledgerProtocolError ::= SEQUENCE {
     -- Participants that forwarded the error
     forwardedBy SEQUENCE OF Address,
     -- Time of emission
-    triggeredAt Timestamp,
-    -- Additional data
-    data OCTET STRING (SIZE (0..8192))
+    triggeredAt Timestamp
+}
+
+PACKET ::= CLASS {
+    &typeId UInt8 UNIQUE,
+    &Type
+} WITH SYNTAX {&typeId &Type}
+
+PacketSet PACKET ::= {
+    {1 PaymentRequest} |
+    {2 QuoteLiquidityRequest} |
+    {3 QuoteLiquidityResponse} |
+    {4 QuoteBySourceAmountRequest} |
+    {5 QuoteBySourceAmountResponse} |
+    {6 QuoteByDestinationAmountRequest} |
+    {7 QuoteByDestinationAmountResponse} |
+    {8 FulfillmentResponse} |
+    {9 ErrorResponse}
+}
+
+InterledgerPacket ::= SEQUENCE {
+    -- One byte type ID
+    type PACKET.&typeId ({PacketSet}),
+    -- Type-specific headers content
+    header PACKET.&Type ({PacketSet}{@type}),
+    -- Information for recipient (transport layer information)
+    payload OCTET STRING (SIZE (0..32767)),
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
 }
 
 END

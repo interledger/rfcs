@@ -1,0 +1,27 @@
+InterledgerPaymentProtocol
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt64,
+    UInt256
+    FROM GenericTypes
+
+    Address,
+    Timestamp
+    FROM InterledgerTypes
+;
+
+PaymentRequest ::= SEQUENCE {
+    -- Amount which must be received at the destination
+    amount UInt64,
+    -- Destination ILP Address
+    account Address,    
+    -- Condition that must be fulfilled by the destination
+    condition UInt256
+}
+
+FulfillmentResponse ::= UInt256
+
+END
