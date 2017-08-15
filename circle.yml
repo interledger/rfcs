@@ -7,6 +7,8 @@ machine:
     - git config --global push.default simple
 test:
   override:
+    # Check the ASN.1 syntax
+    - ./scripts/check-asn.sh
     # Generate graphs for specs
     - node scripts/generate_graphs.js
     # Generate specs for website

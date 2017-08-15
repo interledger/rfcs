@@ -43,7 +43,6 @@ exec('rm -rf web', { cwd })
 exec('git clone git@github.com:interledger/rfcs.git --branch gh-pages --single-branch web', { cwd })
 exec('cp -r ????-* web', { cwd })
 exec('cp -r shared web', { cwd })
-exec('cp -r asn1 web/asn1', { cwd })
 
 const template = ejs.compile(fs.readFileSync('tmpl/rfc.ejs.html', 'utf8'))
 const files = glob.sync('????-*/????-*.md')
@@ -114,7 +113,7 @@ files.forEach((file) => {
     return {
       type: tag.get(0).tagName,
       title: tag.text(),
-      anchor: tag.attr('id')
+      anchor: '#' + tag.attr('id')
     }
   }).get()
 
@@ -145,6 +144,42 @@ files.forEach((file) => {
   fs.writeFileSync(indexFile, renderedHtml)
 
 })
+
+const asnFiles = glob.sync('asn1/*')
+const asnToc = []
+asnFiles.forEach((file) => {
+  if (file.endsWith('.md')) {
+    asnToc.unshift({ type: 'h2', title: 'ASN Modules', anchor: 'index.html' })
+  } else {
+    const asnName = path.basename(file)
+    asnToc.push({ type: 'h3', title: asnName, anchor: asnName + '.html' })
+  }
+})
+asnFiles.forEach((file) => {
+  const fileContent = fs.readFileSync(file, 'utf8')
+  if (file.endsWith('.md')) {
+    const htmlFile = 'web/asn1/index.html'
+    const content = marked(fileContent)
+    const renderedHtml = template({ title: 'Interledger ASN.1', content, toc: asnToc })
+    console.log('Writing ' + htmlFile)
+    fs.writeFileSync(htmlFile, renderedHtml)
+  } else {
+    const basename = path.basename(file)
+    const content = '<pre><code class="nohighlight">' + escape(fileContent) + '</code></pre>'
+    const renderedHtml = template({ title: basename, content, toc: asnToc })
+    const htmlFile = 'web/asn1/' + basename + '.html'
+    console.log('Writing ' + htmlFile)
+    fs.writeFileSync(htmlFile, renderedHtml)
+  }
+})
+
+function escape(html) {
+  return html
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
 
 cwd = path.resolve(__dirname, '../web')
 const status = exec('git status --porcelain', { cwd }).toString('utf8')

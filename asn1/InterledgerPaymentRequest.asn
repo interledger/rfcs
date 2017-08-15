@@ -1,10 +1,10 @@
-InterledgerProtocol
+InterledgerPaymentRequest
 DEFINITIONS
 AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
-    UInt8
+    UInt8,
     UInt256
     FROM GenericTypes
 ;
