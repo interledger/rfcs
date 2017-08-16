@@ -1,4 +1,6 @@
-InterledgerQuotingProtocol DEFINITIONS AUTOMATIC TAGS ::=
+InterledgerQuotingProtocol
+DEFINITIONS
+AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
