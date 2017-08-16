@@ -65,6 +65,7 @@
           <nav class="col-sm-4" id="myScrollspy">
             <ul class="nav-fixed nav nav-sidebar">
               <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
+<% if (typeof draftNumber !== 'undefined' && typeof rfcNumber !== 'undefined') { -%>
                 <li class="nav-label">
                   <a href="./draft-<%= draftNumber %>.html">ILP-RFC <%= rfcNumber %> Draft <%= draftNumber %></a>
                 </li>
@@ -74,9 +75,10 @@
                 <li>
                   <a href="./">View the Latest Draft of ILP-RFC <%= rfcNumber %></a>
                 </li>
+<% } -%>
               <% toc.forEach((entry) => { %>
                 <li<%- (entry.type === 'h2') ? ' class="nav-label"' : '' %>>
-                  <a href="#<%= entry.anchor %>"><%= entry.title %></a>
+                  <a href="<%= entry.anchor %>"><%= entry.title %></a>
                 </li>
               <% }) %>
             </ul>

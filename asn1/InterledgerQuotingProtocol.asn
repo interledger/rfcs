@@ -1,9 +1,11 @@
-InterledgerQuotingProtocol DEFINITIONS AUTOMATIC TAGS ::=
+InterledgerQuotingProtocol
+DEFINITIONS
+AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
     UInt32,
-    UInt64,
+    UInt64
     FROM GenericTypes
 
     Address,
