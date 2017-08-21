@@ -1,6 +1,6 @@
 ---
 title: Interledger Protocol - Explain Like I'm Five (ELI5)
-draft: 1
+draft: 2
 ---
 ## Interledger Protocol: Explain Like I'm Five (ELI5)
 
@@ -22,7 +22,7 @@ These building blocks - described in the next section - were created to fit toge
 
 What the Internet did for information, Interledger aims to do for value.
 
-_(Key point: There are many kinds of assets, even within an asset group such as "money".  For example, US Dollars, Japanese Yen and Mexican Peso's are all different kinds of money.  Gold and Silver are different kinds of "precious metals" - another asset group. There are also many systems to keep track of who owns what asset, and to handle exchanges of one kind of asset for another.  The problem is, the systems don't always connect to each other very well, if they connect at all.  It can be difficult, costly and time-consuming to send value around the world at the present time.  ILP makes it easy, cost-effective and fast.)_
+_Key point: There are many kinds of assets, even within an asset group such as "money".  For example, US Dollars, Japanese Yen and Mexican Peso's are all different kinds of money.  Gold and Silver are different kinds of "precious metals" - another asset group. There are also many systems to keep track of who owns what asset, and to handle exchanges of one kind of asset for another.  The problem is, the systems don't always connect to each other very well, if they connect at all.  It can be difficult, costly and time-consuming to send value around the world at the present time.  ILP makes it easy, cost-effective and fast._
 
 ### ILP Basics: Building Blocks
 
@@ -100,10 +100,10 @@ Here's what happens next:
 - "Also, here's four special boxes.  Keep one, and give the other three to this connector."
 - "Finally, tell the connector if they give you a password that opens this box, you'll erase the entry in the holding account, and record instead that the $10 USD is in the connectors account!"
 
-2) The USD ledger manager erases $10 USD from the senders account, puts $10 USD in the holding account, tells the connector about everything, keeps a box, and gives the connector the other two boxes.  Now, its the connectors turn to do a similar thing on the JPY ledger.  The connector says to the JPY ledger manager:
+2) The USD ledger manager erases $10 USD from the senders account, puts $10 USD in the holding account, tells the connector about everything, keeps a box, and gives the connector the other three boxes.  Now, its the connectors turn to do a similar thing on the JPY ledger.  The connector keeps a box, and then says to the JPY ledger manager:
 
 - "I'm going to give someone on your ledger ¥1050 JPY.  Can you take ¥1050 from my account, and put it in the special 'holding' account?
-- "Then, can you take these boxes, keep one, and give the other to the receiver?"
+- "Then, can you take these two boxes, keep one, and give the other to the receiver?"
 - "Finally, wait for a password from the receiver - if the password opens your box, put the ¥1050 in the receivers account, tell the receiver you've done that, and let me know too!"
 
 3) The JPY ledger manager does all this, and gives the receiver the last box.  The receiver hears all about the payment and puts the password they previously arranged with the sender into the box.  The box opens!  So, the receiver knows this box came from the sender, and that this payment is a real payment the sender wants to make.  The receiver also knows that right now, some Japanese Yen are on hold for the receiver in the JPY ledger, waiting for this password.  The receiver wants the money, and trusts the JPY ledger manager.  At this point, what the receiver does determines whether the payment goes ahead or not.  This is called the payment "executing".  The receiver now causes the payment to execute, by giving the password to the JPY ledger manager.
