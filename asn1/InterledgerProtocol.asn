@@ -4,7 +4,8 @@ AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
-    UInt64
+    UInt64,
+    UInt256
     FROM GenericTypes
 
     Address,
@@ -17,7 +18,17 @@ InterledgerProtocolPayment ::= SEQUENCE {
     amount UInt64,
     -- Destination ILP Address
     account Address,
-    -- Information for recipient (transport layer information)
+    -- Information for recipient (application layer information)
+    data OCTET STRING (SIZE (0..32767)),
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
+}
+
+InterledgerProtocolFulfillment ::= SEQUENCE {    
+    fulfillment UInt256,
+    -- Information for recipient (application layer information)
     data OCTET STRING (SIZE (0..32767)),
     -- Enable ASN.1 Extensibility
     extensions SEQUENCE {
