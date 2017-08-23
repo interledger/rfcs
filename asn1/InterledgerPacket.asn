@@ -9,7 +9,8 @@ IMPORTS
     FROM GenericTypes
 
     InterledgerProtocolPayment,
-    InterledgerProtocolError
+    InterledgerProtocolError,
+    InterledgerProtocolFulfillment
     FROM InterledgerProtocol
 
     QuoteLiquidityRequest,
