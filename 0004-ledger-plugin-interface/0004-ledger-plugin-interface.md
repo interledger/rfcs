@@ -68,6 +68,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**TransferNotConditionalError**]() | A requested transfer is not conditional and cannot be rejected/fulfilled/etc. |
 | [**NotAcceptedError**]() | An operation has been rejected due to ledger-side logic |
 | [**InsufficientBalanceError**]() | An operation has been rejected because the source balance isn't high enough |
+| [**AccountNotFoundError**]() | An operation has been rejected because the account does not exist |
 | [**NoSubscriptionsError**]() | A transfer or message cannot be delivered because there are no active websockets |
 | [**RequestHandlerAlreadyRegisteredError**]() | The current request handler callback must be unset before a new one can be registered |
 
@@ -222,7 +223,7 @@ are required.
 **`Promise.<null>`** A promise which resolves when the transfer has been submitted (but not necessarily accepted.)
 
 Rejects with `InvalidFieldsError` if required fields are missing from the transfer or malformed. Rejects with `DuplicateIdError` if a transfer with
-the given ID and different already exists. Rejects with `InsufficientBalanceError` if the transfer is rejected due to the source balance being too low. Rejects with `NotAcceptedError` if the transfer is otherwise rejected by the ledger (e.g. due to a nonexistant destination account).
+the given ID and different already exists. Rejects with `InsufficientBalanceError` if the transfer is rejected due to the source balance being too low. Rejects with `AccountNotFoundError` if the destination account does not exist. Rejects with `NotAcceptedError` if the transfer is otherwise rejected by the ledger.
 
 ###### Example
 ```js
