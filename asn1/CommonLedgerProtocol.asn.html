@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Payments across payment networks">
 
-    <title>InterledgerQuotingProtocol.asn | Interledger</title>
+    <title>CommonLedgerProtocol.asn | Interledger</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/css/bootstrap.min.css" rel="stylesheet">
@@ -102,109 +102,117 @@
           </nav>
         </div>
         <div class="col-sm-8 markdown-body">
-          <pre><code class="nohighlight">InterledgerQuotingProtocol
+          <pre><code class="nohighlight">CommonLedgerProtocol
 DEFINITIONS
 AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
+    UInt8,
     UInt32,
-    UInt64
+    UInt64,
+    UInt128,
+    UInt256
     FROM GenericTypes
 
-    Address,
-    Timestamp,
-    LiquidityCurve
+    Timestamp
     FROM InterledgerTypes
+
+    InterledgerPacket
+    FROM InterledgerPacket
 ;
 
--- Request to receive liquidity information between the current ledger and the
--- destination account. This information is sufficient to locally quote any
--- amount until the curve expires.
-QuoteLiquidityRequest ::= SEQUENCE {
-    destinationAccount Address,
-    -- How much time the receiver needs to fulfill the payment (in milliseconds)
-    destinationHoldDuration UInt32,
+-- Zero or more protocolData entries, each with a unique
+-- protocolName, describe protocol-specific information about
+-- unpaid and conditionally paid requests and results
+-- sent over the CommonLedgerProtocol.
+-- The protocolName of each entry describes the protocol for
+-- interpreting the data. Peers need to establish beforehand
+-- which protocols each understand, and which names they
+-- use, which can be agreed ad-hoc, except that protocolName &#39;ilp&#39;
+-- is reserved for the Interledger protocol.
+-- When multiple protocolData items are sent in a request,
+-- only the first one will be decisive in triggering the
+-- response, the rest of the protocolData items are considered
+-- side protocols that piggyback on the first one.
+-- The contentType byte can be used to allow debug tools to
+-- display the contents of the protocolData without understanding
+-- it.
 
-    -- Enable ASN.1 Extensibility
-    extensions SEQUENCE {
-        ...
-    }
+ContentType ::= INTEGER {
+  applicationOctetString  (0),
+  textPlainUtf8           (1),
+  applicationJson         (2)
+} (0..255)
+
+ProtocolData ::= SEQUENCE OF SEQUENCE {
+  protocolName IA5String,
+  contentType ContentType,
+  data OCTET STRING
 }
 
-QuoteLiquidityResponse ::= SEQUENCE {
-    -- Curve describing the liquidity (relationship between input and output
-    -- amounts) for the quoted route
-    liquidity LiquidityCurve,
-    -- Common prefix of all addresses for which this liquidity curve applies.
-    -- If the curve only applies to the destinationAccount requested this MUST
-    -- be set equal to that address. If the curve applies to other accounts
-    -- with a certain prefix, this value should be set to that prefix. For more
-    -- on ILP Address Prefixes, see IL-RFC-0015:
-    -- https://interledger.org/rfcs/0015-ilp-addresses/
-    appliesToPrefix Address,
-    -- How long the sender should put money on hold (in milliseconds)
-    sourceHoldDuration UInt32,
-    -- Maximum time where the connector (and any connectors after it) expects to
-    -- be able to honor this liquidity curve. Note that a quote in ILP is
-    -- non-committal, meaning that the liquidity is only likely to be available,
-    -- but not reserved and therefore not guaranteed.
-    expiresAt Timestamp,
+-- Ack, Response, and Error are the response types.
+-- When using these in a CLP packet, the requestId should match
+-- the requestId of the request they respond to.
 
-    -- Enable ASN.1 Extensibility
-    extensions SEQUENCE {
-        ...
-    }
+Ack ::= ProtocolData
+Response ::= ProtocolData
+Error ::= SEQUENCE {
+  rejectionReason InterledgerPacket, -- must contain an InternetProtocolError
+  --
+  protocolData ProtocolData
 }
 
--- Quoting with a specified source amount to determine destination amount
-QuoteBySourceAmountRequest ::= SEQUENCE {
-    destinationAccount Address,
-    sourceAmount UInt64,
-    -- How much time the receiver needs to fulfill the payment (in milliseconds)
-    destinationHoldDuration UInt32,
+-- Prepare, Fulfill, Reject, and Message are the request types.
+-- Each request should have a unique requestId.
 
-    -- Enable ASN.1 Extensibility
-    extensions SEQUENCE {
-        ...
-    }
+Prepare ::= SEQUENCE {
+  transferId UInt128,
+  amount UInt64,
+  executionCondition UInt256,
+  expiresAt Timestamp,
+  --
+  protocolData ProtocolData
 }
 
-QuoteBySourceAmountResponse ::= SEQUENCE {
-    -- Amount that will arrive at the receiver
-    destinationAmount UInt64,
-    -- How long the sender should put money on hold (in milliseconds)
-    sourceHoldDuration UInt32,
-
-    -- Enable ASN.1 Extensibility
-    extensions SEQUENCE {
-        ...
-    }
+Fulfill ::= SEQUENCE {
+  transferId UInt128,
+  fulfillment UInt256,
+  --
+  protocolData ProtocolData
 }
 
--- Quoting with a specified destination amount to determine source amount
-QuoteByDestinationAmountRequest ::= SEQUENCE {
-    destinationAccount Address,
-    destinationAmount UInt64,
-    -- How much time the receiver needs to fulfill the payment (in milliseconds)
-    destinationHoldDuration UInt32,
-
-    -- Enable ASN.1 Extensibility
-    extensions SEQUENCE {
-        ...
-    }
+Reject ::= SEQUENCE {
+  transferId UInt128,
+  rejectionReason InterledgerPacket, -- must contain an InterledgerProtocolError
+  --
+  protocolData ProtocolData
 }
 
-QuoteByDestinationAmountResponse ::= SEQUENCE {
-    -- Amount the sender needs to send based on the requested destination amount
-    sourceAmount UInt64,
-    -- How long the sender should put money on hold (in milliseconds)
-    sourceHoldDuration UInt32,
+Message ::= ProtocolData
 
-    -- Enable ASN.1 Extensibility
-    extensions SEQUENCE {
-        ...
-    }
+CALL ::= CLASS {
+    &typeId UInt8 UNIQUE,
+    &Type
+} WITH SYNTAX {&typeId &Type}
+
+CallSet CALL ::= {
+    {1 Ack} |
+    {2 Response} |
+    {3 Error} |
+    {4 Prepare} |
+    {5 Fulfill} |
+    {6 Reject} |
+    {7 Message}
+}
+
+CommonLedgerProtocolPacket ::= SEQUENCE {
+    -- One byte type ID
+    type CALL.&typeId ({CallSet}),
+    -- Used to associate requests and corresponding responses
+    requestId UInt32,
+    -- Length-prefixed main data
+    data CALL.&Type ({CallSet}{@type})
 }
 
 END
