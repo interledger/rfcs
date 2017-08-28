@@ -1,0 +1,114 @@
+CommonLedgerProtocol
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt8,
+    UInt32,
+    UInt64,
+    UInt128,
+    UInt256
+    FROM GenericTypes
+
+    Timestamp
+    FROM InterledgerTypes
+
+    InterledgerPacket
+    FROM InterledgerPacket
+;
+
+-- Zero or more protocolData entries, each with a unique
+-- protocolName, describe protocol-specific information about
+-- unpaid and conditionally paid requests and results
+-- sent over the CommonLedgerProtocol.
+-- The protocolName of each entry describes the protocol for
+-- interpreting the data. Peers need to establish beforehand
+-- which protocols each understand, and which names they
+-- use, which can be agreed ad-hoc, except that protocolName 'ilp'
+-- is reserved for the Interledger protocol.
+-- When multiple protocolData items are sent in a request,
+-- only the first one will be decisive in triggering the
+-- response, the rest of the protocolData items are considered
+-- side protocols that piggyback on the first one.
+-- The contentType byte can be used to allow debug tools to
+-- display the contents of the protocolData without understanding
+-- it.
+
+ContentType ::= INTEGER {
+  applicationOctetString  (0),
+  textPlainUtf8           (1),
+  applicationJson         (2)
+} (0..255)
+
+ProtocolData ::= SEQUENCE OF SEQUENCE {
+  protocolName IA5String,
+  contentType ContentType,
+  data OCTET STRING
+}
+
+-- Ack, Response, and Error are the response types.
+-- When using these in a CLP packet, the requestId should match
+-- the requestId of the request they respond to.
+
+Ack ::= ProtocolData
+Response ::= ProtocolData
+Error ::= SEQUENCE {
+  rejectionReason InterledgerPacket, -- must contain an InternetProtocolError
+  --
+  protocolData ProtocolData
+}
+
+-- Prepare, Fulfill, Reject, and Message are the request types.
+-- Each request should have a unique requestId.
+
+Prepare ::= SEQUENCE {
+  transferId UInt128,
+  amount UInt64,
+  executionCondition UInt256,
+  expiresAt Timestamp,
+  --
+  protocolData ProtocolData
+}
+
+Fulfill ::= SEQUENCE {
+  transferId UInt128,
+  fulfillment UInt256,
+  --
+  protocolData ProtocolData
+}
+
+Reject ::= SEQUENCE {
+  transferId UInt128,
+  rejectionReason InterledgerPacket, -- must contain an InterledgerProtocolError
+  --
+  protocolData ProtocolData
+}
+
+Message ::= ProtocolData
+
+CALL ::= CLASS {
+    &typeId UInt8 UNIQUE,
+    &Type
+} WITH SYNTAX {&typeId &Type}
+
+CallSet CALL ::= {
+    {1 Ack} |
+    {2 Response} |
+    {3 Error} |
+    {4 Prepare} |
+    {5 Fulfill} |
+    {6 Reject} |
+    {7 Message}
+}
+
+CommonLedgerProtocolPacket ::= SEQUENCE {
+    -- One byte type ID
+    type CALL.&typeId ({CallSet}),
+    -- Used to associate requests and corresponding responses
+    requestId UInt32,
+    -- Length-prefixed main data
+    data CALL.&Type ({CallSet}{@type})
+}
+
+END
