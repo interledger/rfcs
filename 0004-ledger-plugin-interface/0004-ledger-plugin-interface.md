@@ -1,6 +1,6 @@
 ---
 title: The Javascript Ledger Plugin Interface
-draft: 4
+draft: 5
 ---
 # Javascript Ledger Plugin Interface
 
@@ -39,18 +39,18 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**connect**](#event-connect) | `( ) ⇒` |
 | [**disconnect**](#event-disconnect) | `( ) ⇒` |
 | [**error**](#event-error) | `( ) ⇒` |
-| [**incoming_transfer**](#event-_transfer) | <code>( transfer:[IncomingTransfer](#incomingtransfer) ) ⇒</code> |
-| [**incoming_prepare**](#event-_prepare) | <code>( transfer:[IncomingTransfer](#incomingtransfer) ) ⇒</code> |
-| [**incoming_fulfill**](#event-_fulfill) | <code>( transfer:[IncomingTransfer](#incomingtransfer), fulfillment:String ) ⇒</code> |
-| [**incoming_reject**](#event-_reject) | <code>( transfer:[IncomingTransfer](#incomingtransfer), rejectionReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
-| [**incoming_cancel**](#event-_cancel) | <code>( transfer:[IncomingTransfer](#incomingtransfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
+| [**incoming_transfer**](#event-_transfer) | <code>( transfer:[IncomingTransfer](#class-transfer) ) ⇒</code> |
+| [**incoming_prepare**](#event-_prepare) | <code>( transfer:[IncomingTransfer](#class-transfer) ) ⇒</code> |
+| [**incoming_fulfill**](#event-_fulfill) | <code>( transfer:[IncomingTransfer](#class-transfer), fulfillment:String ) ⇒</code> |
+| [**incoming_reject**](#event-_reject) | <code>( transfer:[IncomingTransfer](#class-transfer), rejectionReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
+| [**incoming_cancel**](#event-_cancel) | <code>( transfer:[IncomingTransfer](#class-transfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
 | [**incoming_request**](#event-_request) | <code>( message:[Message](#class-message) ) ⇒</code> |
 | [**incoming_response**](#event-_response) | <code>( message:[Message](#class-message) ) ⇒</code> |
-| [**outgoing_transfer**](#event-_transfer) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
-| [**outgoing_prepare**](#event-_prepare) | <code>( transfer:[outgoingTransfer](#outgoingtransfer) ) ⇒</code> |
-| [**outgoing_fulfill**](#event-_fulfill) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), fulfillment:String ) ⇒</code> |
-| [**outgoing_reject**](#event-_reject) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), rejectionReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
-| [**outgoing_cancel**](#event-_cancel) | <code>( transfer:[outgoingTransfer](#outgoingtransfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
+| [**outgoing_transfer**](#event-_transfer) | <code>( transfer:[outgoingTransfer](#class-transfer) ) ⇒</code> |
+| [**outgoing_prepare**](#event-_prepare) | <code>( transfer:[outgoingTransfer](#class-transfer) ) ⇒</code> |
+| [**outgoing_fulfill**](#event-_fulfill) | <code>( transfer:[outgoingTransfer](#class-transfer), fulfillment:String ) ⇒</code> |
+| [**outgoing_reject**](#event-_reject) | <code>( transfer:[outgoingTransfer](#class-transfer), rejectionReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
+| [**outgoing_cancel**](#event-_cancel) | <code>( transfer:[outgoingTransfer](#class-transfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
 | [**outgoing_request**](#event-_request) | <code>( message:[Message](#class-message) ) ⇒</code> |
 | [**outgoing_response**](#event-_response) | <code>( message:[Message](#class-message) ) ⇒</code> |
 | [**info_change**](#event-info_change) | <code>( info:[LedgerInfo](#class-ledgerinfo) ) ⇒</code> |
