@@ -155,8 +155,14 @@ ProtocolData ::= SEQUENCE OF SEQUENCE {
 -- When using these in a CLP packet, the requestId should match
 -- the requestId of the request they respond to.
 
-Ack ::= ProtocolData
-Response ::= ProtocolData
+Ack ::= SEQUENCE {
+  protocolData ProtocolData
+}
+
+Response ::= SEQUENCE {
+  protocolData ProtocolData
+}
+
 Error ::= SEQUENCE {
   rejectionReason InterledgerPacket, -- must contain an InternetProtocolError
   --
@@ -189,7 +195,9 @@ Reject ::= SEQUENCE {
   protocolData ProtocolData
 }
 
-Message ::= ProtocolData
+Message ::= SEQUENCE {
+  protocolData ProtocolData
+}
 
 CALL ::= CLASS {
     &typeId UInt8 UNIQUE,
