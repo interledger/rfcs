@@ -3,9 +3,8 @@
 ## Preface
 
 This document describes the Bilateral Transfer Protocol (BTP), a ledger
-protocol for bilateral transfers of value. It is similar in function to [Plugin
-RPC], but has been rewritten to use OER instead of JSON, and extensibility
-features have been added.
+protocol for bilateral transfers of value. It the successor to [Plugin
+RPC], and has been written to use OER instead of JSON.
 
 ## Introduction
 
@@ -18,32 +17,34 @@ allow you to send interledger payments through anyone else on that ledger who
 is running your plugin.
 
 In lots of scenarios, we don't have an underlying ledger that's fast enough to
-do every ILP payment on-ledger. BTP can be used in these cases as long as the
-two parties trust one another (up to a limit). If their trust limit is high
-enough, they can transact without settling on an underlying ledger at all.
+do every ILP payment on-ledger. If two parties want to transact, they can send
+transfers directly to one another with BTP. BTP requires that the two parties
+trust one another (up to a limit) for funds that have not yet been settled on
+the underlying ledger. If their trust limit is high enough, the two parties can
+transact without settling on an underlying ledger at all.
 
-Currently, this case is handled by [ILP Plugin Virtual], which uses [Plugin
-RPC] as its ledger protocol. JSON messages are passed back and forth to perform
-transfers and send quote requests. Custom JSON messages can be added to extend
-the Plugin RPC messages, just like sub-protocols can be added to BTP.
-
-Because the use case for a bilateral ledger protocols is so ubiquitous, the BTP
-has been designed to be efficient, and friendly to re-implementation.
+Because we believe the use case for a bilateral ledger protocols is so
+ubiquitous, the BTP has been designed to be efficient to transmit and friendly
+to re-implement.
 
 ### Scope
 
 BTP manages conditional transfers, messaging requests, result/error reporting,
 and carries sub-protocols (sometimes called side-protocols) for extensibility.
-You can use ILP without using BTP. BTP is intended to be a well-suited solution
-so that a new bilateral ledger protocol doesn't need to exist for every new use
-case. It also includes functionality which is common between many different
-ledger types, making it a good place to start from when creating a new
-protocol.
+You can use ILP without using BTP. BTP is not a ledger in itself, but it is
+a ledger-layer protocol in the [ILP architecture] because it handles local
+transfers.
+
+BTP is intended to be a well-suited solution so that a new bilateral ledger
+protocol doesn't need to exist for every new use case. It also includes
+functionality which is common between many different ledger types, making it a
+good place to start from when creating a new bilateral protocol for transfering
+value.
 
 This document describes the flow and data format that BTP uses, but not
-sub-protocols. Sub-protocols include functionality like ledger metadata,
-balance, automated settlement, and dispute resolution. Some protocols are
-documented on [the wiki page]. They are carried in the protocol data of BTP
+sub-protocols. Sub-protocols include optional functionality like ledger
+metadata, balance, automated settlement, and dispute resolution. Some protocols
+are documented on [the wiki page]. They are carried in the protocol data of BTP
 packets.
 
 The BTP packet format is described exactly in the [BTP ASN.1 spec].
@@ -67,9 +68,9 @@ to use HTTP requests for authentication.
   other side of the BTP connection.
 
 - The **Bilateral Ledger** is the ledger which the peers on a BTP connection
-  are keeping track of. The bilateral ledger is a persistent log of BTP
-packets, which can be used to deduce the current balance between two peers and
-the state of all transfers between them.
+  are keeping track of. When a peer keeping Authoritative State receives a BTP
+packet, they process it and adjust their copy of the bilateral ledger. The
+bilateral ledger is not to be confused with the [underlying ledger].
 
 - **Authoritative State** is the authoritative view of the Bilateral Ledger's
   state, maintained by one or both of the peers. Because both peers on a BTP
@@ -81,6 +82,11 @@ state, the other party must trust them not to tamper with it.
 - A request is **In-Flight** if the request has been sent out, but no response
   has been sent yet. A transfer is **In-Flight** if it has been prepared but
 not yet fulfilled nor rejected.
+
+- An **Underlying Ledger** moves value between the two peers when they settle
+  their balance. If Peer 1 owes Peer 2 100 XRP, Peer 1 could send Peer 2 100
+XRP on Ripple in order to make their balance 0. In that scenario, XRP ledger is
+the underlying ledger.
 
 ## Overview
 
@@ -120,7 +126,7 @@ responses. Every BTP packet follows a common structure:
 ```
 
 1. **Type**: A 1-byte value describing what type of BTP packet this is.
-The values are described below, in [BTP Type IDs](#clp-type-ids).
+The values are described below, in [BTP Type IDs](#btp-type-ids).
 
 2. **Request ID**: A random 4-byte value used to correlate requests 
 and responses. This value MAY be sequential instead of random, but care must
@@ -362,9 +368,9 @@ Error ::= SEQUENCE {
 }
 ```
 
-`Error` is a response-type message, returned when an error occurs on the
-BTP level. It is similar to the [ILP Error format], but fields have been
-trimmed off and new error codes have been written:
+`Error` is a response-type message, returned when an error occurs on the BTP
+level. It has packet-specific data which resembles the [ILP Error format], but
+irrelevant fields have been taken off and new error codes have been written:
 
 #### Error Codes
 
