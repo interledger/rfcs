@@ -141,13 +141,12 @@ sub-protocols carried by this packet.
 
 | ID | Type | Request/Response |
 |:--|:--|:--|
-| 1 | `Ack` | Response |
-| 2 | `Response` | Response |
-| 3 | `Error` | Response |
-| 4 | `Prepare` | Request |
-| 5 | `Fulfill` | Request |
-| 6 | `Reject` | Request |
-| 7 | `Message` | Request |
+| 1 | `Response` | Response |
+| 2 | `Error` | Response |
+| 3 | `Prepare` | Request |
+| 4 | `Fulfill` | Request |
+| 5 | `Reject` | Request |
+| 6 | `Message` | Request |
 
 ### Sub-Protocol Data Format
 
@@ -170,7 +169,7 @@ ProtocolData ::= SEQUENCE OF SEQUENCE {
 BTP uses a simple RPC flow. A request-type BTP packet is sent, and a
 response-type BTP packet is sent in response with the same request ID. The
 request types are `Message`, `Prepare`, `Fulfill` and `Reject`, and the
-response types are `Ack` (which may be [removed]), `Response`, and `Error`.
+response types are `Response` and [`Error`](#error).
 
 Because it would be too slow to atomically save all requestIds that are
 processed, they are not idempotent. It is the responsibility of the requestor
@@ -344,8 +343,7 @@ rejected this transfer, including protocols but not including requestId.
 - A `Response` is returned if the request is successful. This indicates that
   the balance changes of the referenced transfer have been rolled back.
 
-- An `Error` is returned if the request was not successful. _TODO: create
-  error codes that distinguish the different failure cases_.
+- An `Error` is returned if the request was not successful.
 
 ### Error
 
