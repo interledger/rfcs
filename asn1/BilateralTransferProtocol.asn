@@ -1,4 +1,4 @@
-CommonLedgerProtocol
+BilateralTransferProtocol
 DEFINITIONS
 AUTOMATIC TAGS ::=
 BEGIN
@@ -21,7 +21,7 @@ IMPORTS
 -- Zero or more protocolData entries, each with a unique
 -- protocolName, describe protocol-specific information about
 -- unpaid and conditionally paid requests and results
--- sent over the CommonLedgerProtocol.
+-- sent over the BilateralTransferProtocol.
 -- The protocolName of each entry describes the protocol for
 -- interpreting the data. Peers need to establish beforehand
 -- which protocols each understand, and which names they
@@ -47,20 +47,23 @@ ProtocolData ::= SEQUENCE OF SEQUENCE {
   data OCTET STRING
 }
 
--- Ack, Response, and Error are the response types.
--- When using these in a CLP packet, the requestId should match
+-- Response and Error are the response types.
+-- When using these in a BTP packet, the requestId should match
 -- the requestId of the request they respond to.
-
-Ack ::= SEQUENCE {
-  protocolData ProtocolData
-}
 
 Response ::= SEQUENCE {
   protocolData ProtocolData
 }
 
 Error ::= SEQUENCE {
-  rejectionReason InterledgerPacket, -- must contain an InternetProtocolError
+  -- Standardized error code
+  code IA5String (SIZE (3)),
+  -- Corresponding error code
+  name IA5String,
+  -- Time of emission
+  triggeredAt Timestamp,
+  -- Additional data
+  data OCTET STRING (SIZE (0..8192)),
   --
   protocolData ProtocolData
 }
@@ -101,16 +104,15 @@ CALL ::= CLASS {
 } WITH SYNTAX {&typeId &Type}
 
 CallSet CALL ::= {
-    {1 Ack} |
-    {2 Response} |
-    {3 Error} |
-    {4 Prepare} |
-    {5 Fulfill} |
-    {6 Reject} |
-    {7 Message}
+    {1 Response} |
+    {2 Error} |
+    {3 Prepare} |
+    {4 Fulfill} |
+    {5 Reject} |
+    {6 Message}
 }
 
-CommonLedgerProtocolPacket ::= SEQUENCE {
+BilateralTransferProtocolPacket ::= SEQUENCE {
     -- One byte type ID
     type CALL.&typeId ({CallSet}),
     -- Used to associate requests and corresponding responses
