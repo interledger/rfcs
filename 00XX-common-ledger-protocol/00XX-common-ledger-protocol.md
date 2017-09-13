@@ -40,13 +40,13 @@ case. It also includes functionality which is common between many different
 ledger types, making it a good place to start from when creating a new
 protocol.
 
-This document describes the flow and messages that CLP uses, but not
+This document describes the flow and data format that CLP uses, but not
 sub-protocols. Sub-protocols include functionality like ledger metadata,
 balance, automated settlement, and dispute resolution. Some protocols are
 documented on [the wiki page]. They are carried in the protocol data of CLP
-messages.
+packets.
 
-The CLP Packet format is described exactly in the [CLP ASN.1 spec].
+The CLP packet format is described exactly in the [CLP ASN.1 spec].
 
 ## Terminology
 
@@ -56,11 +56,11 @@ The CLP Packet format is described exactly in the [CLP ASN.1 spec].
 - A **Sub-Protocol** is a protocol which isn't defined by CLP and is carried
   in the protocol data (see below).
 
-- A **CLP Connection** is a websocket connection over which CLP Packets are
+- A **CLP Connection** is a websocket connection over which CLP packets are
   sent. Websockets are used because they provide message framing and allow CLP
 to use HTTP requests for authentication.
 
-- **CLP Packets** are the messages described in this document. They are
+- **CLP Packets** are the protocol data units described in this document. They are
   formally defined in the [CLP ASN.1 spec].
 
 - **Peers** are the parties on a CLP connection. Your peer is the party on the
@@ -185,9 +185,9 @@ There are also a couple of tricky cases to handle:
 - If an unreadable CLP packet is received, no response should be sent. An unreadable CLP packet is one which is structurally invalid, i.e. terminates before length prefixes dictate or contains illegal characters.
 
 These behaviors are important for preventing accidental feedback loops.  If an
-unexpected message triggered an error, that error may be unexpected to the
+unexpected packet triggered an error, that error may be unexpected to the
 sender. The sender would reply with another unexpected error, causing an
-infinite loop. Unreadable messages must be ignored too. If an application got
+infinite loop. Unreadable packets must be ignored too. If an application got
 onto a CLP connection and spoke the wrong protocol, it would trigger an error
 from CLP. This might trigger an error from the application, and it would
 devolve into another infinite loop.
@@ -226,7 +226,7 @@ Prepare ::= SEQUENCE {
 }
 ```
 
-`Prepare` is used to create a transfer on the bilateral ledger. The message
+`Prepare` is used to create a transfer on the bilateral ledger. The packet
 data contains `transferId`, `amount`, `executionCondition`, and `expiresAt`.
 `Prepare` is a request with side effects, because it creates a transfer with
 the given details. This transfer begins in the `prepared` state.
