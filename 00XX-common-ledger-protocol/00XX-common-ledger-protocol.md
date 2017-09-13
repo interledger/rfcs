@@ -208,10 +208,10 @@ protocol name `ilp` with content-type `application/octet-stream`.
   has data to send in reply (e.g. a quote response), it is carried in the
 protocol data.
 
-- `Error` is returned if the peer is not able to process the message, or there
-  was an unexpected error and further messages should not be sent. This does
-not include ILP errors such as "No quote found," only the cases in which the
-message cannot be sent/processed at all.
+- `Error` is returned if the peer is not able to process the `Message`, or there
+  was an unexpected error and further `Message`s should not be sent. This does
+not include ILP errors such as "No quote found", only the cases in which the
+`Message` cannot be sent/processed at all.
 
 ### Prepare
 
