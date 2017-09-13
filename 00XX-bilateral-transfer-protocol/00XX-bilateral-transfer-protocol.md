@@ -4,7 +4,8 @@
 
 This document describes the Bilateral Transfer Protocol (BTP), a ledger
 protocol for bilateral transfers of value. It the successor to [Plugin
-RPC], and has been written to use OER instead of JSON.
+RPC](https://github.com/interledger/rfcs/blob/master/0021-plugin-rpc-api/0021-plugin-rpc-api.md#plugin-rpc-api),
+and has been written to use OER instead of JSON.
 
 ## Introduction
 
@@ -12,9 +13,10 @@ RPC], and has been written to use OER instead of JSON.
 
 There are many different types of ledgers, and Interledger aims to interoperate
 all of them. For fast ledgers that support hash time locks, memos, and
-messaging, it is enough to wrap the ledger's API in a [Ledger Plugin]. These
-allow you to send interledger payments through anyone else on that ledger who
-is running your plugin.
+messaging, it is enough to wrap the ledger's API in a [Ledger
+Plugin](https://github.com/interledger/rfcs/blob/master/0004-ledger-plugin-interface/0004-ledger-plugin-interface.md).
+These allow you to send interledger payments through anyone else on that ledger
+who is running your plugin.
 
 In lots of scenarios, we don't have an underlying ledger that's fast enough to
 do every ILP payment on-ledger. If two parties want to transact, they can send
@@ -31,9 +33,10 @@ to re-implement.
 
 BTP manages conditional transfers, messaging requests, result/error reporting,
 and carries sub-protocols (sometimes called side-protocols) for extensibility.
-You can use ILP without using BTP. BTP is not a ledger in itself, but it is
-a ledger-layer protocol in the [ILP architecture] because it handles local
-transfers.
+You can use ILP without using BTP. BTP is not a ledger in itself, but it is a
+ledger-layer protocol in the [ILP
+architecture](https://github.com/interledger/rfcs/blob/master/0001-interledger-architecture/0001-interledger-architecture.md)
+because it handles local transfers.
 
 BTP is intended to be a well-suited solution so that a new bilateral ledger
 protocol doesn't need to exist for every new use case. It also includes
@@ -44,10 +47,12 @@ value.
 This document describes the flow and data format that BTP uses, but not
 sub-protocols. Sub-protocols include optional functionality like ledger
 metadata, balance, automated settlement, and dispute resolution. Some protocols
-are documented on [the wiki page]. They are carried in the protocol data of BTP
-packets.
+are documented on [the wiki
+page](https://github.com/interledger/interledger/wiki/Interledger-over-CLP).
+They are carried in the protocol data of BTP packets.
 
-The BTP packet format is described exactly in the [BTP ASN.1 spec].
+The BTP packet format is described exactly in the [BTP ASN.1
+spec](https://github.com/interledger/rfcs/blob/master/asn1/BilateralTransferProtocol.asn).
 
 ## Terminology
 
@@ -62,7 +67,7 @@ The BTP packet format is described exactly in the [BTP ASN.1 spec].
 to use HTTP requests for authentication.
 
 - **BTP Packets** are the protocol data units described in this document. They are
-  formally defined in the [BTP ASN.1 spec].
+  formally defined in the [BTP ASN.1 spec](https://github.com/interledger/rfcs/blob/master/asn1/BilateralTransferProtocol.asn).
 
 - **Peers** are the parties on a BTP connection. Your peer is the party on the
   other side of the BTP connection.
@@ -70,7 +75,7 @@ to use HTTP requests for authentication.
 - The **Bilateral Ledger** is the ledger which the peers on a BTP connection
   are keeping track of. When a peer keeping Authoritative State receives a BTP
 packet, they process it and adjust their copy of the bilateral ledger. The
-bilateral ledger is not to be confused with the [underlying ledger].
+bilateral ledger is not to be confused with the Underlying Ledger.
 
 - **Authoritative State** is the authoritative view of the Bilateral Ledger's
   state, maintained by one or both of the peers. Because both peers on a BTP
@@ -206,7 +211,7 @@ Message ::= SEQUENCE {
 ```
 
 `Message` is used for sending information to the peer. It contains no
-packet-specific data, only protocol data. [ILQP] packets are attached under the
+packet-specific data, only protocol data. [ILQP](https://github.com/interledger/rfcs/blob/master/0008-interledger-quoting-protocol/0008-interledger-quoting-protocol.md) packets are attached under the
 protocol name `ilp` with content-type `application/octet-stream`.
 
 - `Response` is returned if the peer acknowledges the `Message`. If the peer
@@ -333,8 +338,9 @@ state to the `rejected` state. The packet-specific data of `Reject` is made up
 of `transferId` and `rejectionReason`.
 
 `transferId` is a 128-bit unique ID, which references an existing transfer.
-`rejectionReason` is an [ILP Error], containing the reason that this transfer
-was rejected.
+`rejectionReason` is an [ILP
+Error](https://github.com/interledger/rfcs/blob/master/0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format),
+containing the reason that this transfer was rejected.
 
 A `Reject` request must come from the receiver of the referenced transfer,
 not the sender.
@@ -369,8 +375,10 @@ Error ::= SEQUENCE {
 ```
 
 `Error` is a response-type message, returned when an error occurs on the BTP
-level. It has packet-specific data which resembles the [ILP Error format], but
-irrelevant fields have been taken off and new error codes have been written:
+level. It has packet-specific data which resembles the [ILP Error
+format](https://github.com/interledger/rfcs/blob/master/0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format),
+but irrelevant fields have been taken off and new error codes have been
+written:
 
 #### Error Codes
 
