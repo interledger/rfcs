@@ -1,11 +1,11 @@
-# Common Ledger Protocol (CLP)
+# Bilateral Transfer Protocol (BTP)
 
 ## Preface
 
-This document describes the Common Ledger Protocol (CLP), a ledger protocol for
-bilateral liquidity relationships. It is similar in function to [Plugin RPC],
-but has been rewritten to use OER instead of JSON, and extensibility features
-have been added.
+This document describes the Bilateral Transfer Protocol (BTP), a ledger
+protocol for bilateral transfers of value. It is similar in function to [Plugin
+RPC], but has been rewritten to use OER instead of JSON, and extensibility
+features have been added.
 
 ## Introduction
 
@@ -18,61 +18,61 @@ allow you to send interledger payments through anyone else on that ledger who
 is running your plugin.
 
 In lots of scenarios, we don't have an underlying ledger that's fast enough to
-do every ILP payment on-ledger. CLP can be used in these cases as long as the
+do every ILP payment on-ledger. BTP can be used in these cases as long as the
 two parties trust one another (up to a limit). If their trust limit is high
 enough, they can transact without settling on an underlying ledger at all.
 
 Currently, this case is handled by [ILP Plugin Virtual], which uses [Plugin
 RPC] as its ledger protocol. JSON messages are passed back and forth to perform
 transfers and send quote requests. Custom JSON messages can be added to extend
-the Plugin RPC messages, just like sub-protocols can be added to CLP.
+the Plugin RPC messages, just like sub-protocols can be added to BTP.
 
-Because the use case for a bilateral ledger protocols is so ubiquitous, the CLP
+Because the use case for a bilateral ledger protocols is so ubiquitous, the BTP
 has been designed to be efficient, and friendly to re-implementation.
 
 ### Scope
 
-CLP manages conditional transfers, messaging requests, result/error reporting,
+BTP manages conditional transfers, messaging requests, result/error reporting,
 and carries sub-protocols (sometimes called side-protocols) for extensibility.
-You can use ILP without using CLP. CLP is intended to be a well-suited solution
+You can use ILP without using BTP. BTP is intended to be a well-suited solution
 so that a new bilateral ledger protocol doesn't need to exist for every new use
 case. It also includes functionality which is common between many different
 ledger types, making it a good place to start from when creating a new
 protocol.
 
-This document describes the flow and data format that CLP uses, but not
+This document describes the flow and data format that BTP uses, but not
 sub-protocols. Sub-protocols include functionality like ledger metadata,
 balance, automated settlement, and dispute resolution. Some protocols are
-documented on [the wiki page]. They are carried in the protocol data of CLP
+documented on [the wiki page]. They are carried in the protocol data of BTP
 packets.
 
-The CLP packet format is described exactly in the [CLP ASN.1 spec].
+The BTP packet format is described exactly in the [BTP ASN.1 spec].
 
 ## Terminology
 
-- **CLP** is the common ledger protocol, as described by this document and the
+- **BTP** is the bilateral transfer protocol, as described by this document and the
   ASN.1 spec.
 
-- A **Sub-Protocol** is a protocol which isn't defined by CLP and is carried
+- A **Sub-Protocol** is a protocol which isn't defined by BTP and is carried
   in the protocol data (see below).
 
-- A **CLP Connection** is a websocket connection over which CLP packets are
-  sent. Websockets are used because they provide message framing and allow CLP
+- A **BTP Connection** is a websocket connection over which BTP packets are
+  sent. Websockets are used because they provide message framing and allow BTP
 to use HTTP requests for authentication.
 
-- **CLP Packets** are the protocol data units described in this document. They are
-  formally defined in the [CLP ASN.1 spec].
+- **BTP Packets** are the protocol data units described in this document. They are
+  formally defined in the [BTP ASN.1 spec].
 
-- **Peers** are the parties on a CLP connection. Your peer is the party on the
-  other side of the CLP connection.
+- **Peers** are the parties on a BTP connection. Your peer is the party on the
+  other side of the BTP connection.
 
-- The **Bilateral Ledger** is the ledger which the peers on a CLP connection
-  are keeping track of. The bilateral ledger is a persistent log of CLP
+- The **Bilateral Ledger** is the ledger which the peers on a BTP connection
+  are keeping track of. The bilateral ledger is a persistent log of BTP
 packets, which can be used to deduce the current balance between two peers and
 the state of all transfers between them.
 
 - **Authoritative State** is the authoritative view of the Bilateral Ledger's
-  state, maintained by one or both of the peers. Because both peers on a CLP
+  state, maintained by one or both of the peers. Because both peers on a BTP
 connection can keep authoritative state, they can get into dispute if they
 disagree on the state of a transfer. This usually happens when network latency
 causes the peers to disagree about expiries. If one party keeps authoritative
@@ -84,8 +84,8 @@ not yet fulfilled nor rejected.
 
 ## Overview
 
-CLP is broken up into 4 different RPC requests, which can get 2 different
-responses. Every CLP packet follows a common structure:
+BTP is broken up into 4 different RPC requests, which can get 2 different
+responses. Every BTP packet follows a common structure:
 
 ```
   +---------------+
@@ -119,8 +119,8 @@ responses. Every CLP packet follows a common structure:
   +---------------+
 ```
 
-1. **Type**: A 1-byte value describing what type of CLP packet this is.
-The values are described below, in [CLP Type IDs](#clp-type-ids).
+1. **Type**: A 1-byte value describing what type of BTP packet this is.
+The values are described below, in [BTP Type IDs](#clp-type-ids).
 
 2. **Request ID**: A random 4-byte value used to correlate requests 
 and responses. This value MAY be sequential instead of random, but care must
@@ -129,7 +129,7 @@ be taken so that duplicate IDs are never in-flight at the same time.
 3. **Length Prefix**: A 1-byte (if under 128) or 2-byte value, containing the
 combined length of the packet-specific data and protocol data sections.
 
-4. **Packet-Specific Data:** Fields specific to the type of CLP packet. Variable
+4. **Packet-Specific Data:** Fields specific to the type of BTP packet. Variable
 length.
 
 5. **Sub-Protocol Count:** Variable-length integer containing the number of
@@ -137,7 +137,7 @@ sub-protocols carried by this packet.
 
 5. **Sub-Protocol Data:** A list of protocols, containing a string (the protocol's name), a 1-byte flag (containing the MIME type), and a length-prefixed octet string (containing the protocol's data). Exact description is below in [Sub-Protocol Data Format](#sub-protocol-data-format).
 
-### CLP Type IDs
+### BTP Type IDs
 
 | ID | Type | Request/Response |
 |:--|:--|:--|
@@ -167,8 +167,8 @@ ProtocolData ::= SEQUENCE OF SEQUENCE {
 
 ## Flow
 
-CLP uses a simple RPC flow. A request-type CLP packet is sent, and a
-response-type CLP packet is sent in response with the same request ID. The
+BTP uses a simple RPC flow. A request-type BTP packet is sent, and a
+response-type BTP packet is sent in response with the same request ID. The
 request types are `Message`, `Prepare`, `Fulfill` and `Reject`, and the
 response types are `Ack` (which may be [removed]), `Response`, and `Error`.
 
@@ -181,15 +181,15 @@ requestId.
 
 There are also a couple of tricky cases to handle:
 
-- If an unexpected CLP packet is received, no response should be sent. An unexpected CLP packet is a response for which a request was not sent, or a response for a request which has already been responded to.
-- If an unreadable CLP packet is received, no response should be sent. An unreadable CLP packet is one which is structurally invalid, i.e. terminates before length prefixes dictate or contains illegal characters.
+- If an unexpected BTP packet is received, no response should be sent. An unexpected BTP packet is a response for which a request was not sent, or a response for a request which has already been responded to.
+- If an unreadable BTP packet is received, no response should be sent. An unreadable BTP packet is one which is structurally invalid, i.e. terminates before length prefixes dictate or contains illegal characters.
 
 These behaviors are important for preventing accidental feedback loops.  If an
 unexpected packet triggered an error, that error may be unexpected to the
 sender. The sender would reply with another unexpected error, causing an
 infinite loop. Unreadable packets must be ignored too. If an application got
-onto a CLP connection and spoke the wrong protocol, it would trigger an error
-from CLP. This might trigger an error from the application, and it would
+onto a BTP connection and spoke the wrong protocol, it would trigger an error
+from BTP. This might trigger an error from the application, and it would
 devolve into another infinite loop.
 
 ### Message
@@ -266,7 +266,7 @@ the `rejected` state, an `Error` should be returned.
 #### Expiry
 
 After the `expiresAt` date is reached, the transfer can no longer be fulfilled.
-If one party on the CLP connection is keeping authoritative state, they MUST
+If one party on the BTP connection is keeping authoritative state, they MUST
 send a `Reject` request to the other party. If both parties are keeping
 authoritative state, they MAY independently expire the transfer (set the state
 to `rejected` and roll it back) automatically.
