@@ -346,3 +346,43 @@ rejected this transfer, including protocols but not including requestId.
 
 - An `Error` is returned if the request was not successful. _TODO: create
   error codes that distinguish the different failure cases_.
+
+### Error
+
+```
+Error ::= SEQUENCE {
+  -- Standardized error code
+  code IA5String (SIZE (3)),
+  -- Corresponding error code
+  name IA5String,
+  -- Time of emission
+  triggeredAt Timestamp,
+  -- Additional data
+  data OCTET STRING (SIZE (0..8192)),
+  --
+  protocolData ProtocolData
+}
+```
+
+`Error` is a response-type message, returned when an error occurs on the
+BTP level. It is similar to the [ILP Error format], but fields have been
+trimmed off and new error codes have been written:
+
+#### Error Codes
+
+Errors marked with a `T` are temporary, and can be retried after a short
+(1-60s) wait. If a retry fails again with a temporary error, a BTP client
+SHOULD wait longer before trying again. Errors marked with `F` are final, and
+the same request MUST NOT be retried.
+
+| Code | Name | Description |
+|:--|:--|:--|
+| **T00** | UnreachableError | Temporary error, indicating that the connector cannot process this request at the moment. Try again later. |
+| **F00** | NotAcceptedError | Data were symantically invalid. |
+| **F01** | InvalidFieldsError | At least one field contained structurally invalid data, e.g. timestamp full of garbage characters. |
+| **F03** | TransferNotFoundError | The transferId included in the packet does not reference an existing transfer. |
+| **F04** | InvalidFulfillmentError | The fulfillment included in the packet does not match the transfer's condition. |
+| **F05** | DuplicateIdError | The transferId and method match a previous request, but other data do not. |
+| **F06** | AlreadyRolledBackError | The transfer cannot be fulfilled because it has already been rejected or expired. |
+| **F07** | AlreadyFulfilledError | The transfer cannot be rejected because it has already been fulfilled. |
+| **F08** | InsufficientBalanceError | The transfer cannot be prepared because there is not enough available liquidity. |
