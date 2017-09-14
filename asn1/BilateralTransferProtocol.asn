@@ -89,7 +89,6 @@ Fulfill ::= SEQUENCE {
 
 Reject ::= SEQUENCE {
   transferId UInt128,
-  rejectionReason InterledgerPacket, -- must contain an InterledgerProtocolError
   --
   protocolData ProtocolData
 }

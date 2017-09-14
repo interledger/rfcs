@@ -327,7 +327,6 @@ or the transfer has been `rejected`.
 ```
 Reject ::= SEQUENCE {
   transferId UInt128,
-  rejectionReason InterledgerPacket, -- must contain an InterledgerProtocolError
   --
   protocolData ProtocolData
 }
@@ -335,12 +334,13 @@ Reject ::= SEQUENCE {
 
 `Reject` is used to change an existing transfer from the `prepared`
 state to the `rejected` state. The packet-specific data of `Reject` is made up
-of `transferId` and `rejectionReason`.
+only of `transferId`.
 
 `transferId` is a 128-bit unique ID, which references an existing transfer.
-`rejectionReason` is an [ILP
-Error](https://github.com/interledger/rfcs/blob/master/0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format),
-containing the reason that this transfer was rejected.
+The reason that the transfer was rejected should go in the protocol data.  For
+example, if this is an ILP Payment being rejected, the `ilp` protocol will
+contain an [ILP
+Error](https://github.com/interledger/rfcs/blob/master/0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format).
 
 A `Reject` request must come from the receiver of the referenced transfer,
 not the sender.
