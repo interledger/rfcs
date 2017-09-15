@@ -36,7 +36,7 @@ IMPORTS
 -- it.
 
 ContentType ::= INTEGER {
-  applicationOctetString  (0),
+  applicationOctetStream  (0),
   textPlainUtf8           (1),
   applicationJson         (2)
 } (0..255)
