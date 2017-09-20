@@ -1,7 +1,7 @@
---------
+---
 title: Bilateral Transfer Protocol (BTP)
 draft: 1
---------
+---
 
 # Bilateral Transfer Protocol (BTP)
 
