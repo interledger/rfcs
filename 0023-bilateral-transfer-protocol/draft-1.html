@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Payments across payment networks">
+
+    <title>Bilateral Transfer Protocol (BTP) | Interledger</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link href="/css/monokai-sublime.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    <!-- Google fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,200,600,700|Droid+Sans+Mono|Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
+
+    <!-- Font awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
+
+    <link href="/assets/favicon.ico" rel="icon" type="image/x-icon">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body data-spy="scroll" data-target="#myScrollspy" data-offset="160" class="spec">
+
+     <!-- navbar -->
+      <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><img class="logo" alt="interledger" src="/assets/ilp_icon.png"/></a>
+          </div>
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="/overview.html">Docs</a></li>
+              <li><a href="/community.html">Community</a></li>
+              <li><a href="/news.html">News</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a target="_blank" href="https://github.com/interledger">Github</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+    <!-- docs overview section -->
+
+    <div class="container docs-wrapper">
+      <div class="row">
+        <div id="sidebarContent">
+          <nav class="col-sm-4" id="myScrollspy">
+            <ul class="nav-fixed nav nav-sidebar">
+              <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
+                <li class="nav-label">
+                  <a href="./draft-1.html">ILP-RFC 0023 Draft 1</a>
+                </li>
+                <li>
+                  <a href="./draft-1.html">Permalink to this Draft</a>
+                </li>
+                <li>
+                  <a href="./">View the Latest Draft of ILP-RFC 0023</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#preface">Preface</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#introduction">Introduction</a>
+                </li>
+              
+                <li>
+                  <a href="#motivation">Motivation</a>
+                </li>
+              
+                <li>
+                  <a href="#scope">Scope</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#terminology">Terminology</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#overview">Overview</a>
+                </li>
+              
+                <li>
+                  <a href="#btp-type-ids">BTP Type IDs</a>
+                </li>
+              
+                <li>
+                  <a href="#sub-protocol-data-format">Sub-Protocol Data Format</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#flow">Flow</a>
+                </li>
+              
+                <li>
+                  <a href="#message">Message</a>
+                </li>
+              
+                <li>
+                  <a href="#prepare">Prepare</a>
+                </li>
+              
+                <li>
+                  <a href="#fulfill">Fulfill</a>
+                </li>
+              
+                <li>
+                  <a href="#reject">Reject</a>
+                </li>
+              
+                <li>
+                  <a href="#error">Error</a>
+                </li>
+              
+            </ul>
+          </nav>
+        </div>
+        <div class="col-sm-8 markdown-body">
+          <h1 id="bilateral-transfer-protocol-btp">Bilateral Transfer Protocol (BTP)</h1>
+<h2 id="preface">Preface</h2>
+<p class="intro">This document describes the Bilateral Transfer Protocol (BTP), a ledger
+protocol for bilateral transfers of value. It the successor to <a href="https://github.com/interledger/rfcs/blob/master/0021-plugin-rpc-api/0021-plugin-rpc-api.md#plugin-rpc-api">Plugin
+RPC</a>,
+and has been written to use OER instead of JSON.</p>
+<h2 id="introduction">Introduction</h2>
+<h3 id="motivation">Motivation</h3>
+<p>There are many different types of ledgers, and Interledger aims to interoperate
+all of them. For fast ledgers that support hash time locks, memos, and
+messaging, it is enough to wrap the ledger&apos;s API in a <a href="https://github.com/interledger/rfcs/blob/master/0004-ledger-plugin-interface/0004-ledger-plugin-interface.md">Ledger
+Plugin</a>.
+These allow you to send interledger payments through anyone else on that ledger
+who is running your plugin.</p>
+<p>In lots of scenarios, we don&apos;t have an underlying ledger that&apos;s fast enough to
+do every ILP payment on-ledger. If two parties want to transact, they can send
+transfers directly to one another with BTP. BTP requires that the two parties
+trust one another (up to a limit) for funds that have not yet been settled on
+the underlying ledger. If their trust limit is high enough, the two parties can
+transact without settling on an underlying ledger at all.</p>
+<p>Because we believe the use case for a bilateral ledger protocols is so
+ubiquitous, the BTP has been designed to be efficient to transmit and friendly
+to re-implement.</p>
+<h3 id="scope">Scope</h3>
+<p>BTP manages conditional transfers, messaging requests, result/error reporting,
+and carries sub-protocols (sometimes called side-protocols) for extensibility.
+You can use ILP without using BTP. BTP is not a ledger in itself, but it is a
+ledger-layer protocol in the <a href="https://github.com/interledger/rfcs/blob/master/0001-interledger-architecture/0001-interledger-architecture.md">ILP
+architecture</a>
+because it handles local transfers.</p>
+<p>BTP is intended to be a well-suited solution so that a new bilateral ledger
+protocol doesn&apos;t need to exist for every new use case. It also includes
+functionality which is common between many different ledger types, making it a
+good place to start from when creating a new bilateral protocol for transfering
+value.</p>
+<p>This document describes the flow and data format that BTP uses, but not
+sub-protocols. Sub-protocols include optional functionality like ledger
+metadata, balance, automated settlement, and dispute resolution. Some protocols
+are documented on <a href="https://github.com/interledger/interledger/wiki/Interledger-over-CLP">the wiki
+page</a>.
+They are carried in the protocol data of BTP packets.</p>
+<p>The BTP packet format is described exactly in the <a href="https://github.com/interledger/rfcs/blob/master/asn1/BilateralTransferProtocol.asn">BTP ASN.1
+spec</a>.</p>
+<h2 id="terminology">Terminology</h2>
+<ul>
+<li><p><strong>BTP</strong> is the bilateral transfer protocol, as described by this document and the
+ASN.1 spec.</p>
+</li>
+<li><p>A <strong>Sub-Protocol</strong> is a protocol which isn&apos;t defined by BTP and is carried
+in the protocol data (see below).</p>
+</li>
+<li><p>A <strong>BTP Connection</strong> is a websocket connection over which BTP packets are
+sent. Websockets are used because they provide message framing and allow BTP
+to use HTTP requests for authentication.</p>
+</li>
+<li><p><strong>BTP Packets</strong> are the protocol data units described in this document. They are
+formally defined in the <a href="https://github.com/interledger/rfcs/blob/master/asn1/BilateralTransferProtocol.asn">BTP ASN.1 spec</a>.</p>
+</li>
+<li><p><strong>Peers</strong> are the parties on a BTP connection. Your peer is the party on the
+other side of the BTP connection.</p>
+</li>
+<li><p>The <strong>Bilateral Ledger</strong> is the ledger which the peers on a BTP connection
+are keeping track of. When a peer keeping Authoritative State receives a BTP
+packet, they process it and adjust their copy of the bilateral ledger. The
+bilateral ledger is not to be confused with the Underlying Ledger.</p>
+</li>
+<li><p><strong>Authoritative State</strong> is the authoritative view of the Bilateral Ledger&apos;s
+state, maintained by one or both of the peers. Because both peers on a BTP
+connection can keep authoritative state, they can get into dispute if they
+disagree on the state of a transfer. This usually happens when network latency
+causes the peers to disagree about expiries. If one party keeps authoritative
+state, the other party must trust them not to tamper with it.</p>
+</li>
+<li><p>A request is <strong>In-Flight</strong> if the request has been sent out, but no response
+has been sent yet. A transfer is <strong>In-Flight</strong> if it has been prepared but
+not yet fulfilled nor rejected.</p>
+</li>
+<li><p>An <strong>Underlying Ledger</strong> moves value between the two peers when they settle
+their balance. If Peer 1 owes Peer 2 100 XRP, Peer 1 could send Peer 2 100
+XRP on Ripple in order to make their balance 0. In that scenario, XRP ledger is
+the underlying ledger.</p>
+</li>
+</ul>
+<h2 id="overview">Overview</h2>
+<p>BTP is broken up into 4 different RPC requests, which can get 2 different
+responses. Every BTP packet follows a common structure:</p>
+<pre><code>  +---------------+
+1 | Type (1)      |
+  +---------------+
+1 | Request ID    |
+2 | (2)           |
+3 |               |
+4 |               |
+  +---------------+
+1 | Length Prefix |
+2 | (3)           |
+  +---------------+
+  | Packet-       |
+  | Specific      |
+  | Data          |
+  . (4)           |
+  .               |
+  .               |
+  |               |
+  +---------------+
+1 | Sub-Protocol  |
+2 | Count (5)     |
+  +---------------+
+  | Sub-Protocol  |
+  | Data          |
+  . (6)           |
+  .               |
+  .               |
+  |               |
+  +---------------+
+</code></pre><ol>
+<li><p><strong>Type</strong>: A 1-byte value describing what type of BTP packet this is.
+The values are described below, in <a href="#btp-type-ids">BTP Type IDs</a>.</p>
+</li>
+<li><p><strong>Request ID</strong>: A random 4-byte value used to correlate requests 
+and responses. This value MAY be sequential instead of random, but care must
+be taken so that duplicate IDs are never in-flight at the same time.</p>
+</li>
+<li><p><strong>Length Prefix</strong>: A 1-byte (if under 128) or 2-byte value, containing the
+combined length of the packet-specific data and protocol data sections.</p>
+</li>
+<li><p><strong>Packet-Specific Data:</strong> Fields specific to the type of BTP packet. Variable
+length.</p>
+</li>
+<li><p><strong>Sub-Protocol Count:</strong> Variable-length integer containing the number of
+sub-protocols carried by this packet.</p>
+</li>
+<li><p><strong>Sub-Protocol Data:</strong> A list of protocols, containing a string (the protocol&apos;s name), a 1-byte flag (containing the MIME type), and a length-prefixed octet string (containing the protocol&apos;s data). Exact description is below in <a href="#sub-protocol-data-format">Sub-Protocol Data Format</a>.</p>
+</li>
+</ol>
+<h3 id="btp-type-ids">BTP Type IDs</h3>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">ID</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Request/Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left"><code>Response</code></td>
+<td style="text-align:left">Response</td>
+</tr>
+<tr>
+<td style="text-align:left">2</td>
+<td style="text-align:left"><code>Error</code></td>
+<td style="text-align:left">Response</td>
+</tr>
+<tr>
+<td style="text-align:left">3</td>
+<td style="text-align:left"><code>Prepare</code></td>
+<td style="text-align:left">Request</td>
+</tr>
+<tr>
+<td style="text-align:left">4</td>
+<td style="text-align:left"><code>Fulfill</code></td>
+<td style="text-align:left">Request</td>
+</tr>
+<tr>
+<td style="text-align:left">5</td>
+<td style="text-align:left"><code>Reject</code></td>
+<td style="text-align:left">Request</td>
+</tr>
+<tr>
+<td style="text-align:left">6</td>
+<td style="text-align:left"><code>Message</code></td>
+<td style="text-align:left">Request</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sub-protocol-data-format">Sub-Protocol Data Format</h3>
+<pre><code class="lang-asn1">ContentType ::= INTEGER {
+  applicationOctetString  (0),
+  textPlainUtf8           (1),
+  applicationJson         (2)
+} (0..255)
+
+ProtocolData ::= SEQUENCE OF SEQUENCE {
+  protocolName IA5String,
+  contentType ContentType,
+  data OCTET STRING
+}
+</code></pre>
+<h2 id="flow">Flow</h2>
+<p>BTP uses a simple RPC flow. A request-type BTP packet is sent, and a
+response-type BTP packet is sent in response with the same request ID. The
+request types are <code>Message</code>, <code>Prepare</code>, <code>Fulfill</code> and <code>Reject</code>, and the
+response types are <code>Response</code> and <a href="#error"><code>Error</code></a>.</p>
+<p>Because it would be too slow to atomically save all requestIds that are
+processed, they are not idempotent. It is the responsibility of the requestor
+to make sure they don&apos;t duplicate requestIds. The implementation should ensure
+that no two in-flight requests are sent out with the same requestId. The
+responder should always send back a response to a request with the same
+requestId.</p>
+<p>There are also a couple of tricky cases to handle:</p>
+<ul>
+<li>If an unexpected BTP packet is received, no response should be sent. An unexpected BTP packet is a response for which a request was not sent, or a response for a request which has already been responded to.</li>
+<li>If an unreadable BTP packet is received, no response should be sent. An unreadable BTP packet is one which is structurally invalid, i.e. terminates before length prefixes dictate or contains illegal characters.</li>
+</ul>
+<p>These behaviors are important for preventing accidental feedback loops.  If an
+unexpected packet triggered an error, that error may be unexpected to the
+sender. The sender would reply with another unexpected error, causing an
+infinite loop. Unreadable packets must be ignored too. If an application got
+onto a BTP connection and spoke the wrong protocol, it would trigger an error
+from BTP. This might trigger an error from the application, and it would
+devolve into another infinite loop.</p>
+<h3 id="message">Message</h3>
+<pre><code class="lang-asn1">Message ::= SEQUENCE {
+  protocolData ProtocolData
+}
+</code></pre>
+<p><code>Message</code> is used for sending information to the peer. It contains no
+packet-specific data, only protocol data. <a href="https://github.com/interledger/rfcs/blob/master/0008-interledger-quoting-protocol/0008-interledger-quoting-protocol.md">ILQP</a> packets are attached under the
+protocol name <code>ilp</code> with content-type <code>application/octet-stream</code>.</p>
+<ul>
+<li><p><code>Response</code> is returned if the peer acknowledges the <code>Message</code>. If the peer
+has data to send in reply (e.g. a quote response), it is carried in the
+protocol data.</p>
+</li>
+<li><p><code>Error</code> is returned if the peer is not able to process the <code>Message</code>, or there
+was an unexpected error and further <code>Message</code>s should not be sent. This does
+not include ILP errors such as &quot;No quote found&quot;, only the cases in which the
+<code>Message</code> cannot be sent/processed at all.</p>
+</li>
+</ul>
+<h3 id="prepare">Prepare</h3>
+<pre><code class="lang-asn1">Prepare ::= SEQUENCE {
+  transferId UInt128,
+  amount UInt64,
+  executionCondition UInt256,
+  expiresAt Timestamp,
+  --
+  protocolData ProtocolData
+}
+</code></pre>
+<p><code>Prepare</code> is used to create a transfer on the bilateral ledger. The packet
+data contains <code>transferId</code>, <code>amount</code>, <code>executionCondition</code>, and <code>expiresAt</code>.
+<code>Prepare</code> is a request with side effects, because it creates a transfer with
+the given details. This transfer begins in the <code>prepared</code> state.</p>
+<p><code>transferId</code> is a securely random 128-bit unique ID that references the
+transfer.  <code>amount</code> is a 64-bit integer denominated in ledger base units. The
+ledger base units can be anything, so long as both parties on the bilateral
+ledger agree on their meaning. Examples of base units are &quot;micro-XRP,&quot;
+&quot;satoshi,&quot; or &quot;nano-dollars settled over paypal.&quot; <code>executionCondition</code> is a
+256-bit integer containing the SHA-256 hash of this conditional transfer&apos;s
+fulfillment.  <code>expiresAt</code> is a ASN.1 UTC GeneralizedTime containing the expiry
+of this transfer. The GeneralizedTime MUST be in UTC (i.e. no timezone info).</p>
+<p>ILP payment packets are attached to the protocol data under the protocol
+name <code>ilp</code> and the MIME type <code>application/octet-stream</code>. </p>
+<ul>
+<li><p><code>Response</code> is returned if the peer acknowledges the <code>Prepare</code>. This means the
+transfer is now <code>prepared</code> and has been applied to the balance. It may carry
+sub-protocol data, for example a payment channel claim.</p>
+</li>
+<li><p><code>Error</code> is returned if the peer does not accept the transfer. This could be
+because it is incompatible with an existing transfer with the same ID (see
+Idempotency below), or because it exceeds some constraint your peer has placed.
+The amount could be too high, or could exceeds the balance. If the transfer ever enters the <code>prepared</code> state, an <code>Error</code> should not be returned. Instead, a <code>Reject</code> call should be made.</p>
+</li>
+</ul>
+<h4 id="idempotency">Idempotency</h4>
+<p>If a transfer with the given ID already exists in any state, a new transfer
+should not be created. If the packet (including protocol data) matches an
+existing transfer exactly and that transfer is in the <code>prepared</code> state, a
+<code>Response</code> should be returned. If the packet (including protocol data) shares
+the ID of an existing transfer but other details do not match, an <code>Error</code>
+should be returned. If the packet (including protocol data) exactly
+matches an existing transfer but that transfer is in the <code>fulfilled</code> state or
+the <code>rejected</code> state, an <code>Error</code> should be returned.</p>
+<h4 id="expiry">Expiry</h4>
+<p>After the <code>expiresAt</code> date is reached, the transfer can no longer be fulfilled.
+If one party on the BTP connection is keeping authoritative state, they MUST
+send a <code>Reject</code> request to the other party. If both parties are keeping
+authoritative state, they MAY independently expire the transfer (set the state
+to <code>rejected</code> and roll it back) automatically.</p>
+<h3 id="fulfill">Fulfill</h3>
+<pre><code class="lang-asn1">Fulfill ::= SEQUENCE {
+  transferId UInt128,
+  fulfillment UInt256,
+  --
+  protocolData ProtocolData
+}
+</code></pre>
+<p><code>Fulfill</code> is used to change an existing transfer from the <code>prepared</code> state to
+the <code>fulfilled</code> state. The packet-specific data of <code>Fulfill</code> is made up of <code>transferId</code>
+and <code>fulfillment</code>. <code>Fulfill</code> is a request with side effects: it changes the
+state of the transfer and finalizes the transfer&apos;s balance update. If the
+transfer is already fulfilled, no changes are applied.</p>
+<p><code>transferId</code> is a 128-bit unique ID, which references an existing transfer.
+<code>fulfillment</code> is a 256-bit integer, containing the preimage of the
+<code>executionCondition</code> of the referenced transfer.</p>
+<p>A <code>Fulfill</code> request must be sent from the receiver of the referenced transfer,
+not the sender.</p>
+<p>A <code>Fulfill</code> request is successful if <code>transferId</code> references an existing
+transfer in the <code>prepared</code> state, the <code>fulfillment</code> is the SHA-256 preimage of
+the referenced transfer&apos;s <code>executionCondition</code>, and the current time (when the
+request is being processed) is before the referenced transfer&apos;s <code>expiresAt</code>.</p>
+<p>A <code>Fulfill</code> request is also successful if the transfer is in the <code>fulfilled</code>
+state, and this packet matches the one that fulfilled the transfer,
+including protocols but not including requestId.</p>
+<ul>
+<li><p><code>Response</code> is returned if the request is successful.  This means the
+transfer&apos;s state is now <code>fulfilled</code>, and its balance change has been
+finalized.</p>
+</li>
+<li><p><code>Error</code> is returned if there is no transfer with the given ID, the
+fulfillment does not match the condition, the expiresAt has already passed,
+or the transfer has been <code>rejected</code>.</p>
+</li>
+</ul>
+<h3 id="reject">Reject</h3>
+<pre><code>Reject ::= SEQUENCE {
+  transferId UInt128,
+  --
+  protocolData ProtocolData
+}
+</code></pre><p><code>Reject</code> is used to change an existing transfer from the <code>prepared</code>
+state to the <code>rejected</code> state. The packet-specific data of <code>Reject</code> is made up
+only of <code>transferId</code>.</p>
+<p><code>transferId</code> is a 128-bit unique ID, which references an existing transfer.
+The reason that the transfer was rejected should go in the protocol data.  For
+example, if this is an ILP Payment being rejected, the <code>ilp</code> protocol will
+contain an <a href="https://github.com/interledger/rfcs/blob/master/0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format">ILP
+Error</a>.</p>
+<p>A <code>Reject</code> request must come from the receiver of the referenced transfer,
+not the sender.</p>
+<p>A <code>Reject</code> request is successful if <code>transferId</code> references an existing
+transfer in the <code>prepared</code> state.</p>
+<p>A <code>Reject</code> request is also successful if <code>transferId</code> references an existing
+transfer in the <code>rejected</code> state, and this packet matches the one that
+rejected this transfer, including protocols but not including requestId.</p>
+<ul>
+<li><p>A <code>Response</code> is returned if the request is successful. This indicates that
+the balance changes of the referenced transfer have been rolled back.</p>
+</li>
+<li><p>An <code>Error</code> is returned if the request was not successful.</p>
+</li>
+</ul>
+<h3 id="error">Error</h3>
+<pre><code>Error ::= SEQUENCE {
+  -- Standardized error code
+  code IA5String (SIZE (3)),
+  -- Corresponding error code
+  name IA5String,
+  -- Time of emission
+  triggeredAt Timestamp,
+  -- Additional data
+  data OCTET STRING (SIZE (0..8192)),
+  --
+  protocolData ProtocolData
+}
+</code></pre><p><code>Error</code> is a response-type message, returned when an error occurs on the BTP
+level. It has packet-specific data which resembles the <a href="https://github.com/interledger/rfcs/blob/master/0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format">ILP Error
+format</a>,
+but irrelevant fields have been taken off and new error codes have been
+written:</p>
+<h4 id="error-codes">Error Codes</h4>
+<p>Errors marked with a <code>T</code> are temporary, and can be retried after a short
+(1-60s) wait. If a retry fails again with a temporary error, a BTP client
+SHOULD wait longer before trying again. Errors marked with <code>F</code> are final, and
+the same request MUST NOT be retried.</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Code</th>
+<th style="text-align:left">Name</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>T00</strong></td>
+<td style="text-align:left">UnreachableError</td>
+<td style="text-align:left">Temporary error, indicating that the connector cannot process this request at the moment. Try again later.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>F00</strong></td>
+<td style="text-align:left">NotAcceptedError</td>
+<td style="text-align:left">Data were symantically invalid.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>F01</strong></td>
+<td style="text-align:left">InvalidFieldsError</td>
+<td style="text-align:left">At least one field contained structurally invalid data, e.g. timestamp full of garbage characters.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>F03</strong></td>
+<td style="text-align:left">TransferNotFoundError</td>
+<td style="text-align:left">The transferId included in the packet does not reference an existing transfer.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>F04</strong></td>
+<td style="text-align:left">InvalidFulfillmentError</td>
+<td style="text-align:left">The fulfillment included in the packet does not match the transfer&apos;s condition.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>F05</strong></td>
+<td style="text-align:left">DuplicateIdError</td>
+<td style="text-align:left">The transferId and method match a previous request, but other data do not.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>F06</strong></td>
+<td style="text-align:left">AlreadyRolledBackError</td>
+<td style="text-align:left">The transfer cannot be fulfilled because it has already been rejected or expired.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>F07</strong></td>
+<td style="text-align:left">AlreadyFulfilledError</td>
+<td style="text-align:left">The transfer cannot be rejected because it has already been fulfilled.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>F08</strong></td>
+<td style="text-align:left">InsufficientBalanceError</td>
+<td style="text-align:left">The transfer cannot be prepared because there is not enough available liquidity.</td>
+</tr>
+</tbody>
+</table>
+
+        </div>
+      </div>
+
+    </div> <!-- /container -->
+
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="col-sm-4 col-xs-12">
+              <p>Interledger Team</p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="text-center">See list of <a target="_blank" href="https://www.w3.org/community/interledger/participants">Contributors</a></p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="pull-right">Documentation licensed under <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0.</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-68500608-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    <script src="/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
