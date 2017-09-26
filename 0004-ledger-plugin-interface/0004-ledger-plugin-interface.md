@@ -1,6 +1,6 @@
 ---
 title: The Javascript Ledger Plugin Interface
-draft: 5
+draft: 6
 ---
 # Javascript Ledger Plugin Interface
 
@@ -475,10 +475,10 @@ left undefined (but not any other false-y value) if unused.
 | `String` | [ledger](#transferledger) | ILP Address prefix of the ledger |
 | `String` | [amount](#transferamount) | Integer transfer amount, in the ledger's base unit |
 | `String` | [ilp](#transferilp) | Base64-encoded ILP packet |
-| `Object` | [noteToSelf](#transfernotetoself) | Host-provided memo that should be stored with the transfer |
+| `Object` | [noteToSelf](#transfernotetoself-optional) | Host-provided memo that should be stored with the transfer |
 | `String` | [executionCondition](#transferexecutioncondition) | Cryptographic hold condition |
 | `String` | [expiresAt](#transferexpiresat) | Expiry time of the cryptographic hold |
-| `Object` | [custom](#transfercustom) | Object containing ledger plugin specific options |
+| `Object` | [custom](#transfercustom-optional) | Object containing ledger plugin specific options |
 
 ### Fields
 
@@ -525,10 +525,10 @@ An [ILP packet](../0003-interledger-protocol/), denoting the payment's final des
 
 If the `ilp` data is too large, the ledger plugin MUST reject with a `MaximumIlpDataSizeExceededError`.
 
-#### Transfer#noteToSelf
+#### Transfer#noteToSelf (OPTIONAL)
 <code>**noteToSelf**:Object</code>
 
-An arbitrary plain JavaScript object containing details the host needs to persist with the transfer in order to be able to react to transfer events like condition fulfillment later.
+An optional, arbitrary plain JavaScript object containing details the host needs to persist with the transfer in order to be able to react to transfer events like condition fulfillment later.
 
 Ledger plugins MAY attach the `noteToSelf` to the transfer and let the ledger store it. Otherwise it MAY use the [`store`](#store) in order to persist this field. Regardless of the implementation, the ledger plugin MUST ensure that all instances of the transfer carry the same `noteToSelf`, even across different machines.
 
@@ -550,10 +550,10 @@ An ISO 8601 timestamp representing the expiry date for the transfer.
 
 Ledger plugins that do not support holds or do not support expiries MUST reject with an `ExpiryNotSupportedError` if this parameter is provided.
 
-#### Transfer#custom
+#### Transfer#custom (OPTIONAL)
 <code>**custom**:Object</code>
 
-Ledger plugins MAY use this object to accept and/or set additional fields for other features they support. The object MUST be serializable, i.e. only plain JSON types are allowed anywhere in the object or sub-objects.
+Optional object that ledger plugins MAY use to accept and/or set additional fields for other features they support. The object MUST be serializable, i.e. only plain JSON types are allowed anywhere in the object or sub-objects.
 
 If the `custom` data is too large, the ledger plugin MUST reject with a `MaximumCustomDataSizeExceededError`.
 
@@ -587,7 +587,7 @@ The `Message` class is used to describe local ledger message. All fields are req
 | `String` | [to](#messageto) | ILP Address of the destination account |
 | `String` | [ledger](#messageledger) | ILP Address prefix of the ledger |
 | `String` | [ilp](#messageilp) | Base64-encoded ILP packet |
-| `Object` | [custom](#messagecustom) | Object containing ledger plugin specific options |
+| `Object` | [custom](#messagecustom-optional) | Optional object containing ledger plugin specific options |
 
 #### Message#id
 <code>**id**:String</code>
@@ -616,10 +616,10 @@ An [ILP packet](../0003-interledger-protocol/), used for communication among led
 
 If the `ilp` data is too large, the ledger plugin MUST reject with a `MaximumIlpDataSizeExceededError`.
 
-#### Message#custom
+#### Message#custom (OPTIONAL)
 <code>**custom**:Object</code>
 
-An arbitrary plain JavaScript object containing additional custom data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque.
+An optional, arbitrary plain JavaScript object containing additional custom data to be sent. The object MUST be serializable to JSON. Ledger plugins SHOULD treat this data as opaque.
 
 If the `custom` data is too large, the ledger plugin MUST reject with a `MaximumCustomDataSizeExceededError`.
 
