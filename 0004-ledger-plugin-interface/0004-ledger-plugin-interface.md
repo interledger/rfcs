@@ -1,6 +1,6 @@
 ---
 title: The Javascript Ledger Plugin Interface
-draft: 6
+draft: 7
 ---
 # Javascript Ledger Plugin Interface
 
@@ -475,10 +475,10 @@ left undefined (but not any other false-y value) if unused.
 | `String` | [ledger](#transferledger) | ILP Address prefix of the ledger |
 | `String` | [amount](#transferamount) | Integer transfer amount, in the ledger's base unit |
 | `String` | [ilp](#transferilp) | Base64-encoded ILP packet |
-| `Object` | [noteToSelf](#transfernotetoself-optional) | Host-provided memo that should be stored with the transfer |
+| `Object` | [noteToSelf](#transfernotetoself-optional) | (Optional) host-provided memo that should be stored with the transfer |
 | `String` | [executionCondition](#transferexecutioncondition) | Cryptographic hold condition |
 | `String` | [expiresAt](#transferexpiresat) | Expiry time of the cryptographic hold |
-| `Object` | [custom](#transfercustom-optional) | Object containing ledger plugin specific options |
+| `Object` | [custom](#transfercustom-optional) | (Optional) object containing ledger plugin specific options |
 
 ### Fields
 
@@ -586,8 +586,8 @@ The `Message` class is used to describe local ledger message. All fields are req
 | `String` | [from](#messagefrom) | ILP Address of the source account |
 | `String` | [to](#messageto) | ILP Address of the destination account |
 | `String` | [ledger](#messageledger) | ILP Address prefix of the ledger |
-| `String` | [ilp](#messageilp) | Base64-encoded ILP packet |
-| `Object` | [custom](#messagecustom-optional) | Optional object containing ledger plugin specific options |
+| `String` | [ilp](#messageilp) | (Optional if `custom` is present) base64-encoded ILP packet |
+| `Object` | [custom](#messagecustom-optional) | (Optional) object containing ledger plugin specific options |
 
 #### Message#id
 <code>**id**:String</code>
@@ -612,7 +612,7 @@ The ILP Prefix of the ledger being used to transfer the message.
 #### Message#ilp
 <code>**ilp**:String</code>
 
-An [ILP packet](../0003-interledger-protocol/), used for communication among ledger participants.
+An [ILP packet](../0003-interledger-protocol/), used for communication among ledger participants. Include either this field, or the `custom` field, or both.
 
 If the `ilp` data is too large, the ledger plugin MUST reject with a `MaximumIlpDataSizeExceededError`.
 
