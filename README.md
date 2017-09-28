@@ -62,15 +62,11 @@ For the main reference implementation of the ILP stack, see [Interledger.js](htt
 
   Ledger abstraction used in the JavaScript implementation. This can be used as a model for defining such plugins in other languages.
 
-* **[12: Five Bells Ledger API](0012-five-bells-ledger-api/0012-five-bells-ledger-api.md)**
-
-  An API that centralized ledgers may implement to provide clients and connectors with all functionality needed for Interledger.
-
 * **[17: Ledger Requirements](0017-ledger-requirements/0017-ledger-requirements.md)**
 
   Outlines the degrees of Interledger support that different ledgers may provide.
 
-* **[21: Plugin RPC API](0021-plugin-rpc-api/0021-plugin-rpc-api.md)**
+* **[23: Bilateral Transfer Protocol (BTP)](0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md)**
 
   Recommended API for trustlines and payment channels.
 
