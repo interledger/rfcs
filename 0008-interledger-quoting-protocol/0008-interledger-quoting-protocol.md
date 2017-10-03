@@ -37,7 +37,7 @@ In a multiple-hop payment, there are multiple connectors, each of which creates 
 
 Quotes are sent through a request/response mechanism exposed by the ledger plugins or ledger layer.
 
-A quote request's `ilp` property must be an `IlqpLiquidityRequest`, `QuoteBySourceRequest`, or `QuoteByDestinationRequest`. The response's `ilp` property must be an `IlqpLiquidityResponse`, `QuoteBySourceResponse`, or `QuoteByDestinationResponse` respectively. If an error occurs during quoting, `ilp` will be a [`IlpError`](../0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format) instead.
+A quote request's `ilp` property must be a `QuoteLiquidityRequest`, `QuoteBySourceRequest`, or `QuoteByDestinationRequest`. The response's `ilp` property must be a `QuoteLiquidityResponse`, `QuoteBySourceResponse`, or `QuoteByDestinationResponse` respectively. If an error occurs during quoting, `ilp` will be a [`IlpError`](../0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format) instead.
 
 ## ILQP Packets
 
