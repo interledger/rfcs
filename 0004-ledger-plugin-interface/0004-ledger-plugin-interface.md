@@ -1,6 +1,6 @@
 ---
 title: The Javascript Ledger Plugin Interface
-draft: 7
+draft: 8
 ---
 # Javascript Ledger Plugin Interface
 
