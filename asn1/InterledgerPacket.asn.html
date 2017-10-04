@@ -112,16 +112,16 @@ IMPORTS
     VarBytes
     FROM GenericTypes
 
-    InterledgerProtocolPayment,
-    InterledgerProtocolError
+    InterledgerProtocolPaymentData,
+    InterledgerProtocolErrorData
     FROM InterledgerProtocol
 
-    QuoteLiquidityRequest,
-    QuoteLiquidityResponse,
-    QuoteBySourceAmountRequest,
-    QuoteBySourceAmountResponse,
-    QuoteByDestinationAmountRequest,
-    QuoteByDestinationAmountResponse
+    QuoteLiquidityRequestData,
+    QuoteLiquidityResponseData,
+    QuoteBySourceAmountRequestData,
+    QuoteBySourceAmountResponseData,
+    QuoteByDestinationAmountRequestData,
+    QuoteByDestinationAmountResponseData
     FROM InterledgerQuotingProtocol
 ;
 
@@ -131,14 +131,14 @@ PACKET ::= CLASS {
 } WITH SYNTAX {&typeId &Type}
 
 PacketSet PACKET ::= {
-    {1 InterledgerProtocolPayment} |
-    {2 QuoteLiquidityRequest} |
-    {3 QuoteLiquidityResponse} |
-    {4 QuoteBySourceAmountRequest} |
-    {5 QuoteBySourceAmountResponse} |
-    {6 QuoteByDestinationAmountRequest} |
-    {7 QuoteByDestinationAmountResponse} |
-    {8 InterledgerProtocolError}
+    {1 InterledgerProtocolPaymentData} |
+    {2 QuoteLiquidityRequestData} |
+    {3 QuoteLiquidityResponseData} |
+    {4 QuoteBySourceAmountRequestData} |
+    {5 QuoteBySourceAmountResponseData} |
+    {6 QuoteByDestinationAmountRequestData} |
+    {7 QuoteByDestinationAmountResponseData} |
+    {8 InterledgerProtocolErrorData}
 }
 
 InterledgerPacket ::= SEQUENCE {

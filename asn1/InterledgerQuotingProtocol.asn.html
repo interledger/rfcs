@@ -121,7 +121,7 @@ IMPORTS
 -- Request to receive liquidity information between the current ledger and the
 -- destination account. This information is sufficient to locally quote any
 -- amount until the curve expires.
-QuoteLiquidityRequest ::= SEQUENCE {
+QuoteLiquidityRequestData ::= SEQUENCE {
     destinationAccount Address,
     -- How much time the receiver needs to fulfill the payment (in milliseconds)
     destinationHoldDuration UInt32,
@@ -132,7 +132,7 @@ QuoteLiquidityRequest ::= SEQUENCE {
     }
 }
 
-QuoteLiquidityResponse ::= SEQUENCE {
+QuoteLiquidityResponseData ::= SEQUENCE {
     -- Curve describing the liquidity (relationship between input and output
     -- amounts) for the quoted route
     liquidity LiquidityCurve,
@@ -158,7 +158,7 @@ QuoteLiquidityResponse ::= SEQUENCE {
 }
 
 -- Quoting with a specified source amount to determine destination amount
-QuoteBySourceAmountRequest ::= SEQUENCE {
+QuoteBySourceAmountRequestData ::= SEQUENCE {
     destinationAccount Address,
     sourceAmount UInt64,
     -- How much time the receiver needs to fulfill the payment (in milliseconds)
@@ -170,7 +170,7 @@ QuoteBySourceAmountRequest ::= SEQUENCE {
     }
 }
 
-QuoteBySourceAmountResponse ::= SEQUENCE {
+QuoteBySourceAmountResponseData ::= SEQUENCE {
     -- Amount that will arrive at the receiver
     destinationAmount UInt64,
     -- How long the sender should put money on hold (in milliseconds)
@@ -183,7 +183,7 @@ QuoteBySourceAmountResponse ::= SEQUENCE {
 }
 
 -- Quoting with a specified destination amount to determine source amount
-QuoteByDestinationAmountRequest ::= SEQUENCE {
+QuoteByDestinationAmountRequestData ::= SEQUENCE {
     destinationAccount Address,
     destinationAmount UInt64,
     -- How much time the receiver needs to fulfill the payment (in milliseconds)
@@ -195,7 +195,7 @@ QuoteByDestinationAmountRequest ::= SEQUENCE {
     }
 }
 
-QuoteByDestinationAmountResponse ::= SEQUENCE {
+QuoteByDestinationAmountResponseData ::= SEQUENCE {
     -- Amount the sender needs to send based on the requested destination amount
     sourceAmount UInt64,
     -- How long the sender should put money on hold (in milliseconds)

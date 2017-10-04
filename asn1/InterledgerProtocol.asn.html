@@ -116,7 +116,7 @@ IMPORTS
     FROM InterledgerTypes
 ;
 
-InterledgerProtocolPayment ::= SEQUENCE {
+InterledgerProtocolPaymentData ::= SEQUENCE {
     -- Amount which must be received at the destination
     amount UInt64,
     -- Destination ILP Address
@@ -129,7 +129,7 @@ InterledgerProtocolPayment ::= SEQUENCE {
     }
 }
 
-InterledgerProtocolError ::= SEQUENCE {
+InterledgerProtocolErrorData ::= SEQUENCE {
     -- Standardized error code
     code IA5String (SIZE (3)),
     -- Corresponding error name
