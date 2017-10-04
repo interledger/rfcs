@@ -1,6 +1,6 @@
 ---
 title: The Interledger Quoting Protocol (ILQP)
-draft: 2
+draft: 3
 ---
 # Interledger Quoting Protocol (ILQP)
 
@@ -37,61 +37,79 @@ In a multiple-hop payment, there are multiple connectors, each of which creates 
 
 Quotes are sent through a request/response mechanism exposed by the ledger plugins or ledger layer.
 
-A quote request's `ilp` property must be an `IlqpLiquidityRequest`, `IlqpBySourceRequest`, or `IlqpByDestinationRequest`. The response's `ilp` property must be an `IlqpLiquidityResponse`, `IlqpBySourceResponse`, or `IlqpByDestinationResponse` respectively. If an error occurs during quoting, `ilp` will be a [`IlpError`](../0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format) instead.
+A quote request's `ilp` property must be a `QuoteLiquidityRequest`, `QuoteBySourceRequest`, or `QuoteByDestinationRequest`. The response's `ilp` property must be a `QuoteLiquidityResponse`, `QuoteBySourceResponse`, or `QuoteByDestinationResponse` respectively. If an error occurs during quoting, `ilp` will be a [`IlpError`](../0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format) instead.
 
 ## ILQP Packets
 
 See [interledgerjs/ilp-packet](https://github.com/interledgerjs/ilp-packet/) for an example implementation of a packet serializer/deserializer.
 
-### IlqpLiquidityRequest
+### QuoteLiquidityRequest
 
 | Field | Type | Short Description |
 |:--|:--|:--|
-| destinationAccount | Address | Address corresponding to the destination account |
+| type | Byte | Always `2` |
+| length | Length Determinant | One or more bytes, indicating how many bytes follow in the rest of the packet |
+| destinationAccount | Length-prefixed String | Address corresponding to the destination account |
 | destinationHoldDuration | UInt32 | How much time the receiver needs to fulfill the payment (in milliseconds) |
+| extensions | Length Determinant | Always `0` |
 
-### IlqpLiquidityResponse
+### QuoteLiquidityResponse
 
 | Field | Type | Short Description |
 |:--|:--|:--|
+| type | Byte | Always `3` |
+| length | Length Determinant | One or more bytes, indicating how many bytes follow in the rest of the packet |
 | liquidity | LiquidityCurve | Curve describing the liquidity for the quoted route |
-| appliesToPrefix | Address | Common prefix of all addresses for which this liquidity curve applies. |
+| appliesToPrefix | Length-prefixed String | Common prefix of all addresses for which this liquidity curve applies. |
 | sourceHoldDuration | UInt32 | How long the sender should put the money on hold (in milliseconds) |
 | expiresAt | Timestamp | Maximum time where the connector expects to be able to honor this liquidity curve. This MUST be expressed in the UTC + 0 (Z) timezone. |
+| extensions | Length Determinant | Always `0` |
 
 `LiquidityCurve` is encoded as a `SEQUENCE OF SEQUENCE { x UInt64, y UInt64 }`. This is a binary format, so for example the curve `[ [0, 0], [10, 265] ]` is equivalent to the base64-encoded string `"AAAAAAAAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAkBAAA="`.
 
 See [interledgerjs/ilp-routing.LiquidityCurve](https://github.com/interledgerjs/ilp-routing/blob/master/src/lib/liquidity-curve.js) for an example implementation of a LiquidityCurve serializer/deserializer.
 
-### IlqpBySourceRequest
+### QuoteBySourceRequest
 
 | Field | Type | Short Description |
 |:--|:--|:--|
-| destinationAccount | Address | Address corresponding to the destination account |
+| type | Byte | Always `4` |
+| length | Length Determinant | One or more bytes, indicating how many bytes follow in the rest of the packet |
+| destinationAccount | Length-prefixed String | Length-prefixed address corresponding to the destination account |
 | sourceAmount | UInt64 | Amount the sender needs to send, denominated in the asset of the source ledger |
 | destinationHoldDuration | UInt32 | How much time the receiver needs to fulfill the payment (in milliseconds) |
+| extensions | Length Determinant | Always `0` |
 
-### IlqpBySourceResponse
+### QuoteBySourceResponse
 
 | Field | Type | Short Description |
 |:--|:--|:--|
+| type | Byte | Always `5` |
+| length | Length Determinant | One or more bytes, indicating how many bytes follow in the rest of the packet |
 | destinationAmount | UInt64 | Amount that will arrive at the receiver |
 | sourceHoldDuration | UInt32 | How long the sender should put money on hold (in milliseconds) |
+| extensions | Length Determinant | Always `0` |
 
-### IlqpByDestinationRequest
+### QuoteByDestinationRequest
 
 | Field | Type | Short Description |
 |:--|:--|:--|
-| destinationAccount | Address | Address corresponding to the destination account |
+| type | Byte | Always `6` |
+| length | Length Determinant | One or more bytes, indicating how many bytes follow in the rest of the packet |
+| destinationAccount | Length-prefixed String | Length-prefixed address corresponding to the destination account |
 | destinationAmount | UInt64 | Amount that will arrive at the receiver |
 | destinationHoldDuration | UInt32 | How much time the receiver needs to fulfill the payment (in milliseconds) |
+| extensions | Length Determinant | Always `0` |
 
-### IlqpByDestinationResponse
+### QuoteByDestinationResponse
 
 | Field | Type | Short Description |
 |:--|:--|:--|
+| type | Byte | Always `7` |
+| length | Length Determinant | One or more bytes, indicating how many bytes follow in the rest of the packet |
 | sourceAmount | UInt64 | Amount the sender needs to send, denominated in the asset of the source ledger |
 | sourceHoldDuration | UInt32 | How long the sender should put money on hold (in milliseconds) |
+| extensions | Length Determinant | Always `0` |
 
 ## Next Steps
 

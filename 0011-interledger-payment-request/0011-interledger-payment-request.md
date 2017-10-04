@@ -1,6 +1,6 @@
 ---
 title: Interledger Payment Requests (IPR)
-draft: 1
+draft: 2
 ---
 # Interledger Payment Request (IPR)
 
@@ -83,7 +83,7 @@ IPR version. This document specifies version 2.
 
     OCTET STRING (SIZE(0..65535))
 
-The [ILP Payment Packet](../0003-interledger-protocol/0003-interledger-protocol.md#specification).
+The [ILP Payment Packet](https://interledger.org/rfcs/0003-interledger-protocol/draft-3.html#specification).
 
 In IPR the sender only uses the `account` and `amount` from the ILP packet and MUST treat the `data` as opaque.
 

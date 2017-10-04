@@ -1,6 +1,6 @@
 ---
 title: The Interledger Protocol (ILP)
-draft: 3
+draft: 4
 ---
 # Interledger Protocol (ILP)
 
@@ -156,9 +156,34 @@ Here is a summary of the fields in the ILP payment packet format:
 
 | Field | Type | Short Description |
 |:--|:--|:--|
+| type | UInt8 | Always `1`, indicates that this ILP packet is an ILP Payment Packet (type 1) |
+| length | Length Determinant | Indicates how many bytes the rest of the packet has |
 | amount | UInt64 | Amount the destination account should receive, denominated in the asset of the destination ledger |
 | account | Address | Address corresponding to the destination account |
 | data | OCTET STRING | Transport layer data attached to the payment |
+| extensions | Length Determinant | Always `0`
+
+#### Example
+
+| Type | Length, 8+(1+14)+(1+3)+1=28 | Amount (123,000,000) ... |
+|:--|:--|:--|
+| 1    |  28    | 0 0 0 0 7 84 |
+
+
+| .. Amount (123,000,000) | Length | Adddress ... ('g.us.') |
+|:--|:--|:--|
+| 212 192 | 14     | 103 46 117 115 46 |
+
+| ... Adddress ('nexus.bo') ... |
+|:--|
+| 110 101 120 117 115 46 98 111 |
+
+| ... Adddress ('b') | length | data    | extensions |
+|:--|:--|:--|:--|
+| 98 | 3      | 4 16 65 | 0          |
+
+
+Let's look more closely at the three important fields: `amount`, `address`, and `data`.
 
 #### amount
 
