@@ -24,7 +24,7 @@ The motivations for replacing ILQPv1 are as follows:
 3. **Recognition of Quoting as an Application-Specific Concern** - Given the unreliability of quotes, different applications will need to handle fluctuating rates and liquidity differently. For example, the mechanism used to judge the cost of a stream of payments versus a single payment must actively take into account the changing rates. This suggests that different applications may need different types of quoting functionality or may not use quoting at all.
 4. **Enabling Evolution of the Quoting Protocol** - Protocols on the Interledger Layer must be implemented by all participants and will thus be more difficult to update. Taking quoting out of the realm of connectors will enable different quoting protocols to evolve over time.
 
-Note that ILQPv2 assumes all connector exchange rates are linear, rather than using Liquidity Curves like ILQPv1. See [Appendix A: Linear Exchange Rates](#appendix-a-linear-exchange-rates) for details.
+Note that ILQPv2 assumes all connector exchange rates are linear and that there are no fixed fees. This removes Liquidity Curves, which are used in ILQPv1. See [Appendix A: Linear Exchange Rates](#appendix-a-linear-exchange-rates) for details.
 
 ### Scope
 
@@ -61,7 +61,7 @@ This details the steps for a sender to get a quote for a fixed source amount ("i
 
 The steps are the same as for Fixed Source Amount quotes, except that the transfer amount is set to an arbitrary probe value. When the sender gets the error response from the receiver, they compute the exchange rate based on the amount they sent and the amount that arrived. The sender then divides the fixed destination amount from the quote request by that exchange rate.
 
-Note that ILQPv2 assumes all connector exchange rates are linear. See [Appendix A: Linear Exchange Rates](#appendix-a-linear-exchange-rates) for details.
+Note that ILQPv2 assumes all connector exchange rates are linear and that there are no fixed fees. This removes Liquidity Curves, which are used in ILQPv1. See [Appendix A: Linear Exchange Rates](#appendix-a-linear-exchange-rates) for details.
 
 ## Specification
 
@@ -117,7 +117,7 @@ Furthermore, using a well-known condition makes it so that connectors MAY implem
 
 In contrast to ILQPv1, ILQPv2 assumes that all connectors use linear exchange rates. This means that connectors SHOULD NOT charge different rates for payments of different sizes.
 
-The motivations for this change are as follows:
+The motivations for removing liquidity curves are as follows:
 
 1. **If paths have a relatively small Maximum Transfer Size (MTS), exchange rates should not need to vary** - Whether we like it or not, there will be a maximum size for an individual payment that the network will support. Between the Interledger Universal mode risk and liquidity issues, connectors will likely be incentivized to keep the MTS relatively small. If that's the case, there is less of a reason to vary the rate based on the size. Charging a different rate for a payment of $0.01 versus $10 makes less sense than charging a different rate for a payment of $100 million.
 2. **Curves don't help for streaming payments** - If the MTS is smaller than the payments some people want to make, streaming payments will be required to chunk those payments up. In the case of streaming payments, the sender needs to understand the liquidity information over time, rather than just a static snapshot. Attempting to express liquidity over time would be too complicated to be worth it. But without that dynamic view, the snapshot curve does not help because it could change anyway. Therefore, in the case of streaming payments, senders will need to start sending, constantly monitor the rate, and adjust who they are sending through if the rate changes a lot.
@@ -125,3 +125,9 @@ The motivations for this change are as follows:
 4. **We didn't use curves in practice** - When we were running the community network of ilp-kits, everyone was just using a % spread on top of a linear exchange rate pulled from fixer.io. It seems unlikely that connectors will need more complicated fee structures than that, and connectors may end up charging customers on monthly or other bases rather than per-payment.
 5. **Simplification** - If there is a way to make the system work without liquidity curves, then they should be removed. "Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away."
 
+The specific reasons to not support fixed fees are:
+
+1. **Supporting fixed fees effectively means supporting full liquidity curves** - One could make the argument that instead of supporting full liquidity curves, the protocol should just support linear rates with fixed offsets. However, this is nearly as complicated as full curves but less expressive. The protocol should either support full curves to express nearly any type of rate structure, or only rates that can be expressed as single numbers.
+2. **Fixed ledger fees should be avoided** - One of the main arguments for supporting fixed fees are fees charged by ledgers. However, if there are ledgers with significant transfer fees, account-holders should switch to using trustlines or payment channels to avoid paying the transfer fee for every Interledger payment. Ledgers that want account-holders to transact on-ledger should avoid or reduce transfer fees.
+3. **Fixed connector fees can be handled out of band** - If connectors really want to charge fixed fees per payment, they can bill that on a regular (for example, monthly) basis outside the flow of the payment. That way, such a fee structure remains a concern between the connector and their users, rather than it needing to be understood by all parties in the Interledger payment path.
+4. **Fixed fees eliminate micropayment use cases** - A specific goal of this project is to enable micropayment use cases in ever smaller amounts. Fixed fees render these use cases impossible. Instead of complicating the core protocols to support features that work against such desired use cases, we should instead focus on developing connector business models that suit the use cases.
