@@ -1,6 +1,6 @@
 ---
 title: The Pre-Shared Key Transport Protocol (PSK)
-draft: 3
+draft: 4
 ---
 # Pre-Shared Key Transport Protocol (PSK)
 
@@ -13,6 +13,28 @@ As the name suggests, PSK relies on a pre-shared secret key. In application-laye
 An advantage of PSK is that the pre-shared secret key only needs to be shared once. As long as both parties possess this key and are listening for transfers, they can send payments between one another.
 
 A disadvantage of PSK is that it is repudiable. Although the sender does get cryptographic proof that the recipient received the payment, that proof cannot be used to convince 3rd parties that the sender did indeed send the funds, because the sender could have generated the fulfillment themselves. However, simple proof for the sender that the recipient got the funds is sufficient in many applications. The [Interledger Payment Request](https://github.com/interledger/rfcs/blob/master/0011-interledger-payment-request/0011-interledger-payment-request.md) transport protocol should be used instead in cases where non-repudiable proof is required.
+
+## Importance of PSK in ensuring network health
+
+When a sender or connector asks  the next connector to forward a payment to the receiver, they need to specify, among other things, the end-to-end data which may convince the receiver to fulfill the
+condition, and the source amount which will reward that next connector.
+
+PSK enables the safe delivery of the end-to-end data, which in turn allows the receiver to check whether the on-ledger destination amount is high enough.
+If the on-ledger destination amount is too low, that means either the sender, or one of the connectors along the path, used a transfer amount that was too low (i.e., is effectively trying to steal
+a little bit).
+
+If the destination amount is too low, even if just by a few percent, the receiver should reject the payment. If this happens, the sender should retry the payment, using a different route.
+This way, eventually, connectors that try to steal money will lose traffic, which is how the Interledger protocol stack ensures the network stays healthy.
+It is PSK's end-to-end data transportation that makes this continuous price competition possible, so that is one of the main advantages of PSK.
+
+The destination amount can either be public or secret. If the destination amount is public, each connector along the path can make sure they pay a fair but sufficient outgoing transfer amount.
+For the destination ledger, there will be a 1:1 rate between the transfer amount and the destination amount in the payment packet. For previous hops, this rate will be determined by their liquidity
+curve for the destination ledger. A rational connector will try to stay informed of the exact current liquidity curve for each destination ledger, so that they never overpay.
+Even if the destination amount is public and can be viewed by all connectors along the path, PSK ensures that it cannot be altered along the path.
+
+If the destination amount is secret, connectors have to guess how much they would need to pay to convince the rest of the hops along the path to get the payment fulfilled.
+Presumably the destination amount would be not much lower than the maximum achievable destination amount, so it will not be possible to hide the destination amount from the connectors entirely.
+Secret destination amounts are also not currently supported, but support for them may be added in the future.
 
 ## Flow
 
