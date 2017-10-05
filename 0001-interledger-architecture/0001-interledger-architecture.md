@@ -1,6 +1,6 @@
 ---
 title: Interledger Architecture
-draft: 1
+draft: 2
 ---
 # Interledger Architecture
 
@@ -37,6 +37,12 @@ If the ledgers represent different assets, the connectors set the exchange rate 
 Connectors *peer* with one another to exchange information used to determine the best route for a payment.
 
 **Interledger ensures that senders' funds are safe throughout an multi-hop payment and cannot be stolen by faulty or malicious connectors (see [Interledger Security](#interledger-security)).**
+
+### Interledger Networks
+
+The Interledger protocol stack can be used to create a network that effectively offers the same functionality as a centralized ledger; namely, the ability to safely transfer value from one account to another. But since an Interledger network is made up of autonomously run ledgers and connectors, without any central authority, these ledgers and connectors can then compete, at each hop of a given payment, to offer a good service at a low price. This will lead, through market economics, to cheaper transaction costs than those that can be expected on a centrally controlled system.
+
+The system for ensuring that a payment either succeeds at a low price, or rolls back so that it can be re-routed within a short timeout, is described in the [pre-shared key](../0016-pre-shared-key/0016-pre-shared-key.md) specification.
 
 ### The Interledger
 
