@@ -13,10 +13,7 @@ Design a protocol to pay for HTTP requests.
 Criteria:
 
 * Minimum number of roundtrips
-* Hashing only (no asymmetric crypto) for simplicity and performance
 * Interaction with HTTP server is via HTTP (actually HTTPS) calls only - we want to tie into the existing load balancing and security infrastructure (HTTPS), no need to run any JavaScript/Websocket client on the HTTP server or other shenanigans
-
-Below is a complete description of the protocol. Note that documentation for app developers would be much simpler since it would only describe the two endpoints they need to think about (webhook handler to increment balance and payment middleware to check and decrement balance)
 
 # Flows
 
@@ -32,88 +29,30 @@ After deciding to use HTTP-ILP, Ankita searches the web on instructions on how t
 
 She installs the HTTP-ILP server module. The module provides middleware which she adds to the different API endpoints in order to set prices for each one.
 
-The module also adds a new payment webhook endpoint to her API. After the installation is complete, the software tells her the URI for the webhook endpoint:
-
-* Payment Webhook URI: `https://myservice.example/webhook`
-
-According to the documentation of the HTTP-ILP server module, she learns that she should now go to her ILP wallet provider and set up a receiver using this webhook URI.
+According to the documentation of the HTTP-ILP server module, she learns that she can pass an [Interledgerjs plugin](../0004-ledger-plugin-interface/0004-ledger-plugin-interface.md) to the module, to receive payments.
 
 ### 1.2. Server admin sets up a new receiver
 
-Ankita uses the web-based UI of her ILP wallet provider to create a new receiver tied to her account. She chooses an arbitrary unique (for her account) `name` to identify this receiver and enters the `webhook` URI from the previous step which points to her `myservice.example` server. Internally, the UI makes a call to the wallet provider's backend:
 
-###### Request
-
-``` http
-POST /api/receivers
-Host: nexus.justmoon.com
-Content-Type: application/json
-```
-``` js
-{
-  "name": "filepay",
-  "webhook": "https://myservice.example/webhook"
-}
-```
-
-###### Response
-
-``` js
-{
-  "name": "filepay",
-  "webhook": "https://myservice.example/webhook",
-  "secret": "fxPERNaS4FGlC8H7eg6UfYVlglmFynFc8nh5la9PBGM"
-}
-```
-
-Afterwards, the UI shows Ankita the receiver address and secret:
-
-* SPSP Receiver Address: `ankita+filepay@nexus.justmoon.com`
-* SPSP Receiver Secret: `fxPERNaS4FGlC8H7eg6UfYVlglmFynFc8nh5la9PBGM`
-
-This secret will henceforth be referred to as the *receiver secret* / `receiver_secret`.
-
+Ankita creates a dedicated subaccount under her account at her Interledger service provider, and takes a note of that subaccount's credentials.
 
 ### 1.3. Server admin enters credentials into the HTTP-ILP server module config
 
-Next, Ankita logs back into her server and edits a config file of the HTTP-ILP server module to enter the receiver address and secret she obtained:
+Next, Ankita logs back into her server and edits a config file of the HTTP-ILP server module to enter the plugin type and credentials she obtained:
 
 ``` ini
-[spsp_creds]
-receiver_address=ankita+filepay@nexus.justmoon.com
-receiver_secret=fxPERNaS4FGlC8H7eg6UfYVlglmFynFc8nh5la9PBGM
+[plugin_creds]
+plugin_name=ilp-plugin-btp-client
+plugin_config={"server":"btp+wss://ankita+filepay:fxPERNaS4FGlC8H7eg6UfYVlglmFynFc8nh5la9PBGM@nexus.justmoon.com"}
 ```
 
 Next, she restarts her server to load the new configuration.
 
 ### 1.4. Paid HTTP server fetches receiver information
 
-When the HTTP-ILP server module loads up, it uses [Webfinger](https://tools.ietf.org/html/rfc7033) to look up the `receiver_address` from the configuration.
+When the HTTP-ILP server module loads up, it uses [plugin#getAccount](../0004-ledger-plugin-interface/0004-ledger-plugin-interface.md) to look up the Interledger address from the plugin.
 
-###### Request
-``` http
-GET /.well-known/webfinger?uri=ankita+filepay@nexus.justmoon.com
-Host: nexus@justmoon.com
-```
-
-The wallet will generate an ILP address using its ledger prefix, the fixed term `~recv`, the username `ankita` and the receiver name `filepay`.
-
-* ILP Address: `us.nexus.ankita.~recv.filepay`
-
-Note that the method for mapping an SPSP address to an ILP address is totally arbitrary and not part of this standard. The wallet MAY do this any way that it wants. In practice, the wallet may choose an address not including the username for privacy reasons.
-
-###### Response
-``` http
-HTTP/1.1 200 OK
-Content-Type: application/json
-```
-``` js
-{
-  // TODO ...
-}
-```
-
-The HTTP-ILP server module now knows the ILP address and caches it in memory for a certain period (depending on the cache header of the above request.) The reason we had Ankita enter the SPSP address and not the ILP address is because the ILP address may change over time as ILP providers change their routing structure. Note that ILP may support multihoming (this is still being debated as of this writing), so there may also be more than one ILP address.
+The HTTP-ILP server module now knows the ILP address and caches it in memory for a certain period.
 
 This completes the setup process. The server is now ready to receive paid API requests.
 
@@ -127,9 +66,9 @@ This completes the setup process. The server is now ready to receive paid API re
 
 ### 2.1. Client generates a server-specific token from the hostname and its local secret:
 
-The uploader tool contains an HTTP-ILP client module. This client module has already generated and locally saved a `client_secret` using 256 bits of cryptographically secure randomness.
+The uploader tool contains an HTTP-ILP client module. This client module may for instance generate and locally save a `client_secret` using 256 bits of cryptographically secure randomness.
 
-Before making the paid HTTP request, the HTTP-ILP client module generates a **token** using the `hostname` of the server it is about to make a request to:
+Before making the paid HTTP request, the HTTP-ILP client module generates a **token**, for instance using such a `client_secret` and the `hostname` of the server it is about to make a request to:
 
 * Token: `HMAC(SHA256, client_secret, hostname)`
 
@@ -138,7 +77,7 @@ Before making the paid HTTP request, the HTTP-ILP client module generates a **to
 The paid HTTP request is fired off:
 
 ``` http
-POST /upload HTTP/1.1
+OPTIONS /upload HTTP/1.1
 Host: myservice.example
 Pay-Token: 7y0SfeN7lCuq0GFF5UsMYZofIjJ7LrvPvsePVWSv450
 ```
@@ -146,11 +85,12 @@ Pay-Token: 7y0SfeN7lCuq0GFF5UsMYZofIjJ7LrvPvsePVWSv450
 [...]
 ```
 
-Note that the client hasn't paid at this point and is only making the request to solicit a response from the server.
+Note that the client hasn't paid at this point and is only making the request to solicit a response from the server, that's why the OPTIONS verb is used..
 
-### 2.2. Server rejects request, because token is new and unfunded
+### 2.2. Server responds with payment details
 
-The server returns an HTTP error of `402 Payment Required` and includes response headers showing the amount (how much the request would have cost), an ILP address and a condition seed.
+The server returns an HTTP error of `402 Payment Required` and includes response headers showing the amount, an ILP address and a shared secret.
+The amount expresses how much the request would have cost, as a decimal string and counted in the base unit of the ledger to which the ILP address belongs.
 
 ``` http
 HTTP/1.1 402 Payment Required
@@ -158,14 +98,11 @@ Pay: 10 us.nexus.ankita.~recv.filepay SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHd
 Pay-Balance: 0
 ```
 
-The client may use the condition seed to create a condition to pay this host. The condition seed is generated by the server as follows:
+The client can now use the shared secret to create a condition to pay this host. The shared secret may for instance be generated by the server as follows:
 
-* Condition Seed: `HMAC(SHA256, receiver_secret, token)`
+* Shared Secret: `HMAC(SHA256, receiver_secret, token)`
 
-The condition_seed is now a shared secret between the client and server, but will be unknown to any third-party connectors between them.
-
-That means that if the payment fails, the client can blame the server (assuming it considers itself honest and not compromised.) The client can't prove any wrongdoing to a third party, but since amounts are likely to be very low, this probably wouldn't be worth doing anyway. Also, proving wrongdoing would also involve proving that the server did not provide the agreed-upon service, which is probably near impossible in most cases anyway. However, since it can detect malicious behavior, the client can blacklist malicious hosts and not deal with them in the future.
-
+The shared_secret is now a shared secret between the client and server, but will be unknown to any third-party connectors between them.
 
 ### 2.3. Client initiates an ILP payment to refill its balance
 
@@ -176,54 +113,11 @@ In order to refill its balance, the client now creates an ILP payment with the f
 * Condition: `SHA256(fulfillment)`
 * Memo: `pay_token`
 
-The `fulfillment` is generated as:
+The `fulfillment` is generated from the shared secret using [PSK](../0016-pre-shared-key/0016-pre-shared-key.md).
 
-* Fulfillment: `HMAC(SHA256, condition_seed, destination_account || destination_amount)`
+When the prepared payment reaches the server, it is fulfilled and the token's balance is increased.
 
-When the prepared payment reaches the receiving wallet, the webhook that is registered with the ankita+filepay@nexus.justmoon.com receiver is triggered. Note that the wallet does not fulfill the payment yet.
-
-### 2.4. Wallet POSTs a payment notification
-
-``` http
-POST /webhook
-Host: myservice.example
-Content-HMAC: sha256 T8grJq7LR9KGjE7741gXMqPny8xsLvsyBiwIFwoF7rg
-Content-Type: application/json
-```
-``` js
-{
-  "id": "ad243387-5fbf-4d0e-90a9-b56f0f5c1ec6",
-  "receiver": "ankita+filepay@nexus.justmoon.com",
-  "amount": "100",
-  "token": "7y0SfeN7lCuq0GFF5UsMYZofIjJ7LrvPvsePVWSv450",
-  "condition": "P9ujXwTcjEYphsmSvPh1VGJXETByqQnBYvfkcOWB4ng",
-  "timestamp": "2017-01-16T04:43:33.892Z"
-}
-```
-
-`Content-HMAC` is an [HMAC request signature](http://progrium.com/blog/2012/12/17/http-signatures-with-content-hmac/) of the request body using the `receiver_secret` as the key.
-
-* Signature: `HMAC(SHA256, receiver_secret, raw_http_body)`
-
-The HTTP-ILP server module MUST verify the signature. It MAY rely on TLS to protect against replay attacks, but if possible it SHOULD keep a list of used `id`s for a suitable time period (e.g. two minutes) and check that `timestamp` falls within that period.
-
-The HTTP-ILP server module MUST generate the fulfillment using the same algorithm that the client used in step 2.3. It will then respond with this fulfillment if it has successfully processed the payment.
-
-``` http
-HTTP/1.1 200 OK
-Content-Type: application/json
-```
-``` js
-{
-  "fulfillment": "5in6ZZjXMnaPfHJrS2IShfnDuFMDkAqpEgF9t2F9i9s"
-}
-```
-
-There is a chance that the HTTP-ILP server module will process the payment, but the fulfillment will not be processed in time due to some latency or outage. We think that most operators would want to take the risk as a benefit for their users. However, they have the option of choosing a wallet which will process the fulfillment immediately before sending the webhook. Theoretically, that version of flow creates a race condition: If the fulfillment reaches the sender and the sender makes a request before the webhook reaches the server, then the server may incorrectly report the previous balance. That's another reason why it is preferable that the server take the risk.
-
-### 2.5. Wallet fulfills the incoming payment
-
-Having received a positive response to the webhook, the wallet will go ahead and use the fulfillment returned to fulfill the incoming transfer.
+There is a chance that the HTTP-ILP server module will process the payment, but the fulfillment doesn't make it all te way back to the sender.
 
 ### 2.6. Sender/client receives the fulfillment.
 
@@ -238,7 +132,7 @@ Pay-Token: 7y0SfeN7lCuq0GFF5UsMYZofIjJ7LrvPvsePVWSv450
 [...]
 ```
 
-This time, the request succeeds:
+The request succeeds:
 
 ``` http
 HTTP/1.1 200 OK
@@ -247,3 +141,9 @@ Pay-Balance: 90
 ```
 
 Notice how the 100 units credit from the payment was added to the balance and the 10 unit cost for the current request was subtracted.
+
+### 3. Streaming flow
+
+An alternative flow, which doesn't require an OPTIONS preflight, is for the client to immediately make the POST request, wait for the HTTP response header, then pay, then upload the data.
+For GET requests, the amount in the `Pay` header would not necessarily represesent the price of the full resource contents, but would more generally indicate a suggested payment size.
+As the sender pays repeatedly, chunks of resource body are delivered.
