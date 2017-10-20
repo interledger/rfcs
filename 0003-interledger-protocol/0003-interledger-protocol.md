@@ -1,6 +1,6 @@
 ---
 title: The Interledger Protocol (ILP)
-draft: 4
+draft: 5
 ---
 # Interledger Protocol (ILP)
 
@@ -289,6 +289,7 @@ Final errors indicate that the payment is invalid and should not be retried unle
 | **F05** | **Wrong Condition** | The receiver generated a different condition and cannot fulfill the payment. |
 | **F06** | **Unexpected Payment** | The receiver was not expecting a payment like this (the memo and destination address don't make sense in that combination, for example if the receiver does not understand the transport protocol used) |
 | **F07** | **Cannot Receive** | The receiver is unable to accept this payment due to a constraint. For example, the payment would put the receiver above its maximum account balance. |
+| **F08** | **Amount Too Large** | The amount is larger than the maximum size supported by a connector, ledger or the receiver. The producer of this error SHOULD set the error `data` to the concatenation of the following two numbers, each encoded as a 64-bit unsigned, big-endian integer: the amount that arrived and the maximum amount supported by the party producing the error. |
 | **F99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. |
 
 #### T__ - Temporary Error
