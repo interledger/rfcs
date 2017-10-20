@@ -1,6 +1,6 @@
 ---
 title: The Javascript Ledger Plugin Interface
-draft: 8
+draft: 9
 ---
 # Javascript Ledger Plugin Interface
 
@@ -28,8 +28,8 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**getFulfillment**](#getfulfillment) ( transferId ) <code>⇒ Promise.&lt;String></code> |
 | | [**sendTransfer**](#sendtransfer) ( transfer ) <code>⇒ Promise.&lt;null></code> |
 | | [**sendRequest**](#sendrequest) ( message ) <code>⇒ Promise.&lt;[Message](#class-message)></code> |
-| | [**fulfillCondition**](#fulfillcondition) ( transferId, fulfillment ) <code>⇒ Promise.&lt;null></code> |
-| | [**rejectIncomingTransfer**](#rejectincomingtransfer) ( transferId, reason ) <code>⇒ Promise.&lt;null></code> |
+| | [**fulfillCondition**](#fulfillcondition) ( transferId, fulfillment, ilp ) <code>⇒ Promise.&lt;null></code> |
+| | [**rejectIncomingTransfer**](#rejectincomingtransfer) ( transferId, ilp ) <code>⇒ Promise.&lt;null></code> |
 | | [**registerRequestHandler**](#registerrequesthandler) ( requestHandler ) <code>⇒ null</code> |
 | | [**deregisterRequestHandler**](#deregisterrequesthandler) ( ) <code>⇒ null</code> |
 
@@ -41,15 +41,15 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**error**](#event-error) | `( ) ⇒` |
 | [**incoming_transfer**](#event-_transfer) | <code>( transfer:[IncomingTransfer](#class-transfer) ) ⇒</code> |
 | [**incoming_prepare**](#event-_prepare) | <code>( transfer:[IncomingTransfer](#class-transfer) ) ⇒</code> |
-| [**incoming_fulfill**](#event-_fulfill) | <code>( transfer:[IncomingTransfer](#class-transfer), fulfillment:String ) ⇒</code> |
-| [**incoming_reject**](#event-_reject) | <code>( transfer:[IncomingTransfer](#class-transfer), rejectionReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
+| [**incoming_fulfill**](#event-_fulfill) | <code>( transfer:[IncomingTransfer](#class-transfer), fulfillment:String, ilp:String ) ⇒</code> |
+| [**incoming_reject**](#event-_reject) | <code>( transfer:[IncomingTransfer](#class-transfer), ilp:String ) ⇒</code> |
 | [**incoming_cancel**](#event-_cancel) | <code>( transfer:[IncomingTransfer](#class-transfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
 | [**incoming_request**](#event-_request) | <code>( message:[Message](#class-message) ) ⇒</code> |
 | [**incoming_response**](#event-_response) | <code>( message:[Message](#class-message) ) ⇒</code> |
 | [**outgoing_transfer**](#event-_transfer) | <code>( transfer:[outgoingTransfer](#class-transfer) ) ⇒</code> |
 | [**outgoing_prepare**](#event-_prepare) | <code>( transfer:[outgoingTransfer](#class-transfer) ) ⇒</code> |
-| [**outgoing_fulfill**](#event-_fulfill) | <code>( transfer:[outgoingTransfer](#class-transfer), fulfillment:String ) ⇒</code> |
-| [**outgoing_reject**](#event-_reject) | <code>( transfer:[outgoingTransfer](#class-transfer), rejectionReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
+| [**outgoing_fulfill**](#event-_fulfill) | <code>( transfer:[outgoingTransfer](#class-transfer), fulfillment:String, ilp:String ) ⇒</code> |
+| [**outgoing_reject**](#event-_reject) | <code>( transfer:[outgoingTransfer](#class-transfer), ilp:String ) ⇒</code> |
 | [**outgoing_cancel**](#event-_cancel) | <code>( transfer:[outgoingTransfer](#class-transfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
 | [**outgoing_request**](#event-_request) | <code>( message:[Message](#class-message) ) ⇒</code> |
 | [**outgoing_response**](#event-_response) | <code>( message:[Message](#class-message) ) ⇒</code> |
@@ -275,11 +275,11 @@ For a detailed description of these properties, please see [`Message`](#class-me
 
 
 #### fulfillCondition
-<code>ledgerPlugin.fulfillCondition( **transferId**:String, **fulfillment**:String ) ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.fulfillCondition( **transferId**:String, **fulfillment**:String, **ilp**:String ) ⇒ Promise.&lt;null></code>
 
 Submit a fulfillment to a ledger. Plugin must be connected, otherwise the promise should reject.
 
-The `fulfillment` is an arbitrary 32-byte buffer and is provided as a base64url-encoded string.
+The `fulfillment` is an arbitrary 32-byte buffer and is provided as a base64url-encoded string. `ilp` is an optional base64url-encoded ILP data packet that MAY be submitted alongside the fulfillment.
 
 Rejects with `InvalidFieldsError` if the fulfillment is malformed. Rejects with `TransferNotFoundError` if the fulfillment
 if no conditional transfer with the given ID exists. Rejects with `AlreadyRolledBackError` if the transfer has already been
@@ -287,9 +287,9 @@ rolled back. Rejects with `NotAcceptedError` if the fulfillment is formatted cor
 of the specified transfer. Rejects with `TransferNotConditionalError` if transfer is not conditional.
 
 #### rejectIncomingTransfer
-<code>ledgerPlugin.rejectIncomingTransfer( **transferId**:String, **reason**:[RejectionMessage](#class-rejectionmessage) ) ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.rejectIncomingTransfer( **transferId**:String, **ilp**:String ) ⇒ Promise.&lt;null></code>
 
-Reject an incoming transfer that is held pending the fulfillment of its `executionCondition` before the `expiresAt` time. `reason` MAY be supplied to provide details on why the transfer was rejected.
+Reject an incoming transfer that is held pending the fulfillment of its `executionCondition` before the `expiresAt` time. An ILP Error MAY be supplied in the `ilp` field to provide details on why the transfer was rejected.
 
 Rejects with `TransferNotFoundError` if there is no conditional transfer with the
 given ID. Rejects with `AlreadyFulfilledError` if the specified transfer has already been
@@ -360,17 +360,19 @@ a transfer to you.
 <code style="">ledgerPlugin.on('incoming_fulfill',
   (
     **transfer**:[Transfer](#class-transfer),
-    **fulfillment**:String
+    **fulfillment**:String,
+    **ilp**:String
   ) ⇒
 )</code>
 <code style="">ledgerPlugin.on('outgoing_fulfill',
   (
     **transfer**:[Transfer](#class-transfer),
-    **fulfillment**:String
+    **fulfillment**:String,
+    **ilp**:String
   ) ⇒
 )</code>
 
-Emitted when an outgoing/incoming transfer with a condition is fulfilled. The `fulfillment` is provided as a base64url-encoded string.
+Emitted when an outgoing/incoming transfer with a condition is fulfilled. The `fulfillment` is provided as a base64url-encoded string. The `ilp` packet is optional and if present will include a base64url-encoded ILP data packet.
 
 This indicates that funds have been transferred. In order to prevent unexpected incoming funds, a ledger MAY forbid
 accounts from fulfilling a transfer who are not the transfer's receiver.
@@ -382,17 +384,17 @@ of your outgoing transfer has fulfilled the condition.
 <code style="">ledgerPlugin.on('incoming_reject',
   (
     **transfer**:[Transfer](#class-transfer),
-    **reason**:[RejectionMessage](#class-rejectionmessage)
+    **ilp**:String
   ) ⇒
 )</code>
 <code style="">ledgerPlugin.on('outgoing_reject',
   (
     **transfer**:[Transfer](#class-transfer),
-    **reason**:[RejectionMessage](#class-rejectionmessage)
+    **ilp**:String
   ) ⇒
 )</code>
 
-Emitted when an outgoing/incoming transfer is rejected by the receiver.
+Emitted when an outgoing/incoming transfer is rejected by the receiver. `ilp` is an optional field that - if present - will contain a base64url-encoded ILP error packet.
 
 This indicates that a transfer has been manually cancelled before the timeout
 by the receiver. A message can be passed along with the rejection.
