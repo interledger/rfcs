@@ -1,8 +1,7 @@
 ---
 title: Bilateral Transfer Protocol (BTP)
-draft: 1
+draft: 2
 ---
-
 # Bilateral Transfer Protocol (BTP)
 
 ## Preface
@@ -65,11 +64,12 @@ spec](https://github.com/interledger/rfcs/blob/master/asn1/BilateralTransferProt
   ASN.1 spec.
 
 - A **Sub-Protocol** is a protocol which isn't defined by BTP and is carried
-  in the protocol data (see below).
+  in the protocol data (see below). The first one is the primary sub-protocol,
+  subsequent entries are secondary sub-protocols.
 
 - A **BTP Connection** is a websocket connection over which BTP packets are
-  sent. Websockets are used because they provide message framing and allow BTP
-to use HTTP requests for authentication.
+  sent. Websockets (as opposed to raw TLS sockets) are used because they provide
+  message framing and can be used from the browser.
 
 - **BTP Packets** are the protocol data units described in this document. They are
   formally defined in the [BTP ASN.1 spec](https://github.com/interledger/rfcs/blob/master/asn1/BilateralTransferProtocol.asn).
@@ -179,6 +179,56 @@ ProtocolData ::= SEQUENCE OF SEQUENCE {
   data OCTET STRING
 }
 ```
+
+## Authentication
+
+Before anything else, when a client connects to a server, it sends a special
+`Message` request. Its primary `protocolData` entry MUST have name `'auth'`,
+content type `MIME_APPLICATION_OCTET_STREAM`,
+and empty data, and among the secondary entries, there MUST be a UTF-8
+`'auth_token'` entry, and a UTF-8 `'auth_username'` entry. The further secondary
+protocol data entries of this `Message` request MAY also be used to send
+additional information to the server. In situations where no authentication
+is needed, the `'auth_token'` and `'auth_username'` data can be set to the
+empty string, but they cannot be omitted.
+
+If the client sends any BTP call that is not a Message, or sends a Message call
+whose primary sub-protocol is not `auth`, the server should respond with an `Error`
+and close the connection.
+
+The server responds with a `Response` or `Error` as appropriate. Again, the
+`protocolData` field there MAY be used to send additional information to
+the client. To be clear, the server responds with an `Error` if:
+
+* any other packet is sent before the auth data
+* the provided authentication data is invalid or incorrect
+* any of the other protocol rules are violated (e.g. having two subprotos with the same name)
+* it takes too long before the authentication data is sent.
+
+If the server sent an `Error`, it subsequently closes the connection.
+If the server sent a `Response`, the BTP connection is open, until either
+one of the parties closes it. At the BTP level, the client and server play
+identical roles.
+
+If the client does not send an Auth packet within a reasonable time, the
+server optionally sends a Message informing the client that the authentication timed out,
+and then closes the connection. If the client did send an Auth packet, but
+got neither a `Response` nor an `Error` back from the server, the client
+closes the connection.
+
+If the connection is ever dropped and reconnected then it must be re-authenticated.
+
+## Sub-protocols
+
+In order to understand the different BTP calls, it is necessary to distinguish between the first ("primary") and subsequent ("secondary") sub-protocol entries. The primary sub-protocol
+entry defines what type of action or information is requested of the recipient of the message. The secondary sub-protocols should not request additional actions or information. If multiple actions or
+pieces of information are required, multiple separate Messages should be sent. The secondary sub-protocols should only modify the request made in the primary sub-protocol, or provide additional contextual data which can be consumed in a readonly way (without affecting the result).
+
+For example, the primary sub-protocol entry of a Message might represent a quote request, while one additional secondary sub-protocol entry may be present, indicating this request was forwarded by a proxy.
+
+Likewise, only the primary sub-protocol data in a Response indicates whether result of the request from the Message being responded to actually succeeded or not.
+
+In Error, Prepare, Fulfill, and Reject calls, the distinction between primary and secondary sub-protocol entries is less strict.
 
 ## Flow
 
