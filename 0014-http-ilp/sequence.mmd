@@ -4,8 +4,8 @@ participant Interledger
 participant PayeeWallet
 participant Payee
 activate Payer
-Payer->>+Payee: Attempt Request
-Payee-->>-Payer: 402 Payment Required
+Payer->>+Payee: OPTIONS preflight
+Payee-->>-Payer: 204 preflight response
 Payer->>Interledger: Quote Request
 activate Interledger
 Interledger->>Payer: Quote Response
@@ -24,6 +24,6 @@ deactivate PayeeWallet
 activate Interledger
 Interledger-->>Payer: Payment Fulfilled
 deactivate Interledger
-Payer->>+Payee: Retry Original Request
+Payer->>+Payee: POST Paid Request
 Payee-->>-Payer: 200 OK
 deactivate Payer
