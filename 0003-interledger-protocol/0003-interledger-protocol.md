@@ -1,6 +1,6 @@
 ---
 title: The Interledger Protocol (ILP)
-draft: 4
+draft: 5
 ---
 # Interledger Protocol (ILP)
 
@@ -314,6 +314,7 @@ Relative errors indicate that the payment did not have enough of a margin in ter
 | **R00** | **Transfer Timed Out** | The transfer timed out, meaning the next party in the chain did not respond. This could be because you set your timeout too low or because something look longer than it should. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. |
 | **R01** | **Insufficient Source Amount** | Either the sender did not send enough money or the exchange rate changed before the payment was prepared. The sender MAY try again with a higher amount, but they SHOULD NOT do this indefinitely or a malicious connector could steal money from them. |
 | **R02** | **Insufficient Timeout** | The connector could not forward the payment, because the timeout was too low to subtract its safety margin. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. |
+| **R03** | **Superfluous Source Amount** | The transfer amount is sufficient to cover the costs of the payment, but this error is thrown as a courtesy, to warn that a lower transfer amount would also suffice. The sender MAY obtain a new quote and try again with an adjusted amount, or retry with the same amount. If they retry with the same amount, the same error SHOULD NOT be thrown a second time. |
 | **R99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. |
 
 ## Appendix A: ASN.1 Module
