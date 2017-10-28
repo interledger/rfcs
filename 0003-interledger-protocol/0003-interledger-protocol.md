@@ -72,7 +72,7 @@ The protocol uses transfer holds to ensure a sender's funds are delivered to the
 
 2. The interledger module prepares the ILP packet, chooses the account to send the local ledger transfer to, and passes them to the local ledger interface.
 
-3. The local ledger interface creates a local ledger transfer, including the crytographic condition, then authorizes this transfer on the local ledger.
+3. The local ledger interface creates a local ledger transfer, including the cryptographic condition, then authorizes this transfer on the local ledger.
 
 4. The ledger puts the sender's funds on hold -- it does not transfer the funds to the connector -- and notifies the connector.
 
@@ -80,7 +80,7 @@ The protocol uses transfer holds to ensure a sender's funds are delivered to the
 
 6. The connector's interledger module extracts the ILP packet and determines that it should forward the payment. The interledger module calls on the destination ledger's local ledger interface to send the second transfer, including the same condition as the sender's transfer.
 
-7. The local ledger interface creates a local ledger transfer, including the crytographic condition, then authorizes this transfer on the local ledger.
+7. The local ledger interface creates a local ledger transfer, including the cryptographic condition, then authorizes this transfer on the local ledger.
 
 8. The ledger puts the connector's funds on hold -- it does not transfer the funds to the destination -- and notifies the destination host.
 
@@ -170,15 +170,15 @@ Here is a summary of the fields in the ILP payment packet format:
 | 1    |  28    | 0 0 0 0 7 84 |
 
 
-| .. Amount (123,000,000) | Length | Adddress ... ('g.us.') |
+| .. Amount (123,000,000) | Length | Address ... ('g.us.') |
 |:--|:--|:--|
 | 212 192 | 14     | 103 46 117 115 46 |
 
-| ... Adddress ('nexus.bo') ... |
+| ... Address ('nexus.bo') ... |
 |:--|
 | 110 101 120 117 115 46 98 111 |
 
-| ... Adddress ('b') | length | data    | extensions |
+| ... Address ('b') | length | data    | extensions |
 |:--|:--|:--|:--|
 | 98 | 3      | 4 16 65 | 0          |
 
