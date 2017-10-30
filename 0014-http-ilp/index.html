@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Payments across payment networks">
+
+    <title>HTTP-ILP | Interledger</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link href="/css/monokai-sublime.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    <!-- Google fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,200,600,700|Droid+Sans+Mono|Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
+
+    <!-- Font awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
+
+    <link href="/assets/favicon.ico" rel="icon" type="image/x-icon">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body data-spy="scroll" data-target="#myScrollspy" data-offset="160" class="spec">
+
+     <!-- navbar -->
+      <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><img class="logo" alt="interledger" src="/assets/ilp_icon.png"/></a>
+          </div>
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="/overview.html">Docs</a></li>
+              <li><a href="/community.html">Community</a></li>
+              <li><a href="/news.html">News</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a target="_blank" href="https://github.com/interledger">Github</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+    <!-- docs overview section -->
+
+    <div class="container docs-wrapper">
+      <div class="row">
+        <div id="sidebarContent">
+          <nav class="col-sm-4" id="myScrollspy">
+            <ul class="nav-fixed nav nav-sidebar">
+              <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
+                <li class="nav-label">
+                  <a href="./draft-1.html">ILP-RFC 0014 Draft 1</a>
+                </li>
+                <li>
+                  <a href="./draft-1.html">Permalink to this Draft</a>
+                </li>
+                <li>
+                  <a href="./">View the Latest Draft of ILP-RFC 0014</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#1-setup">1. Setup</a>
+                </li>
+              
+                <li>
+                  <a href="#11-server-admin-installs-an-ilp-payment-module">1.1. Server admin installs an ILP payment module</a>
+                </li>
+              
+                <li>
+                  <a href="#12-server-admin-sets-up-a-new-receiver">1.2. Server admin sets up a new receiver</a>
+                </li>
+              
+                <li>
+                  <a href="#13-server-admin-enters-credentials-into-the-http-ilp-server-module-config">1.3. Server admin enters credentials into the HTTP-ILP server module config</a>
+                </li>
+              
+                <li>
+                  <a href="#14-paid-http-server-fetches-receiver-information">1.4. Paid HTTP server fetches receiver information</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#2-client-interaction">2. Client interaction</a>
+                </li>
+              
+                <li>
+                  <a href="#21-client-generates-a-server-specific-token-from-the-hostname-and-its-local-secret">2.1. Client generates a server-specific token from the hostname and its local secret:</a>
+                </li>
+              
+                <li>
+                  <a href="#21-client-attempts-to-call-api-using-token">2.1. Client attempts to call API using token</a>
+                </li>
+              
+                <li>
+                  <a href="#22-server-responds-with-payment-details">2.2. Server responds with payment details</a>
+                </li>
+              
+                <li>
+                  <a href="#23-client-initiates-an-ilp-payment-to-refill-its-balance">2.3. Client initiates an ILP payment to refill its balance</a>
+                </li>
+              
+                <li>
+                  <a href="#26-senderclient-receives-the-fulfillment">2.6. Sender/client receives the fulfillment.</a>
+                </li>
+              
+            </ul>
+          </nav>
+        </div>
+        <div class="col-sm-8 markdown-body">
+          <h1 id="http-ilp">HTTP-ILP</h1>
+<blockquote>
+<p class="intro">A standard for paid HTTP requests.</p>
+</blockquote>
+<h1 id="design-goals">Design Goals</h1>
+<p>Design a protocol to pay for HTTP requests.</p>
+<p>Criteria:</p>
+<ul>
+<li>Minimum number of roundtrips</li>
+<li>Interaction with HTTP server is via HTTP (actually HTTPS) calls only - we want to tie into the existing load balancing and security infrastructure (HTTPS), no need to run any JavaScript/Websocket client on the HTTP server or other shenanigans</li>
+</ul>
+<h1 id="flows">Flows</h1>
+<h2 id="1-setup">1. Setup</h2>
+<h6 id="scenario-1">Scenario</h6>
+<p><strong>Ankita</strong> is a <em>server admin</em> who owns a file hosting service at <code>myservice.example</code> and would like to provide an API where her users can upload files without having to register first. In order to enable this in a standards-compliant way, she decides to use HTTP-ILP.</p>
+<h3 id="11-server-admin-installs-an-ilp-payment-module">1.1. Server admin installs an ILP payment module</h3>
+<p>After deciding to use HTTP-ILP, Ankita searches the web on instructions on how to set this up. She finds an open-source HTTP-ILP server module which is compatible with the REST framework (<a href="https://koajs.com">Koa</a>) that she is already using, for instance <a href="https://github.com/justmoon/koa-ilp">koa-ilp</a>.</p>
+<p>She installs the HTTP-ILP server module. The module provides middleware which she adds to the different API endpoints in order to set prices for each one.</p>
+<p>According to the documentation of the HTTP-ILP server module, she learns that she can pass an <a href="../0004-ledger-plugin-interface">Interledgerjs plugin</a> to the module, to receive payments.</p>
+<h3 id="12-server-admin-sets-up-a-new-receiver">1.2. Server admin sets up a new receiver</h3>
+<p>Ankita creates a dedicated subaccount under her account at her Interledger service provider, and takes a note of that subaccount&apos;s credentials.</p>
+<h3 id="13-server-admin-enters-credentials-into-the-http-ilp-server-module-config">1.3. Server admin enters credentials into the HTTP-ILP server module config</h3>
+<p>Next, Ankita logs back into her server and edits a config file of the HTTP-ILP server module to enter the plugin type and credentials she obtained:</p>
+<pre><code class="lang-sh">export PLUGIN_NAME=ilp-plugin-btp-client
+export PLUGIN_CONFIG={&quot;server&quot;:&quot;btp+wss://ankita+filepay:fxPERNaS4FGlC8H7eg6UfYVlglmFynFc8nh5la9PBGM@nexus.justmoon.com&quot;}
+</code></pre>
+<p>Next, she restarts her server to load the new configuration.</p>
+<h3 id="14-paid-http-server-fetches-receiver-information">1.4. Paid HTTP server fetches receiver information</h3>
+<p>When the HTTP-ILP server module loads up, it calls <a href="../0004-ledger-plugin-interface/0004-ledger-plugin-interface.md#connect">plugin#connect</a> so that the plugin
+gets a subscription to its ledger. Through this subscription, the plugin can listen for incoming payments.
+The module then uses <a href="../0004-ledger-plugin-interface/0004-ledger-plugin-interface.md#getaccount">plugin#getAccount</a> to look up the Interledger address from the plugin
+and caches it in memory for a certain period.</p>
+<p>This completes the setup process. The server is now ready to receive paid API requests.</p>
+<h2 id="2-client-interaction">2. Client interaction</h2>
+<h6 id="scenario-2">Scenario</h6>
+<p><strong>Marat</strong> is a <em>graphic designer</em> who would like to upload a mockup image to share with a client. His friend recommended a tool which doesn&apos;t require any signup or configuration and uses his existing ILP account to pay for the storage and bandwidth fees.</p>
+<p><img src="sequence.png" alt="Sequence Diagram" class="img-responsive"></p>
+<h3 id="21-client-generates-a-server-specific-token-from-the-hostname-and-its-local-secret">2.1. Client generates a server-specific token from the hostname and its local secret:</h3>
+<p>The uploader tool contains an HTTP-ILP client module
+like <a href="https://github.com/justmoon/superagent-ilp">superagent-ilp</a> or <a href="https://github.com/sharafian/ilp-curl">ilp-curl</a>.
+This client module may for instance generate and locally save a <code>client_secret</code> using 256 bits of cryptographically secure randomness.</p>
+<p>Before making the paid HTTP request, the HTTP-ILP client module generates a <strong>token</strong>, for instance using such a <code>client_secret</code> and the <code>hostname</code> of the server it is about to make a request to:</p>
+<ul>
+<li>Token: <code>HMAC(SHA256, client_secret, hostname)</code></li>
+</ul>
+<h3 id="21-client-attempts-to-call-api-using-token">2.1. Client attempts to call API using token</h3>
+<p>The paid HTTP request is fired off:</p>
+<pre><code class="lang-http">OPTIONS /upload HTTP/1.1
+Host: myservice.example
+Pay-Token: 7y0SfeN7lCuq0GFF5UsMYZofIjJ7LrvPvsePVWSv450
+Unhash-Content-Length: 123
+</code></pre>
+<p>Note that the client hasn&apos;t paid at this point and is only making the request to solicit a response from the server, that&apos;s why the OPTIONS verb is used. In this example,
+<code>Unhash-Content-Length</code> is an application-specific header which describes the request which the client intends to make.</p>
+<h3 id="22-server-responds-with-payment-details">2.2. Server responds with payment details</h3>
+<p>The server returns an HTTP code of <code>204 No Content</code> and includes response headers showing the amount, an ILP address and a shared secret.
+The amount expresses how much the request would have cost, as a decimal string and counted in the base unit of the ledger to which the ILP address belongs.</p>
+<pre><code class="lang-http">HTTP/1.1 204 No Content
+Pay: 10 us.nexus.ankita.~recv.filepay SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU
+Pay-Balance: 0
+</code></pre>
+<p>The client can now use the shared secret to create a condition to pay this host. The shared secret may for instance be generated by the server as follows:</p>
+<ul>
+<li>Shared Secret: <code>HMAC(SHA256, receiver_secret, token)</code></li>
+</ul>
+<p>The shared_secret is now a shared secret between the client and server, but will be unknown to any third-party connectors between them.</p>
+<h3 id="23-client-initiates-an-ilp-payment-to-refill-its-balance">2.3. Client initiates an ILP payment to refill its balance</h3>
+<p>In order to refill its balance, the client now creates an ILP payment with the following properties:</p>
+<ul>
+<li>Destination: <code>us.nexus.ankita.~recv.filepay</code></li>
+<li>Amount: <code>100</code></li>
+<li>Condition: <code>SHA256(fulfillment)</code></li>
+<li>Memo: <code>pay_token</code></li>
+</ul>
+<p>The <code>fulfillment</code> is generated from the shared secret using <a href="../0016-pre-shared-key">PSK</a>.</p>
+<p>When the prepared payment reaches the server, it is fulfilled and the token&apos;s balance is increased.</p>
+<p>There is a chance that the HTTP-ILP server module will process the payment, but the fulfillment doesn&apos;t make it all the way back to the sender.</p>
+<h3 id="26-senderclient-receives-the-fulfillment">2.6. Sender/client receives the fulfillment.</h3>
+<p>Once the HTTP-ILP client module receives the fulfillment, it will now retry its original request:</p>
+<pre><code class="lang-http">POST /upload HTTP/1.1
+Host: myservice.example
+Pay-Token: 7y0SfeN7lCuq0GFF5UsMYZofIjJ7LrvPvsePVWSv450
+</code></pre>
+<pre><code>[...]
+</code></pre><p>The request succeeds:</p>
+<pre><code class="lang-http">HTTP/1.1 200 OK
+Pay: 10 us.nexus.ankita.~recv.filepay SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU
+Pay-Balance: 90
+</code></pre>
+<p>Notice how the 100 units credit from the payment was added to the balance and the 10 unit cost for the current request was subtracted.</p>
+
+        </div>
+      </div>
+
+    </div> <!-- /container -->
+
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="col-sm-4 col-xs-12">
+              <p>Interledger Team</p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="text-center">See list of <a target="_blank" href="https://www.w3.org/community/interledger/participants">Contributors</a></p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="pull-right">Documentation licensed under <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0.</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-68500608-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    <script src="/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
