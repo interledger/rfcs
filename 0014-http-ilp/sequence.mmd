@@ -1,0 +1,29 @@
+sequenceDiagram
+participant Payer
+participant Interledger
+participant PayeeWallet
+participant Payee
+activate Payer
+Payer->>+Payee: OPTIONS preflight
+Payee-->>-Payer: 204 preflight response
+Payer->>Interledger: Quote Request
+activate Interledger
+Interledger->>Payer: Quote Response
+deactivate Interledger
+Payer->>Interledger: Prepare Payment
+activate Interledger
+Interledger->>PayeeWallet: Prepare Payment
+deactivate Interledger
+activate PayeeWallet
+PayeeWallet->>+Payee: Webhook Request
+deactivate PayeeWallet
+Payee-->>-PayeeWallet: Webhook Response
+activate PayeeWallet
+PayeeWallet-->>Interledger: Fulfill Payment
+deactivate PayeeWallet
+activate Interledger
+Interledger-->>Payer: Payment Fulfilled
+deactivate Interledger
+Payer->>+Payee: POST Paid Request
+Payee-->>-Payer: 200 OK
+deactivate Payer
