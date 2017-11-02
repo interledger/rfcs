@@ -1,6 +1,6 @@
 ---
 title: HTTP-ILP
-draft: 1
+draft: 2
 ---
 # HTTP-ILP
 
@@ -142,3 +142,9 @@ Pay-Balance: 90
 ```
 
 Notice how the 100 units credit from the payment was added to the balance and the 10 unit cost for the current request was subtracted.
+
+### 3. Simplified flow
+
+An alternative flow, which doesn't require an OPTIONS preflight, is for the client to immediately make the POST request, wait for the HTTP response header, then pay, then upload the data.
+For GET requests, the amount in the `Pay` header would not necessarily represent the price of the full resource contents, but would more generally indicate a suggested payment size.
+As the sender pays repeatedly, chunks of resource body are delivered.
