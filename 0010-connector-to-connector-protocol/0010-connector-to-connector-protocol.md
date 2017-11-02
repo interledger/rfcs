@@ -8,7 +8,7 @@ draft: 3
 
 Connectors discover their peers through out-of-band communication, or by looking at https://connector.land and contacting the administrator of another connector.
 
-Once peered, two connectors have a ledger between them; this is often a ledger with just two accounts.
+Once peered, two connectors have a ledger between them.
 
 There are two ways for connectors to peer with each other: symmetric, and asymmetric. In symmetric peering, the ledger between the two connectors is administered
 collaboratively by the two connectors, optionally relying on a trusted third party (validator). In asymmetric peering, the ledger is administered by one of the two
@@ -25,7 +25,7 @@ Whether discovery is done with or without use of WebFinger, each peer ends up kn
 * the currency scale for the peering ledger
 
 ### WebFinger-based discovery
-In WebFinger-based discovery, both peers still need some out-of-band communication channel, over which one
+In WebFinger-based discovery, both peers still need some out-of-band communication channel (e.g. talking in person or over email/chat), over which one
 prospective peer tells the other:
 * their intent, "Let's peer using WebFinger!"
 * their own hostname
@@ -48,7 +48,7 @@ as implemented in [ilp-kit](https://github.com/interledgerjs/ilp-kit).
 When the two connectors do their discovery without WebFinger, the first peer tells the other:
 * their intent, "Let's peer without WebFinger!"
 * a BTP URI for the other connector to use
-* a BTP version to use (currently either 'BTP/alpha' or 'BTP/1.0')
+* a BTP version to use (currently 'BTP/1.0')
 * the currency code they propose for the peer ledger
 * the ledger scale they propose for the peer ledger
 
