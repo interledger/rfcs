@@ -1,6 +1,6 @@
 ---
 title: HTTP-ILP
-draft: 1
+draft: 2
 ---
 # HTTP-ILP
 
@@ -95,7 +95,7 @@ The amount expresses how much the request would have cost, as a decimal string a
 
 ``` http
 HTTP/1.1 204 No Content
-Pay: 10 us.nexus.ankita.~recv.filepay SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU
+Pay: interledger-psk 10 us.nexus.ankita.~recv.filepay SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU
 Pay-Balance: 0
 ```
 
@@ -137,7 +137,7 @@ The request succeeds:
 
 ``` http
 HTTP/1.1 200 OK
-Pay: 10 us.nexus.ankita.~recv.filepay SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU
+Pay: interledger-psk 10 us.nexus.ankita.~recv.filepay SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU
 Pay-Balance: 90
 ```
 
