@@ -1,6 +1,6 @@
 ---
 title: The Pre-Shared Key Transport Protocol (PSK)
-draft: 3
+draft: 4
 ---
 # Pre-Shared Key Transport Protocol (PSK)
 
@@ -16,20 +16,22 @@ A disadvantage of PSK is that it is repudiable. Although the sender does get cry
 
 ## Flow
 
-1. The pre-shared secret key is shared out of band.
+1. The pre-shared secret key (also referred to as `shared_secret`) is shared out of band.
 2. The sender creates a 16-byte (128-bit) nonce with cryptographically-secure randomness.
 3. The sender constructs the PSK data:
     1. The sender starts with the PSK status line: `PSK/1.0\n`
     2. The sender appends the [public headers](#public-headers) (including the nonce), followed by `\n\n`.
-    3. If the public `Encryption` header starts with `aes-256-gcm`, then the remainder of the PSK data after the public headers (padded with [PKCS](https://en.wikipedia.org/wiki/Padding_(cryptography)#PKCS7)) will be encrypted using AES-256-GCM with the pre-shared secret key, using the nonce as the initialization vector. The 16-byte AES-256-GCM authentication tag is attached to the `Encryption` header, encoded in base64url. Note: The ciphertext is raw binary data, and is not base64 encoded. If the public `Encryption` header is set to `none`, then the remainder of the PSK data will be appended in unaltered cleartext.
+    3. If the public `Encryption` header starts with `aes-256-gcm`, then the remainder of the PSK data after the public headers (padded with [PKCS](https://en.wikipedia.org/wiki/Padding_(cryptography)#PKCS7)) will be encrypted using AES-256-GCM with the PSK encryption key, using the nonce as the initialization vector. The 16-byte AES-256-GCM authentication tag is attached to the `Encryption` header, encoded in base64url. The PSK encryption key is the HMAC of the string `'ilp_key_encryption'` with the pre-shared secret key. Note: The ciphertext is raw binary data, and is not base64 encoded. If the public `Encryption` header is set to `none`, then the remainder of the PSK data will be appended in unaltered cleartext.
     4. The sender appends the [private headers](#private-headers), followed by `\n\n`.
     5. The sender appends the application data (in its raw binary format).
-4. The sender creates the condition of their payment by taking the HMAC of the full ILP packet with the pre-shared secret key, and computing the SHA-256 hash of it.
-5. The sender quotes and sends their payment, setting the data field of the ILP packet to the PSK data.
-6. The receiver gets notified by their ledger of an incoming prepared transfer with an ILP packet.
-7. If the public `Encryption` header is set, then the receiver derives the payment encryption key from the pre-shared secret key, sets the AES-256-GCM initialization vector to the `Nonce` header in the PSK public headers, and uses them to decrypt the private headers and their data. The AES-256-GCM authentication tag is attached to the `Encryption` header. If the public `Encryption` header is set to `none`, the receiver parses the private headers and their data in clear-text.
-8. The receiver verifies that the amount in the incoming transfer matches the amount in the ILP packet. The receiver may also call an external system to make sure the incoming funds are expected.
-9. The receiver fulfills the incoming transfer with the HMAC of the ILP packet, using the same HMAC key as the sender, derived from the shared secret.
+4. The sender calculates the PSK condition key by the HMAC of the string `'ilp_psk_condition'` with the shared secret.
+5. The sender calculates the fulfillment of their payment by taking the HMAC of the full ILP packet with the PSK condition key.
+6. The sender creates the condition of their payment by computing the SHA-256 hash of the fulfillment.
+7. The sender quotes and sends their payment, setting the data field of the ILP packet to the PSK data.
+8. The receiver gets notified by their ledger of an incoming prepared transfer with an ILP packet.
+9. If the public `Encryption` header is set, then the receiver derives the payment encryption key from the pre-shared secret key, sets the AES-256-GCM initialization vector to the `Nonce` header in the PSK public headers, and uses them to decrypt the private headers and their data. The AES-256-GCM authentication tag is attached to the `Encryption` header. If the public `Encryption` header is set to `none`, the receiver parses the private headers and their data in clear-text.
+10. The receiver verifies that the amount in the incoming transfer matches the amount in the ILP packet. The receiver may also call an external system to make sure the incoming funds are expected.
+11. The receiver fulfills the incoming transfer with the HMAC of the ILP packet, using the same PSK condition key as the sender, derived from the shared secret.
 
 ## Data Format
 
