@@ -184,8 +184,8 @@ ilp_packet = create_ilp_packet({
 // this same derivation when fulfilling the payment. For the sender, the
 // fulfillment is just an intermediate value in calculating the condition.
 
-fulfillment_generator = hmac_sha_256(shared_secret, 'ilp_psk_condition')
-fulfillment = hmac_sha_256(fulfillment_generator, ilp_packet)
+psk_condition_key = hmac_sha_256(shared_secret, 'ilp_psk_condition')
+fulfillment = hmac_sha_256(psk_condition_key, ilp_packet)
 condition = sha_256(fulfillment)
 
 // The sender will now quote and prepare this payment with the condition
@@ -232,8 +232,8 @@ review_payment(private_headers, psk_data, ilp_packet, ... )
 // fulfillment from the shared secret and the ILP packet, and then uses it to
 // fulfill the incoming payment.
 
-fulfillment_generator = hmac_sha_256(shared_secret, 'ilp_psk_condition')
-fulfillment = hmac_sha_256(fulfillment_generator, ilp_packet)
+psk_condition_key = hmac_sha_256(shared_secret, 'ilp_psk_condition')
+fulfillment = hmac_sha_256(psk_condition_key, ilp_packet)
 
 // The receiver submits the fulfillment to execute the incoming transfer.
 ```
