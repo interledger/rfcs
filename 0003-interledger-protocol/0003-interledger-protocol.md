@@ -1,6 +1,6 @@
 ---
 title: The Interledger Protocol (ILP)
-draft: 5
+draft: 6
 ---
 # Interledger Protocol (ILP)
 
@@ -316,6 +316,32 @@ Relative errors indicate that the payment did not have enough of a margin in ter
 | **R02** | **Insufficient Timeout** | The connector could not forward the payment, because the timeout was too low to subtract its safety margin. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. |
 | **R99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. |
 
+### ILP Fulfillment Data Format
+
+This type of ILP packet is attached to a fulfillment and carries additional transport layer information that the sender may use to make further payments. Here is a summary of the fields in the ILP fulfillment data format:
+
+| Field | Type | Short Description |
+|:--|:--|:--|
+| data | OCTET STRING | Transport layer fulfillment data |
+
+#### Example
+
+Consider a payload of `4 16 65` (payload length is `3`).
+The length of the envelope content would then be `1+3+1 = 5`.
+The ILP packet type is always `9` for fulfillment data, and extensions is always `0`, so on the wire
+(and when passed between software modules like for instance ledger plugins),
+the resulting ILP packet would look like this:
+
+| type | content length | payload length | data | extensions |
+|:--|:--|:--|:--|:--|
+| 9 | 5 | 3 | 4 16 65 | 0 |
+
+#### data
+
+    OCTET STRING (SIZE(0..32767))
+
+Arbitrary data that is attached to the fulfillment. The contents are defined by the transport layer protocol.
+
 ## Appendix A: ASN.1 Module
 
 See [ASN.1 Definitions](../asn1/InterledgerProtocol.asn).
@@ -335,5 +361,7 @@ The following initial entries should be added to the Interledger Header Type reg
 | 5 | [ILQP][] | QuoteBySourceAmountResponse |
 | 6 | [ILQP][] | QuoteByDestinationAmountRequest |
 | 7 | [ILQP][] | QuoteByDestinationAmountResponse |
+| 8 | [ILP](#ilp-error-format) | IlpError |
+| 9 | [ILP](#ilp-fulfillment-data-format) | IlpFulfillmentData |
 
 [ILQP]: ../0008-interledger-quoting-protocol/

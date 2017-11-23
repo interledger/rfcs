@@ -37,7 +37,16 @@ InterledgerProtocolErrorData ::= SEQUENCE {
     -- Time of emission
     triggeredAt Timestamp,
     -- Additional data
-    data OCTET STRING (SIZE (0..8192))
+    data OCTET STRING (SIZE (0..8192)),
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
+}
+
+InterledgerProtocolFulfillmentData ::= SEQUENCE {
+    -- Information for sender (transport layer information)
+    data OCTET STRING (SIZE (0..32767))
 }
 
 END
