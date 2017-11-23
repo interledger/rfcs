@@ -148,6 +148,11 @@ InterledgerProtocolErrorData ::= SEQUENCE {
     }
 }
 
+InterledgerProtocolFulfillmentData ::= SEQUENCE {
+    -- Information for sender (transport layer information)
+    data OCTET STRING (SIZE (0..32767))
+}
+
 END
 </code></pre>
         </div>
