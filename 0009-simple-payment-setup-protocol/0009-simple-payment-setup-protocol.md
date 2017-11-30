@@ -1,6 +1,6 @@
 ---
 title: The Simple Payment Setup Protocol (SPSP)
-draft: 2
+draft: 3
 ---
 # Simple Payment Setup Protocol (SPSP)
 
@@ -120,7 +120,7 @@ The response body is a JSON object that includes basic account details necessary
 | Field | Type | Description |
 |---|---|---|
 | `destination_account` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) | ILP Address of the receiver's account |
-| `shared_secret` | 32 bytes, [base64-url encoded](https://en.wikipedia.org/wiki/Base64#URL_applications) | The shared secret to be used in the [Pre-Shared Key protocol](../0016-pre-shared-key/0016-pre-shared-key.md) |
+| `shared_secret` | 32 bytes, [base64-url encoded](https://en.wikipedia.org/wiki/Base64#URL_applications) | The shared secret to be used by this specific http client in the [Pre-Shared Key protocol](../0016-pre-shared-key/0016-pre-shared-key.md). Should be shared only by the server and this specific http client, and should therefore be different in each query response. |
 | `maximum_destination_amount` | Integer String | Maximum amount, denoted in the minimum divisible units of the ledger, the receiver will accept. This amount may be determined by the ledger's maximum account balance or transfer amount. If the receiver expects a specific amount to be delivered, this may be set equal to the `minimum_destination_amount` |
 | `minimum_destination_amount` | Integer String | Minimum amount, denoted in the minimum divisible units of the ledger, the receiver will accept. This amount may be determined by the minimum transfer amount of the ledger. If the receiver expects a specific amounts to be delivered, this may be set equal to the `maximum_destination_amount` |
 | `ledger_info` | Object | Details about the destination ledger |
