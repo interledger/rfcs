@@ -1,6 +1,6 @@
 ---
 title: The Simple Payment Setup Protocol (SPSP)
-draft: 3
+draft: 4
 ---
 # Simple Payment Setup Protocol (SPSP)
 
@@ -129,6 +129,8 @@ The response body is a JSON object that includes basic account details necessary
 | `receiver_info` | Object | Arbitrary additional information about the receiver. This field has no schema and the receiver may include any fields they choose. The field names listed below are recommended merely for interoperability purposes. |
 | `receiver_info.name` | String | _(OPTIONAL)_ Full name of the individual, company or organization the receiver represents |
 | `receiver_info.image_url` | HTTPS URL | _(OPTIONAL)_ URL where the sender can get a picture representation of the receiver |
+| `signature_info.algorithm` | String | _(OPTIONAL)_ Algorithm that will be used to sign ILP errors and fulfillment data |
+| `signature_info.public_key` | String | _(OPTIONAL)_ Public key that will be used to sign ILP errors and fulfillment data |
 
 **Note:** Currency amounts are denominated as integer strings instead of native JSON numbers to avoid losing precision during JSON parsing. Applications MUST represent these numbers in a data type that has precision equal or greater than an unsigned 64-bit integer.
 
@@ -163,6 +165,13 @@ The sender uses the receiver details to create the ILP packet:
     * Private PSK headers SHOULD include `Content-Type: application/json` and `Content-Length: <byte length of data>`
 
 Note that the sender can send as many payments as they want using the same receiver info. The sender SHOULD query the receiver again once the time indicated in the [`Cache-Control` header](#response-headers) has passed.
+
+### Payment Result
+
+When the receiver fulfills a payment that was set up through spsp, they may add a signature of the OER-encoded fulfillment data packet using the `signature_info` provided.
+Likewise, when the receiver rejects a payment that was set up through spsp, they may sign the OER-encoded ILP error using the `signature_info`. This will allow the sender,
+as well as (if they know the receiver's public key) intermediate connectors, to know that this failure or success was not a fake result that was intended to game some other
+connector's reliability statistics.
 
 ## Appendix A: (Optional) Webfinger Discovery
 
