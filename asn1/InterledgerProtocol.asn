@@ -12,6 +12,23 @@ IMPORTS
     FROM InterledgerTypes
 ;
 
+PaymentChunkData ::= SEQUENCE {
+    -- unique identifier of chunked payment to which this chunk pertains
+    paymentId UInt64,
+    -- target chunk rate (target number of chunks per hour accepted for this payment id)
+    targetChunksAcceptedPerHour UInt64,
+    -- chunk size (can be set to 1 if all chunks are of the same size)
+    chunkSize UInt64,
+    -- Destination ILP Address
+    account Address,
+    -- Information for recipient (transport layer information)
+    data OCTET STRING (SIZE (0..32767)),
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
+}
+
 InterledgerProtocolPaymentData ::= SEQUENCE {
     -- Amount which must be received at the destination
     amount UInt64,
