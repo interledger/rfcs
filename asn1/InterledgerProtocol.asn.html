@@ -116,6 +116,18 @@ IMPORTS
     FROM InterledgerTypes
 ;
 
+-- the following packet type is experimental and may still change
+ForwardedPaymentData ::= SEQUENCE {
+    -- Destination ILP Address
+    account Address,
+    -- Information for recipient (transport layer information)
+    data OCTET STRING (SIZE (0..32767)),
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
+}
+
 InterledgerProtocolPaymentData ::= SEQUENCE {
     -- Amount which must be received at the destination
     amount UInt64,
