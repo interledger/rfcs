@@ -9,7 +9,9 @@ IMPORTS
     FROM GenericTypes
 
     InterledgerProtocolPaymentData,
-    InterledgerProtocolErrorData
+    ForwardedPaymentData, -- experimental
+    InterledgerProtocolErrorData,
+    InterledgerProtocolFulfillmentData
     FROM InterledgerProtocol
 
     QuoteLiquidityRequestData,
@@ -34,7 +36,9 @@ PacketSet PACKET ::= {
     {5 QuoteBySourceAmountResponseData} |
     {6 QuoteByDestinationAmountRequestData} |
     {7 QuoteByDestinationAmountResponseData} |
-    {8 InterledgerProtocolErrorData}
+    {8 InterledgerProtocolErrorData} |
+    {9 InterledgerProtocolFulfillmentData } |
+    {10 ForwardedPaymentData} -- experimental
 }
 
 InterledgerPacket ::= SEQUENCE {
