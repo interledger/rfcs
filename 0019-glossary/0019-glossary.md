@@ -1,6 +1,6 @@
 ---
 title: Glossary
-draft: 1
+draft: 2
 ---
 # Glossary
 
@@ -29,6 +29,9 @@ When part of an account's balance is not readily usable, it is up to the ledger 
 
 ## Centralized Ledger
 A ledger which is operated by a single entity.
+
+## Chunked Payment
+A large payment which is split into smaller chunks that are then sent sequentially. Chunked payments reduce the total amount of money in-flight at a given time, which can reduce certain risks and costs.
 
 ## Conditional Transfer
 Each local transfer is first *prepared* and then either *executed* or *rejected*. When a transfer is prepared, the ledger puts the funds of the source account on hold with a *cryptographic condition* and *timeout*. If the condition is fulfilled before the timeout, the transfer is executed and the funds are transferred. If the timeout is reached, the transfer expires and the ledger returns the funds to the source account automatically.
@@ -220,7 +223,7 @@ A set of [transfers](transfer), chained together by the [connectors](#connector)
 This can refer to both the "route" an actual payment has taken or the theoretical
 way that a future payment could go. The former is sometimes also called the path.
 
-## Routing table
+## Routing Table
 A lookup table, used by a connector to decide who their outgoing receiver should be (the next
 hop, which may be another connector, or the destination receiver), and what the lowest outgoing
 amount is which they can safely offer for the outgoing transfer (equal to the destination amount in case
@@ -235,6 +238,11 @@ See [IL-RFC 9](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-p
 
 ## Source (transfer, ledger, amount)
 The transfer/ledger/amount directly adjacent to the sender.
+
+## Streaming Payment
+An ongoing payment where small amounts of money are sent over time to pay for some ongoing service or rent. For instance, a user might pay for a streaming video with a streaming payment. Or a tenant may pay rent as a streaming payment.
+
+The amount sent in each iteration and the interval between iterations are inversely proportional. When the interval is long, e.g. a month, this would usually be called a subscription or recurring payment. The term "streaming payment" is commonly reserved for cases where the interval is short, from one second up to about a day.
 
 ## Transaction
 See [Payment](#payment). Use of the term 'transaction' is discouraged, due to possible confusion
