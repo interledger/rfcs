@@ -35,8 +35,6 @@ ILP-Amount: 1000
 | `ILP-Expiry` | [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) Timestamp in UTC | Y | Expiry of the transfer |
 | `ILP-Amount` | Unsigned 64-Bit Integer | Y | Transfer amount, denominated in the minimum divisible units of the ledger. Note that this is the local transfer amount, **not** the destination amount as in the original [ILP Payment Packet Format](https://github.com/interledger/rfcs/blob/master/0003-interledger-protocol/0003-interledger-protocol.md#ilp-payment-packet-format) |
 | `<body>` | Binary, Maximum of 32767 Bytes | N | End-to-end data used by Transport Layer protocols |
-| `ILP-...` | UTF-8 String | N | Additional headers that MUST be forwarded by all connectors, even if they are not understood |
-| `ILP-Destination-Amount` | Unsigned 64-Bit Integer | N | _(OPTIONAL)_ The amount the connectors should attempt to deliver to the destination account. If unspecified, connectors will forward the payment to the destination by applying their local rate. Not all connectors will support delivery so Transport Layer protocols that set this field SHOULD accept overpayment. |
 
 ### Response
 
@@ -53,7 +51,6 @@ ILP-Fulfillment: cz/9RGv1PVjhKIOoyPvWkAs8KrBpIJh8UrYsQ8j34CQ=
 |---|---|---|---|
 | `ILP-Fulfillment` | Base64-Encoded String, 32 Bytes | N | Preimage of the `ILP-Condition` |
 | `<body>` | Binary, Maximum of 32767 Bytes | N | End-to-end data used by Transport Layer protocols |
-| `ILP-...` | UTF-8 String | N | Additional headers that MUST be forwarded by all connectors, even if they are not understood |
 
 #### Error
 
@@ -78,4 +75,3 @@ ILP-Error-Forwarded-By: g.usd.acmebank.connector,g.crypto.bitcoin.1A1zP1eP5QGefi
 | `ILP-Error-Triggered-At` | ISO 8601 Timestamp in UTC | N | Time when the error was initially emitted |
 | `ILP-Error-Forwarded-By` | Comma-Separated List of ILP Addresses | Y | List of connectors that relayed this error. Connectors SHOULD append their ILP addresses to the end of this list when relaying the error |
 | `<body>` | Binary, Maximum of 32767 Bytes | N | End-to-end data used by Transport Layer Protocols |
-| `ILP-...` | UTF-8 String | N | Additional headers that MUST be forwarded by all connectors, even if they are not understood |
