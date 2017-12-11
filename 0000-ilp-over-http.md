@@ -31,7 +31,7 @@ ILP-Amount: 1000
 | Field | Type | Modified at Each Hop? | Description |
 |---|---|---|---|
 | `ILP-Destination` | [ILP Address](./0015-ilp-addresses/0015-ilp-addresses.md) | N | Destination address of the payment |
-| `ILP-Condition` | Base64-Encoded String, 32 Bytes | N | Execution condition of the payment, which is the Sha256 hash digest of the condition fulfillment |
+| `ILP-Condition` | Base64-Encoded String (With Padding), 32 Bytes | N | Execution condition of the payment, which is the Sha256 hash digest of the condition fulfillment |
 | `ILP-Expiry` | [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) Timestamp in UTC | Y | Expiry of the transfer |
 | `ILP-Amount` | Unsigned 64-Bit Integer | Y | Transfer amount, denominated in the minimum divisible units of the ledger. Note that this is the local transfer amount, **not** the destination amount as in the original [ILP Payment Packet Format](https://github.com/interledger/rfcs/blob/master/0003-interledger-protocol/0003-interledger-protocol.md#ilp-payment-packet-format) |
 | `<body>` | Binary, Maximum of 32767 Bytes | N | End-to-end data used by Transport Layer protocols |
@@ -49,7 +49,7 @@ ILP-Fulfillment: cz/9RGv1PVjhKIOoyPvWkAs8KrBpIJh8UrYsQ8j34CQ=
 
 | Field | Type | Modified at Each Hop? | Description |
 |---|---|---|---|
-| `ILP-Fulfillment` | Base64-Encoded String, 32 Bytes | N | Preimage of the `ILP-Condition` |
+| `ILP-Fulfillment` | Base64-Encoded String (With Padding), 32 Bytes | N | Preimage of the `ILP-Condition` |
 | `<body>` | Binary, Maximum of 32767 Bytes | N | End-to-end data used by Transport Layer protocols |
 
 #### Error
