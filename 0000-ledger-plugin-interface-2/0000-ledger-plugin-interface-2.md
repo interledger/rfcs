@@ -175,7 +175,7 @@ This method MAY reject with any arbitrary JavaScript error.
 ```js
 p.sendTransfer({
   amount: '10',
-  executionCondition: '47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU',
+  executionCondition: Buffer.from('47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU', 'base64'),
   expiresAt: '2016-05-18T12:00:00.000Z',
   ilp: Buffer.alloc(0),
   custom: {}
@@ -210,7 +210,7 @@ The `Transfer` class is used to describe transfers from the originator of the se
 |:--|:--|:--|
 | `String` | [amount](#transferamount) | Integer transfer amount, in the ledger's base unit |
 | `Buffer` | [ilp](#transferilp) | Attached data (ILP packet) |
-| `String` | [executionCondition](#transferexecutioncondition) | Cryptographic hold condition |
+| `Buffer` | [executionCondition](#transferexecutioncondition) | Cryptographic hold condition |
 | `String` | [expiresAt](#transferexpiresat) | Expiry time of the cryptographic hold |
 | `Object` | [custom](#transfercustom) | Object containing ledger plugin specific options |
 
@@ -218,7 +218,7 @@ The `Transfer` class is used to describe transfers from the originator of the se
 ``` js
 {
   amount: '100',
-  executionCondition: 'I3TZF5S3n0-07JWH0s8ArsxPmVP6s-0d0SqxR6C3Ifk',
+  executionCondition: Buffer.from('I3TZF5S3n0-07JWH0s8ArsxPmVP6s-0d0SqxR6C3Ifk', 'base64'),
   expiresAt: '2017-12-02T11:51:26.627Z',
   ilp: Buffer.alloc(0),
   custom: {
@@ -249,16 +249,16 @@ An [ILP packet](https://interledger.org/rfcs/0003-interledger-protocol/draft-4.h
 If the `ilp` data is too large, the ledger plugin MUST reject with a `MaximumIlpDataSizeExceededError`.
 
 #### Transfer#executionCondition
-<code>**executionCondition**:String</code>
+<code>**executionCondition**:Buffer</code>
 
 A cryptographic challenge used for implementing holds. The underlying ledger MUST hold the transfer until the condition has been fulfilled or the `expiresAt` time has been reached.
 
-Conditions are the base64url-encoded SHA-256 hash of a random or pseudo-random 32-byte preimage called the fulfillment.
+The `executionCondition` is a Node.js `Buffer` containing the 32-byte SHA-256 hash of a random or pseudo-random 32-byte preimage called the `fulfillment`.
 
 ###### Example
 
 ``` js
-'I3TZF5S3n0-07JWH0s8ArsxPmVP6s-0d0SqxR6C3Ifk'
+Buffer.from('I3TZF5S3n0-07JWH0s8ArsxPmVP6s-0d0SqxR6C3Ifk', 'base64')
 ```
 
 #### Transfer#expiresAt
@@ -308,11 +308,11 @@ The `FulfillmentInfo` class is used to describe the fulfillment and associated d
 ### Fields
 
 #### FulfillmentInfo#fulfillment
-<code>**fulfillment**:String</code>
+<code>**fulfillment**:Buffer</code>
 
 A cryptographic fulfillment that is the SHA-256 preimage of the hash provided as the [`executionCondition`](#transferexecutioncondition) when the transfer was first prepared.
 
-Fulfillments are base64url-encoded values with a length of exactly 32 bytes.
+The `fulfillment` is a Node.js `Buffer` with a length of exactly 32 bytes.
 
 #### FulfillmentInfo#ilp
 <code>**ilp**:Buffer</code>
