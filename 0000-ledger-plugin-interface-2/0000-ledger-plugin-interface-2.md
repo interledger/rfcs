@@ -147,7 +147,7 @@ General event for fatal exceptions. Emitted when the plugin experienced an unexp
 #### LedgerPlugin#sendTransfer
 <code>ledgerPlugin.sendTransfer( **transfer**:[Transfer](#class-transfer) ) ⇒ Promise.&lt;[FulfillmentInfo](#class-fulfillmentinfo)></code>
 
-Initiates an account-local transfer. A transfer MUST contain an `amount` of zero or more and MAY have attached `data`. See the description of the [Transfer](#class-transfer) class below.
+Initiates an account-local transfer. A transfer MUST contain an `amount` of zero or more and MAY have attached `ilp` data. See the description of the [Transfer](#class-transfer) class below.
 
 All plugins MUST support amounts in a range from zero to some maximum. Plugins MAY implement zero-amount transfers differently than other transfers.
 
@@ -156,7 +156,7 @@ All plugins MUST support amounts in a range from zero to some maximum. Plugins M
 |:--|:--|:--|
 | transfer | <code>[Transfer](#class-transfer)</code> | Properties of the transfer to be created |
 
-When sending transfers, the [amount](#transferamount), [destination](#transferdestination), [executionCondition](#transferexecutioncondition) and [expiresAt](#transferexpiresat) fields are required. [data](#transferdata) and [custom](#transfercusto) MAY be left undefined.
+When sending transfers, all fields are required and MUST be provided, even if they contain an empty value, such as an empty object in `custom`.
 
 ###### Returns
 **`Promise.<FulfillmentInfo>`** A promise which resolves when the transfer has been fulfilled/executed.
@@ -171,10 +171,9 @@ This method MAY reject with any arbitrary JavaScript error.
 ```js
 p.sendTransfer({
   amount: '10',
-  destination: 'example.us.acmebank.bob',
   executionCondition: '47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU',
   expiresAt: '2016-05-18T12:00:00.000Z',
-  data: Buffer.alloc(0),
+  ilp: Buffer.alloc(0),
   custom: {}
 })
 ```
@@ -209,14 +208,13 @@ Emitted any time the plugin's `LedgerInfo` cache changes.
 ## Class: Transfer
 <code>class Transfer</code>
 
-The `Transfer` class is used to describe transfers from the originator of the sendTransfer call towards some `destination`. All fields are required and MUST NOT be undefined. However, `amount` MAY be the value `'0'`, `data` MAY be an empty buffer and `custom` MAY be an empty object.
+The `Transfer` class is used to describe transfers from the originator of the sendTransfer call towards some destination via Interledger. All fields are required and MUST NOT be undefined. However, `amount` MAY be the value `'0'`, `ilp` MAY be an empty buffer and `custom` MAY be an empty object.
 
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
 | `String` | [amount](#transferamount) | Integer transfer amount, in the ledger's base unit |
-| `String` | [destination](#transferdestination) | ILP destination address |
-| `Buffer` | [data](#transferdata) | Transport-layer data |
+| `Buffer` | [ilp](#transferilp) | Attached data (ILP packet) |
 | `String` | [executionCondition](#transferexecutioncondition) | Cryptographic hold condition |
 | `String` | [expiresAt](#transferexpiresat) | Expiry time of the cryptographic hold |
 | `Object` | [custom](#transfercustom) | Object containing ledger plugin specific options |
@@ -225,10 +223,9 @@ The `Transfer` class is used to describe transfers from the originator of the se
 ``` js
 {
   amount: '100',
-  destination: 'example.us.acmebank.bob',
   executionCondition: 'I3TZF5S3n0-07JWH0s8ArsxPmVP6s-0d0SqxR6C3Ifk',
   expiresAt: '2017-12-02T11:51:26.627Z',
-  data: Buffer.alloc(0),
+  ilp: Buffer.alloc(0),
   custom: {
     _alternateAccount: 'bob-savings',
     executionPriority: 9
@@ -249,25 +246,12 @@ An integer amount, represented as a string of base-ten digits. MUST be in the ra
 '100'
 ```
 
-#### Transfer#destination
-<code>**destination**:String</code>
+#### Transfer#ilp
+<code>**ilp**:Buffer</code>
 
-An [ILP address](../0003-interledger-protocol/), denoting the payment's final destination. Length MUST be in the range `1..1023` (`> 0` and `< 2^10`).
+An [ILP packet](https://interledger.org/rfcs/0003-interledger-protocol/draft-4.html#specification), denoting the payment's final destination. Plugins SHOULD support a size (in bytes) in the range `0..65535` (`>= 0` and `< 2^16`). Note that ILP packets are currently smaller than that, but larger packets may be used in the future due to extensions.
 
-If the `destination` address is too long, the ledger plugin MUST reject with a `MaximumIlpAddressLengthExceededError`.
-
-###### Example
-
-``` js
-'example.us.acmebank.bob'
-```
-
-#### Transfer#data
-<code>**data**:Buffer</code>
-
-Arbitrary transport-layer data that travels with the payment. Size MUST be in the range `0..32767` (`>= 0` and `< 2^15`).
-
-If the data is too large, the ledger plugin MUST reject with a `MaximumDataSizeExceededError`.
+If the `ilp` data is too large, the ledger plugin MUST reject with a `MaximumIlpDataSizeExceededError`.
 
 #### Transfer#executionCondition
 <code>**executionCondition**:String</code>
@@ -323,7 +307,7 @@ The `FulfillmentInfo` class is used to describe the fulfillment and associated d
 | Type | Name | Description |
 |:--|:--|:--|
 | `String` | [fulfillment](#fulfillmentinfofulfillment) | Cryptographic hold fulfillment |
-| `Buffer` | [data](#fulfillmentinfodata) | Transport-layer data |
+| `Buffer` | [ilp](#fulfillmentinfoilp) | Attached data (ILP packet) |
 | `Object` | [custom](#fulfillmentinfocustom) | Object containing ledger plugin specific options |
 
 ### Fields
@@ -337,17 +321,15 @@ Fulfillments are base64url-encoded values with a length of exactly 32 bytes.
 
 Ledger plugins that do not support holds MUST reject with an `HoldsNotSupportedError` if this parameter is provided.
 
-#### FulfillmentInfo#data
-<code>**data**:Buffer</code>
+#### FulfillmentInfo#ilp
+<code>**ilp**:Buffer</code>
 
-Transport-layer data that travels with the fulfillment.
+An [ILP packet](https://interledger.org/rfcs/0003-interledger-protocol/draft-4.html#specification), containing any data attached to the fulfillment. Plugins SHOULD support a size (in bytes) in the range `0..65535` (`>= 0` and `< 2^16`). Note that ILP packets are currently smaller than that, but larger packets may be used in the future due to extensions.
 
 #### FulfillmentInfo#custom
 <code>**custom**:Object</code>
 
 Ledger plugins MAY use this object to accept and/or set additional fields for other features they support. The object MUST be serializable, i.e. only plain JSON types are allowed anywhere in the object or sub-objects.
-
-If the `custom` data is too large, the ledger plugin MUST reject with a `MaximumCustomDataSizeExceededError`.
 
 Note that connectors MAY forward some fields of `custom` data from plugin to plugin, but generally are not expected to. All `custom` fields that were passed to `sendTransfer` MUST be passed to the transfer handler by the plugin on the receiving side. The only exception are properties which start with the underscore character (`_`), which MAY be consumed by the plugin and not passed on.
 
@@ -375,13 +357,7 @@ All fields described below MUST be present, however they MAY be empty.
 |:--|:--|:--|
 | `String` | [name](#interledgerrejectionerrorname) | `'InterledgerRejectionError'` |
 | `String` | [message](#interledgerrejectionerrormessage) | Error message for local use |
-| `Object` | [ilpRejection](#interledgerrejectionerrorilprejection) | Information about the ILP rejection |
-| `String` | [ilpRejection.code](#interledgerrejectionerrorilprejection) | Machine-readable error code |
-| `String` | [ilpRejection.name](#interledgerrejectionerrorilprejection) | Human-readable description of the error code |
-| `String` | [ilpRejection.triggeredBy](#interledgerrejectionerrorilprejection) | ILP address from which the rejection originates |
-| `String[]` | [ilpRejection.forwardedBy](#interledgerrejectionerrorilprejection) | The ILP addresses of zero or more connectors who forwarded the rejection |
-| `String` | [ilpRejection.triggeredAt](#interledgerrejectionerrorilprejection) | ISO 8601 datetime. Describes when the rejection originally occurred. |
-| `Object` | [ilpRejection.additionalInfo](#interledgerrejectionerrorilprejection) | Additional details about the error |
+| `Buffer` | [ilp](#interledgerrejectionerrorilp) | Attached data (ILP packet) |
 
 ### Fields
 
@@ -407,10 +383,10 @@ try {
 
 JavaScript error message. This field is generally only used locally and not passed on to other hosts. However, implementations MAY include a `message` property in `additionalInfo` which matches the local error message. Implementers SHOULD take care not to disclose secret keys or other private information via `additionalInfo`.
 
-#### InterledgerRejectionError#ilpRejection
-<code>**ilpRejection**:Object</code>
+#### InterledgerRejectionError#ilp
+<code>**ilp**:Buffer</code>
 
-An object that contains more information about the Interledger error. Corresponds to the data in the [Interledger Error packet](../0003-interledger-protocol/).
+An [ILP packet](https://interledger.org/rfcs/0003-interledger-protocol/draft-4.html#specification), containing information on why the payment has been rejected and by whom. Plugins SHOULD support a size (in bytes) in the range `0..65535` (`>= 0` and `< 2^16`). Note that ILP packets are currently smaller than that, but larger packets may be used in the future due to extensions.
 
 ## Class: LedgerInfo
 <code>class LedgerInfo</code>
