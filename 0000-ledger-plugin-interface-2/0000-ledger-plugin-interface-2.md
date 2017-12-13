@@ -31,7 +31,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 
 | | Name |
 |:--|:--|
-| `static` | [**lpiVersion**](#version) = 2 |
+| `static` | [**version**](#ledgerpluginversion) = 2 |
 
 ###### Events
 | Name | Handler |
@@ -39,7 +39,6 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**connect**](#event-connect) | `( ) ⇒` |
 | [**disconnect**](#event-disconnect) | `( ) ⇒` |
 | [**error**](#event-error) | `( ) ⇒` |
-| [**info_change**](#event-info_change) | <code>( info:[LedgerInfo](#class-ledgerinfo) ) ⇒</code> |
 
 ###### Errors
 | Name | Description |
@@ -89,6 +88,11 @@ const ledgerPlugin = new LedgerPlugin({
 ```
 
 For a detailed description of these properties, please see [`PluginOptions`](#class-pluginoptions).
+
+#### LedgerPlugin.version
+<code>LedgerPlugin.**version**:Number</code>
+
+Always `2` for this version of the Ledger Plugin Interface.
 
 ### Connection Management
 
@@ -181,7 +185,7 @@ p.sendTransfer({
 For a detailed description of these properties, please see [`Class: Transfer`](#class-transfer).
 
 #### LedgerPlugin#registerTransferHandler
-<code>ledgerPlugin.registerTransferHandler( **transferHandler**: ( transfer: [Transfer](#class-transfer) ) ⇒ Promise&lt;[Message](#class-message)> ) ⇒ null</code>
+<code>ledgerPlugin.registerTransferHandler( **transferHandler**: ( transfer: [Transfer](#class-transfer) ) ⇒ Promise&lt;[FulfillmentInfo](#class-fulfillmentinfo)> ) ⇒ null</code>
 
 Set the callback which is used to handle incoming prepared transfers. The callback should expect one parameter (the [Transfer](#class-transfer)) and return a promise for the resulting [FulfillmentInfo](#class-fulfillmentinfo). If the transfer is rejected or an error occurs, the callback should reject the transfer. In general, the callback should behave as [`sendTransfer`](#ledgerpluginsendtransfer) does.
 
@@ -195,15 +199,6 @@ If an incoming transfer is received by the plugin, but no handler is registered,
 Removes the currently used transfer handler. This has the same effect as if [`registerTransferHandler`](#ledgerpluginregistertransferhandler) had never been called.
 
 If no transfer handler is currently set, this method does nothing.
-
-### Event: `info_change`
-<code style="">ledgerPlugin.on('info_change',
-  (
-    **info**:[LedgerInfo](#class-ledgerinfo)
-  ) ⇒
-)</code>
-
-Emitted any time the plugin's `LedgerInfo` cache changes.
 
 ## Class: Transfer
 <code>class Transfer</code>
@@ -319,8 +314,6 @@ A cryptographic fulfillment that is the SHA-256 preimage of the hash provided as
 
 Fulfillments are base64url-encoded values with a length of exactly 32 bytes.
 
-Ledger plugins that do not support holds MUST reject with an `HoldsNotSupportedError` if this parameter is provided.
-
 #### FulfillmentInfo#ilp
 <code>**ilp**:Buffer</code>
 
@@ -331,7 +324,9 @@ An [ILP packet](https://interledger.org/rfcs/0003-interledger-protocol/draft-4.h
 
 Ledger plugins MAY use this object to accept and/or set additional fields for other features they support. The object MUST be serializable, i.e. only plain JSON types are allowed anywhere in the object or sub-objects.
 
-Note that connectors MAY forward some fields of `custom` data from plugin to plugin, but generally are not expected to. All `custom` fields that were passed to `sendTransfer` MUST be passed to the transfer handler by the plugin on the receiving side. The only exception are properties which start with the underscore character (`_`), which MAY be consumed by the plugin and not passed on.
+Note that connectors MAY forward some fields of `custom` data from plugin to plugin, but generally are not expected to. All `custom` fields that were set in `FulfillmentInfo#custom` on the receiving side MUST be set in `FulfillmentInfo#custom` when it is resolved by the promise on the sending side. The only exception are properties which start with the underscore character (`_`), which MAY be consumed by the plugin and not passed on.
+
+All custom fields that were set in FulfillmentInfo#custom on the receiving side MUST be set in FulfillmentInfo#custom when it is resolved by the promise on the sending side.
 
 ###### Example
 ``` js
