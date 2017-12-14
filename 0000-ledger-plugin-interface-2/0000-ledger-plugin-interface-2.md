@@ -167,7 +167,7 @@ When sending transfers, all fields are required and MUST be provided, even if th
 
 Rejects with `InvalidFieldsError` if required fields are missing from the transfer or malformed. Rejects with `NotAcceptedError` if the transfer is rejected by the ledger due to insufficient balance or any other reason. Rejects with `NotConnectedError` if the plugin is not connected to the ledger.
 
-Rejects with [`InterledgerRejectionError`](#class-interledgerrejectionerror) if the other side rejects the transfer and attaches ILP rejection data. Rejects with `GenericRejectionError` if the other side rejects the transfer, but does not attach valid ILP rejection data.
+Rejects with [`InterledgerRejectionError`](#class-interledgerrejectionerror) if the other side rejects the transfer and attaches ILP rejection data. Rejects with [`GenericRejectionError`](#class-genericrejectionerror) if the other side rejects the transfer, but does not attach valid ILP rejection data. One example for when a GenericRejectionError may be used is if a transfer times out.
 
 This method MAY reject with any arbitrary JavaScript error.
 
@@ -382,6 +382,43 @@ JavaScript error message. This field is generally only used locally and not pass
 <code>**ilp**:Buffer</code>
 
 An [ILP packet](https://interledger.org/rfcs/0003-interledger-protocol/draft-4.html#specification), containing information on why the payment has been rejected and by whom. Plugins SHOULD support a size (in bytes) in the range `0..65535` (`>= 0` and `< 2^16`). Note that ILP packets are currently smaller than that, but larger packets may be used in the future due to extensions.
+
+## Class: GenericRejectionError
+<code>class GenericRejectionError</code>
+
+A `GenericRejectionError` is a throwable object representing a non-Interledger rejection of an Interledger transfer. Implementations SHOULD use a class named `GenericRejectionError` which derives from JavaScript's built-in `Error`. However, other implementations MUST NOT rely on this and SHOULD use the `name` property to distinguish Interledger rejections from other error types. `GenericRejectionError`s SHOULD NOT generally be triggered by anything except for the plugin. It can be used for local errors, such as timeouts or insufficient liquidity.
+
+All fields described below MUST be present, however they MAY be empty.
+
+###### Fields
+| Type | Name | Description |
+|:--|:--|:--|
+| `String` | [name](#interledgerrejectionerrorname) | `'GenericRejectionError'` |
+| `String` | [message](#interledgerrejectionerrormessage) | Error message for local use |
+
+### Fields
+
+#### GenericRejectionError#name
+<code>**name**:String</code>
+
+JavaScript error name, always `'GenericRejectionError'`. This property SHOULD be used to distinguish InterledgerRejectionErrors from other error types, e.g.:
+
+``` js
+try {
+  await plugin.sendTransfer(transfer)
+} catch (err) [
+  if (err && err.name === 'GenericRejectionError') {
+    // This is a non-Interledger rejection
+  } else {
+    // This is an Interledger error
+  }
+]
+```
+
+#### GenericRejectionError#message
+<code>**message**:String</code>
+
+JavaScript error message. This field is generally only used locally and not passed on to other hosts. However, implementations MAY include a `message` property in `additionalInfo` which matches the local error message. Implementers SHOULD take care not to disclose secret keys or other private information via `additionalInfo`.
 
 ## Class: LedgerInfo
 <code>class LedgerInfo</code>
