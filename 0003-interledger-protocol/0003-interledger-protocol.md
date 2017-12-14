@@ -1,6 +1,6 @@
 ---
 title: The Interledger Protocol (ILP)
-draft: 7
+draft: 8
 ---
 # Interledger Protocol (ILP)
 
@@ -245,7 +245,48 @@ Amount in discrete units of the receiving ledger's asset type. Note that the amo
 
 Arbitrary data that is attached to the payment. The contents are defined by the transport layer protocol.
 
+### ILP Rejection Format
+
+Here is a summary of the fields in the ILP error format:
+
+| Field | Type | Short Description |
+|:--|:--|:--|
+| code | IA5String | [ILP Error Code](#ilp-error-codes) |
+| triggeredBy | Address | ILP address of the entity that originally emitted the error |
+| message | UTF8String | Error data provided for debugging purposes |
+| data | OCTET STRING | Error data provided for debugging purposes |
+
+#### code
+
+    IA5String (SIZE(3))
+
+Error code. For example, `F00`. See [ILP Error Codes](#ilp-error-codes) for the list of error codes and their meanings.
+
+#### triggeredBy
+
+[ILP Address](#account) of the entity that originally emitted the error.
+
+#### message
+
+    UTF8String (SIZE(0..8191))
+
+Human-readable error message. When emitting a rejection, implementations (receivers or connectors) MAY include additional debug information. When including additional debug information, implementations SHOULD use the format `Error message. key1=value1 key2=value2`, e.g.:
+
+```
+Invalid destination. destination=example.us.bob
+```
+
+This field MUST be encoded as UTF-8.
+
+#### data
+
+    OCTET STRING (SIZE(0..32767))
+
+Machine-readable data. The format is defined for each error code. Implementations MUST follow the correct format for the code given in the `code` field.
+
 ### ILP Error Format
+
+> **Deprecated:** Use [ILP Rejection Format](#ilp-rejection-format) instead.
 
 Here is a summary of the fields in the ILP error format:
 
@@ -379,14 +420,16 @@ The following initial entries should be added to the Interledger Header Type reg
 
 | Header Type ID | Protocol | Message Type |
 |:--|:--|:--|
-| 1 | [ILP](#ilp-header-format) | IlpPayment |
+| 1 | ILP | [IlpPayment](#ilp-payment-packet-format) |
 | 2 | [ILQP][] | QuoteLiquidityRequest |
 | 3 | [ILQP][] | QuoteLiquidityResponse |
 | 4 | [ILQP][] | QuoteBySourceAmountRequest |
 | 5 | [ILQP][] | QuoteBySourceAmountResponse |
 | 6 | [ILQP][] | QuoteByDestinationAmountRequest |
 | 7 | [ILQP][] | QuoteByDestinationAmountResponse |
-| 8 | [ILP](#ilp-error-format) | IlpError |
-| 9 | [ILP](#ilp-fulfillment-data-format) | IlpFulfillmentData |
+| 8 | ILP | [IlpError](#ilp-error-format) |
+| 9 | ILP | [IlpFulfillmentData](#ilp-fulfillment-data-format) |
+| 10 | ILP | [IlpForwardedPaymentData](#ilp-forwarded-payment-packet-experimental) |
+| 11 | ILP | [IlpRejectionData](#ilp-rejection-format) |
 
 [ILQP]: ../0008-interledger-quoting-protocol/
