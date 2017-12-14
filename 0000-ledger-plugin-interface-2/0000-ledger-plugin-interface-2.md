@@ -376,7 +376,7 @@ try {
 #### InterledgerRejectionError#message
 <code>**message**:String</code>
 
-JavaScript error message. This field is generally only used locally and not passed on to other hosts. However, implementations MAY include a `message` property in `additionalInfo` which matches the local error message. Implementers SHOULD take care not to disclose secret keys or other private information via `additionalInfo`.
+JavaScript error message. This field is generally only used locally and not passed on to other hosts.
 
 #### InterledgerRejectionError#ilp
 <code>**ilp**:Buffer</code>
@@ -418,7 +418,7 @@ try {
 #### GenericRejectionError#message
 <code>**message**:String</code>
 
-JavaScript error message. This field is generally only used locally and not passed on to other hosts. However, implementations MAY include a `message` property in `additionalInfo` which matches the local error message. Implementers SHOULD take care not to disclose secret keys or other private information via `additionalInfo`.
+JavaScript error message. This field is generally only used locally and not passed on to other hosts.
 
 ## Class: LedgerInfo
 <code>class LedgerInfo</code>
