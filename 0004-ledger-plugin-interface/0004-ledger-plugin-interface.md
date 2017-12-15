@@ -26,6 +26,7 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**getAccount**](#getaccount) ( ) `⇒ String` |
 | | [**getBalance**](#getbalance) ( ) <code>⇒ Promise.&lt;String></code> |
 | | [**getFulfillment**](#getfulfillment) ( transferId ) <code>⇒ Promise.&lt;String></code> |
+| | [**sendQuoteRequest**](#sendquoterequest) ( quoteRequest ) <code>⇒ Promise.&lt;[Quote](#class-quote)></code> |
 | | [**sendTransfer**](#sendtransfer) ( transfer ) <code>⇒ Promise.&lt;null></code> |
 | | [**sendRequest**](#sendrequest) ( message ) <code>⇒ Promise.&lt;[Message](#class-message)></code> |
 | | [**fulfillCondition**](#fulfillcondition) ( transferId, fulfillment, ilp ) <code>⇒ Promise.&lt;null></code> |
@@ -39,6 +40,8 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**connect**](#event-connect) | `( ) ⇒` |
 | [**disconnect**](#event-disconnect) | `( ) ⇒` |
 | [**error**](#event-error) | `( ) ⇒` |
+| [**incoming_quoterequest**](#event-_quoterequest) | <code>( quoteRequest:[IncomingQuoteRequest](#class-quote) ) ⇒</code> |
+| [**incoming_quoteresponse**](#event-_quoteresponse) | <code>( quoteResponse:[IncomingQuoteResponse](#class-quote) ) ⇒</code> |
 | [**incoming_transfer**](#event-_transfer) | <code>( transfer:[IncomingTransfer](#class-transfer) ) ⇒</code> |
 | [**incoming_prepare**](#event-_prepare) | <code>( transfer:[IncomingTransfer](#class-transfer) ) ⇒</code> |
 | [**incoming_fulfill**](#event-_fulfill) | <code>( transfer:[IncomingTransfer](#class-transfer), fulfillment:String, ilp:String ) ⇒</code> |
@@ -46,6 +49,8 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**incoming_cancel**](#event-_cancel) | <code>( transfer:[IncomingTransfer](#class-transfer), cancellationReason:[RejectionMessage](#class-rejectionmessage) ) ⇒</code> |
 | [**incoming_request**](#event-_request) | <code>( message:[Message](#class-message) ) ⇒</code> |
 | [**incoming_response**](#event-_response) | <code>( message:[Message](#class-message) ) ⇒</code> |
+| [**outgoing_quoterequest**](#event-_quoterequest) | <code>( quoteRequest:[OutgoingQuoteRequest](#class-quote) ) ⇒</code> |
+| [**outgoing_quoteresponse**](#event-_quoteresponse) | <code>( quoteResponse:[OutgoingQuoteResponse](#class-quote) ) ⇒</code> |
 | [**outgoing_transfer**](#event-_transfer) | <code>( transfer:[outgoingTransfer](#class-transfer) ) ⇒</code> |
 | [**outgoing_prepare**](#event-_prepare) | <code>( transfer:[outgoingTransfer](#class-transfer) ) ⇒</code> |
 | [**outgoing_fulfill**](#event-_fulfill) | <code>( transfer:[outgoingTransfer](#class-transfer), fulfillment:String ) ⇒</code> |
@@ -199,6 +204,14 @@ General event for fatal exceptions. Emitted when the plugin experienced an unexp
 
 Note that all transfers will have `transferId`'s to allow the plugin user to correlate actions related to a single transfer. The `transferId` will be the same as the ID used by the underlying ledger wherever possible or applicable. If the ledger does not have transfer IDs, the plugin may generate one and use the `store` passed in to the constructor to persist them.
 
+#### sendQuoteRequest
+<code>ledgerPlugin.sendQuoteRequest( **quoteRequest**:[QuoteRequest](#class-quote-request) ) ⇒ Promise.&lt;[QuoteResponse](#class-quote-response)></code>
+
+Plugin must be connected, otherwise the promise should reject. Requests a quote to perform a future transfer. The quote
+MUST contain an `amount` and `expiresAt` if the sender is requesting a quote based on a fixed source amount. 
+Alternatively the quote MUST carry protocol data in the ILP Packet that indicates to the receiver the intended delivery amount. 
+In this case the receiver will populate the `amount` and `expiresAt` fields in the response.
+
 #### sendTransfer
 <code>ledgerPlugin.sendTransfer( **transfer**:[Transfer](#class-transfer) ) ⇒ Promise.&lt;null></code>
 
@@ -301,6 +314,20 @@ if transfer is not conditional.
 
 This MAY be used by receivers or connectors to reject incoming funds if they will not fulfill the condition or are unable to forward the payment. Previous hops in an Interledger transfer would have their money returned before the expiry and the sender or previous connectors MAY retry and reroute the transfer through an alternate path.
 
+#### registerQuoteHandler
+<code>ledgerPlugin.registerQuoteHandler( **requestHandler**: ( request: [Quote](#class-quote) ) ⇒ Promise&lt;[Quote](#class-quote)> ) ⇒ null</code>
+
+Set the callback which is used to handle incoming quote requests. The callback expects one parameter (the quote [Quote](#class-quote)) and returns a promise for the response [Quote](#class-quote).
+
+If a request handler is already set, this method throws a `QuoteHandlerAlreadyRegisteredError`. In order to change the quote handler, the old handler must first be removed via [`deregisterQuoteHandler`](#deregisterQuoteHandler). This is to ensure that handlers are not overwritten by accident.
+
+#### deregisterQuoteHandler
+<code>ledgerPlugin.deregisterQuoteHandler( ) ⇒ null</code>
+
+Removes the currently used quote handler. This has the same effect as if [`registerQuoteHandler`](#registerquotehandler) had never been called.
+
+If no quote handler is currently set, this method does nothing.
+
 #### registerRequestHandler
 <code>ledgerPlugin.registerRequestHandler( **requestHandler**: ( request: [Message](#class-message) ) ⇒ Promise&lt;[Message](#class-message)> ) ⇒ null</code>
 
@@ -314,6 +341,36 @@ If a request handler is already set, this method throws a `RequestHandlerAlready
 Removes the currently used request handler. This has the same effect as if [`registerRequestHandler`](#registerrequesthandler) had never been called.
 
 If not request handler is currently set, this method does nothing.
+
+### Event: `*_quoterequest`
+<code style="">ledgerPlugin.on('incoming_quoterequest',
+  (
+    **quote**:[Quote](#class-quote),
+  ) ⇒
+)</code>
+<code style="">ledgerPlugin.on('outgoing_quoterequest',
+  (
+    **quote**:[Quote](#class-quote),
+  ) ⇒
+)</code>
+
+Emitted when an incoming quote request arrives from another ledger participant (`incoming_quoterequest`) or one is sent (`outgoing_quoterequest`).
+
+Hosts MUST NOT use these events to respond to quotes. In order to provide quote responses, provide a request handler via [`registerQuoteHandler`](#registerQuoteHandler). Note that there can only be one quote handler active for a plugin at a time, but an unlimited number of (passive) event listeners.
+
+### Event: `*_quoteresponse`
+<code style="">ledgerPlugin.on('incoming_quoteresponse',
+  (
+    **quote**:[Quote](#class-quote),
+  ) ⇒
+)</code>
+<code style="">ledgerPlugin.on('outgoing_quoteresponse',
+  (
+    **quote**:[Quote](#class-quote),
+  ) ⇒
+)</code>
+
+Emitted when a quote response is sent (`outgoing_quoteresponse`) or received (`incoming_quoteresponse`).
 
 ### Event: `*_transfer`
 <code style="">ledgerPlugin.on('incoming_transfer',
@@ -463,6 +520,111 @@ Emitted when a response message is sent (`outgoing_response`) or received (`inco
 )</code>
 
 Emitted any time the plugin's `LedgerInfo` cache changes.
+
+## Class: Quote
+<code>class Quote</code>
+
+The `Quote` class is used to describe a local ledger quote request or response. Fields can be
+left undefined (but not any other false-y value) if unused.
+
+When requesting a quote based on a known sending amount the `amount` and `expiresAt` fields MUST be populated. These will be 
+empty in the `Quote` that is returned as a response. The sender will find the destination amount in the `ilp` data of the response.
+
+When requesting a quote based on a known destination amount the `amount` and `expiresAt` fields MUST be undefined. These will be 
+populated in the `Quote` that is returned as a response, notifying the sender the minimum `amount` and maximum `expiresAt` values to use
+to send the transfer.
+
+###### Fields
+| Type | Name | Description |
+|:--|:--|:--|
+| `String` | [from](#quotefrom) | ILP Address of the source account |
+| `String` | [to](#quoteto) | ILP Address of the destination account |
+| `String` | [ledger](#quoteledger) | ILP Address prefix of the ledger |
+| `String` | [ilp](#quoteilp) | Base64-encoded ILP packet |
+| `String` | [amount](#quoteamount-optional) | (Optional) Integer transfer amount, in the ledger's base unit |
+| `String` | [expiresAt](#quoteexpiresat-optional) | (Optional) Expiry time of the cryptographic hold |
+| `Object` | [custom](#quotecustom-optional) | (Optional) object containing ledger plugin specific options |
+
+### Fields
+
+#### Quote#from
+<code>**from**:String</code>
+
+The ILP Address of the source account that will be debited if a transfer is made based on this quote.
+
+#### Quote#to
+<code>**to**:String</code>
+
+The ILP Address of the destination account that will be credited if a transfer is made based on this quote.
+
+#### Quote#ledger
+ <code>**ledger**:String</code>
+
+ILP Address prefix of the ledger that the proposed transfer will go through on.
+
+#### Quote#ilp
+<code>**ilp**:String</code>
+
+An [ILP packet](https://interledger.org/rfcs/0003-interledger-protocol/draft-4.html#specification), denoting the payment's final destination.
+
+If the `ilp` data is too large, the ledger plugin MUST reject with a `MaximumIlpDataSizeExceededError`.
+
+#### Quote#amount (OPTIONAL)
+<code>**amount**:String</code>
+
+An integer amount, represented as a string of base-ten digits. MUST be `>= 0` and `< 2^64`. 
+
+If `amount` is provided `expiresAt` MUST also be provided.
+
+#### Quote#expiresAt (OPTIONAL)
+<code>**expiresAt**:String</code>
+
+An ISO 8601 timestamp representing the expiry date for the future transfer.
+
+Ledger plugins that do not support holds or do not support expiries MUST reject with an `ExpiryNotSupportedError` if this parameter is provided.
+
+If `expiresAt` is provided `amount` MUST also be provided.
+
+#### Quote#custom (OPTIONAL)
+<code>**custom**:Object</code>
+
+Optional object that ledger plugins MAY use to accept and/or set additional fields for other features they support. The object MUST be serializable, i.e. only plain JSON types are allowed anywhere in the object or sub-objects.
+
+If the `custom` data is too large, the ledger plugin MUST reject with a `MaximumCustomDataSizeExceededError`.
+
+###### Example
+
+The following example might be sent by a sending client that wants to determine the amount that will be delivered to the final 
+destination if `100` is sent on the local ledger with an expiry of `2017-10-31T09:30:05Z`.
+
+``` js
+{
+  from: 'example.ledger.bob',
+  to: 'example.ledger.alice',
+  ledger: 'example.ledger.',
+  amount: '100',
+  expiresAt: '2017-10-31T09:30:05Z',
+  custom: {
+    alternateAccount: 'bob-savings',
+    executionPriority: 9
+  }
+}
+```
+
+The following example might be sent by a sending client that wants to determine how much to send and what the maximum expiry value is for a 
+payment as expressed in the ILP packet.
+
+``` js
+{
+  from: 'example.ledger.bob',
+  to: 'example.ledger.alice',
+  ledger: 'example.ledger.',
+  custom: {
+    alternateAccount: 'bob-savings',
+    executionPriority: 9
+  }
+}
+```
 
 ## Class: Transfer
 <code>class Transfer</code>
