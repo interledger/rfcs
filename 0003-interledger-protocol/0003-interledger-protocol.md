@@ -1,6 +1,6 @@
 ---
 title: The Interledger Protocol (ILP)
-draft: 6
+draft: 7
 ---
 # Interledger Protocol (ILP)
 
@@ -152,7 +152,12 @@ See below for the [ILP Error Format](#ilp-error-format) and [ILP Error Codes](#i
 
 ### ILP Payment Packet Format
 
-Here is a summary of the fields in the ILP payment packet format:
+There are two types of payment packets: delivered and forwarded. A delivered payment specifies the amount that should arrive at the destination, a forwarded payment doesn't.
+Note that forwarded payments are still experimental, and their definition may change or get deprecated at any time.
+
+Here is a summary of the fields in the delivered and forwarded ILP payment packet formats:
+
+#### Delivered Payment Packet
 
 | Field | Type | Short Description |
 |:--|:--|:--|
@@ -163,7 +168,7 @@ Here is a summary of the fields in the ILP payment packet format:
 | data | OCTET STRING | Transport layer data attached to the payment |
 | extensions | Length Determinant | Always `0`
 
-#### Example
+Here's an example:
 
 | Type | Length, 8+(1+14)+(1+3)+1=28 | Amount (123,000,000) ... |
 |:--|:--|:--|
@@ -177,6 +182,26 @@ Here is a summary of the fields in the ILP payment packet format:
 | ... Address ('nexus.bo') ... |
 |:--|
 | 110 101 120 117 115 46 98 111 |
+
+| ... Address ('b') | length | data    | extensions |
+|:--|:--|:--|:--|
+| 98 | 3      | 4 16 65 | 0          |
+
+### Forwarded Payment Packet (experimental)
+
+| Field | Type | Short Description |
+|:--|:--|:--|
+| type | UInt8 | Always `10`, indicates that this ILP packet is an ILP Forwarded Payment Packet (type 10) |
+| length | Length Determinant | Indicates how many bytes the rest of the packet has |
+| account | Address | Address corresponding to the destination account |
+| data | OCTET STRING | Transport layer data attached to the payment |
+| extensions | Length Determinant | Always `0`
+
+Example:
+
+| Type | Length, (1+14)+(1+3)+1=20 | Length | Address ... ('g.us.nexus.bo')
+|:--|:--|:--|:--|
+| 10   |  20                       | 14     | 103 46 117 115 46 110 101 120 117 115 46 98 111 |
 
 | ... Address ('b') | length | data    | extensions |
 |:--|:--|:--|:--|
