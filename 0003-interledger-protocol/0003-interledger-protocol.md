@@ -282,7 +282,7 @@ This field MUST be encoded as UTF-8.
 
     OCTET STRING (SIZE(0..32767))
 
-Machine-readable data. The format is defined for each error code. Implementations MUST follow the correct format for the code given in the `code` field.
+Machine-readable data. The format is defined for each error code. Implementations MUST follow the correct format for the code given in the `code` field. When parsing rejection packets, implementations MUST ignore extra bytes in the `data` field.
 
 ### ILP Error Format
 
@@ -345,42 +345,42 @@ Inspired by [HTTP Status Codes](https://tools.ietf.org/html/rfc2616#section-10),
 
 Final errors indicate that the payment is invalid and should not be retried unless the details are changed.
 
-| Code | Name | Description |
-|---|---|---|
-| **F00** | **Bad Request** | Generic sender error. |
-| **F01** | **Invalid Packet** | The ILP packet was syntactically invalid. |
-| **F02** | **Unreachable** | There was no way to forward the payment, because the destination ILP address was wrong or the connector does not have a route to the destination. |
-| **F03** | **Invalid Amount** | The amount is invalid, for example it contains more digits of precision than are available on the destination ledger or the amount is greater than the total amount of the given asset in existence. |
-| **F04** | **Insufficient Destination Amount** | The receiver deemed the amount insufficient, for example you tried to pay a $100 invoice with $10. |
-| **F05** | **Wrong Condition** | The receiver generated a different condition and cannot fulfill the payment. |
-| **F06** | **Unexpected Payment** | The receiver was not expecting a payment like this (the memo and destination address don't make sense in that combination, for example if the receiver does not understand the transport protocol used) |
-| **F07** | **Cannot Receive** | The receiver is unable to accept this payment due to a constraint. For example, the payment would put the receiver above its maximum account balance. |
-| **F99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. |
+| Code | Name | Description | Data Fields |
+|---|---|---|---|
+| **F00** | **Bad Request** | Generic sender error. | (empty) |
+| **F01** | **Invalid Packet** | The ILP packet was syntactically invalid. | (empty) |
+| **F02** | **Unreachable** | There was no way to forward the payment, because the destination ILP address was wrong or the connector does not have a route to the destination. | (empty) |
+| **F03** | **Invalid Amount** | The amount is invalid, for example it contains more digits of precision than are available on the destination ledger or the amount is greater than the total amount of the given asset in existence. | (empty) |
+| **F04** | **Insufficient Destination Amount** | The receiver deemed the amount insufficient, for example you tried to pay a $100 invoice with $10. | (empty) |
+| **F05** | **Wrong Condition** | The receiver generated a different condition and cannot fulfill the payment. | (empty) |
+| **F06** | **Unexpected Payment** | The receiver was not expecting a payment like this (the memo and destination address don't make sense in that combination, for example if the receiver does not understand the transport protocol used) | (empty) |
+| **F07** | **Cannot Receive** | The receiver is unable to accept this payment due to a constraint. For example, the payment would put the receiver above its maximum account balance. | (empty) |
+| **F99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. | (empty) |
 
 #### T__ - Temporary Error
 
 Temporary errors indicate a failure on the part of the receiver or an intermediary system that is unexpected or likely to be resolved soon. Senders SHOULD retry the same payment again, possibly after a short delay.
 
-| Code | Name | Description |
-|---|---|---|
-| **T00** | **Internal Error** | A generic unexpected exception. This usually indicates a bug or unhandled error case. |
-| **T01** | **Ledger Unreachable** | The connector has a route or partial route to the destination but was unable to reach the next ledger. Try again later. |
-| **T02** | **Ledger Busy** | The ledger is rejecting requests due to overloading. Try again later. |
-| **T03** | **Connector Busy** | The connector is rejecting requests due to overloading. Try again later. |
-| **T04** | **Insufficient Liquidity** | The connector would like to fulfill your request, but it doesn't currently have enough money. Try again later. |
-| **T05** | **Rate Limited** | The sender is sending too many payments and is being rate-limited by a ledger or connector. If a connector gets this error because they are being rate-limited, they SHOULD retry the payment through a different route or respond to the sender with a `T03: Connector Busy` error. |
-| **T99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. |
+| Code | Name | Description | Data Fields |
+|---|---|---|---|
+| **T00** | **Internal Error** | A generic unexpected exception. This usually indicates a bug or unhandled error case. | (empty) |
+| **T01** | **Ledger Unreachable** | The connector has a route or partial route to the destination but was unable to reach the next ledger. Try again later. | (empty) |
+| **T02** | **Ledger Busy** | The ledger is rejecting requests due to overloading. Try again later. | (empty) |
+| **T03** | **Connector Busy** | The connector is rejecting requests due to overloading. Try again later. | (empty) |
+| **T04** | **Insufficient Liquidity** | The connector would like to fulfill your request, but it doesn't currently have enough money. Try again later. | (empty) |
+| **T05** | **Rate Limited** | The sender is sending too many payments and is being rate-limited by a ledger or connector. If a connector gets this error because they are being rate-limited, they SHOULD retry the payment through a different route or respond to the sender with a `T03: Connector Busy` error. | (empty) |
+| **T99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. | (empty) |
 
 #### R__ - Relative Error
 
 Relative errors indicate that the payment did not have enough of a margin in terms of money or time. However, it is impossible to tell whether the sender did not provide enough error margin or the path suddenly became too slow or illiquid. The sender MAY retry the payment with a larger safety margin.
 
-| Code | Name | Description
-|---|---|---|
-| **R00** | **Transfer Timed Out** | The transfer timed out, meaning the next party in the chain did not respond. This could be because you set your timeout too low or because something look longer than it should. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. |
-| **R01** | **Insufficient Source Amount** | Either the sender did not send enough money or the exchange rate changed before the payment was prepared. The sender MAY try again with a higher amount, but they SHOULD NOT do this indefinitely or a malicious connector could steal money from them. |
-| **R02** | **Insufficient Timeout** | The connector could not forward the payment, because the timeout was too low to subtract its safety margin. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. |
-| **R99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. |
+| Code | Name | Description | Data Fields |
+|---|---|---|---|
+| **R00** | **Transfer Timed Out** | The transfer timed out, meaning the next party in the chain did not respond. This could be because you set your timeout too low or because something look longer than it should. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. | (empty) |
+| **R01** | **Insufficient Source Amount** | Either the sender did not send enough money or the exchange rate changed before the payment was prepared. The sender MAY try again with a higher amount, but they SHOULD NOT do this indefinitely or a malicious connector could steal money from them. | (empty) |
+| **R02** | **Insufficient Timeout** | The connector could not forward the payment, because the timeout was too low to subtract its safety margin. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. | (empty) |
+| **R99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. | (empty) |
 
 ### ILP Fulfillment Data Format
 
