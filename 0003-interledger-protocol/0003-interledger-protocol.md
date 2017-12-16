@@ -264,6 +264,8 @@ Error code. For example, `F00`. See [ILP Error Codes](#ilp-error-codes) for the 
 
 #### triggeredBy
 
+    Address
+
 [ILP Address](#account) of the entity that originally emitted the error.
 
 #### message
