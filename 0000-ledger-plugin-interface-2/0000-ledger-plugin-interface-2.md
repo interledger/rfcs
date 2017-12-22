@@ -22,7 +22,6 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**connect**](#ledgerpluginconnect) ( options ) `⇒ Promise.<null>` |
 | | [**disconnect**](#ledgerplugindisconnect) ( ) `⇒ Promise.<null>` |
 | | [**isConnected**](#ledgerpluginisconnected) ( ) `⇒ Boolean` |
-| | [**getInfo**](#ledgerplugingetinfo) ( ) <code>⇒ [LedgerInfo](#class-ledgerinfo)</code> |
 | | [**sendTransfer**](#ledgerpluginsendtransfer) ( transfer ) <code>⇒ Promise.&lt;[FulfillmentInfo](#class-fulfillmentinfo)></code> |
 | | [**registerTransferHandler**](#ledgerpluginregistertransferhandler) ( transferHandler ) <code>⇒ null</code> |
 | | [**deregisterTransferHandler**](#ledgerpluginderegistertransferhandler) ( ) <code>⇒ null</code> |
@@ -101,7 +100,7 @@ Always `2` for this version of the Ledger Plugin Interface.
 
 `options` is optional.
 
-Initiate ledger event subscriptions. Once `connect` is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the [`connect`](#event-connect-) event. If the connection is lost, the ledger plugin SHOULD emit the [`disconnect`](#event-disconnect-) event. The plugin should ensure that the information returned by `getInfo` is available and cached before emitting the [`connect`](#event-connect-) event.
+Initiate ledger event subscriptions. Once `connect` is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the [`connect`](#event-connect-) event. If the connection is lost, the ledger plugin SHOULD emit the [`disconnect`](#event-disconnect-) event.
 
 Rejects with `InvalidFieldsError` if credentials are missing, and `NotAcceptedError` if credentials are rejected.
 Rejects with `TypeError` if `options.timeout` is passed but is not a `Number`.
@@ -115,21 +114,6 @@ Unsubscribe from ledger events.
 <code>ledgerPlugin.isConnected() ⇒ Boolean</code>
 
 Query whether the plugin is currently connected.
-
-#### LedgerPlugin#getInfo
-<code>ledgerPlugin.getInfo() ⇒ [LedgerInfo](#class-ledgerinfo)</code>
-
-Retrieve some metadata about the ledger. Throws `NotConnectedError` if the plugin is not connected to the ledger.
-
-###### Example Return Value
-```json
-{
-  "currencyCode": "USD",
-  "currencyScale": 4
-}
-```
-
-For a detailed description of these properties, please see [`LedgerInfo`](#class-ledgerinfo).
 
 #### Event: `connect`
 <code>ledgerPlugin.on('connect', () ⇒ )</code>
@@ -419,35 +403,6 @@ try {
 <code>**message**:String</code>
 
 JavaScript error message. This field is generally only used locally and not passed on to other hosts.
-
-## Class: LedgerInfo
-<code>class LedgerInfo</code>
-
-Metadata describing the ledger. This data is returned by the [`getInfo`](#getinfo) method.
-
-###### Fields
-| Type | Name | Description |
-|:--|:--|:--|
-| `String` | [currencyCode](#ledgerinfocurrencycode) | [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) three-letter currency code |
-| `Number` | [currencyScale](#ledgerinfocurrencyscale) | Integer `(..., -2, -1, 0, 1, 2, ...)`, such that one of the ledger's base units equals `10^-<currencyScale> <currencyCode>` |
-
-### Fields
-
-#### LedgerInfo#currencyCode
-<code>**currencyCode**:String</code>
-
-The [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code (if any) used by the ledger. A custom all-caps three-letter code, not used by ISO 4217, otherwise.
-Ledger administrators who choose a custom currency code MAY request a custom currency symbol for their chosen currency code be listed by software modules that map currency codes to currency symbols,
-for instance on node package manager (npm) in the case of JavaScript.
-To translate an integer amount or balance from the ledger, the currencyCode by itself is not enough. It has to be used in combination with the currencyScale (below) to determine how many
-of the ledger's base units correspond to one currency unit.
-
-#### LedgerInfo#currencyScale
-<code>**currencyScale**:String</code>
-
-The order of magnitude to express one full currency unit in ledger's base units. For instance, if the integer values represented on the ledger are to be interpreted as
-dollar-cents (for the purpose of settling a user's account balance, for instance), then the ledger's
-currencyCode is `USD` and its currencyScale is `2`.
 
 ## Class: PluginOptions
 <code>class PluginOptions</code>
