@@ -4,7 +4,8 @@ AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
-    UInt64
+    UInt64,
+    UInt256
     FROM GenericTypes
 
     Address,
@@ -12,68 +13,43 @@ IMPORTS
     FROM InterledgerTypes
 ;
 
--- the following packet type is experimental and may still change
-ForwardedPaymentData ::= SEQUENCE {
-    -- Destination ILP Address
-    account Address,
-    -- Information for recipient (transport layer information)
-    data OCTET STRING (SIZE (0..32767)),
-    -- Enable ASN.1 Extensibility
-    extensions SEQUENCE {
-        ...
-    }
-}
-
-InterledgerProtocolPaymentData ::= SEQUENCE {
-    -- Amount which must be received at the destination
+InterledgerPrepare ::= SEQUENCE {
+    -- Local amount (changes at each hop)
     amount UInt64,
+
+    -- Execution condition
+    executionCondition UInt256,
+
+    -- Expiry date
+    expiresAt Timestamp,
+
     -- Destination ILP Address
-    account Address,
+    destination Address,
+
     -- Information for recipient (transport layer information)
-    data OCTET STRING (SIZE (0..32767)),
-    -- Enable ASN.1 Extensibility
-    extensions SEQUENCE {
-        ...
-    }
+    data OCTET STRING (SIZE (0..32767))
 }
 
-InterledgerProtocolErrorData ::= SEQUENCE {
-    -- Standardized error code
-    code IA5String (SIZE (3)),
-    -- Corresponding error name
-    name IA5String,
-    -- Participant that originally emitted the error
-    triggeredBy Address,
-    -- Participants that forwarded the error
-    forwardedBy SEQUENCE OF Address,
-    -- Time of emission
-    triggeredAt Timestamp,
-    -- Additional data
-    data OCTET STRING (SIZE (0..8192)),
-    -- Enable ASN.1 Extensibility
-    extensions SEQUENCE {
-        ...
-    }
-}
+InterledgerFulfill ::= SEQUENCE {
+    -- Execution condition fulfillment
+    fulfillment UInt256,
 
-InterledgerProtocolFulfillmentData ::= SEQUENCE {
     -- Information for sender (transport layer information)
     data OCTET STRING (SIZE (0..32767))
 }
 
-InterledgerProtocolRejectionData ::= SEQUENCE {
+InterledgerReject ::= SEQUENCE {
     -- Standardized error code
     code IA5String (SIZE (3)),
-    -- Participant that originally emitted the error
-    triggeredBy Address,
+
     -- User-readable error message
     message UTF8String (SIZE (0..8191)),
+
+    -- Participant that originally emitted the error
+    triggeredBy Address,
+
     -- Machine-readable error data, dependent on code
-    data OCTET STRING (SIZE (0..32767)),
-    -- Enable ASN.1 Extensibility
-    extensions SEQUENCE {
-        ...
-    }
+    data OCTET STRING (SIZE (0..32767))
 }
 
 END
