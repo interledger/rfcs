@@ -6,11 +6,11 @@ draft: 1
 
 The Interledger Protocol is a protocol suite for making payments across multiple different settlement systems.
 
-This spec defines a Javascript ledger abstraction interface for Interledger clients and connectors to communicate and route payments across different ledger protocols. While the exact methods and events defined here are specific to the Javascript implementation, this may be used as a guide for ledger abstractions in other languages.
+This spec defines a JavaScript ledger abstraction interface for Interledger clients and connectors to communicate and route payments across different ledger protocols. While the exact methods and events defined here are specific to the JavaScript implementation, this may be used as a guide for ledger abstractions in other languages.
 
 To send ILP payments through a new ledger, one must implement a ledger plugin that exposes the interface defined below. This can be used with the ILP Client and Connector and should work out of the box.
 
-This spec depends on the [ILP spec](../0003-interledger-protocol/).
+~This spec depends on the [ILP spec](../0003-interledger-protocol/).~
 
 ## Class: LedgerPlugin
 `class LedgerPlugin`
@@ -22,9 +22,12 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | | [**connect**](#ledgerpluginconnect) ( options ) `⇒ Promise.<null>` |
 | | [**disconnect**](#ledgerplugindisconnect) ( ) `⇒ Promise.<null>` |
 | | [**isConnected**](#ledgerpluginisconnected) ( ) `⇒ Boolean` |
-| | [**sendTransfer**](#ledgerpluginsendtransfer) ( transfer ) <code>⇒ Promise.&lt;[FulfillmentInfo](#class-fulfillmentinfo)></code> |
-| | [**registerTransferHandler**](#ledgerpluginregistertransferhandler) ( transferHandler ) <code>⇒ null</code> |
-| | [**deregisterTransferHandler**](#ledgerpluginderegistertransferhandler) ( ) <code>⇒ null</code> |
+| | [**sendData**](#ledgerpluginsenddata) ( data ) <code>⇒ Promise.&lt;Buffer></code> |
+| | [**sendMoney**](#ledgerpluginsendmoney) ( amount ) <code>⇒ Promise.&lt;Buffer></code> |
+| | [**registerDataHandler**](#ledgerpluginregisterdatahandler) ( dataHandler ) <code>⇒ null</code> |
+| | [**deregisterDataHandler**](#ledgerpluginderegisterdatahandler) ( ) <code>⇒ null</code> |
+| | [**registerMoneyHandler**](#ledgerpluginregistermoneyhandler) ( moneyHandler ) <code>⇒ null</code> |
+| | [**deregisterMoneyHandler**](#ledgerpluginderegistermoneyhandler) ( ) <code>⇒ null</code> |
 
 ###### Constants
 
@@ -39,20 +42,12 @@ This spec depends on the [ILP spec](../0003-interledger-protocol/).
 | [**disconnect**](#event-disconnect) | `( ) ⇒` |
 | [**error**](#event-error) | `( ) ⇒` |
 
-###### Errors
-| Name | Description |
-|:--|:--|
-| [**InvalidFieldsError**]() | Arguments or configuration were invalidated client-side |
-| [**UnreachableError**]() | An error occured due to connection failure |
-| [**NotAcceptedError**]() | An operation has been rejected due to ledger-side logic |
-| [**NoSubscriptionsError**]() | A transfer cannot be delivered because there are no active websockets |
-
 ### Instance Management
 
 #### new LedgerPlugin
 <code>new LedgerPlugin( **opts** : [PluginOptions](#class-pluginoptions) )</code>
 
-Create a new instance of the plugin. Each instance typically corresponds to a different ledger. However, some plugins MAY deviate from a strict one-to-one relationship and MAY use one instance for multiple (similar) ledgers or multiple instances to talk to the same ledger.
+Create a new instance of the plugin. Each instance typically corresponds to a different ledger. However, some plugins MAY deviate from a strict one-to-one relationship and MAY internally act as a virtual connector to more than one counterparty.
 
 Throws `InvalidFieldsError` if the constructor is given incorrect arguments.
 
@@ -130,279 +125,68 @@ Emitted when the connection has been terminated or lost.
 
 General event for fatal exceptions. Emitted when the plugin experienced an unexpected unrecoverable condition. Once triggered, this instance of the plugin MUST NOT be used anymore.
 
-### Ledger Transfers
+### Sending
 
-#### LedgerPlugin#sendTransfer
-<code>ledgerPlugin.sendTransfer( **transfer**:[Transfer](#class-transfer) ) ⇒ Promise.&lt;[FulfillmentInfo](#class-fulfillmentinfo)></code>
+#### LedgerPlugin#sendData
+<code>ledgerPlugin.sendData( **data**:Buffer ) ⇒ Promise.&lt;Buffer></code>
 
-Initiates an account-local transfer. A transfer MUST contain an `amount` of zero or more and MAY have attached `ilp` data. See the description of the [Transfer](#class-transfer) class below.
-
-All plugins MUST support amounts in a range from zero to some maximum. Plugins MAY implement zero-amount transfers differently than other transfers.
+Sends data to the counterparty of the account and returns a response asynchronously. Request data is passed in as a `Buffer` and response data is returned as a `Buffer`.
 
 ###### Parameters
 | Name | Type | Description |
 |:--|:--|:--|
-| transfer | <code>[Transfer](#class-transfer)</code> | Properties of the transfer to be created |
-
-When sending transfers, all fields are required and MUST be provided, even if they contain an empty value, such as an empty object in `custom`.
+| data | <code>Buffer</code> | Binary request data |
 
 ###### Returns
-**`Promise.<FulfillmentInfo>`** A promise which resolves when the transfer has been fulfilled/executed.
-
-Rejects with `InvalidFieldsError` if required fields are missing from the transfer or malformed. Rejects with `NotAcceptedError` if the transfer is rejected by the ledger due to insufficient balance or any other reason. Rejects with `NotConnectedError` if the plugin is not connected to the ledger.
-
-Rejects with [`InterledgerRejectionError`](#class-interledgerrejectionerror) if the other side rejects the transfer and attaches ILP rejection data. Rejects with [`GenericRejectionError`](#class-genericrejectionerror) if the other side rejects the transfer, but does not attach valid ILP rejection data. One example for when a GenericRejectionError may be used is if a transfer times out.
+**`Promise.<Buffer>`** A promise which resolves when the response has been received.
 
 This method MAY reject with any arbitrary JavaScript error.
 
 ###### Example
 ```js
-p.sendTransfer({
-  amount: '10',
-  executionCondition: Buffer.from('47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU', 'base64'),
-  expiresAt: '2016-05-18T12:00:00.000Z',
-  ilp: Buffer.alloc(0),
-  custom: {}
-})
+const responseBuffer = await p.sendData(requestBuffer)
 ```
 
-For a detailed description of these properties, please see [`Class: Transfer`](#class-transfer).
+#### LedgerPlugin#sendMoney
+<code>ledgerPlugin.sendMoney( **amount**:string ) ⇒ Promise.&lt;null></code>
 
-#### LedgerPlugin#registerTransferHandler
-<code>ledgerPlugin.registerTransferHandler( **transferHandler**: ( transfer: [Transfer](#class-transfer) ) ⇒ Promise&lt;[FulfillmentInfo](#class-fulfillmentinfo)> ) ⇒ null</code>
+Transfer `amount` units of money from the caller to the counterparty of the account.
 
-Set the callback which is used to handle incoming prepared transfers. The callback should expect one parameter (the [Transfer](#class-transfer)) and return a promise for the resulting [FulfillmentInfo](#class-fulfillmentinfo). If the transfer is rejected or an error occurs, the callback should reject the transfer. In general, the callback should behave as [`sendTransfer`](#ledgerpluginsendtransfer) does.
+All plugins MUST support amounts in a range from one to some maximum.
 
-If a transfer handler is already set, this method throws a `TransferHandlerAlreadyRegisteredError`. In order to change the transfer handler, the old handler must first be removed via [`deregisterTransferHandler`](#ledgerpluginderegistertransferhandler). This is to ensure that handlers are not overwritten by accident.
+### Receiving
 
-If an incoming transfer is received by the plugin, but no handler is registered, the plugin should reject the transfer.
+#### LedgerPlugin#registerDataHandler
+<code>ledgerPlugin.registerDataHandler( **dataHandler**: ( data: Buffer ) ⇒ Promise&lt;Buffer> ) ⇒ null</code>
 
-#### LedgerPlugin#deregisterTransferHandler
-<code>ledgerPlugin.deregisterTransferHandler( ) ⇒ null</code>
+Set the callback which is used to handle incoming prepared data packets. The callback should expect one parameter (the data as a Buffer)) and return a promise for the resulting response data packet (as a Buffer.) If an error occurs, the callback MAY throw an exception. In general, the callback should behave as [`sendData`](#ledgerpluginsenddata) does.
 
-Removes the currently used transfer handler. This has the same effect as if [`registerTransferHandler`](#ledgerpluginregistertransferhandler) had never been called.
+If a data handler is already set, this method throws a `DataHandlerAlreadyRegisteredError`. In order to change the data handler, the old handler must first be removed via [`deregisterDataHandler`](#ledgerpluginderegisterdatahandler). This is to ensure that handlers are not overwritten by accident.
 
-If no transfer handler is currently set, this method does nothing.
+If an incoming packet is received by the plugin, but no handler is registered, the plugin SHOULD respond with an error.
 
-## Class: Transfer
-<code>class Transfer</code>
+#### LedgerPlugin#deregisterDataHandler
+<code>ledgerPlugin.deregisterDataHandler( ) ⇒ null</code>
 
-The `Transfer` class is used to describe transfers from the originator of the sendTransfer call towards some destination via Interledger. All fields are required and MUST NOT be undefined. However, `amount` MAY be the value `'0'`, `ilp` MAY be an empty buffer and `custom` MAY be an empty object.
+Removes the currently used data handler. This has the same effect as if [`registerDataHandler`](#ledgerpluginregisterdatahandler) had never been called.
 
-###### Fields
-| Type | Name | Description |
-|:--|:--|:--|
-| `String` | [amount](#transferamount) | Integer transfer amount, in the ledger's base unit |
-| `Buffer` | [ilp](#transferilp) | Attached data (ILP packet) |
-| `Buffer` | [executionCondition](#transferexecutioncondition) | Cryptographic hold condition |
-| `String` | [expiresAt](#transferexpiresat) | Expiry time of the cryptographic hold |
-| `Object` | [custom](#transfercustom) | Object containing ledger plugin specific options |
+If no data handler is currently set, this method does nothing.
 
-###### Example
-``` js
-{
-  amount: '100',
-  executionCondition: Buffer.from('I3TZF5S3n0-07JWH0s8ArsxPmVP6s-0d0SqxR6C3Ifk', 'base64'),
-  expiresAt: '2017-12-02T11:51:26.627Z',
-  ilp: Buffer.alloc(0),
-  custom: {
-    _alternateAccount: 'bob-savings',
-    executionPriority: 9
-  }
-}
-```
+#### LedgerPlugin#registerMoneyHandler
+<code>ledgerPlugin.registerMoneyHandler( **moneyHandler**: ( amount: string ) ⇒ Promise&lt;null> ) ⇒ null</code>
 
-### Fields
+Set the callback which is used to handle incoming money. The callback should expect one parameter (the amount) and return a promise. If an error occurs, the callback MAY throw an exception. In general, the callback should behave as [`sendMoney`](#ledgerpluginsendmoney) does.
 
-#### Transfer#amount
-<code>**amount**:String</code>
+If a money handler is already set, this method throws a `MoneyHandlerAlreadyRegisteredError`. In order to change the money handler, the old handler must first be removed via [`deregisterMoneyHandler`](#ledgerpluginderegistermoneyhandler). This is to ensure that handlers are not overwritten by accident.
 
-An integer amount, represented as a string of base-ten digits. MUST be in the range `0..9223372036854775807` (`>= 0` and `< 2^64`).
+If incoming money is received by the plugin, but no handler is registered, the plugin SHOULD return an error (and MAY return the money.)
 
-###### Example
+#### LedgerPlugin#deregisterMoneyHandler
+<code>ledgerPlugin.deregisterMoneyHandler( ) ⇒ null</code>
 
-``` js
-'100'
-```
+Removes the currently used money handler. This has the same effect as if [`registerMoneyHandler`](#ledgerpluginregistermoneyhandler) had never been called.
 
-#### Transfer#ilp
-<code>**ilp**:Buffer</code>
-
-An [ILP packet](https://interledger.org/rfcs/0003-interledger-protocol/draft-4.html#specification), denoting the payment's final destination. Plugins SHOULD support a size (in bytes) in the range `0..65535` (`>= 0` and `< 2^16`). Note that ILP packets are currently smaller than that, but larger packets may be used in the future due to extensions.
-
-If the `ilp` data is too large, the ledger plugin MUST reject with a `MaximumIlpDataSizeExceededError`.
-
-#### Transfer#executionCondition
-<code>**executionCondition**:Buffer</code>
-
-A cryptographic challenge used for implementing holds. The underlying ledger MUST hold the transfer until the condition has been fulfilled or the `expiresAt` time has been reached.
-
-The `executionCondition` is a Node.js `Buffer` containing the 32-byte SHA-256 hash of a random or pseudo-random 32-byte preimage called the `fulfillment`.
-
-###### Example
-
-``` js
-Buffer.from('I3TZF5S3n0-07JWH0s8ArsxPmVP6s-0d0SqxR6C3Ifk', 'base64')
-```
-
-#### Transfer#expiresAt
-<code>**expiresAt**:String</code>
-
-An ISO 8601 datetime string representing the expiry date for the transfer. Must include the UTC timezone identifier `Z`.
-
-This date MUST be in the future, otherwise the plugin MUST reject with a `UnacceptableExpiryError`.
-
-###### Example
-
-``` js
-'2017-12-02T11:51:26.627Z'
-```
-
-#### Transfer#custom
-<code>**custom**:Object</code>
-
-Ledger plugins MAY use this object to accept and/or set additional fields for other features they support. The object MUST be serializable, i.e. only plain JSON types are allowed anywhere in the object or sub-objects.
-
-If the `custom` data is too large, the ledger plugin MUST reject with a `MaximumCustomDataSizeExceededError`.
-
-Note that connectors MAY forward some fields of `custom` data from plugin to plugin, but generally are not expected to. All `custom` fields that were passed to `sendTransfer` MUST be passed to the transfer handler by the plugin on the receiving side. The only exception are properties which start with the underscore character (`_`), which MAY be consumed by the plugin and not passed on.
-
-###### Example
-``` js
-{
-  // Starts with an underscore, consumed by plugin
-  _alternateAccount: 'bob-savings',
-  // Other property, passed on to next connector/receiver
-  executionPriority: 9
-}
-```
-
-## Class: FulfillmentInfo
-<code>class FulfillmentInfo</code>
-
-The `FulfillmentInfo` class is used to describe the fulfillment and associated data that is returned when a transfer successfully completes.
-
-###### Fields
-| Type | Name | Description |
-|:--|:--|:--|
-| `String` | [fulfillment](#fulfillmentinfofulfillment) | Cryptographic hold fulfillment |
-| `Buffer` | [ilp](#fulfillmentinfoilp) | Attached data (ILP packet) |
-| `Object` | [custom](#fulfillmentinfocustom) | Object containing ledger plugin specific options |
-
-### Fields
-
-#### FulfillmentInfo#fulfillment
-<code>**fulfillment**:Buffer</code>
-
-A cryptographic fulfillment that is the SHA-256 preimage of the hash provided as the [`executionCondition`](#transferexecutioncondition) when the transfer was first prepared.
-
-The `fulfillment` is a Node.js `Buffer` with a length of exactly 32 bytes.
-
-#### FulfillmentInfo#ilp
-<code>**ilp**:Buffer</code>
-
-An [ILP packet](https://interledger.org/rfcs/0003-interledger-protocol/draft-4.html#specification), containing any data attached to the fulfillment. Plugins SHOULD support a size (in bytes) in the range `0..65535` (`>= 0` and `< 2^16`). Note that ILP packets are currently smaller than that, but larger packets may be used in the future due to extensions.
-
-#### FulfillmentInfo#custom
-<code>**custom**:Object</code>
-
-Ledger plugins MAY use this object to accept and/or set additional fields for other features they support. The object MUST be serializable, i.e. only plain JSON types are allowed anywhere in the object or sub-objects.
-
-Note that connectors MAY forward some fields of `custom` data from plugin to plugin, but generally are not expected to. All `custom` fields that were set in `FulfillmentInfo#custom` on the receiving side MUST be set in `FulfillmentInfo#custom` when it is resolved by the promise on the sending side. The only exception are properties which start with the underscore character (`_`), which MAY be consumed by the plugin and not passed on.
-
-All custom fields that were set in FulfillmentInfo#custom on the receiving side MUST be set in FulfillmentInfo#custom when it is resolved by the promise on the sending side.
-
-###### Example
-``` js
-{
-  custom: {
-    claim: '...',
-    fulfillmentLatency: 29
-  }
-}
-```
-
-## Class: InterledgerRejectionError
-<code>class InterledgerRejectionError</code>
-
-An `InterledgerRejectionError` is a throwable object representing a rejection of an Interledger transfer. Implementations SHOULD use a class named `InterledgerRejectionError` which derives from JavaScript's built-in `Error`. However, other implementations MUST NOT rely on this and SHOULD use the `name` property to distinguish Interledger rejections from other error types.
-
-Plugins SHOULD NOT generally trigger `InterledgerRejectionError`s. Instead, the plugin SHOULD trigger a local error, such as the ones specified in this document and the hosting connector SHOULD create a suitable `InterledgerRejectionError` from the local error. This is because plugins are not necessarily aware of their ILP address and therefore may not be able to set `triggeredBy` correctly. Some plugins may have elements of a connector built-in if they are used with ledgers that don't natively support ILP. In that case, the plugin MAY trigger an `InterledgerRejectionError` since it is in effect acting as a connector.
-
-All fields described below MUST be present, however they MAY be empty.
-
-###### Fields
-| Type | Name | Description |
-|:--|:--|:--|
-| `String` | [name](#interledgerrejectionerrorname) | `'InterledgerRejectionError'` |
-| `String` | [message](#interledgerrejectionerrormessage) | Error message for local use |
-| `Buffer` | [ilp](#interledgerrejectionerrorilp) | Attached data (ILP packet) |
-
-### Fields
-
-#### InterledgerRejectionError#name
-<code>**name**:String</code>
-
-JavaScript error name, always `'InterledgerRejectionError'`. This property SHOULD be used to distinguish InterledgerRejectionErrors from other error types, e.g.:
-
-``` js
-try {
-  await plugin.sendTransfer(transfer)
-} catch (err) [
-  if (err && err.name === 'InterledgerRejectionError') {
-    // This is an Interledger rejection
-  } else {
-    // This is some other type of error
-  }
-]
-```
-
-#### InterledgerRejectionError#message
-<code>**message**:String</code>
-
-JavaScript error message. This field is generally only used locally and not passed on to other hosts.
-
-#### InterledgerRejectionError#ilp
-<code>**ilp**:Buffer</code>
-
-An [ILP packet](https://interledger.org/rfcs/0003-interledger-protocol/draft-4.html#specification), containing information on why the payment has been rejected and by whom. Plugins SHOULD support a size (in bytes) in the range `0..65535` (`>= 0` and `< 2^16`). Note that ILP packets are currently smaller than that, but larger packets may be used in the future due to extensions.
-
-## Class: GenericRejectionError
-<code>class GenericRejectionError</code>
-
-A `GenericRejectionError` is a throwable object representing a non-Interledger rejection of an Interledger transfer. Implementations SHOULD use a class named `GenericRejectionError` which derives from JavaScript's built-in `Error`. However, other implementations MUST NOT rely on this and SHOULD use the `name` property to distinguish Interledger rejections from other error types. `GenericRejectionError`s SHOULD NOT generally be triggered by anything except for the plugin. It can be used for local errors, such as timeouts or insufficient liquidity.
-
-All fields described below MUST be present, however they MAY be empty.
-
-###### Fields
-| Type | Name | Description |
-|:--|:--|:--|
-| `String` | [name](#interledgerrejectionerrorname) | `'GenericRejectionError'` |
-| `String` | [message](#interledgerrejectionerrormessage) | Error message for local use |
-
-### Fields
-
-#### GenericRejectionError#name
-<code>**name**:String</code>
-
-JavaScript error name, always `'GenericRejectionError'`. This property SHOULD be used to distinguish InterledgerRejectionErrors from other error types, e.g.:
-
-``` js
-try {
-  await plugin.sendTransfer(transfer)
-} catch (err) [
-  if (err && err.name === 'GenericRejectionError') {
-    // This is a non-Interledger rejection
-  } else {
-    // This is an Interledger error
-  }
-]
-```
-
-#### GenericRejectionError#message
-<code>**message**:String</code>
-
-JavaScript error message. This field is generally only used locally and not passed on to other hosts.
+If no money handler is currently set, this method does nothing.
 
 ## Class: PluginOptions
 <code>class PluginOptions</code>
