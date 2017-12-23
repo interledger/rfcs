@@ -2,10 +2,14 @@ graph G {
   node [shape = box,height=.1,fontname = "helvetica"];
   newrank=true;
 
-  app [label="Application\l" shape="plaintext" width=1.5]
-  transport [label="Transport\l" shape="plaintext" width=1.5]
-  interledger [label="Interledger\l" shape="plaintext" width=1.5]
-  ledger [label="Ledger\l" shape="plaintext" width=1.5]
+  subgraph cluster_labels {
+    style=invis;
+    app [label="Application\l" shape="plaintext" width=1.5]
+    transport [label="Transport\l" shape="plaintext" width=1.5]
+    interledger [label="Interledger\l" shape="plaintext" width=1.5]
+    clearing [label="Clearing\l" shape="plaintext" width=1.5]
+    settlement [label="Settlement\l" shape="plaintext" width=1.5]
+  }
 
   subgraph cluster_0 {
     style=filled;
@@ -60,6 +64,10 @@ graph G {
     fontname = "helvetica";
   }
 
+  l1 [shape=box label="Ledger 1"];
+  l2 [shape=box label="Ledger 2"];
+  l3 [shape=box label="Ledger N" style=dotted];
+
   lli1:s -- l1:nw;
   lli2:s -- l1:ne;
   lli3:s -- l2:nw;
@@ -67,13 +75,9 @@ graph G {
   lli5:s -- l3:nw [style=dotted];
   lli6:s -- l3:ne [style=dotted];
 
-  l1 [shape=box label="Ledger 1"];
-  l2 [shape=box label="Ledger 2"];
-  l3 [shape=box label="Ledger N" style=dotted];
-
   { rank=same; app app1 app2 }
   { rank=same; transport tr1 tr2 }
   { rank=same; interledger im1 im2 im3 im4 }
-  { rank=same; ledger lli1 lli2 lli3 lli4 lli5 lli6}
-  { rank=same; l1 l2 l3 }
+  { rank=same; clearing lli1 lli2 lli3 lli4 lli5 lli6}
+  { rank=same; settlement l1 l2 l3 }
 }

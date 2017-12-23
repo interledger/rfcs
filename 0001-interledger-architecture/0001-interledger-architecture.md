@@ -1,6 +1,6 @@
 ---
 title: Interledger Architecture
-draft: 1
+draft: 2
 ---
 # Interledger Architecture
 
@@ -52,11 +52,11 @@ The Interledger protocol suite may be used to transact across any ledgers and co
 
 ### Conditional Transfers
 
-Each local transfer is first *prepared* and then either *executed* or *rejected*. When a transfer is prepared, the ledger puts the funds of the source account on hold with a *cryptographic condition* and *timeout*. If the condition is fulfilled before the timeout, the transfer is executed and the funds are transferred. If the timeout is reached, the transfer expires and the ledger returns the funds to the source account automatically.
+Each local transfer is first *prepared* and then either *executed* or *rejected*. When a transfer is prepared, the funds of the source account are put on hold with a *cryptographic condition* and *timeout*. If the condition is fulfilled before the timeout, the transfer is executed and the funds are transferred. If the timeout is reached, the transfer expires and the the funds are returned to the source account automatically.
 
 Inspired by the [Lightning Network](http://lightning.network), Interledger uses the digest of the [SHA-256](https://en.wikipedia.org/wiki/SHA-2) hash function as the condition for transfers. The fulfillment is a valid 32-byte preimage for the hash specified when the transfer was prepared. Ledgers are responsible for validating fulfillments. [Transport Layer](#transport-layer) protocols are used by the sender and receiver to generate the condition for a particular payment.
 
-To be fully Interledger-compatible, ledgers MUST support conditional transfers, though it is possible to send Interledger payments over a ledger that does not natively support the recommended features. See [IL-RFC 17](../0017-ledger-requirements/0017-ledger-requirements.md) for the full description and tiers of ledger requirements.
+Conditional transfers are implemented at the [Clearing Layer](#clearing-layer) and may or may not be implemented by the underlying ledgers. See [IL-RFC 22: Hashed Timelock Agreements (HTLAs)](../0022-hashed-timelock-agreements/0022-hashed-timelock-agreements.md) for a full description of the different implementations of conditional transfers.
 
 ### Payment Flow
 
@@ -78,24 +78,35 @@ If some transfers in an Interledger payment are executed and others expire, the 
 
 Failing to deliver the fulfillment in time is the main risk connectors face and there are a number of additional strategies connectors should employ to mitigate and manage this risk. For more details, see [IL-RFC 18](../0018-connector-risk-mitigations/0018-connector-risk-mitigations.md).
 
-
 ## Interledger Protocol Suite
 
-The Interledger stack is separated into four layers:
+The Interledger stack is separated into the following layers:
 
 ![Interledger Protocol Suite](../shared/graphs/protocol-suite.svg)
 
-### Ledger Layer
+**Note:** What was formerly known as the "Ledger Layer" is now split into the Settlement and Clearing Layers.
 
-In order to facilitate transfers between accounts, ledgers must implement some API or protocol. This is called the ledger layer. There is a wide variety of ledger layer protocols, corresponding to the many different types of ledger.
+### Settlement Layer
 
-See [IL-RFC 17](../0017-ledger-requirements/0017-ledger-requirements.md) for a full description of the ledger layer requirements.
+In order for two parties to transact, they must be able to send and receive value in the same settlement system. Examples of settlement systems include bank ledgers, closed-loop payment networks, cryptocurrencies, blockchains, or cash.
 
-Most implementations of Interledger use a plugin architecture to abstract the differences between different ledgers. For an example of this, see [IL-RFC 4](../0004-ledger-plugin-interface/0004-ledger-plugin-interface.md), which defines the interface for the Javascript implementation.
+Settlement systems may or may not have APIs, and the features that they support determine the type of clearing systems that can be used with them.
+
+### Clearing Layer
+
+It is often too slow or expensive to settle every payment via the underlying settlement system. In these cases, a clearing protocol may be used on top of the underlying settlement mechanism. Clearing protocols may be implemented on bilateral or multilateral bases, such as a trustline or a payment channel network like the [Lightning Network](https://lightning.network), respectively.
+
+The Interledger Clearing Layer may be different from traditional clearing systems because it implements Conditional Transfers, also known as Hashed Timelock Agreements (HTLAs).
+
+The most common types of Clearing Layer protocols are [payment channels](../0022-hashed-timelock-agreements/0022-hashed-timelock-agreements.md#simple-payment-channels) and [trustlines](../0022-hashed-timelock-agreements/0022-hashed-timelock-agreements.md#trustlines). See [IL-RFC 22: Hashed Timelock Agreements (HTLAs)](../0022-hashed-timelock-agreements/0022-hashed-timelock-agreements.md) for more details about different types of clearing protocols.
+
+**Note:** Real-Time Gross Settlement may be used instead of a separate Clearing Layer if the underlying settlement system is sufficiently fast, inexpensive, and has sufficient throughput.
+
+Most implementations of Interledger use a plugin architecture to abstract the differences between different Clearing and Settlement Layers. For an example of this, see [IL-RFC 4](../0004-ledger-plugin-interface/0004-ledger-plugin-interface.md), which defines the interface for the Javascript implementation.
 
 ### Interledger Layer
 
-The Interledger layer is responsible for facilitating payments across multiple ledgers. It is comprised of two key components that are used together: the Interledger Protocol (ILP) and the Interledger Quoting Protocol (ILQP).
+The Interledger layer is responsible for relaying payments across multiple clearing systems. It is comprised of two key components that are used together: the Interledger Protocol (ILP) and the Interledger Quoting Protocol (ILQP).
 
 The [Interledger Protocol (ILP)](../0003-interledger-protocol/0003-interledger-protocol.md) is the core of the Interledger stack and defines standard address and packet formats that instruct connectors where to send a payment.
 
