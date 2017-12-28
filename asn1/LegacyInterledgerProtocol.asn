@@ -7,8 +7,7 @@ IMPORTS
     UInt64
     FROM GenericTypes
 
-    Address,
-    Timestamp
+    Address
     FROM InterledgerTypes
 ;
 
@@ -47,7 +46,7 @@ InterledgerProtocolErrorData ::= SEQUENCE {
     -- Participants that forwarded the error
     forwardedBy SEQUENCE OF Address,
     -- Time of emission
-    triggeredAt Timestamp,
+    triggeredAt GeneralizedTime,
     -- Additional data
     data OCTET STRING (SIZE (0..8192)),
     -- Enable ASN.1 Extensibility
