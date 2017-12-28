@@ -17,11 +17,11 @@ InterledgerPrepare ::= SEQUENCE {
     -- Local amount (changes at each hop)
     amount UInt64,
 
-    -- Execution condition
-    executionCondition UInt256,
-
     -- Expiry date
     expiresAt Timestamp,
+
+    -- Execution condition
+    executionCondition UInt256,
 
     -- Destination ILP Address
     destination Address,
