@@ -19,15 +19,15 @@ To send ILP payments through a new ledger, one must implement a ledger plugin th
 | | Name |
 |:--|:--|
 | `new` | [**LedgerPlugin**](#new-ledgerplugin) ( opts ) |
-| | [**connect**](#ledgerpluginconnect) ( options ) `⇒ Promise.<null>` |
-| | [**disconnect**](#ledgerplugindisconnect) ( ) `⇒ Promise.<null>` |
+| | [**connect**](#ledgerpluginconnect) ( options ) `⇒ Promise.<undefined>` |
+| | [**disconnect**](#ledgerplugindisconnect) ( ) `⇒ Promise.<undefined>` |
 | | [**isConnected**](#ledgerpluginisconnected) ( ) `⇒ Boolean` |
 | | [**sendData**](#ledgerpluginsenddata) ( data ) <code>⇒ Promise.&lt;Buffer></code> |
 | | [**sendMoney**](#ledgerpluginsendmoney) ( amount ) <code>⇒ Promise.&lt;Buffer></code> |
-| | [**registerDataHandler**](#ledgerpluginregisterdatahandler) ( dataHandler ) <code>⇒ null</code> |
-| | [**deregisterDataHandler**](#ledgerpluginderegisterdatahandler) ( ) <code>⇒ null</code> |
-| | [**registerMoneyHandler**](#ledgerpluginregistermoneyhandler) ( moneyHandler ) <code>⇒ null</code> |
-| | [**deregisterMoneyHandler**](#ledgerpluginderegistermoneyhandler) ( ) <code>⇒ null</code> |
+| | [**registerDataHandler**](#ledgerpluginregisterdatahandler) ( dataHandler ) <code>⇒ undefined</code> |
+| | [**deregisterDataHandler**](#ledgerpluginderegisterdatahandler) ( ) <code>⇒ undefined</code> |
+| | [**registerMoneyHandler**](#ledgerpluginregistermoneyhandler) ( moneyHandler ) <code>⇒ undefined</code> |
+| | [**deregisterMoneyHandler**](#ledgerpluginderegistermoneyhandler) ( ) <code>⇒ undefined</code> |
 
 ###### Constants
 
@@ -67,7 +67,7 @@ const ledgerPlugin = new LedgerPlugin({
     // (e.g. when the ledger has reduced memo capability and we can only put an ID in the memo)
     // Store a value under a key
     put: (key, value) => {
-      // Returns Promise.<null>
+      // Returns Promise.<undefined>
     },
     // Fetch a value by key
     get: (key) => {
@@ -75,7 +75,7 @@ const ledgerPlugin = new LedgerPlugin({
     },
     // Delete a value by key
     del: (key) => {
-      // Returns Promise.<null>
+      // Returns Promise.<undefined>
     }
   }
 })
@@ -91,7 +91,7 @@ Always `2` for this version of the Ledger Plugin Interface.
 ### Connection Management
 
 #### LedgerPlugin#connect
-<code>ledgerPlugin.connect( options:[ConnectOptions](#class-connectoptions ) ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.connect( options:[ConnectOptions](#class-connectoptions ) ⇒ Promise.&lt;undefined></code>
 
 `options` is optional.
 
@@ -101,7 +101,7 @@ Rejects with `InvalidFieldsError` if credentials are missing, and `NotAcceptedEr
 Rejects with `TypeError` if `options.timeout` is passed but is not a `Number`.
 
 #### LedgerPlugin#disconnect
-<code>ledgerPlugin.disconnect() ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.disconnect() ⇒ Promise.&lt;undefined></code>
 
 Unsubscribe from ledger events.
 
@@ -148,7 +148,7 @@ const responseBuffer = await p.sendData(requestBuffer)
 ```
 
 #### LedgerPlugin#sendMoney
-<code>ledgerPlugin.sendMoney( **amount**:string ) ⇒ Promise.&lt;null></code>
+<code>ledgerPlugin.sendMoney( **amount**:string ) ⇒ Promise.&lt;undefined></code>
 
 Transfer `amount` units of money from the caller to the counterparty of the account.
 
@@ -157,7 +157,7 @@ All plugins MUST support amounts in a range from one to some maximum.
 ### Receiving
 
 #### LedgerPlugin#registerDataHandler
-<code>ledgerPlugin.registerDataHandler( **dataHandler**: ( data: Buffer ) ⇒ Promise&lt;Buffer> ) ⇒ null</code>
+<code>ledgerPlugin.registerDataHandler( **dataHandler**: ( data: Buffer ) ⇒ Promise&lt;Buffer> ) ⇒ undefined</code>
 
 Set the callback which is used to handle incoming prepared data packets. The callback should expect one parameter (the data as a Buffer)) and return a promise for the resulting response data packet (as a Buffer.) If an error occurs, the callback MAY throw an exception. In general, the callback should behave as [`sendData`](#ledgerpluginsenddata) does.
 
@@ -166,14 +166,14 @@ If a data handler is already set, this method throws a `DataHandlerAlreadyRegist
 If an incoming packet is received by the plugin, but no handler is registered, the plugin SHOULD respond with an error.
 
 #### LedgerPlugin#deregisterDataHandler
-<code>ledgerPlugin.deregisterDataHandler( ) ⇒ null</code>
+<code>ledgerPlugin.deregisterDataHandler( ) ⇒ undefined</code>
 
 Removes the currently used data handler. This has the same effect as if [`registerDataHandler`](#ledgerpluginregisterdatahandler) had never been called.
 
 If no data handler is currently set, this method does nothing.
 
 #### LedgerPlugin#registerMoneyHandler
-<code>ledgerPlugin.registerMoneyHandler( **moneyHandler**: ( amount: string ) ⇒ Promise&lt;null> ) ⇒ null</code>
+<code>ledgerPlugin.registerMoneyHandler( **moneyHandler**: ( amount: string ) ⇒ Promise&lt;undefined> ) ⇒ undefined</code>
 
 Set the callback which is used to handle incoming money. The callback should expect one parameter (the amount) and return a promise. If an error occurs, the callback MAY throw an exception. In general, the callback should behave as [`sendMoney`](#ledgerpluginsendmoney) does.
 
@@ -182,7 +182,7 @@ If a money handler is already set, this method throws a `MoneyHandlerAlreadyRegi
 If incoming money is received by the plugin, but no handler is registered, the plugin SHOULD return an error (and MAY return the money.)
 
 #### LedgerPlugin#deregisterMoneyHandler
-<code>ledgerPlugin.deregisterMoneyHandler( ) ⇒ null</code>
+<code>ledgerPlugin.deregisterMoneyHandler( ) ⇒ undefined</code>
 
 Removes the currently used money handler. This has the same effect as if [`registerMoneyHandler`](#ledgerpluginregistermoneyhandler) had never been called.
 
@@ -217,7 +217,7 @@ Method names are based on the popular LevelUP/LevelDOWN packages.
 {
   // Store a value under a key
   put: (key, value) => {
-    // Returns Promise.<null>
+    // Returns Promise.<undefined>
   },
   // Fetch a value by key
   get: (key) => {
@@ -225,7 +225,7 @@ Method names are based on the popular LevelUP/LevelDOWN packages.
   },
   // Delete a value by key
   del: (key) => {
-    // Returns Promise.<null>
+    // Returns Promise.<undefined>
   }
 }
 ```
