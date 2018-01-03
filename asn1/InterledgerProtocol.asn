@@ -42,11 +42,11 @@ InterledgerReject ::= SEQUENCE {
     -- Standardized error code
     code IA5String (SIZE (3)),
 
-    -- User-readable error message
-    message UTF8String (SIZE (0..8191)),
-
     -- Participant that originally emitted the error
     triggeredBy Address,
+
+    -- User-readable error message
+    message UTF8String (SIZE (0..8191)),
 
     -- Machine-readable error data, dependent on code
     data OCTET STRING (SIZE (0..32767))
