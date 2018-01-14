@@ -85,7 +85,7 @@ Content-Type: application/spsp+json
 
 {
   "destination_account": "example.ilpdemo.red.bob",
-  "shared_secret": "6jR5iNIVRvqeasJeCty6C-YB5X9FhSOUPCL_5nha5Vs",
+  "shared_secret": "6jR5iNIVRvqeasJeCty6C+YB5X9FhSOUPCL/5nha5Vs=",
   "balance": {
     "maximum": "100000",
     "current": "5360"
@@ -110,7 +110,7 @@ Content-Type: application/spsp+json
 
 {
   "destination_account": "example.ilpdemo.red.bob",
-  "shared_secret": "6jR5iNIVRvqeasJeCty6C-YB5X9FhSOUPCL_5nha5Vs"
+  "shared_secret": "6jR5iNIVRvqeasJeCty6C+YB5X9FhSOUPCL/5nha5Vs="
 }
 ```
 
@@ -139,7 +139,7 @@ The response body is a JSON object that includes basic account details necessary
 | Field | Type | Description |
 |---|---|---|
 | `destination_account` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) | ILP Address of the receiver's account |
-| `shared_secret` | 32 bytes, [base64-url encoded](https://en.wikipedia.org/wiki/Base64#URL_applications) | The shared secret to be used by this specific http client in the [Pre-Shared Key protocol](../0016-pre-shared-key/0016-pre-shared-key.md). Should be shared only by the server and this specific http client, and should therefore be different in each query response. |
+| `shared_secret` | 32 bytes, [base64 encoded](https://en.wikipedia.org/wiki/Base64) (including padding) | The shared secret to be used by this specific http client in the [Pre-Shared Key protocol](../0016-pre-shared-key/0016-pre-shared-key.md). Should be shared only by the server and this specific http client, and should therefore be different in each query response. |
 | `balance`  | Object | _(OPTIONAL)_ Details of this receiver's balance. Used for invoices and similar temporary accounts. |
 | `balance.maximum` | Integer String | Maximum amount, denoted in the minimum divisible units of the ledger, the receiver will accept. This represents the highest sum that incoming chunks are allowed to reach, not the highest size of an individual chunk (which is determined by path MTU). If this is an invoice the `balance.maximum` is the amount at which the invoice would be considered paid. |
 | `balance.current` | Integer String | Current sum of all incoming chunks. |
@@ -199,7 +199,7 @@ Content-Type: application/spsp+json
 
 {
   "destination_account": "example.ilpdemo.red.bob",
-  "shared_secret": "6jR5iNIVRvqeasJeCty6C-YB5X9FhSOUPCL_5nha5Vs",
+  "shared_secret": "6jR5iNIVRvqeasJeCty6C+YB5X9FhSOUPCL/5nha5Vs=",
   "balance": {
     "maximum": "100000",
     "current": "5360"
