@@ -20,7 +20,7 @@ SPSP provides for exchanging basic receiver details needed by a sender to set up
 
 ### Interfaces
 
-SPSP may be used by end-user applications, such as a digital wallet with a user interface for the sender to initiate payments. SPSP clients and receivers use ILP modules to send and receive Interledger payments. SPSP [payment-pointers](#appendix-b-payment-pointer) can be used as a persistent identifier on Interledger. SPSP payment-pointers can also be used as a unique identifier for an invoice to be paid.
+SPSP may be used by end-user applications, such as a digital wallet with a user interface for the sender to initiate payments. SPSP clients and receivers use ILP modules to send and receive Interledger payments. SPSP [payment-pointers](#appendix-a-payment-pointer) can be used as a persistent identifier on Interledger. SPSP payment-pointers can also be used as a unique identifier for an invoice to be paid.
 
 SPSP messages MUST be exchanged over HTTPS.
 
@@ -43,7 +43,7 @@ SPSP is used for exchanging payment information before an ILP payment is initiat
 
 ### Model of Operation
 
-We assume that the sender knows the receiver's SPSP endpoint (see [Appendix A: (Optional) Webfinger Discovery](#appendix-a-deprecated-webfinger-discovery)).
+We assume that the sender knows the receiver's SPSP endpoint (see [Appendix B: Payment Pointer](#appendix-a-payment-pointer)).
 
 1. The sender's SPSP Client queries the receiver's SPSP Endpoint.
 2. The SPSP Endpoint responds with the receiver info, including the receiver's ILP address and the shared secret to be used in PSK2. It MAY respond with a balance associated with this SPSP receiver, i.e. in the case of an invoice.
@@ -61,8 +61,7 @@ We assume that the sender knows the receiver's SPSP endpoint (see [Appendix A: (
 
 The SPSP endpoint is a URI used by the sender to query information about the receiver and set up payments. The SPSP endpoint URI MAY NOT contain query string parameters. The sender SHOULD treat the URI as opaque. There are several supported ways to refer to an SPSP endpoint:
 
-- [Payment-pointer](#appendix-b-payment-pointer) (Recommended) `$alice.example.com` or `$example.com/bob`. This SHOULD be the only kind of SPSP identifier exposed to users.
-- [Webfinger acct](#appendix-a-deprecated-webfinger-discovery) (Deprecated) `alice@example.com`.
+- [Payment-pointer](#appendix-a-payment-pointer) (Recommended) `$alice.example.com` or `$example.com/bob`. This SHOULD be the only kind of SPSP identifier exposed to users.
 - Raw endpoint URI (Not recommended) `https://example.com/spsp/alice`.
 
 The SPSP Endpoint MUST respond to HTTPS `GET` requests in the following manner:
@@ -76,13 +75,13 @@ The sender queries the SPSP endpoint to get information about the type of paymen
 ``` http
 GET /api/spsp/bob HTTP/1.1
 Host: red.ilpdemo.org
-Accept: application/x-spsp-response
+Accept: application/spsp+json
 ```
 
 #### Response
 ``` http
 HTTP/1.1 200 OK
-Content-Type: application/json
+Content-Type: application/spsp+json
 
 {
   "destination_account": "example.ilpdemo.red.bob",
@@ -107,7 +106,7 @@ so a minimal SPSP response looks like:
 
 ``` http
 HTTP/1.1 200 OK
-Content-Type: application/json
+Content-Type: application/spsp+json
 
 {
   "destination_account": "example.ilpdemo.red.bob",
@@ -145,8 +144,8 @@ The response body is a JSON object that includes basic account details necessary
 | `balance.maximum` | Integer String | Maximum amount, denoted in the minimum divisible units of the ledger, the receiver will accept. This represents the highest sum that incoming chunks are allowed to reach, not the highest size of an individual chunk (which is determined by path MTU). If this is an invoice the `balance.maximum` is the amount at which the invoice would be considered paid. |
 | `balance.current` | Integer String | Current sum of all incoming chunks. |
 | `ledger_info` | Object | _(OPTIONAL)_ Details about the destination ledger, for sender's display purposes. |
-| `ledger_info.currency_code` | String | Currency code to identify the receiver's currency. Currencies that have [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) codes should use those. Sender UIs SHOULD be able to render non-standard codes |
-| `ledger_info.currency_scale` | Integer | The scale of the amounts on the destination ledger (e.g. an amount of `"1000"` with a scale of `2` translates to `10.00` units of the destination ledger's currency) |
+| `ledger_info.asset_code` | String | Asset code to identify the receiver's currency. Currencies that have [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) codes should use those. Sender UIs SHOULD be able to render non-standard codes |
+| `ledger_info.asset_scale` | Integer | The scale of the amounts on the destination ledger (e.g. an amount of `"1000"` with a scale of `2` translates to `10.00` units of the destination ledger's asset/currency) |
 | `receiver_info` | Object | _(OPTIONAL)_ Arbitrary additional information about the receiver. This field has no schema and the receiver may include any fields they choose. The field names listed below are recommended merely for interoperability purposes. |
 | `receiver_info.name` | String | _(OPTIONAL)_ Full name of the individual, company or organization the receiver represents |
 | `receiver_info.image_url` | HTTPS URL | _(OPTIONAL)_ URL where the sender can get a picture representation of the receiver |
@@ -179,31 +178,7 @@ In a UI, the `ledger_info` and `receiver_info` objects (if present) can be used 
 
 Note that the sender can send as many PSK2 payments as they want using the same receiver info. The sender SHOULD query the receiver again once the time indicated in the [`Cache-Control` header](#response-headers) has passed.
 
-## Appendix A: (Deprecated) Webfinger Discovery
-
-First, the sender uses Webfinger ([RFC 7033](https://tools.ietf.org/html/rfc7033)) to look up an identifier (e.g. `bob@red.ilpdemo.org`):
-
-``` http
-GET /.well-known/webfinger?resource=acct%3Abob%40red.ilpdemo.org HTTP/1.1
-Host: red.ilpdemo.org
-Accept: application/json
-```
-``` http
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-{
-  "subject": "acct:bob@red.ilpdemo.org",
-  "links": [
-    {
-      "rel": "https://interledger.org/rel/spsp/v3",
-      "href": "https://red.ilpdemo.org/api/spsp/bob"
-    }
-  ]
-}
-```
-
-## Appendix B: Payment Pointer
+## Appendix A: Payment Pointer
 
 This is the recommended way to identify an SPSP receiver, and is intended to be the main form of identifier that users on Interledger will interact with. It can be used as a persistent identifier for a person or as a temporary identifier to represent an invoice, much like a bitcoin address.
 
@@ -215,12 +190,12 @@ The payment pointer is in the form `$example.com/bob` (A payment pointer with no
 ```http
 GET /bob HTTP 1.1
 Host: example.com
-Accept: application/x-spsp-response
+Accept: application/spsp+json
 ```
 
 ```http
 HTTP/1.1 200 OK
-Content-Type: application/json
+Content-Type: application/spsp+json
 
 {
   "destination_account": "example.ilpdemo.red.bob",
@@ -230,8 +205,8 @@ Content-Type: application/json
     "current": "5360"
   },
   "ledger_info": {
-    "currency_code": "USD",
-    "currency_scale": 2
+    "asset_code": "USD",
+    "asset_scale": 2
   },
   "receiver_info": {
     "name": "Bob Dylan",
