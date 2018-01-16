@@ -182,14 +182,16 @@ Note that the sender can send as many PSK2 payments as they want using the same 
 
 This is the recommended way to identify an SPSP receiver, and is intended to be the main form of identifier that users on Interledger will interact with. It can be used as a persistent identifier for a person or as a temporary identifier to represent an invoice, much like a bitcoin address.
 
-The payment pointer is in the form `$example.com/bob` (A payment pointer with no path is also acceptable, i.e. `$bob.example.com`). This is converted into an SPSP URI.
+The payment pointer is in the form `$example.com/bob` (A payment pointer with no path is also acceptable, i.e. `$bob.example.com`). This is converted into an SPSP URI, by removing the `$` and replacing it with `https://spsp.`.
 
-- `$example.com/bob` -> `https://example.com/bob`
-- `$bob.example.com` -> `https://bob.example.com/`
+Adding this subdomain allows you to use `$example.com` as your payment pointer, even if the actual `example.com` is running a website via a CDN like github pages. The SPSP traffic will go to `spsp.example.com`.
+
+- `$example.com/bob` -> `https://spsp.example.com/bob`
+- `$bob.example.com` -> `https://spsp.bob.example.com/`
 
 ```http
 GET /bob HTTP 1.1
-Host: example.com
+Host: spsp.example.com
 Accept: application/spsp+json
 ```
 
