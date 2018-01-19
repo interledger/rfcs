@@ -18,7 +18,7 @@ To send ILP payments through a new ledger, one must implement a ledger plugin th
 ###### Methods
 | | Name |
 |:--|:--|
-| `new` | [**LedgerPlugin**](#new-ledgerplugin) ( opts ) |
+| `new` | [**LedgerPlugin**](#new-ledgerplugin) ( opts, api ) |
 | | [**connect**](#ledgerpluginconnect) ( options ) `⇒ Promise.<undefined>` |
 | | [**disconnect**](#ledgerplugindisconnect) ( ) `⇒ Promise.<undefined>` |
 | | [**isConnected**](#ledgerpluginisconnected) ( ) `⇒ Boolean` |
@@ -45,7 +45,7 @@ To send ILP payments through a new ledger, one must implement a ledger plugin th
 ### Instance Management
 
 #### new LedgerPlugin
-<code>new LedgerPlugin( **opts** : [PluginOptions](#class-pluginoptions) )</code>
+<code>new LedgerPlugin( **opts** : [PluginOptions](#class-pluginoptions), **api** : Object )</code>
 
 Create a new instance of the plugin. Each instance typically corresponds to a different ledger. However, some plugins MAY deviate from a strict one-to-one relationship and MAY internally act as a virtual connector to more than one counterparty.
 
@@ -55,6 +55,7 @@ Throws `InvalidFieldsError` if the constructor is given incorrect arguments.
 | Name | Type | Description |
 |:--|:--|:--|
 | opts | <code>[PluginOptions](#class-pluginoptions)</code> | Object containing ledger-related settings. May contain plugin-specific fields. |
+| api | <code>Object</code> | Object containing PluginStore `._store` Logger `._log`. |
 
 ###### Example
 ```js
