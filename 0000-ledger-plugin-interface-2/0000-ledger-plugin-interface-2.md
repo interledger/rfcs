@@ -55,7 +55,7 @@ Throws `InvalidFieldsError` if the constructor is given incorrect arguments.
 | Name | Type | Description |
 |:--|:--|:--|
 | opts | <code>[PluginOptions](#class-pluginoptions)</code> | Object containing ledger-related settings. May contain plugin-specific fields. |
-| api | <code>Object</code> | Object containing PluginStore `._store` Logger `._log`. |
+| api | <code>{ store: PluginStore, log: Logger }</code> | Object containing PluginStore `.store` Logger `.log`. |
 
 ###### Example
 ```js
