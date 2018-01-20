@@ -18,7 +18,7 @@ To send ILP payments through a new ledger, one must implement a ledger plugin th
 ###### Methods
 | | Name |
 |:--|:--|
-| `new` | [**LedgerPlugin**](#new-ledgerplugin) ( opts ) |
+| `new` | [**LedgerPlugin**](#new-ledgerplugin) ( opts, api ) |
 | | [**connect**](#ledgerpluginconnect) ( options ) `⇒ Promise.<undefined>` |
 | | [**disconnect**](#ledgerplugindisconnect) ( ) `⇒ Promise.<undefined>` |
 | | [**isConnected**](#ledgerpluginisconnected) ( ) `⇒ Boolean` |
@@ -45,11 +45,15 @@ To send ILP payments through a new ledger, one must implement a ledger plugin th
 ### Instance Management
 
 #### new LedgerPlugin
-<code>new LedgerPlugin( **opts** : [PluginOptions](#class-pluginoptions) )</code>
+<code>new LedgerPlugin( **opts** : object, **api**? : [PluginServices](#class-pluginservices) )</code>
 
 Create a new instance of the plugin. Each instance typically corresponds to a different ledger. However, some plugins MAY deviate from a strict one-to-one relationship and MAY internally act as a virtual connector to more than one counterparty.
 
-Throws `InvalidFieldsError` if the constructor is given incorrect arguments.
+The first parameter `opts` is a configuration object the shape of which is specific to each plugin. Plugins will often be configured through environment variables, so it is recommended that the `opts` SHOULD be JSON serializable. However, plugins MAY use non-serializable values to offer advanced features.
+
+The second parameter `api` is optional and is used to pass additional environment services to the plugin, such as a logger or a key-value store. Most plugins SHOULD work even if this parameter is `undefined`, but MAY offer less functionality in that case (e.g. no persistence.)
+
+Throws `InvalidFieldsError` if the constructor is given incorrect arguments in `opts`. Throws `TypeError` if `opts` is not an object or `api` is defined and not an object. Throws `InvalidServicesError` if a service is required, but not provided via `api`.
 
 ###### Parameters
 | Name | Type | Description |
@@ -188,27 +192,27 @@ Removes the currently used money handler. This has the same effect as if [`regis
 
 If no money handler is currently set, this method does nothing.
 
-## Class: PluginOptions
-<code>class PluginOptions</code>
+## Class: PluginServices
+<code>class PluginServices</code>
 
-Plugin options are passed in to the [`LedgerPlugin`](#class-ledgerplugin)
-constructor when a plugin is being instantiated. The fields are ledger
-specific. Any fields which cannot be represented as strings are preceded with
-an underscore, and listed in the table below.
+Plugin services are optionally passed in to the [`LedgerPlugin`](#class-ledgerplugin)
+constructor when a plugin is being instantiated. Which services are provided
+MAY vary based on the host environment or none MAY be available at all.
 
 ###### Special Fields
 | Type | Name | Description |
 |:--|:--|:--|
-| `Object` | [_store](#pluginoptions-_store) | Persistence layer callbacks |
+| `Object` | [store](#pluginservices-store) | Simple key-value store object |
+| `Object` | [log](#pluginservices-log) | Simple logger object |
 
 ### Fields
 
-#### PluginOptions#_store
-<code>**_store**:Object</code>
+#### PluginServices#store
+<code>**store**:Object</code>
 
 Provides callback hooks to the host's persistence layer.
 
-Persistence MAY be required for internal use by some ledger plugins. For this purpose hosts MAY be configured with a persistence layer.
+Most plugins SHOULD work (possibly with higher trust or degraded experience) without a `store`. However, if a plugin is not able to function without a store and none is provided, the constructor MUST throw an `InvalidServicesError`.
 
 Method names are based on the popular LevelUP/LevelDOWN packages.
 
@@ -230,13 +234,47 @@ Method names are based on the popular LevelUP/LevelDOWN packages.
 }
 ```
 
+#### PluginServices#log
+<code>**log**:Object</code>
+
+Provides logging hooks to the host. Hosts MAY use this feature to prefix log lines with the identifier of the plugin instance.
+
+If this parameter is not provided, the plugin SHOULD use a suitable default logging mechanism.
+
+The logging methods support [printf-style](https://wikipedia.org/wiki/Printf_format_string) formatting. The following formatters are available:
+
+| Formatter | Representation |
+|-----------|----------------|
+| `%O`      | Pretty-print an Object on multiple lines. |
+| `%o`      | Pretty-print an Object all on a single line. |
+| `%s`      | String. |
+| `%d`      | Number (both integer and float). |
+| `%j`      | JSON. Replaced with the string '[Circular]' if the argument contains circular references. |
+| `%%`      | Single percent sign ('%'). This does not consume an argument. |
+
+Log messages MUST NOT contain private keys or other credentials.
+
+###### Example
+```js
+{
+  // Extremely verbose debug information
+  debug: (message, ...params) => { }
+  // Notable events that may happen during normal operation
+  info: (message, ...params) => { }
+  // Warnings indicate unusual events that call for the user's attention
+  warn: (message, ...params) => { }
+  // Errors indicate something went wrong
+  error: (message, ...params) => { }
+}
+```
+
 ## Class: ConnectOptions
 <code>class ConnectOptions</code>
 
 ###### Fields
 | Type | Name | Description |
 |:--|:--|:--|
-| `Number` | [timeout](#connectoptions-timeout) | milliseconds |
+| `Number` | [timeout](#connectoptions-timeout) | Amount of time before the client SHOULD give up trying to connect (in milliseconds) |
 
 ### Fields
 
