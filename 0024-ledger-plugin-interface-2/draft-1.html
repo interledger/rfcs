@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Payments across payment networks">
+
+    <title>The Javascript Ledger Plugin Interface Version 2 | Interledger</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link href="/css/monokai-sublime.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    <!-- Google fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,200,600,700|Droid+Sans+Mono|Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
+
+    <!-- Font awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
+
+    <link href="/assets/favicon.ico" rel="icon" type="image/x-icon">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body data-spy="scroll" data-target="#myScrollspy" data-offset="160" class="spec">
+
+     <!-- navbar -->
+      <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><img class="logo" alt="interledger" src="/assets/ilp_icon.png"/></a>
+          </div>
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="/overview.html">Docs</a></li>
+              <li><a href="/community.html">Community</a></li>
+              <li><a href="/news.html">News</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a target="_blank" href="https://github.com/interledger">Github</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+    <!-- docs overview section -->
+
+    <div class="container docs-wrapper">
+      <div class="row">
+        <div id="sidebarContent">
+          <nav class="col-sm-4" id="myScrollspy">
+            <ul class="nav-fixed nav nav-sidebar">
+              <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
+                <li class="nav-label">
+                  <a href="./draft-1.html">ILP-RFC 0024 Draft 1</a>
+                </li>
+                <li>
+                  <a href="./draft-1.html">Permalink to this Draft</a>
+                </li>
+                <li>
+                  <a href="./">View the Latest Draft of ILP-RFC 0024</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#class-ledgerplugin">Class: LedgerPlugin</a>
+                </li>
+              
+                <li>
+                  <a href="#instance-management">Instance Management</a>
+                </li>
+              
+                <li>
+                  <a href="#connection-management">Connection Management</a>
+                </li>
+              
+                <li>
+                  <a href="#sending">Sending</a>
+                </li>
+              
+                <li>
+                  <a href="#receiving">Receiving</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#class-pluginservices">Class: PluginServices</a>
+                </li>
+              
+                <li>
+                  <a href="#fields-1">Fields</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#class-connectoptions">Class: ConnectOptions</a>
+                </li>
+              
+                <li>
+                  <a href="#fields-3">Fields</a>
+                </li>
+              
+            </ul>
+          </nav>
+        </div>
+        <div class="col-sm-8 markdown-body">
+          <h1 id="javascript-ledger-plugin-interface-version-2">Javascript Ledger Plugin Interface Version 2</h1>
+<p class="intro">The Interledger Protocol is a protocol suite for making payments across multiple different settlement systems.</p>
+<p>This spec defines a JavaScript ledger abstraction interface for Interledger clients and connectors to communicate and route payments across different ledger protocols. While the exact methods and events defined here are specific to the JavaScript implementation, this may be used as a guide for ledger abstractions in other languages.</p>
+<p>To send ILP payments through a new ledger, one must implement a ledger plugin that exposes the interface defined below. This can be used with the ILP Client and Connector and should work out of the box.</p>
+<p>~This spec depends on the <a href="../0003-interledger-protocol/">ILP spec</a>.~</p>
+<h2 id="class-ledgerplugin">Class: LedgerPlugin</h2>
+<p><code>class LedgerPlugin</code></p>
+<h6 id="methods">Methods</h6>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left"></th>
+<th style="text-align:left">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>new</code></td>
+<td style="text-align:left"><a href="#new-ledgerplugin"><strong>LedgerPlugin</strong></a> ( opts, api )</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><a href="#ledgerpluginconnect"><strong>connect</strong></a> ( options ) <code>&#x21D2; Promise.&lt;undefined&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><a href="#ledgerplugindisconnect"><strong>disconnect</strong></a> ( ) <code>&#x21D2; Promise.&lt;undefined&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><a href="#ledgerpluginisconnected"><strong>isConnected</strong></a> ( ) <code>&#x21D2; Boolean</code></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><a href="#ledgerpluginsenddata"><strong>sendData</strong></a> ( data ) <code>&#x21D2; Promise.&lt;Buffer&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><a href="#ledgerpluginsendmoney"><strong>sendMoney</strong></a> ( amount ) <code>&#x21D2; Promise.&lt;Buffer&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><a href="#ledgerpluginregisterdatahandler"><strong>registerDataHandler</strong></a> ( dataHandler ) <code>&#x21D2; undefined</code></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><a href="#ledgerpluginderegisterdatahandler"><strong>deregisterDataHandler</strong></a> ( ) <code>&#x21D2; undefined</code></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><a href="#ledgerpluginregistermoneyhandler"><strong>registerMoneyHandler</strong></a> ( moneyHandler ) <code>&#x21D2; undefined</code></td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><a href="#ledgerpluginderegistermoneyhandler"><strong>deregisterMoneyHandler</strong></a> ( ) <code>&#x21D2; undefined</code></td>
+</tr>
+</tbody>
+</table>
+<h6 id="constants">Constants</h6>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left"></th>
+<th style="text-align:left">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>static</code></td>
+<td style="text-align:left"><a href="#ledgerpluginversion"><strong>version</strong></a> = 2</td>
+</tr>
+</tbody>
+</table>
+<h6 id="events">Events</h6>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Name</th>
+<th style="text-align:left">Handler</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><a href="#event-connect"><strong>connect</strong></a></td>
+<td style="text-align:left"><code>( ) &#x21D2;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="#event-disconnect"><strong>disconnect</strong></a></td>
+<td style="text-align:left"><code>( ) &#x21D2;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="#event-error"><strong>error</strong></a></td>
+<td style="text-align:left"><code>( ) &#x21D2;</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="instance-management">Instance Management</h3>
+<h4 id="new-ledgerplugin">new LedgerPlugin</h4>
+<p><code>new LedgerPlugin( <strong>opts</strong> : object, <strong>api</strong>? : <a href="#class-pluginservices">PluginServices</a> )</code></p>
+<p>Create a new instance of the plugin. Each instance typically corresponds to a different ledger. However, some plugins MAY deviate from a strict one-to-one relationship and MAY internally act as a virtual connector to more than one counterparty.</p>
+<p>The first parameter <code>opts</code> is a configuration object the shape of which is specific to each plugin. Plugins will often be configured through environment variables, so it is recommended that the <code>opts</code> SHOULD be JSON serializable. However, plugins MAY use non-serializable values to offer advanced features.</p>
+<p>The second parameter <code>api</code> is optional and is used to pass additional environment services to the plugin, such as a logger or a key-value store. Most plugins SHOULD work even if this parameter is <code>undefined</code>, but MAY offer less functionality in that case (e.g. no persistence.)</p>
+<p>Throws <code>InvalidFieldsError</code> if the constructor is given incorrect arguments in <code>opts</code>. Throws <code>TypeError</code> if <code>opts</code> is not an object or <code>api</code> is defined and not an object. Throws <code>InvalidServicesError</code> if a service is required, but not provided via <code>api</code>.</p>
+<h6 id="parameters-1">Parameters</h6>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Name</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">opts</td>
+<td style="text-align:left"><code><a href="#class-pluginoptions">PluginOptions</a></code></td>
+<td style="text-align:left">Object containing ledger-related settings. May contain plugin-specific fields.</td>
+</tr>
+</tbody>
+</table>
+<h6 id="example-1">Example</h6>
+<pre><code class="lang-js">const ledgerPlugin = new LedgerPlugin({
+
+  // auth parameters are defined by the plugin
+
+  _store: {
+    // persistence may be required for internal use by some ledger plugins
+    // (e.g. when the ledger has reduced memo capability and we can only put an ID in the memo)
+    // Store a value under a key
+    put: (key, value) =&gt; {
+      // Returns Promise.&lt;undefined&gt;
+    },
+    // Fetch a value by key
+    get: (key) =&gt; {
+      // Returns Promise.&lt;Object&gt;
+    },
+    // Delete a value by key
+    del: (key) =&gt; {
+      // Returns Promise.&lt;undefined&gt;
+    }
+  }
+})
+</code></pre>
+<p>For a detailed description of these properties, please see <a href="#class-pluginoptions"><code>PluginOptions</code></a>.</p>
+<h4 id="ledgerpluginversion">LedgerPlugin.version</h4>
+<p><code>LedgerPlugin.<strong>version</strong>:Number</code></p>
+<p>Always <code>2</code> for this version of the Ledger Plugin Interface.</p>
+<h3 id="connection-management">Connection Management</h3>
+<h4 id="ledgerpluginconnect">LedgerPlugin#connect</h4>
+<p><code>ledgerPlugin.connect( options:<a href="#class-connectoptions">ConnectOptions</a> &#x21D2; Promise.&lt;undefined&gt;</code></p>
+<p><code>options</code> is optional.</p>
+<p>Initiate ledger event subscriptions. Once <code>connect</code> is called the ledger plugin MUST attempt to subscribe to and report ledger events. Once the connection is established, the ledger plugin should emit the <a href="#event-connect-"><code>connect</code></a> event. If the connection is lost, the ledger plugin SHOULD emit the <a href="#event-disconnect-"><code>disconnect</code></a> event.</p>
+<p>Rejects with <code>InvalidFieldsError</code> if credentials are missing, and <code>NotAcceptedError</code> if credentials are rejected.
+Rejects with <code>TypeError</code> if <code>options.timeout</code> is passed but is not a <code>Number</code>.</p>
+<h4 id="ledgerplugindisconnect">LedgerPlugin#disconnect</h4>
+<p><code>ledgerPlugin.disconnect() &#x21D2; Promise.&lt;undefined&gt;</code></p>
+<p>Unsubscribe from ledger events.</p>
+<h4 id="ledgerpluginisconnected">LedgerPlugin#isConnected</h4>
+<p><code>ledgerPlugin.isConnected() &#x21D2; Boolean</code></p>
+<p>Query whether the plugin is currently connected.</p>
+<h4 id="event-connect">Event: <code>connect</code></h4>
+<p><code>ledgerPlugin.on(&apos;connect&apos;, () &#x21D2; )</code></p>
+<p>Emitted whenever a connection is successfully established.</p>
+<h4 id="event-disconnect">Event: <code>disconnect</code></h4>
+<p><code>ledgerPlugin.on(&apos;disconnect&apos;, () &#x21D2; )</code></p>
+<p>Emitted when the connection has been terminated or lost.</p>
+<h4 id="event-error">Event: <code>error</code></h4>
+<p><code>ledgerPlugin.on(&apos;error&apos;, ( <strong>err</strong>:Error ) &#x21D2; )</code></p>
+<p>General event for fatal exceptions. Emitted when the plugin experienced an unexpected unrecoverable condition. Once triggered, this instance of the plugin MUST NOT be used anymore.</p>
+<h3 id="sending">Sending</h3>
+<h4 id="ledgerpluginsenddata">LedgerPlugin#sendData</h4>
+<p><code>ledgerPlugin.sendData( <strong>data</strong>:Buffer ) &#x21D2; Promise.&lt;Buffer&gt;</code></p>
+<p>Sends data to the counterparty of the account and returns a response asynchronously. Request data is passed in as a <code>Buffer</code> and response data is returned as a <code>Buffer</code>.</p>
+<h6 id="parameters-2">Parameters</h6>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Name</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">data</td>
+<td style="text-align:left"><code>Buffer</code></td>
+<td style="text-align:left">Binary request data</td>
+</tr>
+</tbody>
+</table>
+<h6 id="returns">Returns</h6>
+<p><strong><code>Promise.&lt;Buffer&gt;</code></strong> A promise which resolves when the response has been received.</p>
+<p>This method MAY reject with any arbitrary JavaScript error.</p>
+<h6 id="example-2">Example</h6>
+<pre><code class="lang-js">const responseBuffer = await p.sendData(requestBuffer)
+</code></pre>
+<h4 id="ledgerpluginsendmoney">LedgerPlugin#sendMoney</h4>
+<p><code>ledgerPlugin.sendMoney( <strong>amount</strong>:string ) &#x21D2; Promise.&lt;undefined&gt;</code></p>
+<p>Transfer <code>amount</code> units of money from the caller to the counterparty of the account.</p>
+<p>All plugins MUST support amounts in a range from one to some maximum.</p>
+<h3 id="receiving">Receiving</h3>
+<h4 id="ledgerpluginregisterdatahandler">LedgerPlugin#registerDataHandler</h4>
+<p><code>ledgerPlugin.registerDataHandler( <strong>dataHandler</strong>: ( data: Buffer ) &#x21D2; Promise&lt;Buffer&gt; ) &#x21D2; undefined</code></p>
+<p>Set the callback which is used to handle incoming prepared data packets. The callback should expect one parameter (the data as a Buffer)) and return a promise for the resulting response data packet (as a Buffer.) If an error occurs, the callback MAY throw an exception. In general, the callback should behave as <a href="#ledgerpluginsenddata"><code>sendData</code></a> does.</p>
+<p>If a data handler is already set, this method throws a <code>DataHandlerAlreadyRegisteredError</code>. In order to change the data handler, the old handler must first be removed via <a href="#ledgerpluginderegisterdatahandler"><code>deregisterDataHandler</code></a>. This is to ensure that handlers are not overwritten by accident.</p>
+<p>If an incoming packet is received by the plugin, but no handler is registered, the plugin SHOULD respond with an error.</p>
+<h4 id="ledgerpluginderegisterdatahandler">LedgerPlugin#deregisterDataHandler</h4>
+<p><code>ledgerPlugin.deregisterDataHandler( ) &#x21D2; undefined</code></p>
+<p>Removes the currently used data handler. This has the same effect as if <a href="#ledgerpluginregisterdatahandler"><code>registerDataHandler</code></a> had never been called.</p>
+<p>If no data handler is currently set, this method does nothing.</p>
+<h4 id="ledgerpluginregistermoneyhandler">LedgerPlugin#registerMoneyHandler</h4>
+<p><code>ledgerPlugin.registerMoneyHandler( <strong>moneyHandler</strong>: ( amount: string ) &#x21D2; Promise&lt;undefined&gt; ) &#x21D2; undefined</code></p>
+<p>Set the callback which is used to handle incoming money. The callback should expect one parameter (the amount) and return a promise. If an error occurs, the callback MAY throw an exception. In general, the callback should behave as <a href="#ledgerpluginsendmoney"><code>sendMoney</code></a> does.</p>
+<p>If a money handler is already set, this method throws a <code>MoneyHandlerAlreadyRegisteredError</code>. In order to change the money handler, the old handler must first be removed via <a href="#ledgerpluginderegistermoneyhandler"><code>deregisterMoneyHandler</code></a>. This is to ensure that handlers are not overwritten by accident.</p>
+<p>If incoming money is received by the plugin, but no handler is registered, the plugin SHOULD return an error (and MAY return the money.)</p>
+<h4 id="ledgerpluginderegistermoneyhandler">LedgerPlugin#deregisterMoneyHandler</h4>
+<p><code>ledgerPlugin.deregisterMoneyHandler( ) &#x21D2; undefined</code></p>
+<p>Removes the currently used money handler. This has the same effect as if <a href="#ledgerpluginregistermoneyhandler"><code>registerMoneyHandler</code></a> had never been called.</p>
+<p>If no money handler is currently set, this method does nothing.</p>
+<h2 id="class-pluginservices">Class: PluginServices</h2>
+<p><code>class PluginServices</code></p>
+<p>Plugin services are optionally passed in to the <a href="#class-ledgerplugin"><code>LedgerPlugin</code></a>
+constructor when a plugin is being instantiated. Which services are provided
+MAY vary based on the host environment or none MAY be available at all.</p>
+<h6 id="special-fields">Special Fields</h6>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Name</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>Object</code></td>
+<td style="text-align:left"><a href="#pluginservices-store">store</a></td>
+<td style="text-align:left">Simple key-value store object</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Object</code></td>
+<td style="text-align:left"><a href="#pluginservices-log">log</a></td>
+<td style="text-align:left">Simple logger object</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fields-1">Fields</h3>
+<h4 id="pluginservicesstore">PluginServices#store</h4>
+<p><code><strong>store</strong>:Object</code></p>
+<p>Provides callback hooks to the host&apos;s persistence layer.</p>
+<p>Most plugins SHOULD work (possibly with higher trust or degraded experience) without a <code>store</code>. However, if a plugin is not able to function without a store and none is provided, the constructor MUST throw an <code>InvalidServicesError</code>.</p>
+<p>Method names are based on the popular LevelUP/LevelDOWN packages.</p>
+<h6 id="example-3">Example</h6>
+<pre><code class="lang-js">{
+  // Store a value under a key
+  put: (key, value) =&gt; {
+    // Returns Promise.&lt;undefined&gt;
+  },
+  // Fetch a value by key
+  get: (key) =&gt; {
+    // Returns Promise.&lt;Object&gt;
+  },
+  // Delete a value by key
+  del: (key) =&gt; {
+    // Returns Promise.&lt;undefined&gt;
+  }
+}
+</code></pre>
+<h4 id="pluginserviceslog">PluginServices#log</h4>
+<p><code><strong>log</strong>:Object</code></p>
+<p>Provides logging hooks to the host. Hosts MAY use this feature to prefix log lines with the identifier of the plugin instance.</p>
+<p>If this parameter is not provided, the plugin SHOULD use a suitable default logging mechanism.</p>
+<p>The logging methods support <a href="https://wikipedia.org/wiki/Printf_format_string">printf-style</a> formatting. The following formatters are available:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th>Formatter</th>
+<th>Representation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>%O</code></td>
+<td>Pretty-print an Object on multiple lines.</td>
+</tr>
+<tr>
+<td><code>%o</code></td>
+<td>Pretty-print an Object all on a single line.</td>
+</tr>
+<tr>
+<td><code>%s</code></td>
+<td>String.</td>
+</tr>
+<tr>
+<td><code>%d</code></td>
+<td>Number (both integer and float).</td>
+</tr>
+<tr>
+<td><code>%j</code></td>
+<td>JSON. Replaced with the string &apos;[Circular]&apos; if the argument contains circular references.</td>
+</tr>
+<tr>
+<td><code>%%</code></td>
+<td>Single percent sign (&apos;%&apos;). This does not consume an argument.</td>
+</tr>
+</tbody>
+</table>
+<p>Log messages MUST NOT contain private keys or other credentials.</p>
+<h6 id="example-4">Example</h6>
+<pre><code class="lang-js">{
+  // Extremely verbose debug information
+  debug: (message, ...params) =&gt; { }
+  // Notable events that may happen during normal operation
+  info: (message, ...params) =&gt; { }
+  // Warnings indicate unusual events that call for the user&apos;s attention
+  warn: (message, ...params) =&gt; { }
+  // Errors indicate something went wrong
+  error: (message, ...params) =&gt; { }
+}
+</code></pre>
+<h2 id="class-connectoptions">Class: ConnectOptions</h2>
+<p><code>class ConnectOptions</code></p>
+<h6 id="fields-2">Fields</h6>
+<table class="table table-striped">
+<thead>
+<tr>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Name</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>Number</code></td>
+<td style="text-align:left"><a href="#connectoptions-timeout">timeout</a></td>
+<td style="text-align:left">Amount of time before the client SHOULD give up trying to connect (in milliseconds)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fields-3">Fields</h3>
+<h4 id="connectoptionstimeout">ConnectOptions#timeout</h4>
+<p><code><strong>timeout</strong>:Number</code></p>
+<p>The number of milliseconds that the plugin should spend trying to connect before giving up.</p>
+<p>If falsy, use the plugin&apos;s default timeout.
+If <code>Infinity</code>, there is no timeout.</p>
+
+        </div>
+      </div>
+
+    </div> <!-- /container -->
+
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="col-sm-4 col-xs-12">
+              <p>Interledger Team</p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="text-center">See list of <a target="_blank" href="https://www.w3.org/community/interledger/participants">Contributors</a></p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="pull-right">Documentation licensed under <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0.</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-68500608-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    <script src="/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
