@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Payments across payment networks">
 
-    <title>InterledgerTypes.asn | Interledger</title>
+    <title>LegacyInterledgerProtocol.asn | Interledger</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/css/bootstrap.min.css" rel="stylesheet">
@@ -106,7 +106,7 @@
           </nav>
         </div>
         <div class="col-sm-8 markdown-body">
-          <pre><code class="nohighlight">InterledgerTypes
+          <pre><code class="nohighlight">LegacyInterledgerProtocol
 DEFINITIONS
 AUTOMATIC TAGS ::=
 BEGIN
@@ -114,74 +114,73 @@ BEGIN
 IMPORTS
     UInt64
     FROM GenericTypes
+
+    Address
+    FROM InterledgerTypes
 ;
 
--- Readable names for special characters that may appear in ILP addresses
-hyphen IA5String ::= &quot;-&quot;
-period IA5String ::= &quot;.&quot;
-underscore IA5String ::= &quot;_&quot;
-tilde IA5String ::= &quot;~&quot;
+-- the following packet type is experimental and may still change
+ForwardedPaymentData ::= SEQUENCE {
+    -- Destination ILP Address
+    account Address,
+    -- Information for recipient (transport layer information)
+    data OCTET STRING (SIZE (0..32767)),
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
+}
 
--- A standard interledger address
-Address ::= IA5String
-    (FROM
-        ( hyphen
-        | period
-        | &quot;0&quot;..&quot;9&quot;
-        | &quot;A&quot;..&quot;Z&quot;
-        | underscore
-        | &quot;a&quot;..&quot;z&quot;
-        | tilde )
-    )
-    (SIZE (1..1023))
+InterledgerProtocolPaymentData ::= SEQUENCE {
+    -- Amount which must be received at the destination
+    amount UInt64,
+    -- Destination ILP Address
+    account Address,
+    -- Information for recipient (transport layer information)
+    data OCTET STRING (SIZE (0..32767)),
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
+}
 
--- --------------------------------------------------------------------------
+InterledgerProtocolErrorData ::= SEQUENCE {
+    -- Standardized error code
+    code IA5String (SIZE (3)),
+    -- Corresponding error name
+    name IA5String,
+    -- Participant that originally emitted the error
+    triggeredBy Address,
+    -- Participants that forwarded the error
+    forwardedBy SEQUENCE OF Address,
+    -- Time of emission
+    triggeredAt GeneralizedTime,
+    -- Additional data
+    data OCTET STRING (SIZE (0..8192)),
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
+}
 
--- We are using ISO 8601 and not POSIX time, because ISO 8601 increases
--- monotonically and never &quot;travels back in time&quot; which could cause issues
--- with transfer expiries. It is also one of the most widely supported and most
--- well-defined date formats as of 2017.
---
--- Our actual wire format leaves out any fixed/redundant characters, such as
--- hyphens, colons, the &quot;T&quot; separator, the decimal period and the &quot;Z&quot; timezone
--- indicator.
---
--- The wire format is four digits for the year, two digits for the month,
--- two digits for the day, two digits for the hour, two digits for the minutes,
--- two digits for the seconds and three digits for the milliseconds.
---
--- I.e. the wire format is: &#39;YYYYMMDDHHmmSSfff&#39;
---
--- All times MUST be expressed in UTC time.
+InterledgerProtocolFulfillmentData ::= SEQUENCE {
+    -- Information for sender (transport layer information)
+    data OCTET STRING (SIZE (0..32767))
+}
 
-Timestamp ::= PrintableString (SIZE(17))
-
--- --------------------------------------------------------------------------
-
--- Liquidity curves describe the relationship between input and output amount
--- for a given path between a pair of ledgers.
---
--- The curve is expressed as a series of points given as coordinates of the form
--- &lt;inputAmount, outputAmount&gt;. If a sender sends `inputAmount` units to the
--- connector, the recipient will receive `outputAmount`. The curve may represent
--- the liquidity through a single connector, or multiple liquidity curves can be
--- combined into one to represent the liquidity through a given path of
--- connectors.
---
--- Points are ordered by inputAmount. The inputAmount is strictly increasing
--- from point to point. The outputAmount is monotonically increasing, meaning
--- each successively point must have an equal or greater outputAmount.
---
--- The first point represents the minimum amount that can be transacted, while
--- the final point represents the maximum amount that can be transacted.
---
--- If a query does not match a point exactly, implementations MUST use linear
--- interpolation. When querying by outputAmount, if multiple points match
--- exactly, the lowest inputAmount of any of these points MUST be returned.
-
-LiquidityCurve ::= SEQUENCE OF SEQUENCE {
-  x UInt64,
-  y UInt64
+InterledgerProtocolRejectionData ::= SEQUENCE {
+    -- Standardized error code
+    code IA5String (SIZE (3)),
+    -- Participant that originally emitted the error
+    triggeredBy Address,
+    -- User-readable error message
+    message UTF8String (SIZE (0..8191)),
+    -- Machine-readable error data, dependent on code
+    data OCTET STRING (SIZE (0..32767)),
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
 }
 
 END

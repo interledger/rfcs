@@ -1,6 +1,6 @@
 ---
 title: Bilateral Transfer Protocol (BTP)
-draft: 2
+draft: 3
 ---
 # Bilateral Transfer Protocol (BTP)
 
@@ -138,7 +138,7 @@ responses. Every BTP packet follows a common structure:
 1. **Type**: A 1-byte value describing what type of BTP packet this is.
 The values are described below, in [BTP Type IDs](#btp-type-ids).
 
-2. **Request ID**: A random 4-byte value used to correlate requests 
+2. **Request ID**: A random 4-byte value used to correlate requests
 and responses. This value MAY be sequential instead of random, but care must
 be taken so that duplicate IDs are never in-flight at the same time.
 
@@ -285,7 +285,7 @@ Prepare ::= SEQUENCE {
   transferId UInt128,
   amount UInt64,
   executionCondition UInt256,
-  expiresAt Timestamp,
+  expiresAt GeneralizedTime,
   --
   protocolData ProtocolData
 }
@@ -306,7 +306,7 @@ fulfillment.  `expiresAt` is a ASN.1 UTC GeneralizedTime containing the expiry
 of this transfer. The GeneralizedTime MUST be in UTC (i.e. no timezone info).
 
 ILP payment packets are attached to the protocol data under the protocol
-name `ilp` and the MIME type `application/octet-stream`. 
+name `ilp` and the MIME type `application/octet-stream`.
 
 - `Response` is returned if the peer acknowledges the `Prepare`. This means the
   transfer is now `prepared` and has been applied to the balance. It may carry
@@ -421,7 +421,7 @@ Error ::= SEQUENCE {
   -- Corresponding error code
   name IA5String,
   -- Time of emission
-  triggeredAt Timestamp,
+  triggeredAt GeneralizedTime,
   -- Additional data
   data OCTET STRING (SIZE (0..8192)),
   --

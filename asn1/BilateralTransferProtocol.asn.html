@@ -98,6 +98,10 @@
                   <a href="InterledgerTypes.asn.html">InterledgerTypes.asn</a>
                 </li>
               
+                <li>
+                  <a href="LegacyInterledgerProtocol.asn.html">LegacyInterledgerProtocol.asn</a>
+                </li>
+              
             </ul>
           </nav>
         </div>
@@ -114,12 +118,6 @@ IMPORTS
     UInt128,
     UInt256
     FROM GenericTypes
-
-    Timestamp
-    FROM InterledgerTypes
-
-    InterledgerPacket
-    FROM InterledgerPacket
 ;
 
 -- Zero or more protocolData entries, each with a unique
@@ -165,7 +163,7 @@ Error ::= SEQUENCE {
   -- Corresponding error code
   name IA5String,
   -- Time of emission
-  triggeredAt Timestamp,
+  triggeredAt GeneralizedTime,
   -- Additional data
   data OCTET STRING (SIZE (0..8192)),
   --
@@ -179,7 +177,7 @@ Prepare ::= SEQUENCE {
   transferId UInt128,
   amount UInt64,
   executionCondition UInt256,
-  expiresAt Timestamp,
+  expiresAt GeneralizedTime,
   --
   protocolData ProtocolData
 }
