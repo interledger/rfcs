@@ -1,6 +1,6 @@
 ---
 title: Bilateral Transfer Protocol (BTP)
-draft: 3
+draft: 4
 ---
 # Bilateral Transfer Protocol (BTP)
 
@@ -186,11 +186,14 @@ Before anything else, when a client connects to a server, it sends a special
 `Message` request. Its primary `protocolData` entry MUST have name `'auth'`,
 content type `MIME_APPLICATION_OCTET_STREAM`,
 and empty data, and among the secondary entries, there MUST be a UTF-8
-`'auth_token'` entry, and a UTF-8 `'auth_username'` entry. The further secondary
+`'auth_token'` entry, and there MAY be a UTF-8 `'auth_username'` entry. The further secondary
 protocol data entries of this `Message` request MAY also be used to send
 additional information to the server. In situations where no authentication
-is needed, the `'auth_token'` and `'auth_username'` data can be set to the
-empty string, but they cannot be omitted.
+is needed, the `'auth_token'` data can be set to the
+empty string, but it cannot be omitted. In situations where the `'auth_token'`
+acts as a bearer token, and the value of `'auth_username'` can be derived from
+the value of `'auth_token'` deterministically, the `'auth_username'` entry can either
+be omitted, or set to the empty string.
 
 If the client sends any BTP call that is not a Message, or sends a Message call
 whose primary sub-protocol is not `auth`, the server should respond with an `Error`
