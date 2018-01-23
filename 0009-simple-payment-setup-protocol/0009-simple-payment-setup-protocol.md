@@ -48,18 +48,19 @@ We assume that the sender knows the receiver's SPSP endpoint (see [Appendix B: P
 1. The sender's SPSP Client queries the receiver's SPSP Endpoint.
 2. The SPSP Endpoint responds with the receiver info, including the receiver's ILP address and the shared secret to be used in PSK2. It MAY respond with a balance associated with this SPSP receiver, i.e. in the case of an invoice.
 3. The sender constructs an ILP payment using the receiver's ILP address.
-4. The sender uses PSK2 to generate the payment chunk and format additional data intended for the reciever to be sent with the payment.
-5. The sender sends a prepare packet to a connector with the condition and ILP address attached.
-6. The receiver's PSK2 module registers the incoming packet, parses, and validates the ILP packet.
-7. The receiver MAY submit the incoming packet to an external system for review to ensure that the funds are wanted.
-8. If the payment is expected, the receiver's PSK2 module replies with a fulfillment packet. If not, the PSK2 module replies with a reject packet.
-9. The receiver MAY update a balance related to this SPSP receiver, i.e. in the case of an invoice.
-10. The fulfillment or rejection packet comes back to the sender.
-11. The sender MAY send further payment chunks with PSK2 (repeating steps 4-10).
+4. The sender begins sending the payment.
+  1. The sender uses PSK2 to generate the payment chunk and format additional dthese stepsata intended for the reciever to be sent with the payment.
+  2. The sender sends a prepare packet to a connector with the condition and ILP address produced by PSK2.
+  3. The receiver's PSK2 module registers the incoming packet, parses, and validates the ILP packet.
+  4. The receiver MAY submit the incoming packet to an external system for review to ensure that the funds are wanted.
+  5. If the payment is expected, the receiver's PSK2 module derives a fulfillment packet from the prepare packet. If not, the PSK2 module replies with a reject packet.
+  6. The receiver MAY update a balance related to this SPSP receiver, i.e. in the case of an invoice.
+  7. The fulfillment or rejection packet comes back to the sender.
+  8. The sender MAY send further payment chunks with PSK2 (repeating these steps).
 
 ## Specification
 
-The SPSP endpoint is a URI used by the sender to query information about the receiver and set up payments. The SPSP endpoint URI MAY NOT contain query string parameters. The sender SHOULD treat the URI as opaque. There are several supported ways to refer to an SPSP endpoint:
+The SPSP endpoint is a URI used by the sender to query information about the receiver (which may be an invoice) and set up payments. The SPSP endpoint URI MUST NOT contain query string parameters. The sender SHOULD treat the URI as opaque. There are several supported ways to refer to an SPSP endpoint:
 
 - [Payment-pointer](#appendix-a-payment-pointer) (Recommended) `$alice.example.com` or `$example.com/bob`. This SHOULD be the only kind of SPSP identifier exposed to users.
 - Raw endpoint URI (Not recommended) `https://example.com/spsp/alice`.
@@ -72,9 +73,11 @@ The sender queries the SPSP endpoint to get information about the type of paymen
 
 #### Request
 
+(With the identifier `$example.com`)
+
 ``` http
-GET /api/spsp/bob HTTP/1.1
-Host: red.ilpdemo.org
+GET /.well-known/pay HTTP/1.1
+Host: example.com
 Accept: application/spsp+json
 ```
 
@@ -90,9 +93,9 @@ Content-Type: application/spsp+json
     "maximum": "100000",
     "current": "5360"
   },
-  "ledger_info": {
-    "currency_code": "USD",
-    "currency_scale": 2
+  "asset_info": {
+    "code": "USD",
+    "scale": 2
   },
   "receiver_info": {
     "name": "Bob Dylan",
@@ -101,7 +104,7 @@ Content-Type: application/spsp+json
 }
 ```
 
-The `balance`, `ledger_info`, and `receiver_info` objects are all optional,
+The `balance`, `asset_info`, and `receiver_info` objects are all optional,
 so a minimal SPSP response looks like:
 
 ``` http
@@ -141,11 +144,11 @@ The response body is a JSON object that includes basic account details necessary
 | `destination_account` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) | ILP Address of the receiver's account |
 | `shared_secret` | 32 bytes, [base64 encoded](https://en.wikipedia.org/wiki/Base64) (including padding) | The shared secret to be used by this specific http client in the [Pre-Shared Key protocol](../0016-pre-shared-key/0016-pre-shared-key.md). Should be shared only by the server and this specific http client, and should therefore be different in each query response. |
 | `balance`  | Object | _(OPTIONAL)_ Details of this receiver's balance. Used for invoices and similar temporary accounts. |
-| `balance.maximum` | Integer String | Maximum amount, denoted in the minimum divisible units of the ledger, the receiver will accept. This represents the highest sum that incoming chunks are allowed to reach, not the highest size of an individual chunk (which is determined by path MTU). If this is an invoice the `balance.maximum` is the amount at which the invoice would be considered paid. |
+| `balance.maximum` | Integer String | Maximum amount, denoted in the minimum divisible units of the receiver's account, which the receiver will accept. This represents the highest sum that incoming chunks are allowed to reach, not the highest size of an individual chunk (which is determined by path MTU). If this is an invoice the `balance.maximum` is the amount at which the invoice would be considered paid. |
 | `balance.current` | Integer String | Current sum of all incoming chunks. |
-| `ledger_info` | Object | _(OPTIONAL)_ Details about the destination ledger, for sender's display purposes. |
-| `ledger_info.asset_code` | String | Asset code to identify the receiver's currency. Currencies that have [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) codes should use those. Sender UIs SHOULD be able to render non-standard codes |
-| `ledger_info.asset_scale` | Integer | The scale of the amounts on the destination ledger (e.g. an amount of `"1000"` with a scale of `2` translates to `10.00` units of the destination ledger's asset/currency) |
+| `asset_info` | Object | _(OPTIONAL)_ Details about the destination asset, for sender's display purposes. |
+| `asset_info.code` | String | Asset code to identify the receiver's currency. Currencies that have [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) codes should use those. Sender UIs SHOULD be able to render non-standard codes |
+| `asset_info.scale` | Integer | The scale of the amounts on the receiver's account (e.g. an amount of `"1000"` with a scale of `2` translates to `10.00` units of the receiver's asset/currency) |
 | `receiver_info` | Object | _(OPTIONAL)_ Arbitrary additional information about the receiver. This field has no schema and the receiver may include any fields they choose. The field names listed below are recommended merely for interoperability purposes. |
 | `receiver_info.name` | String | _(OPTIONAL)_ Full name of the individual, company or organization the receiver represents |
 | `receiver_info.image_url` | HTTPS URL | _(OPTIONAL)_ URL where the sender can get a picture representation of the receiver |
@@ -174,7 +177,7 @@ The sender uses the receiver details to create the PSK2 payment:
 * The `shared_secret` should be used as the PSK2 sharedSecret.
 * If present, the `balance.maximum` SHOULD be used as the PSK2 chunked payment amount.
 
-In a UI, the `ledger_info` and `receiver_info` objects (if present) can be used for display purposes. These objects can be manipulated by the receiver in any way, so amounts SHOULD be displayed in source units when possible.
+In a UI, the `asset_info` and `receiver_info` objects (if present) can be used for display purposes. These objects can be manipulated by the receiver in any way, so amounts SHOULD be displayed in source units when possible.
 
 Note that the sender can send as many PSK2 payments as they want using the same receiver info. The sender SHOULD query the receiver again once the time indicated in the [`Cache-Control` header](#response-headers) has passed.
 
@@ -182,16 +185,22 @@ Note that the sender can send as many PSK2 payments as they want using the same 
 
 This is the recommended way to identify an SPSP receiver, and is intended to be the main form of identifier that users on Interledger will interact with. It can be used as a persistent identifier for a person or as a temporary identifier to represent an invoice, much like a bitcoin address.
 
-The payment pointer is in the form `$example.com/bob` (A payment pointer with no path is also acceptable, i.e. `$bob.example.com`). This is converted into an SPSP URI, by removing the `$` and replacing it with `https://spsp.`.
+The payment pointer is in the form `$example.com/bob` (A payment pointer with no path is also acceptable, i.e. `$bob.example.com`). This is converted into an SPSP URI, by removing the `$` and replacing it with `https://`. If the payment pointer has no path, then a path of `/.well-known/pay` is added.
+
+Any characters allowed in a URL are allowed in a payment pointer, but special characters MUST be properly URL-encoded. The payment pointer MUST NOT have any query string, MUST NOT have any authentication info, and MUST NOT have a trailing slash.
 
 Adding this subdomain allows you to use `$example.com` as your payment pointer, even if the actual `example.com` is running a website via a CDN like github pages. The SPSP traffic will go to `spsp.example.com`.
 
-- `$example.com/bob` -> `https://spsp.example.com/bob`
-- `$bob.example.com` -> `https://spsp.bob.example.com/`
+- `$example.com` -> `https://example.com/.well-known/pay`
+- `$example.com/bob` -> `https://example.com/bob`
+- `$bob.example.com` -> `https://bob.example.com/.well-known/pay`
+- `$bob.example.com/invoice/12345` -> `https://bob.example.com/invoice/12345`
+
+With the pointer `$example.com/bob`, the request and response may look like:
 
 ```http
 GET /bob HTTP 1.1
-Host: spsp.example.com
+Host: example.com
 Accept: application/spsp+json
 ```
 
@@ -206,13 +215,31 @@ Content-Type: application/spsp+json
     "maximum": "100000",
     "current": "5360"
   },
-  "ledger_info": {
-    "asset_code": "USD",
-    "asset_scale": 2
+  "asset_info": {
+    "code": "USD",
+    "scale": 2
   },
   "receiver_info": {
     "name": "Bob Dylan",
     "image_url": "https://red.ilpdemo.org/api/spsp/bob/profile_pic.jpg"
   }
+}
+```
+
+With the pointer `$bob.example.com`, the request and response may look like the example below. In this example, optional fields have been excluded.
+
+```http
+GET /.well-known/pay HTTP 1.1
+Host: bob.example.com
+Accept: application/spsp+json
+```
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/spsp+json
+
+{
+  "destination_account": "example.ilpdemo.red.bob",
+  "shared_secret": "6jR5iNIVRvqeasJeCty6C+YB5X9FhSOUPCL/5nha5Vs="
 }
 ```
