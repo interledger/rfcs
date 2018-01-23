@@ -133,7 +133,7 @@ The request succeeds:
 
 ``` http
 HTTP/1.1 200 OK
-Pay: interledger-psk us.nexus.ankita.~recv.filepay SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU 10
+Pay: interledger-psk2 us.nexus.ankita.~recv.filepay SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU 10
 Pay-Balance: 90
 ```
 
