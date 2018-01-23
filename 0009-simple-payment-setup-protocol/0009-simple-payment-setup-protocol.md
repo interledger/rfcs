@@ -49,7 +49,7 @@ We assume that the sender knows the receiver's SPSP endpoint (see [Appendix B: P
 2. The SPSP Endpoint responds with the receiver info, including the receiver's ILP address and the shared secret to be used in PSK2. It MAY respond with a balance associated with this SPSP receiver, i.e. in the case of an invoice.
 3. The sender constructs an ILP payment using the receiver's ILP address.
 4. The sender begins sending the payment.
-  1. The sender uses PSK2 to generate the payment chunk and format additional dthese stepsata intended for the reciever to be sent with the payment.
+  1. The sender uses PSK2 to generate the payment chunk and format additional data intended for the reciever to be sent with the payment.
   2. The sender sends a prepare packet to a connector with the condition and ILP address produced by PSK2.
   3. The receiver's PSK2 module registers the incoming packet, parses, and validates the ILP packet.
   4. The receiver MAY submit the incoming packet to an external system for review to ensure that the funds are wanted.
@@ -175,7 +175,7 @@ The sender uses the receiver details to create the PSK2 payment:
 
 * The `destination_account` should be used as the PSK2 destinationAccount.
 * The `shared_secret` should be used as the PSK2 sharedSecret.
-* If present, the `balance.maximum` SHOULD be used as the PSK2 chunked payment amount.
+* If present, the `balance.maximum` SHOULD be used as the PSK2 chunked payment destination amount.
 
 In a UI, the `asset_info` and `receiver_info` objects (if present) can be used for display purposes. These objects can be manipulated by the receiver in any way, so amounts SHOULD be displayed in source units when possible.
 
