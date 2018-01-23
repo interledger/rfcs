@@ -1,6 +1,6 @@
 ---
 title: HTTP-ILP
-draft: 2
+draft: 3
 ---
 # HTTP-ILP
 
@@ -95,7 +95,7 @@ The amount expresses how much the request would have cost, as a decimal string a
 
 ``` http
 HTTP/1.1 204 No Content
-Pay: interledger-psk 10 us.nexus.ankita.~recv.filepay SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU
+Pay: interledger-psk2 us.nexus.ankita.~recv.filepay SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU 10
 Pay-Balance: 0
 ```
 
@@ -105,24 +105,20 @@ The client can now use the shared secret to create a condition to pay this host.
 
 The shared_secret is now a shared secret between the client and server, but will be unknown to any third-party connectors between them.
 
-### 2.3. Client initiates an ILP payment to refill its balance
+### 2.3. Client initiates a PSK2 payment to refill its balance
 
-In order to refill its balance, the client now creates an ILP payment with the following properties:
+In order to refill its balance, the client now creates a PSK2 payment with the following properties:
 
-* Destination: `us.nexus.ankita.~recv.filepay`
-* Amount: `100`
-* Condition: `SHA256(fulfillment)`
+* destinationAccount: `'us.nexus.ankita.~recv.filepay'`
+* destinationAmount: `100`
+* sharedSecret: `'SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU'`
 * Memo: `pay_token`
 
-The `fulfillment` is generated from the shared secret using [PSK](../0016-pre-shared-key/0016-pre-shared-key.md).
-
-When the prepared payment reaches the server, it is fulfilled and the token's balance is increased.
-
-There is a chance that the HTTP-ILP server module will process the payment, but the fulfillment doesn't make it all the way back to the sender.
+As the PSK2 payment progresses, the token's balance is increased.
 
 ### 2.6. Sender/client receives the fulfillment.
 
-Once the HTTP-ILP client module receives the fulfillment, it will now retry its original request:
+Once the payment is complete, the client will retry its original request:
 
 ``` http
 POST /upload HTTP/1.1
@@ -137,7 +133,7 @@ The request succeeds:
 
 ``` http
 HTTP/1.1 200 OK
-Pay: interledger-psk 10 us.nexus.ankita.~recv.filepay SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU
+Pay: interledger-psk2 us.nexus.ankita.~recv.filepay SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU 10
 Pay-Balance: 90
 ```
 
