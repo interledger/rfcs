@@ -35,7 +35,7 @@ InterledgerFulfill ::= SEQUENCE {
     fulfillment UInt256,
 
     -- Information for sender (transport layer information)
-    data OCTET STRING (SIZE (0..32767))
+    data OCTET STRING (SIZE (0..32768))
 }
 
 InterledgerReject ::= SEQUENCE {
@@ -46,10 +46,10 @@ InterledgerReject ::= SEQUENCE {
     triggeredBy Address,
 
     -- User-readable error message
-    message UTF8String (SIZE (0..8191)),
+    message UTF8String (SIZE (0..8192)),
 
     -- Machine-readable error data, dependent on code
-    data OCTET STRING (SIZE (0..32767))
+    data OCTET STRING (SIZE (0..32768))
 }
 
 END
