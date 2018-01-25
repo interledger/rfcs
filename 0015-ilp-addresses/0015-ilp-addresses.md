@@ -1,6 +1,6 @@
 ---
 title: ILP Addresses
-draft: 1
+draft: 2
 ---
 # ILP Addresses - v1.0.0
 
@@ -42,7 +42,7 @@ address     = scheme separator *prefix [segment]
                     ; the last segment is REQUIRED for destination addresses
 
 scheme      = "g" / "private" / "example" / "peer" / "self" /
-              "test1" / "test2" / "test3"
+              "test" / "test1" / "test2" / "test3"
 
 separator   = "."
 
@@ -55,15 +55,15 @@ You can also use the following regular expressions to verify the same requiremen
 
 All Addresses:
 
-    (?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])*([a-zA-Z0-9_~-]+)?$
+    (?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3]?)[.]([a-zA-Z0-9_~-]+[.])*([a-zA-Z0-9_~-]+)?$
     
 Address prefix:
 
-    (?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])*$
+    (?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3]?)[.]([a-zA-Z0-9_~-]+[.])*$
 
 Destination address
 
-    (?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])+[a-zA-Z0-9_~-]+$
+    (?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3]?)[.]([a-zA-Z0-9_~-]+[.])+[a-zA-Z0-9_~-]+$
 
 (If your regular expression engine does not support lookahead, you must drop the first parenthesis and separately enforce the overall length requirement of 1023 characters or less.)
 
@@ -74,9 +74,10 @@ The allocation scheme is the first part of an address, which indicates how the a
 | Prefix                       | Allocation Scheme             | Definition and Use Case |
 |:-----------------------------|:------------------------------|:--------------|
 | `g.`                         | [Global Allocation Scheme][]  | ILP addresses that are intended to send and receive money from any other address in the global scheme. |
+| `test.`                      | Interledger testnet           | For addresses on the public Interledger testnet. |
 | `private.`                   | Private allocation            | For ILP addresses that only have meaning in a private subnet or intranet. Analogous to the [192.168.0.0/16 range in IPv4](https://en.wikipedia.org/wiki/Private_network). |
 | `example.`                   | Examples                      | For "non-real" addresses that are used as examples or in documentation. Analogous to ["555 phone numbers"](https://en.wikipedia.org/wiki/555_%28telephone_number%29) in the USA. |
-| `test1.`, `test2.`, `test3.` | Testing                       | For addresses used in tests, such as unit or integration tests of compatible software. |
+| `test1.`, `test2.`, `test3.` | Testing                       | For addresses used in local tests, such as unit or integration tests of compatible software. |
 | `local.`                     | Ledger-local                  | For addresses that are only valid in the context of a local ledger. Analogous to [link-local addresses](https://en.wikipedia.org/wiki/Link-local_address) in IP. |
 | `peer.`                      | Peering                       | Similar to ledger-local addresses, but specifically for use in a peering relationship. The [ilp-plugin-virtual](https://github.com/interledgerjs/ilp-plugin-virtual) is an example of an existing implementation that uses this. |
 | `self.`                      | Local loopback                | For addresses that are only valid on the local machine. |
