@@ -23,20 +23,12 @@ For the main reference implementation of the ILP stack, see [Interledger.js](htt
 
   Basic explanation of Interledger.
 
-* **[22: Hashed-Timelock Agreements (HTLAs)](0022-hashed-timelock-agreements/0022-hashed-timelock-agreements.md)**
-
-  How conditional transfers can be implemented over any type of ledger, including those that do not natively support Hashed-Timelock Contracts.
-
 ## Core Interledger Protocol Specs
 
 
 * **[3: Interledger Protocol (ILP)](0003-interledger-protocol/0003-interledger-protocol.md)**
 
   Specifies the Interledger Protocol and Interledger Packet, which are used for sending payment instructions across different ledgers and connectors. This is the core protocol in the Interledger stack.
-
-* **[8: Interledger Quoting Protocol (ILQP)](0008-interledger-quoting-protocol/0008-interledger-quoting-protocol.md)**
-
-  The protocol for requesting a quote from a connector for an Interledger payment.
 
 * **[15: ILP Addresses](0015-ilp-addresses/0015-ilp-addresses.md)**
 
@@ -48,23 +40,15 @@ For the main reference implementation of the ILP stack, see [Interledger.js](htt
 
   A basic Application Layer protocol that uses HTTPS to exchange details needed to set up an Interledger payment.
 
-* **[11: Interledger Payment Request (IPR)](0011-interledger-payment-request/0011-interledger-payment-request.md)**
+* **[25: Pre-Shared Key V2 (PSKv2)](0025-pre-shared-key-2/0025-pre-shared-key-2.md)**
 
-  A Transport Layer protocol in which the receiver generates the ILP Packet and condition.
-
-* **[16: Pre-Shared Key (PSK)](0016-pre-shared-key/0016-pre-shared-key.md)**
-
-  The recommended Transport Layer protocol for most use cases, which uses a secret shared between the sender and receiver to generate the condition, authenticate the packet, and encrypt application data.
+  The recommended Transport Layer protocol for most use cases, which handles quoting, individual payments, chunked payments, and streaming payments using a shared secret between the sender and receiver.
 
 ## Ledger Layer
 
-* **[4: Ledger Plugin Interface](0004-ledger-plugin-interface/0004-ledger-plugin-interface.md)**
+* **[24: Ledger Plugin Interface V2](0024-ledger-plugin-interface-2/0024-ledger-plugin-interface-2.md)**
 
   Ledger abstraction used in the JavaScript implementation. This can be used as a model for defining such plugins in other languages.
-
-* **[17: Ledger Requirements](0017-ledger-requirements/0017-ledger-requirements.md)**
-
-  Outlines the degrees of Interledger support that different ledgers may provide.
 
 * **[23: Bilateral Transfer Protocol (BTP)](0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md)**
 
