@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Payments across payment networks">
+
+    <title>Pre-Shared Key V2 (PSKv2) Transport Protocol | Interledger</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link href="/css/monokai-sublime.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    <!-- Google fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,200,600,700|Droid+Sans+Mono|Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
+
+    <!-- Font awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
+
+    <link href="/assets/favicon.ico" rel="icon" type="image/x-icon">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body data-spy="scroll" data-target="#myScrollspy" data-offset="160" class="spec">
+
+     <!-- navbar -->
+      <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><img class="logo" alt="interledger" src="/assets/ilp_icon.png"/></a>
+          </div>
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="/overview.html">Docs</a></li>
+              <li><a href="/community.html">Community</a></li>
+              <li><a href="/news.html">News</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a target="_blank" href="https://github.com/interledger">Github</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+    <!-- docs overview section -->
+
+    <div class="container docs-wrapper">
+      <div class="row">
+        <div id="sidebarContent">
+          <nav class="col-sm-4" id="myScrollspy">
+            <ul class="nav-fixed nav nav-sidebar">
+              <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
+                <li class="nav-label">
+                  <a href="./draft-1.html">ILP-RFC 0025 Draft 1</a>
+                </li>
+                <li>
+                  <a href="./draft-1.html">Permalink to this Draft</a>
+                </li>
+                <li>
+                  <a href="./">View the Latest Draft of ILP-RFC 0025</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#overview">Overview</a>
+                </li>
+              
+                <li>
+                  <a href="#setup">Setup</a>
+                </li>
+              
+                <li>
+                  <a href="#encryption-1">Encryption</a>
+                </li>
+              
+                <li>
+                  <a href="#condition-and-fulfillment-generation">Condition and Fulfillment Generation</a>
+                </li>
+              
+                <li>
+                  <a href="#end-to-end-quoting">End-To-End Quoting</a>
+                </li>
+              
+                <li>
+                  <a href="#chunked-payments">Chunked Payments</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#model-of-operation">Model of Operation</a>
+                </li>
+              
+                <li>
+                  <a href="#informational-quote">Informational Quote</a>
+                </li>
+              
+                <li>
+                  <a href="#single-payment">Single Payment</a>
+                </li>
+              
+                <li>
+                  <a href="#chunked-payment">Chunked Payment</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#specification">Specification</a>
+                </li>
+              
+                <li>
+                  <a href="#encryption-2">Encryption</a>
+                </li>
+              
+                <li>
+                  <a href="#data-packet">Data Packet</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#appendix-a-advanced-sender-features">Appendix A: Advanced Sender Features</a>
+                </li>
+              
+            </ul>
+          </nav>
+        </div>
+        <div class="col-sm-8 markdown-body">
+          <h1 id="pre-shared-key-v2-pskv2-transport-protocol">Pre-Shared Key V2 (PSKv2) Transport Protocol</h1>
+<p class="intro">This spec defines version 2 of the Pre-Shared Key Transport Protocol. PSKv2 is intended to be used for micropayments and larger <a href="#chunked-payments">Chunked Payments</a>. It includes end-to-end data encryption, condition and fulfillment generation, <a href="#end-to-end-quoting">End-to-End Quoting</a> and an approach to Chunked Payments inspired by the Internet&apos;s Transmission Control Protocol (TCP).</p>
+<p><strong>Table of Contents</strong></p>
+<ul>
+<li><a href="#overview">Overview</a><ul>
+<li><a href="#setup">Setup</a></li>
+<li><a href="#encryption">Encryption</a></li>
+<li><a href="#condition-and-fulfillment-generation">Condition and Fulfillment Generation</a></li>
+<li><a href="#end-to-end-quoting">End-To-End Quoting</a></li>
+<li><a href="#chunked-payments">Chunked Payments</a></li>
+</ul>
+</li>
+<li><a href="#model-of-operation">Model of Operation</a><ul>
+<li><a href="#informational-quote">Informational Quote</a></li>
+<li><a href="#single-payment">Single Payment</a></li>
+<li><a href="#chunked-payment">Chunked Payment</a></li>
+</ul>
+</li>
+<li><a href="#specification">Specification</a><ul>
+<li><a href="#encryption-1">Encryption</a></li>
+<li><a href="#data-packet">Data Packet</a></li>
+</ul>
+</li>
+<li><a href="#appendix-a-advanced-sender-features">Appendix A: Advanced Sender Features</a></li>
+</ul>
+<h2 id="overview">Overview</h2>
+<p>Like <a href="./0016-pre-shared-key/0016-pre-shared-key.md">PSKv1</a>, PSKv2 uses a secret shared between the sender and receiver to generate the conditions and fulfillments for payments without repeated end-to-end communication. PSKv2 can be used for individual or streaming micropayments and also includes support Chunked Payments.</p>
+<p>This specificiation aims to standardize the behavior of receivers while allowing for sophisticated sender behavior to be developed in the future. <a href="#appendix-a-advanced-sender-features">Appendix A: Advanced Sender Features</a> outlines areas for potential sender features to be implemented in the future.</p>
+<h3 id="setup">Setup</h3>
+<p>Before using PSKv2, the sender and receiver use an authenticated, encrypted communication channel (generally provided as part of an <a href="./0001-interledger-architecture/0001-interledger-architecture.md#application-layer">Application Layer Protocol</a>) to exchange:</p>
+<ul>
+<li>PSK version (such as <code>2.0</code> for this version)</li>
+<li>A 32-byte random or pseudorandom shared secret</li>
+<li>The receiver&apos;s ILP address</li>
+</ul>
+<p>The receiver MAY generate the shared secret from a longer-term secret and a nonce, as described in <a href="./0016-pre-shared-key/0016-pre-shared-key.md#appendix-a-recommended-algorithm-for-generating-shared-secrets">PSKv1&apos;s Appendix A: Recommended Algorithm for Generating Shared Secrets</a>. In this case, the receiver would append the nonce (<strong>not</strong> the secret) to their ILP address to create the destination address they communicate to the sender.</p>
+<h3 id="encryption-1">Encryption</h3>
+<p>In PSKv2.0, request and response data is encrypted using <a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode">AES-256-GCM</a> with a 12-byte Initialization Vector (IV) and a 16-Byte Authentication Tag.</p>
+<p>If subsequent versions support additional encryption algorithms, those details should be exchanged between the sender and receiver when they establish the pre-shared key. If a receiver attempts to decrypt an incoming packet but is unable to (perhaps because the sender is using an unsupported cipher), they SHOULD reject the incoming transfer with an <code>F06: Unexpected Payment</code> error.</p>
+<h3 id="condition-and-fulfillment-generation">Condition and Fulfillment Generation</h3>
+<p>The sender and receiver generate the condition and fulfillment using the pre-shared key that gives this protocol its name. The fulfillment is computed from the pre-shared key and the encrypted PSK data. The condition is the hash of the fulfillment.</p>
+<p>As in PSKv1, this method for generating the condition and fulfillment enables many payments to be sent without end-to-end communication for each one. However, because the sender also knows the fulfillment up-front, neither version of PSK allows the sender to use the fulfillment as a non-repudiable proof of payment. For use cases where this is desired, a Transport Protocol like the <a href="./0011-interledger-payment-request/0011-interledger-payment-request.md">Interledger Payment Request (IPR)</a> should be used instead.</p>
+<h3 id="end-to-end-quoting">End-To-End Quoting</h3>
+<p>In contrast to PSKv1, which depends on the <a href="./0008-interledger-quoting-protocol/0008-interledger-quoting-protocol.md">Interledger Quoting Protocol (ILQP)</a>, PSKv2 has two built-in mechanisms for discovering the exchange rate of a given path: informational quotes and dynamic price discovery.</p>
+<p>For purely informational quotes, PSKv2 uses unfulfillable test payments to the receiver to determine the exchange rate for a given path. The condition is set to a random 32-byte condition (with no known fulfillment). When the receiver gets the incoming payment, they reject the incoming transfer and include in their response how much arrived in that transfer. The sender can use the source amount they set and the receiver&apos;s response to determine the rate.</p>
+<p>When a sender is sending many payments to the receiver, they need a dynamic view of the exchange rate because the rate may change during the course of the interaction. To handle these cases, every PSKv2 payment response includes the amount that arrived in the final transfer to the receiver. Similar to the informational quotes, the sender can use the chunk source amount and the receiver&apos;s response to determine and monitor the exchange rate.</p>
+<p><strong>Judging Prices by Source Units:</strong> With any type of Interledger quoting, whether end-to-end or using ILQP, senders SHOULD judge prices in their source units. Receivers can lie about how much arrives in a test payment for a quote or they could run their own ledger and connector that happen to have a bad exchange rate. Therefore, senders must assume that whatever amount the receiver says has arrived represents the &quot;real&quot; rate of the path.</p>
+<p><strong>Linear Exchange Rates and Fixed Destination Amount Quotes:</strong> End-to-End Quoting works best with linear exchange rates. If the rate for a path is linear, it can be determined by sending a single test payment for an arbitrary amount. The source amount required to deliver a fixed destination amount can be easily determined by dividing the source amount by the rate. If exchange rates are non-linear, getting an informational quote for a fixed destination amount would require a binary search, which is not ideal. However, in an Interledger network primarily or exclusively suited to small payments, there should be little reason for rates to vary by payment size.</p>
+<h3 id="chunked-payments">Chunked Payments</h3>
+<p>PSKv2 is designed to support both &quot;chunked&quot; and &quot;streaming&quot; payments. Both involve sending many small payment chunks to pay for some interaction. &quot;Chunked Payments&quot; refers to splitting one larger transaction into smaller chunks, for example sending $1000 as one thousand $1 payments. Chunked payments are useful for dealing with paths that have low Maximum Payment Sizes (MPS). &quot;Streaming Payments&quot; refers to sending payment chunks in exchange for an ongoing service, for example paying for a movie stream 1 Mb at a time.</p>
+<p>Interledger connectors set their Maximum Payment Size (MPS) based on their available liquidity, the &quot;bandwidth&quot; they allocate to each of their peers, and the risk they are willing to take on each payment. Analogous to the Internet&apos;s Path Maximum Transmission Unit (MTU), an Interledger path MPS is the minimum MPS of the connectors involved.</p>
+<p>If senders want to use a path with an MPS lower than their payment amount, they need to split their payment into chunks. PSKv2 includes a Payment ID and Sequence number to enable receivers to associate incoming payment chunks properly.</p>
+<p><strong>Possibility for Incomplete Payments:</strong> If the path between the sender and receiver runs out of liquidity while a chunked payment is in progress, it could be impossible for the payment to complete fully. This should be a rare case, analogous to Internet Service Providers getting cut off because they fail to pay their electricity bills. However, in such cases, the receiver may need to refund the partial payment by sending another chunked payment back and either the sender or receiver would incur the transaction costs.</p>
+<p><strong>Fluctuating Exchange Rates:</strong> The rate from the sender to the receiver may change due to legitimate market movements during the course of a payment. Senders SHOULD monitor the rate changes and they may not want to send payments that are significantly larger than their bandwidth (this could be compared to how downloading an ultra high-definition movie over a dial-up connection is possible but would not make for a good experience).</p>
+<p><strong>Malicious Connectors:</strong> Exchange rates can also change for illegitimate reasons, such as connectors driving up the price mid-payment. Ultimately, the main force keeping connectors&apos; rates low is competition. If there is only one path, the connectors can raise the rate without resorting to any sneaky tactics and the sender would need to decide if they are willing to pay that rate. If a sender has multiple options for the connector they send through, they may want to use <a href="#multi-path-chunked-payments">Multi-Path Chunked Payments</a> to automatically switch paths if one becomes more expensive.</p>
+<p><strong>Trusting the Receiver:</strong> The sender of a payment must always trust the receiver, except in the rare case that they are doing an atomic exchange of money for goods or services. Whether or not the sender is sending a single- or multiple-chunk payment, a malicious receiver could simply refuse to deliver the goods or services once the payment arrives. If senders must trust the receivers anyway, it is no worse to trust receivers to accurately report how much money arrived and not collude with connectors to raise the rates mid-payment. Since senders will judge merchants&apos; prices by the total source amount they pay, receivers that pull such tricks should develop negative reputations and be avoided.</p>
+<h2 id="model-of-operation">Model of Operation</h2>
+<h3 id="informational-quote">Informational Quote</h3>
+<ol>
+<li>Sender creates a packet with a type of 1, a random Payment ID, a Sequence number of 0 (or the next Sequence if the quote is part of a multi-chunk payment), and both the Payment Amount and Chunk Amount set to 2^64 - 1 (the maximum unsigned 64-bit integer, or 18446744073709551615). Sender <a href="#encryption-envelope">encrypts</a> the packet.</li>
+<li>Sender generates a random 32-byte condition.</li>
+<li>Sender sends a test payment with the condition, encrypted data and either the chosen source amount (in the case of a fixed source amount payment) or an arbitrary amount (in the case of a fixed destination amount).</li>
+<li>Receiver is notified of the incoming transfer and decrypts the data.</li>
+<li>Receiver compares the Chunk Amount from the packet with the incoming transfer amount and notes that the incoming transfer amount is too low.</li>
+<li>Receiver creates a response packet, including the Payment ID and Sequence from the request, a Payment Amount of 0 (or the total they have fulfilled with this Payment ID), and the Chunk Amount set to the amount that arrived on the incoming transfer. Receiver <a href="#encryption-envelope">encrypts</a> the packet.</li>
+<li>Receiver rejects incoming transfer, setting the rejection message&apos;s data to the encrypted quote response.</li>
+<li>Sender decrypts the quote response and divides the receiver&apos;s Chunk Amount by the source amount to determine the path exchange rate.</li>
+</ol>
+<h3 id="single-payment">Single Payment</h3>
+<ol>
+<li>In the case of a fixed source amount payment, sender multiplies the source amount by the rate to determine the Payment Amount. In the case of a fixed destination amount payment, sender divides the destination amount by the rate to determine the amount for their outgoing transfer.</li>
+<li>Sender creates a packet with a Type of 1, a random Payment ID, a Sequence number of 0, and the Payment Amount and Chunk Amount set to the destination amount determined in step 2. Sender <a href="#encryption-envelope">encrypts</a> the request.</li>
+<li>Sender generates the payment condition as described <a href="#fulfillable-condition">below</a>.</li>
+<li>Sender sends a payment using the source amount determined in step 2, the condition from step 3, and the encrypted request as the data.</li>
+<li>Receiver is notified of the incoming transfer and decrypts the data.</li>
+<li>Receiver checks to ensure that the incoming transfer amount is greater than or equal to the Chunk Amount specified in the request. If the Payment Amount is not equal to 0, the receiver checks that the transfer amount is less than or equal to the Payment Amount specified in the request.</li>
+<li>Receiver creates a <a href="#payment-chunk-response">Payment Chunk Response</a> with the same Payment ID and Sequence number. The Payment Amount and Chunk Amount are set to the amount that arrived on the incoming transfer. The receiver then <a href="#encryption-envelope">encrypts</a> the data.</li>
+<li>Receiver generates fulfillment as described <a href="#fulfillment-generation">below</a> and fulfills the incoming transfer with the fulfillment and the encrypted response data.</li>
+<li>Sender is notified of the outgoing transfer being fulfilled and can use the decrypted response to determine the amount that arrived at the destination.</li>
+</ol>
+<h3 id="chunked-payment">Chunked Payment</h3>
+<ol>
+<li>Sender creates a packet with Type 0, a random Payment ID, a Sequence number of 0 and a Chunk Amount of 0. In the case of a fixed destination amount, sender sets the Payment Amount to the destination amount. In the case of a fixed source amount, sender sets the Payment Amount to 2^64 - 1 (the maximum unsigned 64-bit integer, or 18446744073709551615). Sender <a href="#encryption-envelope">encrypts the request</a>.</li>
+<li>Sender generates the payment condition as described <a href="#fulfillable-condition">below</a>.</li>
+<li>Sender sends a payment with the condition from step 2., the encrypted request from step 1. as the data, and an arbitrary source amount.</li>
+<li>Receiver is notified of the incoming transfer and decrypts the data.</li>
+<li>Receiver checks that the incoming transfer amount is greater than or equal to the Chunk Amount and that the total that has arrived thus far does not exceed the Payment Amount.</li>
+<li>Receiver creates a response packet with the Type 2, the same Payment ID, Sequence. The Payment Amount is set to the total the receiver has received and fulfilled thus far (including the current chunk). Receiver sets the Chunk Amount to the amount that arrived on the incoming transfer. Receiver <a href="#encryption-envelope">encrypts the response</a>.</li>
+<li>Receiver generates fulfillment as described <a href="#fulfillment-generation">below</a> and fulfills the incoming transfer.</li>
+<li>Sender is notified of the outgoing transfer being fulfilled and decrypts the attached data.</li>
+<li>Sender determines the exchange rate by dividing the Chunk Amount from the receiver by the chunk&apos;s source amount.</li>
+<li>Sender repeats step 1-8 with the following modifications, until the fixed source or destination amount has been sent or delivered, respectively:<ul>
+<li>Sender MUST create a new PSK data packet for each chunk with the same Payment ID and an incremented Sequence number (the Sequence enables the sender to reliably correlate outgoing requests with their responses)</li>
+<li>Sender MAY specify the minimum Chunk Amount the receiver should accept for each transfer based on the calculated path exchange rate</li>
+<li>Sender MAY adjust the transfer amount upwards or downwards in response to successful and unsuccessful payments, or to deliver a fixed destination amount exactly</li>
+<li>Sender SHOULD set the Type to 1 on the last chunk. Receivers SHOULD NOT fulfill additional chunks after a Type 1 chunk has been received. Note that receivers SHOULD stop fulfilling chunks after the specified Payment Amount has been reached, even if the sender did not send a Type 1 packet.</li>
+</ul>
+</li>
+</ol>
+<h2 id="specification">Specification</h2>
+<h3 id="encryption-2">Encryption</h3>
+<p>Request and response data are encrypted using <a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode">AES-256-GCM</a> with a random 12-byte Initialization Vector (IV) and a 16-byte Authentication Tag.</p>
+<h4 id="encryption-envelope">Encryption Envelope</h4>
+<pre><code>(Numbers represent bytes)
+
+       4       8       12      16      20      24      28      32
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|       Random IV       |       Authentication Tag      | Ciph..|
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                          Ciphertext                           |
+\                                                               \
+\                                                               \
+|                          Ciphertext                           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</code></pre><table class="table table-striped">
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Random IV</td>
+<td>12-Byte UInt</td>
+<td>Nonce used as input to the AES-GCM algorithm. Also ensures conditions are random. Senders MUST NOT encrypt two packets with the same nonce</td>
+</tr>
+<tr>
+<td>Authentication Tag</td>
+<td>16-Byte UInt</td>
+<td>Authentication tag produced by AES-GCM encryption that ensures data integrity</td>
+</tr>
+<tr>
+<td>Ciphertext</td>
+<td>0-32739 Bytes</td>
+<td>Encrypted data (see below for contents)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="encryption-pseudocode">Encryption Pseudocode</h4>
+<p>Note that the encryption key is derived from the shared secret using an HMAC.</p>
+<pre><code>iv = random_bytes(16)
+encryption_key = hmac_sha256(shared_secret, &quot;ilp_psk_encryption&quot;)
+{ ciphertext, auth_tag } = aes_256_gcm(encryption_key, iv, data)
+</code></pre><h3 id="data-packet">Data Packet</h3>
+<p>All PSKv2.0 requests and responses encode their data in the same byte format, though the meanings of the fields differ depending on whether it is a request or a response.</p>
+<p>The following is encrypted, as defined <a href="#encryption">above</a>, and set as the ILP payment data on a payment from the sender to the receiver.</p>
+<pre><code>(Numbers represent bytes)
+
+       4       8       12      16      20      24      28      32
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|T|           Payment ID          |  Seq  | Payment Amount| Chu-|
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|nk Amount|             Application Data                        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                       Application Data                        |
+\                                                               \
+\                                                               \
+|                       Application Data                      |E|
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                          Junk Data                            |
+\                                                               \
+\                                                               \
+|                          Junk Data                            |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</code></pre><h4 id="packet-types">Packet Types</h4>
+<table class="table table-striped">
+<thead>
+<tr>
+<th>Type ID</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td>Payment chunk. May be carried on a fulfillable transfer (in the case of a payment) or an unfulfillable transfer (in the case of a quote).</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>Last payment chunk. Same as <code>0</code> but indicates that there will be no more chunks after this one is fulfilled.</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td>Success response. Must be carried on the data accompanying the fulfillment.</td>
+</tr>
+<tr>
+<td><code>3</code></td>
+<td>Error response. Must be carried in the error with which the receiver rejects the incoming transfer.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="request-fields">Request Fields</h4>
+<table class="table table-striped">
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type (T)</td>
+<td>1-Byte UInt (UInt8)</td>
+<td><code>0</code> to indicate a payment chunk, <code>1</code> to indicate it is the last chunk for the payment. Receivers SHOULD NOT fulfill additional chunks for the given payment after the last chunk has been received</td>
+</tr>
+<tr>
+<td>Payment ID</td>
+<td>16-Byte UInt</td>
+<td>Unique ID of this payment</td>
+</tr>
+<tr>
+<td>Sequence</td>
+<td>4-Byte UInt (UInt32)</td>
+<td>Zero-indexed chunk sequence number. Receivers SHOULD NOT fulfill two chunks with the same sequence for a single payment. Receivers SHOULD use the sequence to order chunks in case application data is split across multiple chunks, but chunks do not necessarily need to be delivered in order</td>
+</tr>
+<tr>
+<td>Payment Amount (Total)*</td>
+<td>8-Byte UInt (UInt64)</td>
+<td>The total amount the payment is intended to deliver. A value of <code>0</code> in a request indicates that the sender will determine when to stop sending chunks</td>
+</tr>
+<tr>
+<td>Chunk Amount (Minimum)</td>
+<td>8-Byte UInt (UInt64)</td>
+<td>Minimum amount the receiver should receive for this chunk in order to fulfill it. A value of <code>0</code> in a request indicates that any amount should be accepted</td>
+</tr>
+<tr>
+<td>Application Data</td>
+<td><a href="http://www.oss.com/asn1/resources/books-whitepapers-pubs/Overview%20of%20OER.pdf">OER Variable-Length Octet String</a></td>
+<td>User data carried along with the payment</td>
+</tr>
+<tr>
+<td>Extensions (E)</td>
+<td>1-Byte UInt (UInt8)</td>
+<td>Currently set to <code>0</code>. Reserved for future use to indicate the presence of extension fields. Parsers that do not understand the extensions MUST ignore them</td>
+</tr>
+<tr>
+<td>Junk Data</td>
+<td>0-? Bytes</td>
+<td><em>(Optional)</em> Extra data included to obscure what the ILP payment is for. Receivers MUST ignore this data. Senders SHOULD include either the maximum or a random number of empty (0) bytes</td>
+</tr>
+</tbody>
+</table>
+<p>* <strong>Note:</strong> The largest Payment Amount (the sum of all of the chunks) supported by PSKv2.0 is the maximum value for a UInt64 or 18446744073709551615.</p>
+<h4 id="response-fields">Response Fields</h4>
+<p>The following apply to both fulfillment and error responses:</p>
+<table class="table table-striped">
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type (T)</td>
+<td>1-Byte UInt (UInt8)</td>
+<td><code>3</code> to indicate it is a fulfillment response, <code>4</code> to indicate it is an error</td>
+</tr>
+<tr>
+<td>Payment ID</td>
+<td>16-Byte UInt</td>
+<td>Unique ID from the request. Senders SHOULD ensure that the response ID matches the request</td>
+</tr>
+<tr>
+<td>Sequence</td>
+<td>4-Byte UInt (UInt32)</td>
+<td>Chunk sequence number from the request. Senders SHOULD ensure that the sequence matches the request</td>
+</tr>
+<tr>
+<td>Payment Amount (Total Received)</td>
+<td>8-Byte UInt (UInt64)</td>
+<td>The amount the receiver has received thus far for the payment (the sum of fulfilled chunks). If a chunk exceeds the Payment Amount specified in the request, this value in the response MUST NOT include the chunk being rejected</td>
+</tr>
+<tr>
+<td>Chunk Amount (Received)</td>
+<td>8-Byte UInt (UInt64)</td>
+<td>The amount the receiver received for the given chunk</td>
+</tr>
+<tr>
+<td>Application Data</td>
+<td><a href="http://www.oss.com/asn1/resources/books-whitepapers-pubs/Overview%20of%20OER.pdf">OER Variable-Length Octet String</a></td>
+<td>User data carried along with the payment</td>
+</tr>
+<tr>
+<td>Extensions (E)</td>
+<td>1-Byte UInt (UInt8)</td>
+<td>Currently set to <code>0</code>. Reserved for future use to indicate the presence of extension fields. Parsers that do not understand the extensions MUST ignore them</td>
+</tr>
+<tr>
+<td>Junk Data</td>
+<td>0-? Bytes</td>
+<td><em>(Optional)</em> Extra data included to obscure what the ILP payment is for. Receivers MUST ignore this data. Senders SHOULD include either the maximum or a random number of empty (0) bytes</td>
+</tr>
+</tbody>
+</table>
+<h4 id="condition-generation">Condition Generation</h4>
+<p>There are two methods the sender can use to generate the condition, depending on whether they want the payment to be fulfillable or not.</p>
+<h5 id="unfulfillable-condition">Unfulfillable Condition</h5>
+<p>If the sender does not want the receiver to be able to fulfill the payment (as for an informational quote), they can generate an unfulfillable random condition.</p>
+<pre><code>condition = random_bytes(32)
+</code></pre><h5 id="fulfillable-condition">Fulfillable Condition</h5>
+<p>If the sender does want the receiver to be able to fulfill the condition, the condition MUST be generated in the following manner.</p>
+<p>The <code>shared_secret</code> is the pre-shared key that gives this protocol its name. The <code>data</code> is the <strong>encrypted</strong> payment chunk request.</p>
+<pre><code>hmac_key = hmac_sha256(shared_secret, &quot;ilp_psk2_fulfillment&quot;)
+fulfillment = hmac_sha256(hmac_key, data)
+condition = sha256(fulfillment)
+</code></pre><h4 id="fulfillment-generation">Fulfillment Generation</h4>
+<p>The following pseudocode details how the receiver regenerates the fulfillment from the data.</p>
+<p><strong>Note:</strong> Senders MAY use unfulfillable conditions to get an informational quote. Receivers MUST return an <a href="#response-fields">Error Response</a> packet that includes the amount that arrived on the incoming transfer, even if they are unable to regenerate the fulfillment from the request.</p>
+<p>The <code>shared_secret</code> is the pre-shared key that gives this protocol its name. The <code>data</code> is the <strong>encrypted</strong> payment chunk request.</p>
+<pre><code>hmac_key = hmac_sha256(shared_secret, &quot;ilp_psk2_fulfillment&quot;)
+fulfillment = hmac_sha256(hmac_key, data)
+</code></pre><h2 id="appendix-a-advanced-sender-features">Appendix A: Advanced Sender Features</h2>
+<p>Inspired by TCP, PSKv2 aims to standardize how receivers should react to incoming packets while leaving room for senders to utilize more sophisticated behavior. The following are areas for further development:</p>
+<h4 id="path-maximum-payment-size-mps-discovery">Path Maximum Payment Size (MPS) Discovery</h4>
+<p>Senders may want to discover the Maximum Payment Size (MPS) a given Interldger payment path supports to send a chunked payment as quickly as possible (this is analogous to the Internet&apos;s <a href="https://en.wikipedia.org/wiki/Path_MTU_Discovery">Path Maximum Transmission Unit (MTU)</a>). The path MPS limit may be static, such as if connectors limit the size of payments to manage the risk posed by <a href="./0018-connector-risk-mitigations/0018-connector-risk-mitigations.md#fulfillment-failure">fulfillment failure</a>, or it may be dynamic if connectors regularly settle their bilateral relationships and set their MPS based on available liquidity. In either case, senders may vary their payment sizes to determine the maximum supported by the path (at a particular moment) and they may cache the result to use as a starting point for the next payment.</p>
+<h4 id="congestion-control">Congestion Control</h4>
+<p>If connectors dynamically adjust the payment bandwidth they allocate to their peers, senders may need to use congestion avoidance strategies like those in TCP to avoid sending more payment volume than the path can handle. It is even possible that there are sufficient parallels between Interledger liquidity and Internet bandwidth to apply specific algorithms such as <a href="http://www4.ncsu.edu/~rhee/export/bitcp/cubic-paper.pdf">TCP CUBIC</a> for determining how fast to increase or decrease the payment chunk size.</p>
+<h4 id="multi-path-chunked-payments">Multi-Path Chunked Payments</h4>
+<p>If senders have connections to multiple connectors, they can send chunks of a single payment through multiple paths. The can monitor the exchange rate, latency, and reliability of each of the paths and adjust the amount of traffic they are sending through each path according to the priority they place on speed versus cost.</p>
+<h4 id="exchange-rate-optimization">Exchange Rate Optimization</h4>
+<p>As it is possible for the exchange rate to fluctuate while a chunked payment is being sent, senders may change their behavior to improve the exchange rate they get for their payment. Senders could attempt to predict market conditions and delay individual chunks until the rate improves. Senders could also specify a relatively high minimum amount the receiver should accept to execute the payments only when the exchange rate is the best.</p>
+<h4 id="data-transmission-over-ilp">Data Transmission Over ILP</h4>
+<p>If Interledger payments are fast enough, applications could choose to send both value and data over ILP. Receivers can use the Payment ID and Sequence to order the data received on each payment chunk. Senders could split their payment up based on value as well as the maximum amount of data each chunk can carry.</p>
+
+        </div>
+      </div>
+
+    </div> <!-- /container -->
+
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="col-sm-4 col-xs-12">
+              <p>Interledger Team</p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="text-center">See list of <a target="_blank" href="https://www.w3.org/community/interledger/participants">Contributors</a></p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="pull-right">Documentation licensed under <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0.</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-68500608-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    <script src="/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
