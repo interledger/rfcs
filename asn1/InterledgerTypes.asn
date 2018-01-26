@@ -29,18 +29,24 @@ Address ::= IA5String
 
 -- --------------------------------------------------------------------------
 
--- GeneralizedTime is a standard ASN.1 time format based on ISO 8601. It was
--- tempting to use the Unix epoch. Unfortunately, standard POSIX time is
--- discontinuous. If we used POSIX time for expiries for example, a transfer
--- might expire and then "un-expire" when a leap second occurs. Since
--- Interledger protocols depend on causality, we cannot use POSIX time and
--- since we do not wish to create our own time standard, we end up using ISO
--- 8601.
--- Implementations MUST express timestamps in the format 'YYYYMMDDHHmmSS.fffZ'
--- similar to RFC 3339, with fixed uppercase 'Z'. All times MUST be expressed
--- in the 'Z' timezone - i.e. a UTC offset of 00:00.
+-- We are using ISO 8601 and not POSIX time, because ISO 8601 increases
+-- monotonically and never "travels back in time" which could cause issues
+-- with transfer expiries. It is also one of the most widely supported and most
+-- well-defined date formats as of 2017.
+--
+-- Our actual wire format leaves out any fixed/redundant characters, such as
+-- hyphens, colons, the "T" separator, the decimal period and the "Z" timezone
+-- indicator.
+--
+-- The wire format is four digits for the year, two digits for the month,
+-- two digits for the day, two digits for the hour, two digits for the minutes,
+-- two digits for the seconds and three digits for the milliseconds.
+--
+-- I.e. the wire format is: 'YYYYMMDDHHmmSSfff'
+--
+-- All times MUST be expressed in UTC time.
 
-Timestamp ::= GeneralizedTime
+Timestamp ::= PrintableString (SIZE(17))
 
 -- --------------------------------------------------------------------------
 
