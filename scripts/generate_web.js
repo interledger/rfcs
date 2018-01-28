@@ -54,11 +54,6 @@ files.forEach((file) => {
   const fileContent = fs.readFileSync(file, 'utf8')
   const fmContent = fm(fileContent)
 
-  if(fmContent.attributes.deprecated) {
-    console.log("Skipped deprecated RFC in " + file)
-    return
-  }
-
   if(!fmContent.attributes.title) {
     buildPass = false;
     console.error("No title specified for " + file)
@@ -76,6 +71,13 @@ files.forEach((file) => {
   if((draftNumber^0) !== draftNumber && draftNumber !== 'FINAL') {
     buildPass = false;
     console.error("Invalid draft number found for " + file)
+    return
+  }
+
+  const deprecated = fmContent.attributes.deprecated
+
+  if(deprecated && draftNumber !== 'FINAL') {
+    console.error("Deprecated RFC must be FINAL in " + file)
     return
   }
 
@@ -124,7 +126,7 @@ files.forEach((file) => {
   $('img').addClass('img-responsive')
 
   const content = $.html()
-  const renderedHtml = template({ title, content, toc, rfcNumber, draftNumber })
+  const renderedHtml = template({ title, content, toc, rfcNumber, draftNumber, deprecated })
 
   //Versioning
   if (fs.existsSync(draftFile)) {
