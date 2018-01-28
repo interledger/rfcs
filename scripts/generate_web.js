@@ -162,13 +162,13 @@ asnFiles.forEach((file) => {
   if (file.endsWith('.md')) {
     const htmlFile = 'web/asn1/index.html'
     const content = marked(fileContent)
-    const renderedHtml = template({ title: 'Interledger ASN.1', content, toc: asnToc })
+    const renderedHtml = template({ title: 'Interledger ASN.1', content, toc: asnToc, deprecated : false })
     console.log('Writing ' + htmlFile)
     fs.writeFileSync(htmlFile, renderedHtml)
   } else {
     const basename = path.basename(file)
     const content = '<pre><code class="nohighlight">' + escape(fileContent) + '</code></pre>'
-    const renderedHtml = template({ title: basename, content, toc: asnToc })
+    const renderedHtml = template({ title: basename, content, toc: asnToc, deprecated: false })
     const htmlFile = 'web/asn1/' + basename + '.html'
     console.log('Writing ' + htmlFile)
     fs.writeFileSync(htmlFile, renderedHtml)
