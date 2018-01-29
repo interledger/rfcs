@@ -71,16 +71,15 @@ Destination address
 
 The allocation scheme is the first part of an address, which indicates how the address is assigned. Here is a summary of the prefixes that are currently defined:
 
-| Prefix                       | Allocation Scheme             | Definition and Use Case |
-|:-----------------------------|:------------------------------|:--------------|
-| `g.`                         | [Global Allocation Scheme][]  | ILP addresses that are intended to send and receive money from any other address in the global scheme. |
-| `test.`                      | Interledger testnet           | For addresses on the public Interledger testnet. |
-| `private.`                   | Private allocation            | For ILP addresses that only have meaning in a private subnet or intranet. Analogous to the [192.168.0.0/16 range in IPv4](https://en.wikipedia.org/wiki/Private_network). |
-| `example.`                   | Examples                      | For "non-real" addresses that are used as examples or in documentation. Analogous to ["555 phone numbers"](https://en.wikipedia.org/wiki/555_%28telephone_number%29) in the USA. |
-| `test1.`, `test2.`, `test3.` | Testing                       | For addresses used in local tests, such as unit or integration tests of compatible software. |
-| `local.`                     | Ledger-local                  | For addresses that are only valid in the context of a local ledger. Analogous to [link-local addresses](https://en.wikipedia.org/wiki/Link-local_address) in IP. |
-| `peer.`                      | Peering                       | Similar to ledger-local addresses, but specifically for use in a peering relationship. The [ilp-plugin-virtual](https://github.com/interledgerjs/ilp-plugin-virtual) is an example of an existing implementation that uses this. |
-| `self.`                      | Local loopback                | For addresses that are only valid on the local machine. |
+| Prefix                                 | Allocation Scheme               | Definition and Use Case |
+|:---------------------------------------|:--------------------------------|:--------------|
+| `g.`                                   | [Global Allocation Scheme][]    | ILP addresses that are intended to send and receive money from any other address in the global scheme. |
+| `private.`                             | Private allocation              | For ILP addresses that only have meaning in a private subnet or intranet. Analogous to the [192.168.0.0/16 range in IPv4](https://en.wikipedia.org/wiki/Private_network). |
+| `example.`                             | Examples                        | For "non-real" addresses that are used as examples or in documentation. Analogous to ["555 phone numbers"](https://en.wikipedia.org/wiki/555_%28telephone_number%29) in the USA. |
+|  `test.`, `test1.`, `test2.`, `test3.` | Interledger testnet and testing | For addresses used on the public Interledger testnet and in local tests, such as unit or integration tests of compatible software. |
+| `local.`                               | Ledger-local                    | For addresses that are only valid in the context of a local ledger. Analogous to [link-local addresses](https://en.wikipedia.org/wiki/Link-local_address) in IP. |
+| `peer.`                                | Peering                         | Similar to ledger-local addresses, but specifically for use in a peering relationship. The [ilp-plugin-virtual](https://github.com/interledgerjs/ilp-plugin-virtual) is an example of an existing implementation that uses this. |
+| `self.`                                | Local loopback                  | For addresses that are only valid on the local machine. |
 
 ## Global Allocation Scheme
 [Global Allocation Scheme]: #global-allocation-scheme
