@@ -1,6 +1,6 @@
 ---
 title: The Javascript Ledger Plugin Interface Version 2
-draft: 1
+draft: 2
 ---
 # Javascript Ledger Plugin Interface Version 2
 
