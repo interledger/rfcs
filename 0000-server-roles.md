@@ -9,12 +9,12 @@ This document describes the different roles a server can play on the Interledger
 ## The Connector Role
 
 An Interledger Connector should expose one or more end-points for clients to connect with. The behavior of each end-point should
-follow either [BTP/2.0](https://github.com/interledger/rfcs/pull/360), [http-oer](https://github.com/interledger/rfcs/pull/349#issuecomment-350914252), or [http-head](https://github.com/interledger/rfcs/blob/de237e8b9250d83d5e9d9dec58e7aca88c887b57/0000-ilp-over-http.md).
+follow either [BTP/2.0](https://github.com/interledger/rfcs/blob/35e6dd7e065f3c3232304d012429d1b7e3eb0d39/0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md), [http-oer](https://github.com/interledger/rfcs/pull/349#issuecomment-350914252), or [http-head](https://github.com/interledger/rfcs/blob/de237e8b9250d83d5e9d9dec58e7aca88c887b57/0000-ilp-over-http.md).
 
-On top of this, the server should respond to ilp/forwarded, ilp/il-dcp, ilp/il-balance, info, paychan (various), and route-broadcast requests (see below). If BTP is used, the server should also respond to [auth](https://github.com/interledger/rfcs/pull/372), and may also initiate ilp/forwarded, paychan, and route-broadcast requests, but not ilp/il-dcp, ilp/il-balance, or info requests.
+On top of this, the server should respond to ilp/forwarded, ilp/il-dcp, ilp/il-balance, and route-broadcast requests (see below). If BTP is used, the server should also respond to [auth](https://github.com/interledger/rfcs/pull/372), and may also initiate ilp/forwarded, paychan, and route-broadcast requests, but not ilp/il-dcp, ilp/il-balance, or info requests. Depending on which settlement ledger is used, pther protocols should be implemented accordingly. For instance, https://github.com/interledgerjs/ilp-plugin-xrp-asym-server/issues/10 describes a number of additional protocols to be used for sending XRP payment channel claims.
 
 ### ILP
-ILP packets are used for various purposes. The request has the form of an ILP Prepare, and the response has the form of an ILP Fulfill (if succcessful) or an ILP Reject (if unsuccessful).
+ILP packets are used for various purposes. The request has the form of an ILP Prepare, and the response has the form of an ILP Fulfill (if successful) or an ILP Reject (if unsuccessful).
 
 #### il-dcp
 If the destination address is `peer.config` then the server should respond as described in https://github.com/interledgerjs/ilp-protocol-ildcp/issues/1.
