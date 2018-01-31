@@ -22,35 +22,10 @@ If the destination address is `peer.config` then the server should respond as de
 #### il-balance
 If the destination address is `peer.balance` then the server should respond with the balance in the fulfillment data.
 
-#### forwarded
-If the destination address is neither `peer.config` nor `peer.balance`, then the connector should try to obtain the fulfillment by forwarding the payment to the shop or payee indicated by the address.
-
-### info
-If the info request call type is `0`, the server should respond with JSON like https://github.com/interledgerjs/ilp-plugin-xrp-asym-server/blob/v1.0.3/index.js#L93-L96
-Info request call type `1` is deprecated in favor of ILP/il-dcp.
-
-### paychan
-These are actually several ones, and depend on the underlying ledger used. If the underlying ledger is XRP, the server should respond to the following request types:
-#### `channel`
-[...]
-
-#### `fund_channel`
-[...]
-
-#### `channel_signature`
-[...]
-
-#### `claim`
-[...]
-
-#### `last_claim`
-[...]
-
-#### `ripple_channel_id`
-[...]
-
-### route-broadcast
-I have to look up what protocolName is used, but the format is JSON, like:
+#### route-broadcast
+ProtocolName `'ilp'` is overloaded for route broadcasts, as described in https://github.com/interledger/rfcs/issues/27
+The syntax of such a method is defined by https://github.com/interledgerjs/ilp-connector/blob/v17.0.2/schemas/RoutingUpdate.json and https://github.com/interledgerjs/five-bells-shared/blob/v22.0.1/schemas/Routes.json.
+The format is JSON, like:
 ```js
 {
   method: 'broadcast_routes'
@@ -68,13 +43,17 @@ I have to look up what protocolName is used, but the format is JSON, like:
   }
 }
 ```
- messages, using the message sending functionality of the ledger between them.
 
-The syntax of such a method is defined by https://github.com/interledgerjs/ilp-connector/blob/v17.0.2/schemas/RoutingUpdate.json and https://github.com/interledgerjs/five-bells-shared/blob/v22.0.1/schemas/Routes.json.
+#### forwarded
+If the packet doesn't start with `0x7B` ('{'), and the destination address is neither `peer.config` nor `peer.balance`, then the connector should try to obtain the fulfillment by forwarding the payment to the shop or payee indicated by the address. It should have no more than a reasonable value for transaction fee charged, the time taken to pass on prepares and pass back fulfills, and the failure rate.
+
+### Other BTP protocolNames
+All other protocols are considered to be ledger-specific, see https://github.com/interledgerjs/ilp-plugin-xrp-asym-server/issues/10 in the case of XRP payment channels.
+
 ## The Shop Role
 
-An Interledger Shop should expose one or more end-points where clients can pay for services using http-ilp.
+An Interledger Shop should expose one or more end-points where clients can pay for services using [HTTP-ILP, draft 3](https://interledger.org/rfcs/0014-http-ilp/draft-3.html) with [PSK2, draft 1](https://interledger.org/rfcs/0025-pre-shared-key-2/draft-1.html).
 
 ## The Payee Role
 
-An Interleder Payee should expose one or more end-points where clients can pay someone using a payment pointer.
+An Interleder Payee should expose one or more end-points where clients can pay someone using a [payment pointer](https://github.com/interledger/rfcs/blob/e949d28c19936e379e8fb5e6579b070ac66c018a/0000-payment-pointers/0000-payment-pointers.md) for `application/spsp+json` setup with [SPSP for PSK2](https://github.com/interledger/rfcs/blob/5641d91e806a8c3e27d97b91c76cacd13a87444b/0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) and [PSK2, draft 1](https://interledger.org/rfcs/0025-pre-shared-key-2/draft-1.html).
