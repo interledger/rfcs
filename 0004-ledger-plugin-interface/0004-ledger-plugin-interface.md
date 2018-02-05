@@ -475,7 +475,7 @@ left undefined (but not any other false-y value) if unused.
 |:--|:--|:--|
 | `String` | [id](#transferid) | UUID used as an external identifier |
 | `String` | [from](#transferfrom) | ILP Address of the source account |
-| `String` | [to](#transferto) | ILP Address of the destination account |
+| `String` | [to](#transferto) | ILP Address of the destination account (excluding [interactions](https://interledger.org/rfcs/0015-ilp-addresses/draft-1.html#interactions)) |
 | `String` | [ledger](#transferledger) | ILP Address prefix of the ledger |
 | `String` | [amount](#transferamount) | Integer transfer amount, in the ledger's base unit |
 | `String` | [ilp](#transferilp) | Base64-encoded ILP packet |
@@ -510,7 +510,7 @@ The ILP Address of the source or debit account.
 #### Transfer#to
 <code>**to**:String</code>
 
-The ILP Address of the destination or credit account.
+The ILP Address of the destination or credit account (excluding [interactions](https://interledger.org/rfcs/0015-ilp-addresses/draft-1.html#interactions)).
 
 #### Transfer#ledger
  <code>**ledger**:String</code>
