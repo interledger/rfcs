@@ -62,7 +62,7 @@ In contrast to PSKv1, which depends on the [Interledger Quoting Protocol (ILQP)]
 
 For purely informational quotes, PSKv2 uses unfulfillable test payments to the receiver to determine the exchange rate for a given path. The condition is set to a random 32-byte condition (with no known fulfillment). When the receiver gets the incoming payment, they reject the incoming transfer and include in their response how much arrived in that transfer. The sender can use the source amount they set and the receiver's response to determine the rate.
 
-When a sender is sending many payments to the receiver, they need a dynamic view of the exchange rate because the rate may change during the course of the interaction. To handle these cases, every PSKv2 payment response includes the amount that arrived in the final transfer to the receiver. Similar to the informational quotes, the sender can use the chunk source amount and the receiver's response to determine and monitor the exchange rate.
+When a sender is sending many payments to the receiver, they need a dynamic view of the exchange rate because the rate may change during the course of the interaction. To handle these cases, every PSKv2 payment response includes the amount that arrived in the final transfer to the receiver. Similar to the informational quotes, the sender can use the packet's source amount and the receiver's response to determine and monitor the exchange rate.
 
 **Judging Prices by Source Units:** With any type of Interledger quoting, whether end-to-end or using ILQP, senders SHOULD judge prices in their source units. Receivers can lie about how much arrives in a test payment for a quote or they could run their own ledger and connector that happen to have a bad exchange rate. Therefore, senders must assume that whatever amount the receiver says has arrived represents the "real" rate of the path.
 
@@ -101,6 +101,8 @@ Request and response data are encrypted using [AES-256-GCM](https://en.wikipedia
 
 #### Encryption Envelope
 
+Also see the [ASN.1 definition](../asn1/PreSharedKeyV2.asn).
+
 ```
 (Numbers represent bytes)
 
@@ -126,7 +128,7 @@ Request and response data are encrypted using [AES-256-GCM](https://en.wikipedia
 Note that the encryption key is derived from the shared secret using an HMAC.
 
 ```
-iv = random_bytes(16)
+iv = random_bytes(12)
 encryption_key = hmac_sha256(shared_secret, "ilp_psk_encryption")
 { ciphertext, auth_tag } = aes_256_gcm(encryption_key, iv, data)
 ```
@@ -136,6 +138,8 @@ encryption_key = hmac_sha256(shared_secret, "ilp_psk_encryption")
 All PSKv2.0 requests and responses encode their data in the same byte format, though the meanings of the fields differ depending on whether it is a request or a response.
 
 The following is encrypted, as defined [above](#encryption), and set as the data in an ILP Prepare, Fulfill, or Reject packet.
+
+Also see the [ASN.1 definition](../asn1/PreSharedKeyV2.asn).
 
 ```
 (Numbers represent bytes)
@@ -166,7 +170,7 @@ PSK Request packets should ONLY be sent in ILP Prepare packets.
 | Request ID (ReqID) | UInt32 | ID used to correlate requests and responses. Senders CANNOT rely on receivers enforcing uniqueness, but they SHOULD ensure that responses carry the same Request ID as the outgoing request |
 | Request Amount | UInt64 | Minimum amount that should arrive in the ILP Prepare packet for the receiver to fulfill it. Receivers SHOULD NOT accept packets where the Request Amount is greater than the ILP Prepare amount |
 | Data | [OER Variable-Length Octet String](http://www.oss.com/asn1/resources/books-whitepapers-pubs/Overview%20of%20OER.pdf) | User data carried along with the payment. Note this data is encrypted and authenticated |
-| Extensions | N/A | Addtional fields may be added after the `Application Data` later. Implementations that do not support any extensions SHOULD ignore all additional bytes |
+| Extensions | N/A | Additional fields may be added after the `Application Data` later. Implementations that do not support any extensions SHOULD ignore all additional bytes |
 | Junk Data | 0-? Bytes | _(Optional)_ Extra data included to obscure what the ILP payment is for. Receivers SHOULD ignore this data |
 
 #### Response
@@ -179,7 +183,7 @@ PSK Response packets should ONLY be sent in ILP Fulfill packets.
 | Request ID (ReqID) | UInt32 | ID used to correlate requests and responses. Receivers MUST use the same Request ID from the Request in their Response. Senders SHOULD ignore responses whose Request ID does not match their original request. |
 | Request Amount | UInt64 | Amount that arrived in the ILP Prepare packet the receiver got. This is used to help senders determine the path exchange rate and how much the receiver has gotten. Note the sender must trust the receiver to report this honestly. |
 | Data | [OER Variable-Length Octet String](http://www.oss.com/asn1/resources/books-whitepapers-pubs/Overview%20of%20OER.pdf) | User data carried along with the payment. Note this data is encrypted and authenticated |
-| Extensions | N/A | Addtional fields may be added after the `Application Data` later. Implementations that do not support any extensions SHOULD ignore all additional bytes |
+| Extensions | N/A | Additional fields may be added after the `Application Data` later. Implementations that do not support any extensions SHOULD ignore all additional bytes |
 | Junk Data | 0-? Bytes | _(Optional)_ Extra data included to obscure what the ILP payment is for. Senders SHOULD ignore this data |
 
 #### Error
@@ -192,7 +196,7 @@ PSK Response packets should ONLY be sent in ILP Reject packets.
 | Request ID (ReqID) | UInt32 | ID used to correlate requests and responses. Receivers MUST use the same Request ID from the Request in the Error. Senders SHOULD ignore responses whose Request ID does not match their original request. |
 | Request Amount | UInt64 | Amount that arrived in the ILP Prepare packet the receiver got. This is used to help senders determine the path exchange rate and how much the receiver has gotten. Note the sender must trust the receiver to report this honestly. |
 | Data | [OER Variable-Length Octet String](http://www.oss.com/asn1/resources/books-whitepapers-pubs/Overview%20of%20OER.pdf) | User data carried along with the payment. Note this data is encrypted and authenticated |
-| Extensions | N/A | Addtional fields may be added after the `Application Data` later. Implementations that do not support any extensions SHOULD ignore all additional bytes |
+| Extensions | N/A | Additional fields may be added after the `Application Data` later. Implementations that do not support any extensions SHOULD ignore all additional bytes |
 | Junk Data | 0-? Bytes | _(Optional)_ Extra data included to obscure what the ILP payment is for. Senders SHOULD ignore this data |
 
 
@@ -212,7 +216,7 @@ condition = random_bytes(32)
 
 If the sender does want the receiver to be able to fulfill the condition, the condition MUST be generated in the following manner.
 
-The `shared_secret` is the pre-shared key that gives this protocol its name. The `data` is the **encrypted** payment chunk request.
+The `shared_secret` is the pre-shared key that gives this protocol its name. The `data` is the **encrypted** PSK Request.
 
 ```
 hmac_key = hmac_sha256(shared_secret, "ilp_psk2_fulfillment")
@@ -226,7 +230,7 @@ The following pseudocode details how the receiver regenerates the fulfillment fr
 
 **Note:** Senders MAY use unfulfillable conditions to get an informational quote. Receivers MUST return an [Error Response](#error) packet that includes the amount that arrived on the incoming transfer, even if they are unable to regenerate the fulfillment from the request.
 
-The `shared_secret` is the pre-shared key that gives this protocol its name. The `data` is the **encrypted** payment chunk request.
+The `shared_secret` is the pre-shared key that gives this protocol its name. The `data` is the **encrypted** PSK Request.
 
 ```
 hmac_key = hmac_sha256(shared_secret, "ilp_psk2_fulfillment")
