@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Payments across payment networks">
 
-    <title>LegacyInterledgerProtocol.asn | Interledger</title>
+    <title>PreSharedKeyV2.asn | Interledger</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/css/bootstrap.min.css" rel="stylesheet">
@@ -110,81 +110,49 @@
           </nav>
         </div>
         <div class="col-sm-8 markdown-body">
-                      <pre><code class="nohighlight">LegacyInterledgerProtocol
+                      <pre><code class="nohighlight">PreSharedKeyV2
 DEFINITIONS
 AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
-    UInt64
+    UInt8,
+    UInt32,
+    UInt64,
+    UInt96,
+    UInt128,
+    VarBytes
     FROM GenericTypes
-
-    Address
-    FROM InterledgerTypes
 ;
 
--- the following packet type is experimental and may still change
-ForwardedPaymentData ::= SEQUENCE {
-    -- Destination ILP Address
-    account Address,
-    -- Information for recipient (transport layer information)
-    data OCTET STRING (SIZE (0..32767)),
-    -- Enable ASN.1 Extensibility
-    extensions SEQUENCE {
-        ...
-    }
+Psk2EncryptionEnvelope ::= SEQUENCE {
+    -- Random nonce
+    initializationVector UInt96,
+
+    -- Authentication tag (output of AES-GCM encryption)
+    authenticationTag UInt128,
+
+    -- Encrypted PSK Packet
+    -- Note: This is NOT encoded as a variable length (length-prefixed)
+    -- octet string. The size is constrained by the length of the data
+    -- field in the InterledgerPrepare, InterledgerFulfill, or InterledgerReject
+    -- packet containing this Psk2EncryptionEnvelope
+    cipherText OCTET STRING (SIZE (0..32739))
 }
 
-InterledgerProtocolPaymentData ::= SEQUENCE {
-    -- Amount which must be received at the destination
-    amount UInt64,
-    -- Destination ILP Address
-    account Address,
-    -- Information for recipient (transport layer information)
-    data OCTET STRING (SIZE (0..32767)),
-    -- Enable ASN.1 Extensibility
-    extensions SEQUENCE {
-        ...
-    }
-}
+Psk2Packet ::= SEQUENCE {
+    -- Type ID
+    type UInt8,
 
-InterledgerProtocolErrorData ::= SEQUENCE {
-    -- Standardized error code
-    code IA5String (SIZE (3)),
-    -- Corresponding error name
-    name IA5String,
-    -- Participant that originally emitted the error
-    triggeredBy Address,
-    -- Participants that forwarded the error
-    forwardedBy SEQUENCE OF Address,
-    -- Time of emission
-    triggeredAt GeneralizedTime,
-    -- Additional data
-    data OCTET STRING (SIZE (0..8192)),
-    -- Enable ASN.1 Extensibility
-    extensions SEQUENCE {
-        ...
-    }
-}
+    -- ID used to correlate requests and responses
+    requestId UInt32,
 
-InterledgerProtocolFulfillmentData ::= SEQUENCE {
-    -- Information for sender (transport layer information)
-    data OCTET STRING (SIZE (0..32767))
-}
+    -- In PSK2 Requests, this indicates the minimum the receiver should accept
+    -- In PSK2 Responses and Errors, it is the amount that the receiver got
+    requestAmount UInt64,
 
-InterledgerProtocolRejectionData ::= SEQUENCE {
-    -- Standardized error code
-    code IA5String (SIZE (3)),
-    -- Participant that originally emitted the error
-    triggeredBy Address,
-    -- User-readable error message
-    message UTF8String (SIZE (0..8191)),
-    -- Machine-readable error data, dependent on code
-    data OCTET STRING (SIZE (0..32767)),
-    -- Enable ASN.1 Extensibility
-    extensions SEQUENCE {
-        ...
-    }
+    -- Application data carried in the encrypted PSK Request/Response/Error
+    data VarBytes
 }
 
 END
