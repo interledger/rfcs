@@ -1,4 +1,5 @@
 ---
+draft: FINAL
 deprecated: true
 ---
 **What was formerly known as the "Atomic Transport Protocol" has been removed from the standard Interledger Protocol stack.**

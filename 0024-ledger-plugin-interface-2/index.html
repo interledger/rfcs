@@ -66,10 +66,10 @@
             <ul class="nav-fixed nav nav-sidebar">
               <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
                 <li class="nav-label">
-                  <a href="./draft-2.html">ILP-RFC 0024 Draft 2</a>
+                  <a href="./draft-1.html">ILP-RFC 0024 Draft 1</a>
                 </li>
                 <li>
-                  <a href="./draft-2.html">Permalink to this Draft</a>
+                  <a href="./draft-1.html">Permalink to this Draft</a>
                 </li>
                 <li>
                   <a href="./">View the Latest Draft of ILP-RFC 0024</a>
@@ -115,7 +115,7 @@
           </nav>
         </div>
         <div class="col-sm-8 markdown-body">
-          <h1 id="javascript-ledger-plugin-interface-version-2">Javascript Ledger Plugin Interface Version 2</h1>
+                      <h1 id="javascript-ledger-plugin-interface-version-2">Javascript Ledger Plugin Interface Version 2</h1>
 <p class="intro">The Interledger Protocol is a protocol suite for making payments across multiple different settlement systems.</p>
 <p>This spec defines a JavaScript ledger abstraction interface for Interledger clients and connectors to communicate and route payments across different ledger protocols. While the exact methods and events defined here are specific to the JavaScript implementation, this may be used as a guide for ledger abstractions in other languages.</p>
 <p>To send ILP payments through a new ledger, one must implement a ledger plugin that exposes the interface defined below. This can be used with the ILP Client and Connector and should work out of the box.</p>
@@ -153,7 +153,7 @@
 </tr>
 <tr>
 <td style="text-align:left"></td>
-<td style="text-align:left"><a href="#ledgerpluginsendmoney"><strong>sendMoney</strong></a> ( amount ) <code>&#x21D2; Promise.&lt;undefined&gt;</code></td>
+<td style="text-align:left"><a href="#ledgerpluginsendmoney"><strong>sendMoney</strong></a> ( amount ) <code>&#x21D2; Promise.&lt;Buffer&gt;</code></td>
 </tr>
 <tr>
 <td style="text-align:left"></td>

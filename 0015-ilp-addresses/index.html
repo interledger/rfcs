@@ -66,10 +66,10 @@
             <ul class="nav-fixed nav nav-sidebar">
               <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
                 <li class="nav-label">
-                  <a href="./draft-2.html">ILP-RFC 0015 Draft 2</a>
+                  <a href="./draft-1.html">ILP-RFC 0015 Draft 1</a>
                 </li>
                 <li>
-                  <a href="./draft-2.html">Permalink to this Draft</a>
+                  <a href="./draft-1.html">Permalink to this Draft</a>
                 </li>
                 <li>
                   <a href="./">View the Latest Draft of ILP-RFC 0015</a>
@@ -123,7 +123,7 @@
           </nav>
         </div>
         <div class="col-sm-8 markdown-body">
-          <h1 id="ilp-addresses---v100">ILP Addresses - v1.0.0</h1>
+                      <h1 id="ilp-addresses---v100">ILP Addresses - v1.0.0</h1>
 <p class="intro"><em>ILP addresses</em> provide a way to <a href="#routing">route</a> payments to their intended destination through a recursive series of hops, including any number of ILP Connectors. (This happens after the payment is set up on by a higher-level payment setup protocol such as <a href="../0009-simple-payment-setup-protocol">SPSP</a>.) Addresses are not meant to be user-facing, but allow several ASCII characters for easy debugging.</p>
 <p>Addresses can be subdivided into two categories:</p>
 <ul>
@@ -158,7 +158,7 @@
                     ; the last segment is REQUIRED for destination addresses
 
 scheme      = &quot;g&quot; / &quot;private&quot; / &quot;example&quot; / &quot;peer&quot; / &quot;self&quot; /
-              &quot;test&quot; / &quot;test1&quot; / &quot;test2&quot; / &quot;test3&quot;
+              &quot;test1&quot; / &quot;test2&quot; / &quot;test3&quot;
 
 separator   = &quot;.&quot;
 
@@ -168,11 +168,11 @@ segment     = 1*( ALPHA / DIGIT / &quot;_&quot; / &quot;~&quot; / &quot;-&quot; 
 </code></pre>
 <p>You can also use the following regular expressions to verify the same requirements:</p>
 <p>All Addresses:</p>
-<pre><code>(?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3]?)[.]([a-zA-Z0-9_~-]+[.])*([a-zA-Z0-9_~-]+)?$
+<pre><code>(?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])*([a-zA-Z0-9_~-]+)?$
 </code></pre><p>Address prefix:</p>
-<pre><code>(?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3]?)[.]([a-zA-Z0-9_~-]+[.])*$
+<pre><code>(?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])*$
 </code></pre><p>Destination address</p>
-<pre><code>(?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3]?)[.]([a-zA-Z0-9_~-]+[.])+[a-zA-Z0-9_~-]+$
+<pre><code>(?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3])[.]([a-zA-Z0-9_~-]+[.])+[a-zA-Z0-9_~-]+$
 </code></pre><p>(If your regular expression engine does not support lookahead, you must drop the first parenthesis and separately enforce the overall length requirement of 1023 characters or less.)</p>
 <h2 id="allocation-schemes">Allocation Schemes</h2>
 <p>The allocation scheme is the first part of an address, which indicates how the address is assigned. Here is a summary of the prefixes that are currently defined:</p>
@@ -201,9 +201,9 @@ segment     = 1*( ALPHA / DIGIT / &quot;_&quot; / &quot;~&quot; / &quot;-&quot; 
 <td style="text-align:left">For &quot;non-real&quot; addresses that are used as examples or in documentation. Analogous to <a href="https://en.wikipedia.org/wiki/555_%28telephone_number%29">&quot;555 phone numbers&quot;</a> in the USA.</td>
 </tr>
 <tr>
-<td style="text-align:left"><code>test.</code>, <code>test1.</code>, <code>test2.</code>, <code>test3.</code></td>
-<td style="text-align:left">Interledger testnet and testing</td>
-<td style="text-align:left">For addresses used on the public Interledger testnet and in local tests, such as unit or integration tests of compatible software.</td>
+<td style="text-align:left"><code>test1.</code>, <code>test2.</code>, <code>test3.</code></td>
+<td style="text-align:left">Testing</td>
+<td style="text-align:left">For addresses used in tests, such as unit or integration tests of compatible software.</td>
 </tr>
 <tr>
 <td style="text-align:left"><code>local.</code></td>
