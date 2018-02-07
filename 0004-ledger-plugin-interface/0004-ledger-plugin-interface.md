@@ -1,5 +1,5 @@
 ---
-title: The Javascript Ledger Plugin Interface
+title: The Javascript Ledger Plugin Interface 
 deprecated: 0024-ledger-plugin-interface-2
 draft: FINAL
 ---
