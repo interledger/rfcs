@@ -54,7 +54,7 @@ files.forEach((file) => {
   const fileContent = fs.readFileSync(file, 'utf8')
   const fmContent = fm(fileContent)
 
-  if(!fmContent.attributes.title) {
+  if(!fmContent.attributes.title && !fmContent.attributes.deprecated) {
     buildPass = false;
     console.error("No title specified for " + file)
     return
@@ -62,9 +62,13 @@ files.forEach((file) => {
   const title = fmContent.attributes.title
 
   if(!fmContent.attributes.draft) {
-    buildPass = false;
-    console.error("Draft number required for " + file)
-    return
+    if(fmContent.attributes.deprecated) {
+      fmContent.attributes.draft = 'FINAL'
+    } else {
+      buildPass = false;
+      console.error("Draft number required for " + file)
+      return
+    }
   }
   const draftNumber = fmContent.attributes.draft
 
