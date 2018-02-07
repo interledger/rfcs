@@ -1,6 +1,6 @@
 ---
 title: The Javascript Ledger Plugin Interface
-deprecated: See IL RFC 24 for the latest version
+deprecated: "See <a href='../0024-ledger-plugin-interface-2/'>IL RFC 24</a> for the latest version"
 draft: FINAL
 ---
 
