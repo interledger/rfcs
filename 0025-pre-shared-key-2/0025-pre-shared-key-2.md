@@ -170,8 +170,7 @@ PSK Request packets should ONLY be sent in ILP Prepare packets.
 | Request ID (ReqID) | UInt32 | ID used to correlate requests and responses. Senders CANNOT rely on receivers enforcing uniqueness, but they SHOULD ensure that responses carry the same Request ID as the outgoing request |
 | Request Amount | UInt64 | Minimum amount that should arrive in the ILP Prepare packet for the receiver to fulfill it. Receivers SHOULD NOT accept packets where the Request Amount is greater than the ILP Prepare amount |
 | Data | [OER Variable-Length Octet String](http://www.oss.com/asn1/resources/books-whitepapers-pubs/Overview%20of%20OER.pdf) | User data carried along with the payment. Note this data is encrypted and authenticated |
-| Extensions | N/A | Additional fields may be added after the `Application Data` later. Implementations that do not support any extensions SHOULD ignore all additional bytes |
-| Junk Data | 0-? Bytes | _(Optional)_ Extra data included to obscure what the ILP payment is for. Receivers SHOULD ignore this data |
+| Junk Data | 0-? Bytes | _(Optional)_ Extra data included to obscure what the ILP payment is for. Receivers SHOULD ignore this data. Later versions of this protocol MAY define additional fields that will be added after the `data` field and older implementations will simply disregard those. |
 
 #### Response
 
@@ -183,8 +182,7 @@ PSK Response packets should ONLY be sent in ILP Fulfill packets.
 | Request ID (ReqID) | UInt32 | ID used to correlate requests and responses. Receivers MUST use the same Request ID from the Request in their Response. Senders SHOULD ignore responses whose Request ID does not match their original request. |
 | Request Amount | UInt64 | Amount that arrived in the ILP Prepare packet the receiver got. This is used to help senders determine the path exchange rate and how much the receiver has gotten. Note the sender must trust the receiver to report this honestly. |
 | Data | [OER Variable-Length Octet String](http://www.oss.com/asn1/resources/books-whitepapers-pubs/Overview%20of%20OER.pdf) | User data carried along with the payment. Note this data is encrypted and authenticated |
-| Extensions | N/A | Additional fields may be added after the `Application Data` later. Implementations that do not support any extensions SHOULD ignore all additional bytes |
-| Junk Data | 0-? Bytes | _(Optional)_ Extra data included to obscure what the ILP payment is for. Senders SHOULD ignore this data |
+| Junk Data | 0-? Bytes | _(Optional)_ Extra data included to obscure what the ILP payment is for. Receivers SHOULD ignore this data. Later versions of this protocol MAY define additional fields that will be added after the `data` field and older implementations will simply disregard those. |
 
 #### Error
 
@@ -196,8 +194,7 @@ PSK Response packets should ONLY be sent in ILP Reject packets.
 | Request ID (ReqID) | UInt32 | ID used to correlate requests and responses. Receivers MUST use the same Request ID from the Request in the Error. Senders SHOULD ignore responses whose Request ID does not match their original request. |
 | Request Amount | UInt64 | Amount that arrived in the ILP Prepare packet the receiver got. This is used to help senders determine the path exchange rate and how much the receiver has gotten. Note the sender must trust the receiver to report this honestly. |
 | Data | [OER Variable-Length Octet String](http://www.oss.com/asn1/resources/books-whitepapers-pubs/Overview%20of%20OER.pdf) | User data carried along with the payment. Note this data is encrypted and authenticated |
-| Extensions | N/A | Additional fields may be added after the `Application Data` later. Implementations that do not support any extensions SHOULD ignore all additional bytes |
-| Junk Data | 0-? Bytes | _(Optional)_ Extra data included to obscure what the ILP payment is for. Senders SHOULD ignore this data |
+| Junk Data | 0-? Bytes | _(Optional)_ Extra data included to obscure what the ILP payment is for. Receivers SHOULD ignore this data. Later versions of this protocol MAY define additional fields that will be added after the `data` field and older implementations will simply disregard those. |
 
 
 ### Condition and Fulfillment Generation
