@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Payments across payment networks">
 
-    <title>InterledgerPaymentRequest.asn | Interledger</title>
+    <title>PreSharedKeyProtocol.asn | Interledger</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/css/bootstrap.min.css" rel="stylesheet">
@@ -110,31 +110,7 @@
           </nav>
         </div>
         <div class="col-sm-8 markdown-body">
-                      <pre><code class="nohighlight">InterledgerPaymentRequest
-DEFINITIONS
-AUTOMATIC TAGS ::=
-BEGIN
-
-IMPORTS
-    UInt8,
-    UInt256
-    FROM GenericTypes
-
-    InterledgerPacket
-    FROM InterledgerPacket
-;
-
-InterledgerPaymentRequest ::= SEQUENCE {
-    -- IPR Version
-    version UInt8,
-    -- Cryptographic condition
-    condition UInt256,
-    -- InterledgerPacket containing InterledgerProtocolPayment
-    packet InterledgerPacket
-}
-
-END
-</code></pre>
+                      <pre><code class="nohighlight"></code></pre>
         </div>
       </div>
 

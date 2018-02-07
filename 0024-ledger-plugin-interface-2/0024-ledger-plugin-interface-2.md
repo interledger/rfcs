@@ -1,6 +1,6 @@
 ---
 title: The Javascript Ledger Plugin Interface Version 2
-draft: 2
+draft: 1
 ---
 # Javascript Ledger Plugin Interface Version 2
 
@@ -23,7 +23,7 @@ To send ILP payments through a new ledger, one must implement a ledger plugin th
 | | [**disconnect**](#ledgerplugindisconnect) ( ) `⇒ Promise.<undefined>` |
 | | [**isConnected**](#ledgerpluginisconnected) ( ) `⇒ Boolean` |
 | | [**sendData**](#ledgerpluginsenddata) ( data ) <code>⇒ Promise.&lt;Buffer></code> |
-| | [**sendMoney**](#ledgerpluginsendmoney) ( amount ) <code>⇒ Promise.&lt;undefined></code> |
+| | [**sendMoney**](#ledgerpluginsendmoney) ( amount ) <code>⇒ Promise.&lt;Buffer></code> |
 | | [**registerDataHandler**](#ledgerpluginregisterdatahandler) ( dataHandler ) <code>⇒ undefined</code> |
 | | [**deregisterDataHandler**](#ledgerpluginderegisterdatahandler) ( ) <code>⇒ undefined</code> |
 | | [**registerMoneyHandler**](#ledgerpluginregistermoneyhandler) ( moneyHandler ) <code>⇒ undefined</code> |

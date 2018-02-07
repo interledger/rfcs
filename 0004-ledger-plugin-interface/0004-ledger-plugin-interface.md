@@ -1,7 +1,9 @@
 ---
 title: The Javascript Ledger Plugin Interface
-draft: 10
+deprecated: See IL RFC 24 for the latest version
+draft: FINAL
 ---
+
 # Javascript Ledger Plugin Interface
 
 The Interledger Protocol is a protocol suite for connecting blockchains and other ledgers.
