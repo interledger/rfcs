@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Payments across payment networks">
+
+    <title>Payment Pointers | Interledger</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link href="/css/monokai-sublime.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+
+    <!-- Google fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,200,600,700|Droid+Sans+Mono|Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
+
+    <!-- Font awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
+
+    <link href="/assets/favicon.ico" rel="icon" type="image/x-icon">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body data-spy="scroll" data-target="#myScrollspy" data-offset="160" class="spec">
+
+     <!-- navbar -->
+      <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><img class="logo" alt="interledger" src="/assets/ilp_icon.png"/></a>
+          </div>
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="/overview.html">Docs</a></li>
+              <li><a href="/community.html">Community</a></li>
+              <li><a href="/news.html">News</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a target="_blank" href="https://github.com/interledger">Github</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+    <!-- docs overview section -->
+
+    <div class="container docs-wrapper">
+      <div class="row">
+        <div id="sidebarContent">
+          <nav class="col-sm-4" id="myScrollspy">
+            <ul class="nav-fixed nav nav-sidebar">
+              <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
+                <li class="nav-label">
+                  <a href="./draft-1.html">ILP-RFC 0026 Draft 1</a>
+                </li>
+                <li>
+                  <a href="./draft-1.html">Permalink to this Draft</a>
+                </li>
+                <li>
+                  <a href="./">View the Latest Draft of ILP-RFC 0026</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#abstract">Abstract</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#design-goals">Design Goals</a>
+                </li>
+              
+                <li>
+                  <a href="#unique-and-easily-recognizable">Unique and Easily Recognizable</a>
+                </li>
+              
+                <li>
+                  <a href="#simple-transcription">Simple Transcription</a>
+                </li>
+              
+                <li>
+                  <a href="#flexible">Flexible</a>
+                </li>
+              
+                <li>
+                  <a href="#widely-usable">Widely Usable</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#payment-setup-protocols">Payment Setup Protocols</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#payment-pointer-syntax">Payment Pointer Syntax</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#payment-setup-protocol-receiver-endpoint-resolution">Payment Setup Protocol Receiver Endpoint Resolution</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#well-known-uri">Well-Known URI</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#reliability-and-consistency">Reliability and Consistency</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#semantic-attacks-and-phishing">Semantic Attacks and Phishing</a>
+                </li>
+              
+                <li class="nav-label">
+                  <a href="#the-most-dangerous-code-in-the-world-validating-ssl-certificates-in-non-browser-software">The Most Dangerous Code in the World: Validating SSL Certificates in Non-browser Software</a>
+                </li>
+              
+            </ul>
+          </nav>
+        </div>
+        <div class="col-sm-8 markdown-body">
+                      <h1 id="payment-pointers-and-payment-setup-protocols">Payment Pointers and Payment Setup Protocols</h1>
+<h2 id="abstract">Abstract</h2>
+<p class="intro">Payment pointers are a standardized identifier for accounts that are able to receive payments. In the same way that an email address provides an identifier for a mailbox in the email ecosystem a payment pointer is used by an account holder to share the details of their account with anyone that wishes to make a payment to them.</p>
+<p>A payment pointer can be resolved to an &quot;https&quot; URL that provides the location of a payment setup service endpoint at which a sender can initiate a payment to the receiver.</p>
+<h2 id="design-goals">Design Goals</h2>
+<p>The following design goals are met by this specification:</p>
+<h3 id="unique-and-easily-recognizable">Unique and Easily Recognizable</h3>
+<p>Various standardized and defacto-standardized identifiers are widely used on the Internet today such as email addresses and social media handles. The payment pointer must be obviously unique so that it is not confused with another type of identifier and also so that other identifiers are not assumed to be payment pointers.</p>
+<h3 id="simple-transcription">Simple Transcription</h3>
+<p>It should be easy for someone to exchange their payment pointer with a potential payee either by saying it, writing it down or sending it in a digital message.</p>
+<h3 id="flexible">Flexible</h3>
+<p>The payment pointer should not be tightly couple to a specific payment setup protocol or protocol version. It should be possible for any new payment setup protocol to leverage payment pointers.</p>
+<h3 id="widely-usable">Widely Usable</h3>
+<p>It should be simple for individuals or small companies to host their own payment setup protocol receiver endpoints at a URL that can be resolved via a simple and easily recognizable payment pointer. Likewise, it should be possible for a payment services provider to host payment setup protocol receiver endpoints for multiple entities without the risk of hosting them at endpoint URLs that conflict with their other services. To that end the provider should have the option of hosting different receiver endpoints under the same domain and a different path or at a different sub-domain for each receiver.</p>
+<h2 id="payment-setup-protocols">Payment Setup Protocols</h2>
+<p>A payment setup protocol is defined very generically as a protocol for exchanging payment information between a sender and receiver before executing the payment.</p>
+<p>An example of a payment setup protocol is the <a href="../0009-simple-payment-setup-protocol/">Simple Payment Setup Protocol</a> used to setup an Interledger payment.</p>
+<p>Payment pointers MUST resolve to an endpoint hosted by a payment receiver at which a payment setup protocol can be initiated. This endpoint is known as the payment setup protocol receiver endpoint.</p>
+<p>A payment setup protocol receiver endpoint is identified by an https URL as defined in <a href="https://tools.ietf.org/html/rfc7230#section-2.7.2">RFC7230</a>. It MUST accept HTTP GET requests to initiate the protocol.</p>
+<p>Payment setup protocols SHOULD define a custom MIME type for their message definitions and use HTTP content negotiation between the client and endpoint server to determine the payment setup protocol and protocol versions supported by the requesting client and the endpoint server.</p>
+<p>Example:</p>
+<p>The MIME type for SPSP is: <code>application/spsp+json</code></p>
+<h2 id="payment-pointer-syntax">Payment Pointer Syntax</h2>
+<p>This specification uses the Augmented Backus-Naur Form (ABNF) notation of <a href="https://tools.ietf.org/html/rfc2234">RFC2234</a> and imports the following rules from <a href="https://tools.ietf.org/html/rfc3986#section-3.3">RFC3986</a>): <em>host</em> and <em>path-abempty</em>.</p>
+<p>The syntax of a payment pointer is:</p>
+<pre><code>  &quot;$&quot; host path-abempty
+</code></pre><p>Example: <code>$example.com/bob</code></p>
+<p>Note that the character set of a payment pointer, as with a valid URL, is limited to valid ASCII characters. Further work may be done to define mappings from other character sets that support international characters (similar to the rules for Internationalized Domain Names) however, such mappings are not defined in this specification. Implementations that attempt to interpret a Payment Pointer that contains non-ASCII characters should be aware of the security risks.</p>
+<h2 id="payment-setup-protocol-receiver-endpoint-resolution">Payment Setup Protocol Receiver Endpoint Resolution</h2>
+<p>Given a payment pointer of the form <code>&quot;$&quot; host path-abempty</code> the payment setup protocol receiver endpoint URL is:</p>
+<pre><code>  &quot;https://&quot; host path-abempty
+</code></pre><p>If <em>path-abempty</em> is empty or equal to <code>/</code> then it is assigned the value <code>/.well-known/pay</code>.</p>
+<p>Note that this is a restricted profile of the data allowed in a full https URL. Where the URL syntax supports an <em>authority</em> the payment pointer syntax only supports a <em>host</em> which excludes the <em>userinfo</em> and <em>port</em>. The payment pointer syntax also excludes the <em>query</em> and <em>fragment</em> parts that are allowed in the URL syntax.</p>
+<p>Payment pointers that do not meet the limited syntax of this profile MUST be considered invalid and should not be used to resolve a receiver endpoint.</p>
+<p>The resolved endpoint may redirect the client to another URL but the client MUST ensure it affords the sender an opportunity to verify both the originally resolved and ultimate endpoint hosts (See the security risks described below for more details).</p>
+<p>Examples:</p>
+<p>The following payment pointers resolve to the specified endpoint URLS:</p>
+<pre><code>$example.com -&gt;                https://example.com/.well-known/pay
+$example.com/invoices/12345 -&gt; https://example.com/invoices/12345
+$bob.example.com -&gt;            https://bob.example.com/.well-known/pay
+$example.com/bob -&gt;            https://example.com/bob
+</code></pre><h1 id="payment-initiation">Payment Initiation</h1>
+<p>Given a payment pointer for a receiver, a sending client should resolve the https URL of the payment setup protocol receiver endpoint according to the rules defined in this specification.</p>
+<p>The client should then initiate an https connection with the endpoint server and perform an http GET request to the endpoint URL.</p>
+<p>The client should express the protocols it supports by including the media types of the protocol messages in the <code>Accept</code> header of the request.</p>
+<p>Example:</p>
+<pre><code>GET /.well-known/pay HTTP/1.1
+Host: bob.example.com
+Accept: application/spsp+json, application/otherprotocolformat
+</code></pre><h1 id="iana-considerations">IANA Considerations</h1>
+<h2 id="well-known-uri">Well-Known URI</h2>
+<p>This specification registers a new well-known URI. </p>
+<p>URI suffix:  &quot;pay&quot;</p>
+<p>Change controller: Interledger Payments Community Group (W3C)</p>
+<p>Specification document(s):  This document</p>
+<h1 id="security-considerations">Security Considerations</h1>
+<p>Payment pointers have many of the same security risks as URLs so it follows that the security considerations are the same even though payment pointers do not in and of themselves pose a security threat.  </p>
+<p>However, as payment pointers are used to provide a compact set of instructions for initiation of a payment, care must be taken to properly interpret the data within a payment pointer, to prevent payments being made to the wrong recipient or leaking of sensitive data.</p>
+<h2 id="reliability-and-consistency">Reliability and Consistency</h2>
+<p>There is no guarantee that once a payment pointer has been used resolve a payment setup protocol receiver endpoint, the same service will be hosted at that URI in the future.</p>
+<h2 id="semantic-attacks-and-phishing">Semantic Attacks and Phishing</h2>
+<p>Because payment pointers only support a limited profile of the data in a URL, not all of the attacks described in RFC3986 apply to payment pointers.</p>
+<p>However it is possible for a malicious actor to construct a payment pointer that appears to point to a trusted receiver but in fact points to a malicious actor. As a result the pointer is constructed that is intended to mislead a human user by appearing to identify one (trusted) naming authority while actually identifying a different authority hidden behind the noise. </p>
+<p>As detailed in [RFC7230], the &quot;https&quot; scheme (Section 2.7.2) is intended to prevent (or at least reveal) many of these potential attacks on establishing the authority behind a pointer, provided that the negotiated TLS connection is secured and the client properly verifies that the communicating server&apos;s identity matches the target URIs authority component (see [RFC2818]).Correctly implementing such verification can be difficult (see <a href="#The Most Dangerous Code in the World: Validating SSL Certificates in Non-browser Software">The Most Dangerous Code in the World</a>).</p>
+<p>Payment Setup Protocols should take heed of this risk in their design and provide a mechanism for the sender to reliably verify the receiver&apos;s identity. This may be as simple as relying on the certificate of the receiving endpoint server to identify the receiver, or may be handled explicitly within the protocol.</p>
+<p>Sending clients MUST provide a way for a sender, after providing a pointer to the client, to verify that the entity they are sending to (or at least the entity hosting the payment setup protocol receiver endpoint) is who they intended otherwise senders can easily be fooled into sending money to the wrong receiver. An example of such a mechanism is the use of extended validation certificates at the endpoint.</p>
+<h1 id="references">References</h1>
+<h2 id="the-most-dangerous-code-in-the-world-validating-ssl-certificates-in-non-browser-software">The Most Dangerous Code in the World: Validating SSL Certificates in Non-browser Software</h2>
+<p>Georgiev, M., Iyengar, S., Jana, S., Anubhai, R., Boneh, D., and V. Shmatikov, 
+&quot;The Most Dangerous Code in the World: Validating SSL Certificates in Non-browser Software&quot;, 
+In Proceedings of the 2012 ACM Conference on Computer and Communications Security (CCS&apos;12), pp. 38-49, October 2012,
+<a href="http://doi.acm.org/10.1145/2382196.2382204">http://doi.acm.org/10.1145/2382196.2382204</a>.</p>
+
+        </div>
+      </div>
+
+    </div> <!-- /container -->
+
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="col-sm-4 col-xs-12">
+              <p>Interledger Team</p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="text-center">See list of <a target="_blank" href="https://www.w3.org/community/interledger/participants">Contributors</a></p>
+            </div>
+            <div class="col-sm-4 col-xs-12">
+              <p class="pull-right">Documentation licensed under <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0.</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-68500608-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    <script src="/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
