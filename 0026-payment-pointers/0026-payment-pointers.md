@@ -58,6 +58,8 @@ The syntax of a payment pointer is:
 
 Example: `$example.com/bob`
 
+Note that the character set of a payment pointer, as with a valid URL, is limited to valid ASCII characters. Further work may be done to define mappings from other character sets that support international characters (similar to the rules for Internationalized Domain Names) however, such mappings are not defined in this specification. Implementations that attempt to interpret a Payment Pointer that contains non-ASCII characters should be aware of the security risks.
+
 ## Payment Setup Protocol Receiver Endpoint Resolution
 
 Given a payment pointer of the form `"$" host path-abempty` the payment setup protocol receiver endpoint URL is:
@@ -127,9 +129,7 @@ There is no guarantee that once a payment pointer has been used resolve a paymen
 
 Because payment pointers only support a limited profile of the data in a URL, not all of the attacks described in RFC3986 apply to payment pointers.
 
-However it is possible for a malicious actor to construct a payment pointer that appears to point to a trusted receiver but in fact points to a malicious actor. This is especially so when using internationalized domain names in the payment pointer as these can be constructed to appear as if there is a path separator (`/`) but this may in fact be a non-latin character in the _host_ portion of the pointer.
-
-As a result the pointer is constructed that is intended to mislead a human user by appearing to identify one (trusted) naming authority while actually identifying a different authority hidden behind the noise. 
+However it is possible for a malicious actor to construct a payment pointer that appears to point to a trusted receiver but in fact points to a malicious actor. As a result the pointer is constructed that is intended to mislead a human user by appearing to identify one (trusted) naming authority while actually identifying a different authority hidden behind the noise. 
 
 As detailed in [RFC7230], the "https" scheme (Section 2.7.2) is intended to prevent (or at least reveal) many of these potential attacks on establishing the authority behind a pointer, provided that the negotiated TLS connection is secured and the client properly verifies that the communicating server's identity matches the target URIs authority component (see [RFC2818]).Correctly implementing such verification can be difficult (see [The Most Dangerous Code in the World](#The Most Dangerous Code in the World: Validating SSL Certificates in Non-browser Software)).
 
