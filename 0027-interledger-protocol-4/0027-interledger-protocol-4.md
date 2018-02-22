@@ -165,6 +165,7 @@ Final errors indicate that the payment is invalid and should not be retried unle
 | **F05** | **Wrong Condition** | The receiver generated a different condition and cannot fulfill the payment. | (empty) |
 | **F06** | **Unexpected Payment** | The receiver was not expecting a payment like this (the data and destination address don't make sense in that combination, for example if the receiver does not understand the transport protocol used) | (empty) |
 | **F07** | **Cannot Receive** | The receiver (beneficiary) is unable to accept this payment due to a constraint. For example, the payment would put the receiver above its maximum account balance. | (empty) |
+| **F08** | **Amount Too Large** | The packet amount is higher than the maximum a connector is willing to forward. Senders MAY send another pakcet with a lower amount. Connectors that produce this error SHOULD encode the amount they received and their maximum in the `data` to help senders determine how much lower the packet amount should be. | See [ASN.1](../asn1/InterledgerErrorData.asn) |
 | **F99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. | Determined by Application |
 
 #### T__ - Temporary Error
@@ -175,9 +176,9 @@ Temporary errors indicate a failure on the part of the receiver or an intermedia
 |---|---|---|---|
 | **T00** | **Internal Error** | A generic unexpected exception. This usually indicates a bug or unhandled error case. | (empty) |
 | **T01** | **Peer Unreachable** | The connector has a route or partial route to the destination but was unable to reach the next connector. Try again later. | (empty) |
-| **T02** | **Peer Busy** | The next connector is rejecting requests due to overloading. Try again later. | (empty) |
+| **T02** | **Peer Busy** | The next connector is rejecting requests due to overloading. If a connector gets this error, they SHOULD retry the payment through a different route or respond to the sender with a `T03: Connector Busy` error. | (empty) |
 | **T03** | **Connector Busy** | The connector is rejecting requests due to overloading. Try again later. | (empty) |
-| **T04** | **Insufficient Liquidity** | The connector would like to fulfill your request, but it does not currently have sufficient balance or bandwidth. Try again later. | (empty) |
+| **T04** | **Insufficient Liquidity** | The connector would like to fulfill your request, but either the sender or a connector does not currently have sufficient balance or bandwidth. Try again later. | (empty) |
 | **T05** | **Rate Limited** | The sender is sending too many payments and is being rate-limited by a ledger or connector. If a connector gets this error because they are being rate-limited, they SHOULD retry the payment through a different route or respond to the sender with a `T03: Connector Busy` error. | (empty) |
 | **T99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. | Determined by Application |
 
