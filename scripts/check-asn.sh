@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+if [ `git diff master -- asn1 | wc -l` == 0 ]
+then
+echo "No changes were made in the asn1 folder, skipping this check"
+exit
+fi
+
 cat ./asn1/*.asn |
 	# Convert POST body to CRLF
 	sed $'s/$/\r/' |
