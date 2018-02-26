@@ -18,12 +18,18 @@ Web Monetization is a proposed browser API that uses ILP micropayments to moneti
 
 - Should be extremely simple for webmasters to use in their site.
 - Backend infrastructure should be optional; should be usable on a static site.
-- Should give users a choice about how much to spend, and which sites to support.
+- Should not require any interaction with the user.
+- Should give user's agent a choice about how much to spend, and which sites to support.
 - Should give advanced webmasters a way to associate payments with their users, in order to unlock premium experiences.
+- Should pay continuously as the user consumes content.
 
 ### Relation to Other Protocols
 
-Web Monetization makes use of [Payment Pointers](../0026-payment-pointers/0026-payment-pointers.md) and [SPSP](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md).
+The reason this is not using the W3C Web Payments API is that Web Monetization is intended for continuous payments rather than discrete payments. It is also not designed to have any user interaction. The idea is to provide a direct alternative to advertisements, rather than an alternative to existing checkout methods.
+
+With advertisements, the browser decides whether to display the ads and the user decides whether to engage with the ads. With Web Monetization, the browser decides whether to pay the site and, if so, how much to pay.
+
+Web Monetization makes use of [Payment Pointers](../0026-payment-pointers/0026-payment-pointers.md) in order to associate a site with an ILP destination, and [SPSP](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) in order to set up ILP payments.
 
 The browser or browser extension which provides Web Monetization will likely use the [Ledger Plugin Interface](../0004-ledger-plugin-interface/0004-ledger-plugin-interface) in order to trigger payment when a site requests it.
 
@@ -36,7 +42,7 @@ The browser or browser extension which provides Web Monetization will likely use
 - The user's browser or Web Monetization extension decides whether to pay the page.
 - If the user's browser decides not to pay, an error is thrown from the `monetize` promise.
 - If the user's browser pays, the `monetize` promise resolves.
-- The webpage may run some code in order to thank the user or offer them additional content.
+- The webpage may run some code in order to thank the user or offer them additional content. This does not guarantee that the site way paid, because it runs client-side. If confirmation of receipt is required, the backend which provides the SPSP server can be queried.
 
 ## Specification
 
@@ -54,6 +60,9 @@ as an SPSP endpoint as a URL directly.
 
 The amount of money that the user decides to send is up to them. The user SHOULD pay continuously with time,
 and SHOULD only pay when the user has the monetized page active.
+
+This function does not guarantee that the user has paid the server. The backend which runs the SPSP receiver
+will have to be queried in order to confirm how much has been paid to a specific receiver.
 
 ##### Parameters
 
