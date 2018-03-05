@@ -1,6 +1,6 @@
 ---
 title: Bilateral Transfer Protocol (BTP)
-draft: 4
+draft: 5
 ---
 # Bilateral Transfer Protocol (BTP)
 
