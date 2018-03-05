@@ -13,9 +13,9 @@ protocol for bilateral WebSocket links between Interledger connectors.
 
 ### Motivation
 
-When two Interledger connectors use [OER in HTTP POST bodies](...) as the communication channel between
-them, they each need to act as a HTTP server at times. If one of the connectors runs behind a firewall,
-this may be impossible. Therefore, we foresee in the option of using WebSockets instead of HTTP. With
+When two Interledger connectors send ILPv4 packets over HTTP POST,
+they each need to act as a HTTP server at times. If one of the connectors runs behind a firewall,
+this may be impossible. Therefore, BTP uses WebSockets instead of HTTP. With
 WebSockets, only one of the connectors needs to be publicly addressable.
 
 However, WebSockets don't provide a mechanism for relating responses to requests. BTP adds this missing
@@ -65,7 +65,7 @@ causes the peers to disagree about expiries. If one party keeps authoritative
 state, the other party must trust them not to tamper with it.
 
 - A request is **In-Flight** if the request has been sent out, but no response
-  has been sent yet.
+  has been received yet.
 
 ## Overview
 
@@ -128,9 +128,9 @@ sub-protocols carried by this packet.
 |:--|:--|:--|
 | 1 | `Response` | Response |
 | 2 | `Error` | Response |
-| 3 | (deprecated) |  |
-| 4 | (deprecated) |  |
-| 5 | (deprecated) |  |
+| 3 | (not used) |  |
+| 4 | (not used) |  |
+| 5 | (not used) |  |
 | 6 | `Message` | Request |
 | 7 | `Transfer` | Request |
 
@@ -311,9 +311,10 @@ Transfer ::= SEQUENCE {
 }
 ```
 
-`Transfer` is used to send payment channel claims to the other connector.
-The amount should indicate the relative value of this claim (compared to the
-previous best claim), in a unit that was agreed out-of-band.
+`Transfer` is used to send proof of payment, payment channel claims, or other
+settlement information to the other connector.
+The amount should indicate the relative value of this settlement state (compared to the
+previous settlement state), in a unit that was agreed out-of-band.
 
 - `Response` is returned if the peer acknowledges the `Transfer`. This means
   the transfer is now completed and has been applied to the balance. If a
