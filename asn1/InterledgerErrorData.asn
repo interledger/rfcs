@@ -1,0 +1,22 @@
+InterledgerErrorData
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt64
+    FROM GenericTypes
+;
+
+-- Each of the following should be included as the `data` field in an ILP Reject packet
+
+-- F08: Amount Too Large
+AmountTooLargeErrorData ::= SEQUENCE {
+  -- Local amount received by the connector
+  receivedAmount UInt64,
+
+  -- Maximum amount (inclusive, denominated in same units as the receivedAmount) the connector will forward
+  maximumAmount UInt64
+}
+
+END

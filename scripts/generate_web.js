@@ -54,12 +54,7 @@ files.forEach((file) => {
   const fileContent = fs.readFileSync(file, 'utf8')
   const fmContent = fm(fileContent)
 
-  if(fmContent.attributes.deprecated) {
-    console.log("Skipped deprecated RFC in " + file)
-    return
-  }
-
-  if(!fmContent.attributes.title) {
+  if(!fmContent.attributes.title && !fmContent.attributes.deprecated) {
     buildPass = false;
     console.error("No title specified for " + file)
     return
@@ -67,15 +62,26 @@ files.forEach((file) => {
   const title = fmContent.attributes.title
 
   if(!fmContent.attributes.draft) {
-    buildPass = false;
-    console.error("Draft number required for " + file)
-    return
+    if(fmContent.attributes.deprecated) {
+      fmContent.attributes.draft = 'FINAL'
+    } else {
+      buildPass = false;
+      console.error("Draft number required for " + file)
+      return
+    }
   }
   const draftNumber = fmContent.attributes.draft
 
   if((draftNumber^0) !== draftNumber && draftNumber !== 'FINAL') {
     buildPass = false;
     console.error("Invalid draft number found for " + file)
+    return
+  }
+
+  const deprecated = fmContent.attributes.deprecated
+
+  if(deprecated && draftNumber !== 'FINAL') {
+    console.error("Deprecated RFC must be FINAL in " + file)
     return
   }
 
@@ -124,7 +130,7 @@ files.forEach((file) => {
   $('img').addClass('img-responsive')
 
   const content = $.html()
-  const renderedHtml = template({ title, content, toc, rfcNumber, draftNumber })
+  const renderedHtml = template({ title, content, toc, rfcNumber, draftNumber, deprecated })
 
   //Versioning
   if (fs.existsSync(draftFile)) {
@@ -160,13 +166,13 @@ asnFiles.forEach((file) => {
   if (file.endsWith('.md')) {
     const htmlFile = 'web/asn1/index.html'
     const content = marked(fileContent)
-    const renderedHtml = template({ title: 'Interledger ASN.1', content, toc: asnToc })
+    const renderedHtml = template({ title: 'Interledger ASN.1', content, toc: asnToc, deprecated : false })
     console.log('Writing ' + htmlFile)
     fs.writeFileSync(htmlFile, renderedHtml)
   } else {
     const basename = path.basename(file)
     const content = '<pre><code class="nohighlight">' + escape(fileContent) + '</code></pre>'
-    const renderedHtml = template({ title: basename, content, toc: asnToc })
+    const renderedHtml = template({ title: basename, content, toc: asnToc, deprecated: false })
     const htmlFile = 'web/asn1/' + basename + '.html'
     console.log('Writing ' + htmlFile)
     fs.writeFileSync(htmlFile, renderedHtml)
