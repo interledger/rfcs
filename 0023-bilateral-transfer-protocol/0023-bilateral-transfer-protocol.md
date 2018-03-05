@@ -1,52 +1,27 @@
 ---
-title: Bilateral Transfer Protocol (BTP)
-draft: 5
+title: Bilateral Transfer Protocol 2.0 (BTP/2.0)
+draft: 6
 ---
-# Bilateral Transfer Protocol (BTP)
+# Bilateral Transfer Protocol 2.0 (BTP/2.0)
 
 ## Preface
 
-This document describes the Bilateral Transfer Protocol (BTP), a ledger
-protocol for bilateral transfers of value. It the successor to [Plugin
-RPC](https://github.com/interledger/rfcs/blob/master/0021-plugin-rpc-api/0021-plugin-rpc-api.md#plugin-rpc-api),
-and has been written to use OER instead of JSON.
+This document describes version 2.0 of the Bilateral Transfer Protocol (BTP), a request/response
+protocol for bilateral WebSocket links between Interledger connectors.
 
 ## Introduction
 
 ### Motivation
 
-There are many different types of ledgers, and Interledger aims to interoperate
-all of them. For fast ledgers that support hash time locks, memos, and
-messaging, it is enough to wrap the ledger's API in a [Ledger
-Plugin](https://github.com/interledger/rfcs/blob/master/0004-ledger-plugin-interface/0004-ledger-plugin-interface.md).
-These allow you to send interledger payments through anyone else on that ledger
-who is running your plugin.
+When two Interledger connectors use [OER in HTTP POST bodies](...) as the communication channel between
+them, they each need to act as a HTTP server at times. If one of the connectors runs behind a firewall,
+this may be impossible. Therefore, we foresee in the option of using WebSockets instead of HTTP. With
+WebSockets, only one of the connectors needs to be publicly addressable.
 
-In lots of scenarios, we don't have an underlying ledger that's fast enough to
-do every ILP payment on-ledger. If two parties want to transact, they can send
-transfers directly to one another with BTP. BTP requires that the two parties
-trust one another (up to a limit) for funds that have not yet been settled on
-the underlying ledger. If their trust limit is high enough, the two parties can
-transact without settling on an underlying ledger at all.
-
-Because we believe the use case for a bilateral ledger protocols is so
-ubiquitous, the BTP has been designed to be efficient to transmit and friendly
-to re-implement.
+However, WebSockets don't provide a mechanism for relating responses to requests. BTP adds this missing
+request/response layer, between WebSockets and the request/response pairs exchanged by the connectors.
 
 ### Scope
-
-BTP manages conditional and unconditional transfers, messaging requests,
-result/error reporting, and carries sub-protocols (sometimes called
-side-protocols) for extensibility.  You can use ILP without using BTP. BTP is
-not a ledger in itself, but it is a ledger-layer protocol in the [ILP
-architecture](https://github.com/interledger/rfcs/blob/master/0001-interledger-architecture/0001-interledger-architecture.md)
-because it handles local transfers of money and data.
-
-BTP is intended to be a well-suited solution so that a new bilateral ledger
-protocol doesn't need to exist for every new use case. It also includes
-functionality which is common between many different ledger types, making it a
-good place to start from when creating a new bilateral protocol for transfering
-value.
 
 This document describes the flow and data format that BTP uses, but not
 sub-protocols. Sub-protocols include optional functionality like ledger
@@ -90,17 +65,11 @@ causes the peers to disagree about expiries. If one party keeps authoritative
 state, the other party must trust them not to tamper with it.
 
 - A request is **In-Flight** if the request has been sent out, but no response
-  has been sent yet. A transfer is **In-Flight** if it has been prepared but
-not yet fulfilled nor rejected.
-
-- An **Underlying Ledger** moves value between the two peers when they settle
-  their balance. If Peer 1 owes Peer 2 100 XRP, Peer 1 could send Peer 2 100
-XRP on Ripple in order to make their balance 0. In that scenario, XRP ledger is
-the underlying ledger.
+  has been sent yet.
 
 ## Overview
 
-BTP is broken up into 4 different RPC requests, which can get 2 different
+BTP is broken up into one different RPC requests, which can get two different
 responses. Every BTP packet follows a common structure:
 
 ```
@@ -159,9 +128,9 @@ sub-protocols carried by this packet.
 |:--|:--|:--|
 | 1 | `Response` | Response |
 | 2 | `Error` | Response |
-| 3 | `Prepare` | Request |
-| 4 | `Fulfill` | Request |
-| 5 | `Reject` | Request |
+| 3 | (deprecated) |  |
+| 4 | (deprecated) |  |
+| 5 | (deprecated) |  |
 | 6 | `Message` | Request |
 | 7 | `Transfer` | Request |
 
@@ -187,6 +156,7 @@ Before anything else, when a client connects to a server, it sends a special
 `Message` request. Its primary `protocolData` entry MUST have name `'auth'`,
 content type `MIME_APPLICATION_OCTET_STREAM`,
 and empty data, and among the secondary entries, there MUST be a UTF-8
+<<<<<<< HEAD
 `'auth_token'` entry, and there MAY be a UTF-8 `'auth_username'` entry. The further secondary
 protocol data entries of this `Message` request MAY also be used to send
 additional information to the server. In situations where no authentication
@@ -195,6 +165,13 @@ empty string, but it cannot be omitted. In situations where the `'auth_token'`
 acts as a bearer token, and the value of `'auth_username'` can be derived from
 the value of `'auth_token'` deterministically, the `'auth_username'` entry can either
 be omitted, or set to the empty string.
+=======
+`'auth_token'` entry. The further secondary
+protocol data entries of this `Message` request MAY also be used to send
+additional information to the server. In situations where no authentication
+is needed, the `'auth_token'` data can be set to the
+empty string, but it cannot be omitted.
+>>>>>>> 35e6dd7... docs: BTP/2.0
 
 If the client sends any BTP call that is not a Message, or sends a Message call
 whose primary sub-protocol is not `auth`, the server should respond with an `Error`
@@ -232,7 +209,7 @@ For example, the primary sub-protocol entry of a Message might represent a quote
 
 Likewise, only the primary sub-protocol data in a Response indicates whether result of the request from the Message being responded to actually succeeded or not.
 
-In Error, Prepare, Fulfill, and Reject calls, the distinction between primary and secondary sub-protocol entries is less strict.
+In Error calls, the distinction between primary and secondary sub-protocol entries is less strict.
 
 ## Flow
 
@@ -281,140 +258,6 @@ protocol data.
   was an unexpected error and further `Message`s should not be sent. This does
 not include ILP errors such as "No quote found", only the cases in which the
 `Message` cannot be sent/processed at all.
-
-### Prepare
-
-```asn1
-Prepare ::= SEQUENCE {
-  transferId UInt128,
-  amount UInt64,
-  executionCondition UInt256,
-  expiresAt GeneralizedTime,
-  --
-  protocolData ProtocolData
-}
-```
-
-`Prepare` is used to create a transfer on the bilateral ledger. The packet
-data contains `transferId`, `amount`, `executionCondition`, and `expiresAt`.
-`Prepare` is a request with side effects, because it creates a transfer with
-the given details. This transfer begins in the `prepared` state.
-
-`transferId` is a securely random 128-bit unique ID that references the
-transfer.  `amount` is a 64-bit integer denominated in ledger base units. The
-ledger base units can be anything, so long as both parties on the bilateral
-ledger agree on their meaning. Examples of base units are "micro-XRP,"
-"satoshi," or "nano-dollars settled over paypal." `executionCondition` is a
-256-bit integer containing the SHA-256 hash of this conditional transfer's
-fulfillment.  `expiresAt` is a ASN.1 UTC GeneralizedTime containing the expiry
-of this transfer. The GeneralizedTime MUST be in UTC (i.e. no timezone info).
-
-ILP payment packets are attached to the protocol data under the protocol
-name `ilp` and the MIME type `application/octet-stream`.
-
-- `Response` is returned if the peer acknowledges the `Prepare`. This means the
-  transfer is now `prepared` and has been applied to the balance. It may carry
-sub-protocol data, for example a payment channel claim.
-
-- `Error` is returned if the peer does not accept the transfer. This could be
-  because it is incompatible with an existing transfer with the same ID (see
-Idempotency below), or because it exceeds some constraint your peer has placed.
-The amount could be too high, or could exceeds the balance. If the transfer ever enters the `prepared` state, an `Error` should not be returned. Instead, a `Reject` call should be made.
-
-#### Idempotency
-
-If a transfer with the given ID already exists in any state, a new transfer
-should not be created. If the packet (including protocol data) matches an
-existing transfer exactly and that transfer is in the `prepared` state, a
-`Response` should be returned. If the packet (including protocol data) shares
-the ID of an existing transfer but other details do not match, an `Error`
-should be returned. If the packet (including protocol data) exactly
-matches an existing transfer but that transfer is in the `fulfilled` state or
-the `rejected` state, an `Error` should be returned.
-
-#### Expiry
-
-After the `expiresAt` date is reached, the transfer can no longer be fulfilled.
-If one party on the BTP connection is keeping authoritative state, they MUST
-send a `Reject` request to the other party. If both parties are keeping
-authoritative state, they MAY independently expire the transfer (set the state
-to `rejected` and roll it back) automatically.
-
-### Fulfill
-
-```asn1
-Fulfill ::= SEQUENCE {
-  transferId UInt128,
-  fulfillment UInt256,
-  --
-  protocolData ProtocolData
-}
-```
-
-`Fulfill` is used to change an existing transfer from the `prepared` state to
-the `fulfilled` state. The packet-specific data of `Fulfill` is made up of `transferId`
-and `fulfillment`. `Fulfill` is a request with side effects: it changes the
-state of the transfer and finalizes the transfer's balance update. If the
-transfer is already fulfilled, no changes are applied.
-
-`transferId` is a 128-bit unique ID, which references an existing transfer.
-`fulfillment` is a 256-bit integer, containing the preimage of the
-`executionCondition` of the referenced transfer.
-
-A `Fulfill` request must be sent from the receiver of the referenced transfer,
-not the sender.
-
-A `Fulfill` request is successful if `transferId` references an existing
-transfer in the `prepared` state, the `fulfillment` is the SHA-256 preimage of
-the referenced transfer's `executionCondition`, and the current time (when the
-request is being processed) is before the referenced transfer's `expiresAt`.
-
-A `Fulfill` request is also successful if the transfer is in the `fulfilled`
-state, and this packet matches the one that fulfilled the transfer,
-including protocols but not including requestId.
-
-- `Response` is returned if the request is successful.  This means the
-  transfer's state is now `fulfilled`, and its balance change has been
-finalized.
-
-- `Error` is returned if there is no transfer with the given ID, the
-  fulfillment does not match the condition, the expiresAt has already passed,
-or the transfer has been `rejected`.
-
-### Reject
-
-```
-Reject ::= SEQUENCE {
-  transferId UInt128,
-  --
-  protocolData ProtocolData
-}
-```
-
-`Reject` is used to change an existing transfer from the `prepared`
-state to the `rejected` state. The packet-specific data of `Reject` is made up
-only of `transferId`.
-
-`transferId` is a 128-bit unique ID, which references an existing transfer.
-The reason that the transfer was rejected should go in the protocol data.  For
-example, if this is an ILP Payment being rejected, the `ilp` protocol will
-contain an [ILP
-Error](https://github.com/interledger/rfcs/blob/master/0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format).
-
-A `Reject` request must come from the receiver of the referenced transfer,
-not the sender.
-
-A `Reject` request is successful if `transferId` references an existing
-transfer in the `prepared` state.
-
-A `Reject` request is also successful if `transferId` references an existing
-transfer in the `rejected` state, and this packet matches the one that
-rejected this transfer, including protocols but not including requestId.
-
-- A `Response` is returned if the request is successful. This indicates that
-  the balance changes of the referenced transfer have been rolled back.
-
-- An `Error` is returned if the request was not successful.
 
 ### Error
 
@@ -468,12 +311,9 @@ Transfer ::= SEQUENCE {
 }
 ```
 
-`Transfer` is used to send money unconditionally on the bilateral ledger.
-Unlike a `Prepare`, `Transfer` is assumed to move funds immediately, without
-requiring a subsequent `Fulfill` call.
-
-Data to secure this payment (such as payment channel claims), can be attached
-under the protocol data.
+`Transfer` is used to send payment channel claims to the other connector.
+The amount should indicate the relative value of this claim (compared to the
+previous best claim), in a unit that was agreed out-of-band.
 
 - `Response` is returned if the peer acknowledges the `Transfer`. This means
   the transfer is now completed and has been applied to the balance. If a
