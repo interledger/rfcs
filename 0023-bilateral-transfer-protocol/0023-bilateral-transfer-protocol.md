@@ -1,6 +1,6 @@
 ---
 title: Bilateral Transfer Protocol (BTP)
-draft: 3
+draft: 5
 ---
 # Bilateral Transfer Protocol (BTP)
 
@@ -35,12 +35,12 @@ to re-implement.
 
 ### Scope
 
-BTP manages conditional transfers, messaging requests, result/error reporting,
-and carries sub-protocols (sometimes called side-protocols) for extensibility.
-You can use ILP without using BTP. BTP is not a ledger in itself, but it is a
-ledger-layer protocol in the [ILP
+BTP manages conditional and unconditional transfers, messaging requests,
+result/error reporting, and carries sub-protocols (sometimes called
+side-protocols) for extensibility.  You can use ILP without using BTP. BTP is
+not a ledger in itself, but it is a ledger-layer protocol in the [ILP
 architecture](https://github.com/interledger/rfcs/blob/master/0001-interledger-architecture/0001-interledger-architecture.md)
-because it handles local transfers.
+because it handles local transfers of money and data.
 
 BTP is intended to be a well-suited solution so that a new bilateral ledger
 protocol doesn't need to exist for every new use case. It also includes
@@ -163,6 +163,7 @@ sub-protocols carried by this packet.
 | 4 | `Fulfill` | Request |
 | 5 | `Reject` | Request |
 | 6 | `Message` | Request |
+| 7 | `Transfer` | Request |
 
 ### Sub-Protocol Data Format
 
@@ -186,11 +187,14 @@ Before anything else, when a client connects to a server, it sends a special
 `Message` request. Its primary `protocolData` entry MUST have name `'auth'`,
 content type `MIME_APPLICATION_OCTET_STREAM`,
 and empty data, and among the secondary entries, there MUST be a UTF-8
-`'auth_token'` entry, and a UTF-8 `'auth_username'` entry. The further secondary
+`'auth_token'` entry, and there MAY be a UTF-8 `'auth_username'` entry. The further secondary
 protocol data entries of this `Message` request MAY also be used to send
 additional information to the server. In situations where no authentication
-is needed, the `'auth_token'` and `'auth_username'` data can be set to the
-empty string, but they cannot be omitted.
+is needed, the `'auth_token'` data can be set to the
+empty string, but it cannot be omitted. In situations where the `'auth_token'`
+acts as a bearer token, and the value of `'auth_username'` can be derived from
+the value of `'auth_token'` deterministically, the `'auth_username'` entry can either
+be omitted, or set to the empty string.
 
 If the client sends any BTP call that is not a Message, or sends a Message call
 whose primary sub-protocol is not `auth`, the server should respond with an `Error`
@@ -453,3 +457,29 @@ the same request MUST NOT be retried.
 | **F06** | AlreadyRolledBackError | The transfer cannot be fulfilled because it has already been rejected or expired. |
 | **F07** | AlreadyFulfilledError | The transfer cannot be rejected because it has already been fulfilled. |
 | **F08** | InsufficientBalanceError | The transfer cannot be prepared because there is not enough available liquidity. |
+
+### Transfer
+
+```asn1
+Transfer ::= SEQUENCE {
+  amount UInt64,
+  --
+  protocolData ProtocolData
+}
+```
+
+`Transfer` is used to send money unconditionally on the bilateral ledger.
+Unlike a `Prepare`, `Transfer` is assumed to move funds immediately, without
+requiring a subsequent `Fulfill` call.
+
+Data to secure this payment (such as payment channel claims), can be attached
+under the protocol data.
+
+- `Response` is returned if the peer acknowledges the `Transfer`. This means
+  the transfer is now completed and has been applied to the balance. If a
+`Response` has been returned, balances MUST have been updated.
+
+- `Error` is returned if the peer does not accept the transfer. This could be
+  because some protocol data are malformed, or because the peer believes that
+the sender's balance is insufficient. If an `Error` has been returned, the peer
+MUST NOT have updated their balance.
