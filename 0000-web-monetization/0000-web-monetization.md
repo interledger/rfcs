@@ -69,7 +69,7 @@ will have to be queried in order to confirm how much has been paid to a specific
 | Name | Type | Description |
 |:---|:---|:---|
 | opts | `Object` | The options for monetization. |
-| opts.receiver | `String` | The payment pointer or SPSP endpoint to which ILP payments should be sent. |
+| opts.receiver | `String` | The [payment pointer](../0009-simple-payment-setup-protocol/draft-4.html) or [SPSP endpoint](../0026-payment-pointers/draft-1.html) to which ILP payments should be sent. |
 
 ##### Returns
 
