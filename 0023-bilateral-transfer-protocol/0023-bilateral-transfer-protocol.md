@@ -14,7 +14,7 @@ protocol for bilateral WebSocket links between Interledger connectors.
 ### Motivation
 
 When two Interledger connectors send ILPv4 packets over HTTP POST,
-they each need to act as a HTTP server at times. If one of the connectors runs behind a firewall,
+they each need to act as an HTTP server at times. If one of the connectors runs behind a firewall,
 this may be impossible. Therefore, BTP uses WebSockets instead of HTTP. With
 WebSockets, only one of the connectors needs to be publicly addressable.
 
@@ -215,7 +215,7 @@ In Error calls, the distinction between primary and secondary sub-protocol entri
 
 BTP uses a simple RPC flow. A request-type BTP packet is sent, and a
 response-type BTP packet is sent in response with the same request ID. The
-request types are `Message`, `Prepare`, `Fulfill` and `Reject`, and the
+request types are `Message` and `Transfer`, and the
 response types are `Response` and [`Error`](#error).
 
 Because it would be too slow to atomically save all requestIds that are
@@ -247,7 +247,7 @@ Message ::= SEQUENCE {
 ```
 
 `Message` is used for sending information to the peer. It contains no
-packet-specific data, only protocol data. [ILQP](https://github.com/interledger/rfcs/blob/master/0008-interledger-quoting-protocol/0008-interledger-quoting-protocol.md) packets are attached under the
+packet-specific data, only protocol data. [ILP](https://github.com/interledger/rfcs/blob/master/0003-interledger-protocol/0003-interledger-protocol.md#ilp-payment-packet-format) packets are attached under the
 protocol name `ilp` with content-type `application/octet-stream`.
 
 - `Response` is returned if the peer acknowledges the `Message`. If the peer
@@ -313,7 +313,7 @@ Transfer ::= SEQUENCE {
 
 `Transfer` is used to send proof of payment, payment channel claims, or other
 settlement information to the other connector.
-The amount should indicate the relative value of this settlement state (compared to the
+The amount should indicate the additional value of this settlement state (compared to the
 previous settlement state), in a unit that was agreed out-of-band.
 
 - `Response` is returned if the peer acknowledges the `Transfer`. This means
