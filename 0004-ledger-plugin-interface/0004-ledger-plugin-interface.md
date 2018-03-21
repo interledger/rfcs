@@ -1,7 +1,9 @@
 ---
-title: The Javascript Ledger Plugin Interface
-draft: 9
+title: The Javascript Ledger Plugin Interface 
+deprecated: 0024-ledger-plugin-interface-2
+draft: FINAL
 ---
+
 # Javascript Ledger Plugin Interface
 
 The Interledger Protocol is a protocol suite for connecting blockchains and other ledgers.
@@ -774,5 +776,5 @@ If `Infinity`, there is no timeout.
 | `message`         | String      | Description of the error |
 | `triggered_by`    | ILP Address or ILP Prefix | ILP address or ledger prefix from which the rejection originates |
 | `forwarded_by`    | ILP Address | (optional) The address of the last connector to forward the rejection |
-| `triggered_at`    | Timestamp   | (optional) The time the rejection occurred. |
+| `triggered_at`    | GeneralizedTime   | (optional) The time the rejection occurred. |
 | `additional_info` | Object      | Additional details about the error |
