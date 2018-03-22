@@ -45,7 +45,7 @@ Senders typically choose a connector and send all their traffic through this con
 
 A *receiver* is a system which accepts incoming Interledger packets and provides a cryptographic receipt for each packet which is returned to the sender along the same path. For more information on the cryptographic exchange, see [Payment Flow](#payment-flow).
 
-**Interledger ensures that senders' funds are safe throughout an multi-hop payment and cannot be stolen by faulty or malicious connectors (see [Interledger Security](#interledger-security)).**
+**Interledger ensures that senders' funds are safe throughout an multi-hop payment and cannot be stolen by faulty or malicious intermediaries (see [Interledger Security](#interledger-security)).**
 
 ### The Interledger
 
