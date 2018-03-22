@@ -18,9 +18,9 @@ The Interledger architecture is heavily inspired by the Internet architecture de
 
 ### Connectors
 
-A *connector* is a system that provides the service of forwarding Interledger packets towards the destination provided in the packet. Packets are forwarded across connections between senders, connectors and receivers, called *accounts*.
+A *connector* is a system that provides the service of forwarding Interledger packets towards the destination provided in the packet. Packets are forwarded across connections (called *accounts*) between senders, connectors and receivers.
 
-Interledger packets describe tiny amounts of money, which may be settled individually or in aggregate through various kinds of external payment systems collectively referred to as *ledgers*. Ledgers can include blockchains, but also banks, peer-to-peer payment schemes, automated clearing house (ACH), mobile money institutions and even central-bank operated real-time gross settlement (RTGS) systems among many other types. Some ledgers support very efficient settlement, while others support only slower forms. In general, the faster and cheaper the ledger, the more often an account is settled. See [IL-RFC 22](../0022-hashed-timelock-agreements) for more information on different ledger types and settlement strategies. Settlement does not occur between the sender and receiver directly. Each connector settles only with its direct neighbors.
+Interledger packets describe amounts of money, which may be settled individually or in aggregate through various kinds of external payment systems collectively referred to as *ledgers*. Ledgers can include blockchains, but also banks, peer-to-peer payment schemes, automated clearing house (ACH), mobile money institutions and even central-bank operated real-time gross settlement (RTGS) systems among many other types. Some ledgers support very efficient settlement, while others support only slower forms. In general, the faster and cheaper the ledger, the more often an account is settled. See [IL-RFC 22](../0022-hashed-timelock-agreements/0022-hashed-timelock-agreements.md) for more information on different ledger types and settlement strategies. Settlement does not occur between the sender and receiver directly. Each connector settles only with its direct neighbors.
 
 Connectors may generate revenue from Interledger payments by reducing the amount on each packet slightly before forwarding. Connectors may also convert an incoming packet denominated in one currency or asset type to an outgoing packet denominated in another currency or asset type.
 
@@ -49,7 +49,7 @@ A *receiver* is a system which accepts incoming Interledger packets and provides
 
 ### The Interledger
 
-The "Interledger protocol suite" can be used among any peered group of connectors, be it public or private. There is no single network that all parties must connect to to use these protocols.
+The "Interledger protocol suite" can be used among any network of peered connectors, be it public or private. There is no single network that all parties must connect to to use these protocols.
 
 "The Interledger" is the name of a public instance of the Interledger protocol suite which seeks to provide a coherent global financial infrastructure. Ideally, anyone connected to the Interledger should be able to transact with anyone else, each using their currency and connector of choice.
 
@@ -67,7 +67,7 @@ The sender first sends an Interledger `prepare` packet. Each connector may eithe
 
 Inspired by the [Lightning Network](http://lightning.network), Interledger uses the digest of the [SHA-256](https://en.wikipedia.org/wiki/SHA-2) hash function as the condition for `prepare` packets. The `fulfill` packet contains a valid 32-byte preimage for the hash specified in the `prepare` packet. Connectors are responsible for validating fulfillments. [Transport Layer](#transport-layer) protocols are used by the sender and receiver to generate the condition for a particular packet.
 
-Settlement may either be based solely on trust between the connector and its peers, or be supported with functionality on the settlement ledger. See [IL-RFC 17](../0017-ledger-requirements/0017-ledger-requirements.md) for the full description and tiers of ledger requirements.
+Settlement may either be based solely on trust between the connector and its peers, or be supported with functionality on the settlement ledger.
 
 As the `prepare` packet makes its way to the receiver, connectors only reserve the appropriate amount of funds, they do not settle it yet. No obligation is agreed yet between the peers, so none can be lost if a connector fails or attempts to redirect the packet.
 
