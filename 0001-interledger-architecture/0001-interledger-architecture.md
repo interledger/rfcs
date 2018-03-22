@@ -49,9 +49,9 @@ A *receiver* is a system which accepts incoming Interledger packets and provides
 
 ### The Interledger
 
-The "Interledger protocol suite" can be used among any peered group of connectors, be it are public or private. There is no single network that all parties must connect to to use these protocols.
+The "Interledger protocol suite" can be used among any peered group of connectors, be it public or private. There is no single network that all parties must connect to to use these protocols.
 
-"The Interledger" is the name of a public instance of the Interledger protocol suite which seeks to provide a coherent global financial instructure. Ideally, anyone connected to the Interledger should be able to transact with anyone else, each using their currency and connector of choice.
+"The Interledger" is the name of a public instance of the Interledger protocol suite which seeks to provide a coherent global financial infrastructure. Ideally, anyone connected to the Interledger should be able to transact with anyone else, each using their currency and connector of choice.
 
 ## Interledger Security
 
@@ -61,21 +61,21 @@ The "Interledger protocol suite" can be used among any peered group of connector
 
 ### Interledger Protocol Flow
 
-The sender first sends an Interledger `prepare` packet. Each connector may either forward the `prepare` packet, or, in the case of an error, return a `reject` packet. If the `prepare` packet receiver, they may respond with either a `fulfill` or `reject` packet, depending on whether they wish to accept the Interledger packet. In either case, the resulting packet is forwarded along the same path back to the sender.
+The sender first sends an Interledger `prepare` packet. Each connector may either forward the `prepare` packet, or, in the case of an error, return a `reject` packet. If the `prepare` packet reaches the receiver, they may respond with either a `fulfill` or `reject` packet, depending on whether they wish to accept the Interledger payment. In either case, the resulting packet is passed along the same path back to the sender.
 
- Each `prepare` packet contains a *cryptographic condition* and *timeout*. If a connector receives and forwards the `fulfill` packet before the timeout, the `prepare` packet is considered fulfilled, creating an obligation for the peer that sent the packet to settle with the connector. If the timeout is reached before the `fulfill` packet is received, the connector will consider the `prepare` packet expireds and no obligation is created.
+ Each `prepare` packet contains a *cryptographic condition* and *timeout*. If a connector receives and forwards the `fulfill` packet before the timeout, the `prepare` packet is considered fulfilled, creating an obligation for the peer that sent the packet to settle with the connector. If the timeout is reached before the `fulfill` packet is received, the connector will consider the `prepare` packet expired and no obligation is created.
 
 Inspired by the [Lightning Network](http://lightning.network), Interledger uses the digest of the [SHA-256](https://en.wikipedia.org/wiki/SHA-2) hash function as the condition for `prepare` packets. The `fulfill` packet contains a valid 32-byte preimage for the hash specified in the `prepare` packet. Connectors are responsible for validating fulfillments. [Transport Layer](#transport-layer) protocols are used by the sender and receiver to generate the condition for a particular packet.
 
 Settlement may either be based solely on trust between the connector and its peers, or be supported with functionality on the settlement ledger. See [IL-RFC 17](../0017-ledger-requirements/0017-ledger-requirements.md) for the full description and tiers of ledger requirements.
 
-As the `prepare` packet makes its way to the receiver, connectors only reserve the appropriate amount of funds, they do not settle it yet. No funds are transferred, so none can be lost if a connector fails or attempts to redirect the packet.
+As the `prepare` packet makes its way to the receiver, connectors only reserve the appropriate amount of funds, they do not settle it yet. No obligation is agreed yet between the peers, so none can be lost if a connector fails or attempts to redirect the packet.
 
 When the *receiver* receives the `prepare` packet, they return the `fulfill` packet to claim their funds. Each connector uses the same `fulfill` packet to claim their funds respectively from the party (sender or connector) that sent them the `prepare` packet.
 
-When forwarding a `prepare` packet from the sender-side account to the receiver-side account, each connector will reduce the timeout by a fixed amount. This provides with a fixed time window to pass back the `fulfill` packet from the receiver-side account to the sender-side account later. A connector must have a fair chance to pass the `fulfill` packet back before the timeout on the sender-side account is reached, even if the `fulfill` packet was received on the receiver-side account at the last possible moment. Otherwise, it would be obligated to pay out on the receiver-side account with no obligation on their counterparty on the sender-side account to pay them back.
+When forwarding a `prepare` packet from the sender-side account to the receiver-side account, each connector will reduce the timeout by a fixed amount. This provides a fixed time window to pass back the `fulfill` packet from the receiver-side account to the sender-side account later. A connector must have a fair chance to pass the `fulfill` packet back before the timeout on the sender-side account is reached, even if the `fulfill` packet was received on the receiver-side account at the last possible moment. Otherwise, it would be obligated to pay out on the receiver-side account with no obligation on their counterparty on the sender-side account to pay them back.
 
-For more details on the flow, see the [Interledger Protocol specification](../0003-interledger-protocol/0003-interledger-protocol.md) and the [Interledger whitepaper](https://interledger.org/interledger.pdf).
+For more details on the flow, see the [ILPv4 specification](../0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 
 <span class="show alert alert-info">**Note:** Interledger only supports Universal mode as described in the whitepaper. Atomic mode can be used by adjacent subsets of participants in an Interledger payment if desired, but this is not part of the standard.</span>
 
