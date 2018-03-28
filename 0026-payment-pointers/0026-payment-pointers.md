@@ -1,6 +1,6 @@
 ---
 title: Payment Pointers
-draft: 1
+draft: 2
 ---
 # Payment Pointers and Payment Setup Protocols
 
@@ -34,7 +34,7 @@ It should be simple for individuals or small companies to host their own payment
 
 A payment setup protocol is defined very generically as a protocol for exchanging payment information between a sender and receiver before executing the payment.
 
-An example of a payment setup protocol is the [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/) used to setup an Interledger payment.
+Examples of payment setup protocols are the [Loopback Server Discovery](../0029-loopback-transport/0029-loopback-transport.md#discovery) protocol and the [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/) used to setup an Interledger payment.
 
 Payment pointers MUST resolve to an endpoint hosted by a payment receiver at which a payment setup protocol can be initiated. This endpoint is known as the payment setup protocol receiver endpoint.
 
@@ -100,7 +100,7 @@ Example:
 ```
 GET /.well-known/pay HTTP/1.1
 Host: bob.example.com
-Accept: application/spsp+json, application/otherprotocolformat
+Accept: application/lsd+json, application/spsp+json, application/otherprotocolformat
 ```
 
 # IANA Considerations

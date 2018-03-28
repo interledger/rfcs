@@ -1,6 +1,6 @@
 ---
 title: HTTP-ILP
-draft: 3
+draft: 4
 ---
 # HTTP-ILP
 
@@ -93,6 +93,16 @@ Note that the client hasn't paid at this point and is only making the request to
 The server returns an HTTP code of `204 No Content` and includes response headers showing the amount, an ILP address and a shared secret.
 The amount expresses how much the request would have cost, as a decimal string and counted in the base unit of the ledger to which the ILP address belongs.
 
+If the server chooses to use a [Loopback transport](../0029-loopback-transport/0029-loopback-transport.md) to handle the account between them and the client, they respond with:
+
+``` http
+HTTP/1.1 204 No Content
+Pay: interledger-loopback wss+btp://SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU@btp.ankita.com/ 10
+Pay-Balance: 0
+```
+
+If the server chooses to use [PSK2](../0025-pre-shared-key-2/0025-pre-shared-key-2.md) as the transport instead, they respond with:
+
 ``` http
 HTTP/1.1 204 No Content
 Pay: interledger-psk2 us.nexus.ankita.~recv.filepay SkTcFTZCBKgP6A6QOUVcwWCCgYIP4rJPHlIzreavHdU 10
@@ -105,9 +115,13 @@ The client can now use the shared secret to create a condition to pay this host.
 
 The shared_secret is now a shared secret between the client and server, but will be unknown to any third-party connectors between them.
 
-### 2.3. Client initiates a PSK2 payment to refill its balance
 
-In order to refill its balance, the client now creates a PSK2 payment with the following properties:
+### 2.3. Client refills its balance
+
+Once a loopback link is established between client and server, the client can use the Loopback transport to increase their `Pay-Balance`.
+
+If the PSK transport was chosen instead, then
+in order to refill its balance, the client now creates a PSK2 payment with the following properties:
 
 * destinationAccount: `'us.nexus.ankita.~recv.filepay'`
 * destinationAmount: `100`

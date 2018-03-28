@@ -1,6 +1,6 @@
 ---
 title: The Loopback Transport Protocol (LT)
-draft: 1
+draft: 2
 ---
 # Loopback Transport Protocol (LT)
 
@@ -10,7 +10,7 @@ The Loopback Transport protocol is a technique for transporting value over the I
 
 The following flow describes how the sender's loopback transfer module ("LT module") interacts with the application layer protocol, the receiver, and the ILPv4 network.
 
-1. The loopback connection is established out of band. For instance, the application layer protocol may allow the receiver to specify a [BTP/2.0](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md) URL for the sender to connect to.
+1. The loopback connection is established out of band (see also [discovery](#discovery)). For instance, the application layer protocol may allow the receiver to specify a [BTP/2.0](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md) URL for the sender to connect to.
 1. The sender's LT module is initialized with this open connection.
 1. The sender's LT module discovers the loopback address using [IL-DCP](https://github.com/interledgerjs/ilp-protocol-ildcp).
 1. The sender's application layer protocol tells the LT module to send a payment for a given source amount, and expiry time.
@@ -31,3 +31,14 @@ When designing an application layer protocol, it's advisable to support both LT 
 If LT is chosen, the loopback link needs to be established; this will usually require some data exchange (e.g., one of the two parties sends connection details to the other party).
 
 The flow described above assumes one party only acts as the sender, and the other party only acts as the receiver, but once the loopback link is established, it can easily be used in both directions (in that case, each participant would send an IL-DCP request to the other participant, to ask for a loopback address).
+
+## Discovery
+
+A loopback server can be defined in the Loopback Server Definition (LSD) format, whose mime-type is `application/lsd+json`:
+
+```js
+{
+  loopback: 'wss+btp://token@example.com/'
+  protocol: 'BTP/2.0'
+}
+```
