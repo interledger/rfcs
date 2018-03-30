@@ -24,6 +24,26 @@ The following flow describes how the sender's loopback transfer module ("LT modu
 1. The sender's LT module accepts or rejects the ILPv4 payment that looped back over the loopback link.
 1. If for whatever reason the payment does not arrive in time, the LT module responds to the application layer protocol with an error message instead
 
+## Sender implementation requirements
+
+In order to *send* Interledger payments over the loopback protocol, the sender needs to implement:
+
+* Their part of an ILPv4 connection with the receiver
+* Their part of an ILPv4 connection with some connector
+* An IL-DCP client, for discovering the loopback address
+* A pseudo random generator for generating fulfillments
+* The SHA256 hash algorithm, so that they can calculate which conditions to send
+
+## Receiver implementation requirements
+
+In order to receive Interledger payments over the loopback protocol, the receiver needs to implement:
+
+* Their part of an ILPv4 connection with the sender
+* Their part of an ILPv4 connection with some connector
+* An IL-DCP server, where the sender can discover the loopback address
+* Forwarding behavior, so that incoming packets destined for the loopback address are relayed to the sender
+* The SHA256 hash algorithm, so that they verify the fulfillments that the sender produces
+
 ## How to use
 
 When designing an application layer protocol, it's advisable to support both LT and PSK. Even though LT is far simpler than PSK, the extra loopback hop means that LT payments inherently have a higher latency than PSK payments, where the receiver can immediately fulfill incoming prepared payments. In situations where the sender can easily formulate instructions for the receiver about when to accept a payment and when not, and the sender trusts the receiver to execute these instructions in good faith, the speed up achieved with PSK means money needs to be tied up for less time, and this may translate to lower transaction fees, depending on connector pricing policies. So the application layer protocol needs to provide a choice between LT and PSK.
