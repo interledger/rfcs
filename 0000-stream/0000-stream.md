@@ -125,7 +125,10 @@ See the [ASN.1 definition](../asn1/Stream.asn) for the formal specification.
 | Version | UInt8 | `1` for this version |
 | ILP Packet Type | UInt8 | ILPv4 packet type this STREAM packet MUST be sent in (`12` for Prepare, `13` for Fulfill, and `14` for Reject). A sender or receiver MUST discard a STREAM packet that comes in on the wrong ILP Packet Type. |
 | Sequence | VarUInt | Identifier for this request/response. A STREAM packet sent with an ILP Fulfill or Reject MUST have the same `Sequence` as the ILP Prepare packet it is a response to. A sender MUST discard a STREAM packet in which the `Sequence` does not match the STREAM packet sent with their ILP Prepare. |
-|
+| Prepare Amount | VarUInt | If the STREAM packet is sent on an ILP Prepare, this represents the minimum the receiver should accept. If the packet is sent on an ILP Fulfill or Reject, this represents the amount that the receiver got in the Prepare. |
+| Frames | SEQUENCE OF Frame | The rest of the packet is comprised of type- and length-prefixed Frames, as specified below. Note that the array of frames is NOT length-prefixed. |
+
+**TODO**: Should we length-prefix the frames array and make the padding a field in the packet format to better comply with OER? Note that we cannot length-prefix the padding because in certain edge cases it could make it impossible to pad to the right length when the length prefix is included.
 
 ### Frames and Frame Types
 
@@ -165,3 +168,7 @@ See the [ASN.1 definition](../asn1/Stream.asn) for the formal specification.
 | `0x22` | Stream Data Max |
 | `0x23` | Stream Data Blocked |
 | `0x24` | Stream Data Close |
+
+#### Padding
+
+Zero (hex `0x00`) bytes MAY be appended after the other frames, for example to ensure that all packets are the same size to minimize the information gained from passive packet analysis. A parser SHOULD stop reading once it reaches a zero byte instead of a Frame Type Identifier.
