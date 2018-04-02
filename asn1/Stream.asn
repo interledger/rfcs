@@ -1,0 +1,153 @@
+Stream
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt8,
+    UInt96,
+    UInt128,
+    VarUInt,
+    VarBytes
+    FROM GenericTypes
+
+    Address
+    FROM InterledgerTypes
+;
+
+StreamEncryptionEnvelope ::= SEQUENCE {
+    -- Random nonce
+    initializationVector UInt96,
+
+    -- Authentication tag (output of AES-GCM encryption)
+    authenticationTag UInt128,
+
+    -- Encrypted STREAM Packet
+    -- Note: This is NOT encoded as a variable length (length-prefixed)
+    -- octet string. The size is constrained by the length of the data
+    -- field in the InterledgerPrepare, InterledgerFulfill, or InterledgerReject
+    -- packet containing this Psk2EncryptionEnvelope
+    cipherText OCTET STRING (SIZE (0..32739))
+}
+
+StreamPacket ::= SEQUENCE {
+  -- Always 1 for now
+  version UInt8,
+
+  -- ILP Packet type this STREAM packet must be carried upon
+  ilpPacketType UInt8,
+
+  -- Packet ID
+  sequence VarUInt,
+
+  -- If attached to a Prepare packet, minimum amount that the receiver should accept
+  -- If attached to a Fulfill or Reject packet, amount that arrived at the receiver
+  prepareAmount VarUInt,
+
+  frames SEQUENCE OF Frame
+}
+
+FRAME ::= CLASS {
+  &typedId UInt8 UNIQUE,
+  &Type
+} WITH SYNTAX {&typeId &Type}
+
+FrameSet FRAME ::= {
+  -- Connection-related frames (hex 0x0?)
+  {1 ConnectionError} |
+  --{2 ApplicationError} |
+  --{3 ConnectionMaxMoney} |
+  --{4 ConnectionMoneyBlocked} |
+  --{5 ConnectionMaxData} |
+  --{6 ConnectionDataBlocked} |
+  --{7 ConnectionMaxStreamId} |
+  --{8 ConnectionStreamIdBlocked} |
+  {9 ConnectionNewAddress} |
+
+  -- MoneyStream-related frames (hex 0x1?)
+  {16 StreamMoney} |
+  {17 StreamMoneyEnd} |
+  {18 StreamMoneyMax} |
+  --{19 StreamMoneyBlocked} |
+  --{20 StreamMoneyError} |
+
+  -- DataStream-related frames (hex 0x2?)
+  {32 StreamData} |
+  {33 StreamDataEnd} |
+  --{34 StreamDataMax} |
+  --{35 StreamDataBlocked} |
+  --{36 StreamDataError}
+}
+
+StreamFrame ::= SEQUENCE {
+  type FRAME.&typeId ({FrameSet}),
+  data FRAME.&Type ({PacketSet}{@type})
+}
+
+ConnectionError ::= SEQUENCE {
+  -- Numeric error code
+  code UInt8,
+
+  -- Human-readable error message (UTF-8)
+  message VarBytes
+}
+
+ConnectionNewAddress ::= SEQUENCE {
+  -- ILP Address of the party that sends the frame
+  address Address
+}
+
+StreamMoney ::= SEQUENCE {
+  -- Identifier of the MoneyStream
+  streamId VarUInt,
+
+  -- The proportion of the Prepare amount that should go to this stream
+  -- i.e. the amount for a given stream = prepare amount * shares / (sum of shares from all StreamMoney frames in the packet)
+  shares VarUInt
+}
+
+StreamMoneyEnd ::= SEQUENCE {
+  -- Identifier of the MoneyStream
+  streamId VarUInt,
+
+  -- The proportion of the Prepare amount that should go to this stream
+  -- i.e. the amount for a given stream = prepare amount * shares / (sum of shares from all StreamMoney frames in the packet)
+  shares VarUInt
+}
+
+StreamMoneyMax ::= SEQUENCE {
+  -- Identifier of the MoneyStream
+  streamId VarUInt,
+
+  -- Maximum amount the MoneyStream can receive
+  receiveMax VarUInt,
+
+  -- Total amount the MoneyStream has received so far
+  totalReceived VarUInt
+}
+
+StreamData ::= SEQUENCE {
+  -- Identifier of the DataStream
+  streamId VarUInt,
+
+  -- Byte number of the first byte in this frame within the whole DataStream
+  -- (the first StreamData frame sent for a given DataStream will have an offset of 0)
+  offset VarUInt,
+
+  -- Application data
+  data VarBytes
+}
+
+StreamDataEnd ::= SEQUENCE {
+  -- Identifier of the DataStream
+  streamId VarUInt,
+
+  -- Byte number of the first byte in this frame within the whole DataStream
+  -- (the first StreamData frame sent for a given DataStream will have an offset of 0)
+  offset VarUInt,
+
+  -- Application data
+  data VarBytes
+}
+
+END
