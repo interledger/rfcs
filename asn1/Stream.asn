@@ -54,15 +54,15 @@ FRAME ::= CLASS {
 
 FrameSet FRAME ::= {
   -- Connection-related frames (hex 0x0?)
-  {1 ConnectionError} |
-  --{2 ApplicationError} |
-  --{3 ConnectionMaxMoney} |
-  --{4 ConnectionMoneyBlocked} |
-  --{5 ConnectionMaxData} |
-  --{6 ConnectionDataBlocked} |
-  --{7 ConnectionMaxStreamId} |
-  --{8 ConnectionStreamIdBlocked} |
-  {9 ConnectionNewAddress} |
+  {1 ConnectionNewAddress} |
+  {2 ConnectionError} |
+  --{3 ApplicationError} |
+  --{4 ConnectionMaxMoney} |
+  --{5 ConnectionMoneyBlocked} |
+  --{6 ConnectionMaxData} |
+  --{7 ConnectionDataBlocked} |
+  --{8 ConnectionMaxStreamId} |
+  --{9 ConnectionStreamIdBlocked} |
 
   -- MoneyStream-related frames (hex 0x1?)
   {16 StreamMoney} |
