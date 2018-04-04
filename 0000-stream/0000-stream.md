@@ -12,7 +12,7 @@ ILP/STREAM, or the STREAMing Transport for the Real-time Exchange of Assets and 
 - **Client** - One of the two entities using STREAM. The Client initiates a Connection to the Server using STREAM packets sent over ILP. Because STREAM uses bidirectional streams, the Client may be either the Sender or the Receiver of a given packet.
 - **Connection** - The session established between a Client and a Server. A Connection may have zero or more Money Streams and zero or more Data Streams.
 - **Data Stream** - A bidirectional data channel used for structuring data sent over a Connection. Inspired by [QUIC's Bidirectional Streams](https://tools.ietf.org/html/draft-ietf-quic-transport-10#page-66).
-- **Money Stream** - A bidirectional money "channel" used for sending money over a Connection. Users of STREAM MAY use a single Money Stream for each Connection or multiple to account for different intended purposes for the value sent.
+- **Money Stream** - A bidirectional money channel used for sending money over a Connection. Users of STREAM MAY use a single Money Stream for each Connection or multiple to account for different intended purposes for the value sent.
 - **Receiver** - The entity that gets a STREAM packet attached to an ILP Prepare and responds with either an ILP Fulfill or Reject packet. The Receiver may refer to either the Client or Server.
 - **Sender** - The entity that sends a STREAM packet attached to an ILP Prepare. The Sender may refer to either the Client or Server.
 - **Server** - One of the two entities using STREAM. The Server listens through an ILP account for incoming Connections from Clients. Note that STREAM Servers DO NOT listen for Connections over the Internet, but rather over Interledger. Because STREAM uses bidirectional streams, the Server may be either the Sender or the Receiver of a given packet.
@@ -37,7 +37,7 @@ The Server MAY generate the shared secret from a longer-term secret and a nonce,
 
 STREAM accounts for value sent over a Connection using the Money Stream abstraction. Money Streams are bidirectional, meaning they can be used to send value from the Client to the Server or from the Server to the Client. A Connection may include any number of Money Streams.
 
-Money Streams use absolute amounts to track the total amounts sent and received, as well as the limits for sending and receiving. For example, the Sender might set their send maximum to 1000 to send 1000 units and the Connection would keep sending ILP Prepare packets until the total sent is greater than or equal to 1000.
+Money Streams use absolute amounts to track the total amounts sent and received, as well as the limits for sending and receiving. For example, the Sender might set their send maximum to 1000 to send 1000 units and the Connection would keep sending ILP Prepare packets until the total sent is equal to 1000.
 
 Multiple Money Streams MAY be used to separately account for value sent and received for different purposes. A Money Stream can be long-lived and the send and receive limits MAY be adjusted over time (for example, in response to an application-level action) or a Money Stream can be used to account for a single logical payment, in which case it would be closed when the payment is finished.
 
@@ -71,7 +71,7 @@ If one entity changes their address, the other SHOULD NOT assume that the asset 
 
 All STREAM packets are encrypted using [AES-256-GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode) with a 12-byte Initialization Vector (IV) and a 16-Byte Authentication Tag.
 
-If subsequent versions support additional encryption algorithms, those details should be exchanged between the sender and receiver when they establish the shared secret. If a receiver attempts to decrypt an incoming packet but is unable to (perhaps because the sender is using an unsupported cipher), they SHOULD reject the incoming transfer with an `F06: Unexpected Payment` error.
+If subsequent versions support additional encryption algorithms, those details should be exchanged between the sender and receiver when they establish the shared secret. If a receiver attempts to decrypt an incoming packet but is unable to (perhaps because the sender is using an unsupported cipher), the receiver SHOULD reject the incoming transfer with an `F06: Unexpected Payment` error.
 
 ### Conditions and Fulfillments
 
