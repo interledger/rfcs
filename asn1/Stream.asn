@@ -44,7 +44,7 @@ StreamPacket ::= SEQUENCE {
   -- If attached to a Fulfill or Reject packet, amount that arrived at the receiver
   prepareAmount VarUInt,
 
-  frames SEQUENCE OF Frame
+  frames SEQUENCE OF StreamFrame
 }
 
 FRAME ::= CLASS {
