@@ -6,7 +6,15 @@ draft: 4
 
 ## Preface
 
-This document describes the Simple Payment Setup Protocol (SPSP), a basic protocol for exchanging payment information between senders and receivers to set up an Interledger payment. SPSP uses the [Pre-Shared Key (PSK)](../0016-pre-shared-key/0016-pre-shared-key.md) transport protocol for condition generation and data encoding.
+This document describes the Simple Payment Setup Protocol (SPSP), a basic protocol for exchanging **payment information** between senders and receivers to set up an Interledger payment.
+
+> Actually, the protocol documented here doesn't deal with individual payments at all. Given an *entity address* (SPSP endpoing), the user of this protocal can query the entity he wishes to send money to. The query returns an ILP address for the receiver's account, and a shared secret that serves like a session id.
+>
+> However, at query time, no information is exchanged about the entity doing the querying. So the receiver has no idea about the counterparty to the shared secret (session id). Nor does the receiver have any information about why the querying entity might want to send him a payment.
+
+SPSP uses the [Pre-Shared Key (PSK)](../0016-pre-shared-key/0016-pre-shared-key.md) transport protocol for condition generation and data encoding.
+
+> Likewise, the protocol this RFC specifies and documents doesn't use PSK at all. The algorithm listed in the "Model of Operation" section uses this protocol (SPSP) and also uses the PSK transport protocol. But other than that, the two protocol are not related at all.
 
 ## Introduction
 
@@ -148,6 +156,8 @@ Content-Type: application/json
 
 ### Payment Setup
 
+> If you specified a protocal that did what this section decribes, then it would be a proper "application layer" protocol that used the underlying PSP transport protocol below it.
+
 The sender uses the receiver details to create the ILP packet:
 
 * The `account` in the ILP packet is the `destination_account` provided by the receiver
@@ -163,6 +173,9 @@ The sender uses the receiver details to create the ILP packet:
     * Private PSK headers SHOULD include `Content-Type: application/json` and `Content-Length: <byte length of data>`
 
 Note that the sender can send as many payments as they want using the same receiver info. The sender SHOULD query the receiver again once the time indicated in the [`Cache-Control` header](#response-headers) has passed.
+
+> "can send as many payments as they want"
+> Clearly as documented, this protocol describes a session of payments. Nothing described here is specified as related to a single payment.
 
 ## Appendix A: (Optional) Webfinger Discovery
 
