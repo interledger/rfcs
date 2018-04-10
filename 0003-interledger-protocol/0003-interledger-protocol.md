@@ -1,6 +1,6 @@
 ---
 title: The Interledger Protocol (ILP)
-draft: 8
+draft: 9
 ---
 # Interledger Protocol (ILP)
 
@@ -298,7 +298,7 @@ Here is a summary of the fields in the ILP error format:
 | name | IA5String | [ILP Error Code Name](#ilp-error-codes) |
 | triggeredBy | Address | ILP address of the entity that originally emitted the error |
 | forwardedBy | SEQUENCE OF Address | ILP addresses of connectors that relayed the error message |
-| triggeredAt | Timestamp | Time when the error was initially emitted |
+| triggeredAt | GeneralizedTime | Time when the error was initially emitted |
 | data | OCTET STRING | Error data provided for debugging purposes |
 
 #### code
@@ -325,7 +325,7 @@ Implementations of ILP SHOULD NOT depend on the `name` instead of the `code`. Th
 
 #### triggeredAt
 
-    Timestamp ::= GeneralizedTime
+    GeneralizedTime
 
 Date and time when the error was initially emitted. This MUST be expressed in the UTC + 0 (Z) timezone.
 

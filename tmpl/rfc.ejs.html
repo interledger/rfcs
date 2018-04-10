@@ -85,6 +85,14 @@
           </nav>
         </div>
         <div class="col-sm-8 markdown-body">
+            <% if (deprecated) { -%>
+          <p class="alert alert-warning" style="margin-top: 35px">
+            <strong>This specification has been deprecated.</strong>
+            <% if (typeof deprecated === 'string') { -%>
+              <br/>It has been replaced by <a href="../<%= deprecated %>">this</a> new specification.
+            <% } -%>            
+          </p>
+            <% } -%>
           <%- content %>
         </div>
       </div>
