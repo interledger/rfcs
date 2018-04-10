@@ -10,12 +10,6 @@ IMPORTS
     UInt128,
     UInt256
     FROM GenericTypes
-
-    Timestamp
-    FROM InterledgerTypes
-
-    InterledgerPacket
-    FROM InterledgerPacket
 ;
 
 -- Zero or more protocolData entries, each with a unique
@@ -61,7 +55,7 @@ Error ::= SEQUENCE {
   -- Corresponding error code
   name IA5String,
   -- Time of emission
-  triggeredAt Timestamp,
+  triggeredAt GeneralizedTime,
   -- Additional data
   data OCTET STRING (SIZE (0..8192)),
   --
@@ -75,7 +69,7 @@ Prepare ::= SEQUENCE {
   transferId UInt128,
   amount UInt64,
   executionCondition UInt256,
-  expiresAt Timestamp,
+  expiresAt GeneralizedTime,
   --
   protocolData ProtocolData
 }
@@ -97,6 +91,12 @@ Message ::= SEQUENCE {
   protocolData ProtocolData
 }
 
+Transfer ::= SEQUENCE {
+  amount UInt64,
+  --
+  protocolData ProtocolData
+}
+
 CALL ::= CLASS {
     &typeId UInt8 UNIQUE,
     &Type
@@ -108,7 +108,8 @@ CallSet CALL ::= {
     {3 Prepare} |
     {4 Fulfill} |
     {5 Reject} |
-    {6 Message}
+    {6 Message} |
+    {7 Transfer}
 }
 
 BilateralTransferProtocolPacket ::= SEQUENCE {

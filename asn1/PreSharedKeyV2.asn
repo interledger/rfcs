@@ -1,0 +1,46 @@
+PreSharedKeyV2
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt8,
+    UInt32,
+    UInt64,
+    UInt96,
+    UInt128,
+    VarBytes
+    FROM GenericTypes
+;
+
+Psk2EncryptionEnvelope ::= SEQUENCE {
+    -- Random nonce
+    initializationVector UInt96,
+
+    -- Authentication tag (output of AES-GCM encryption)
+    authenticationTag UInt128,
+
+    -- Encrypted PSK Packet
+    -- Note: This is NOT encoded as a variable length (length-prefixed)
+    -- octet string. The size is constrained by the length of the data
+    -- field in the InterledgerPrepare, InterledgerFulfill, or InterledgerReject
+    -- packet containing this Psk2EncryptionEnvelope
+    cipherText OCTET STRING (SIZE (0..32739))
+}
+
+Psk2Packet ::= SEQUENCE {
+    -- Type ID
+    type UInt8,
+
+    -- ID used to correlate requests and responses
+    requestId UInt32,
+
+    -- In PSK2 Requests, this indicates the minimum the receiver should accept
+    -- In PSK2 Responses and Errors, it is the amount that the receiver got
+    requestAmount UInt64,
+
+    -- Application data carried in the encrypted PSK Request/Response/Error
+    data VarBytes
+}
+
+END

@@ -9,7 +9,6 @@ IMPORTS
     FROM GenericTypes
 
     Address,
-    Timestamp,
     LiquidityCurve
     FROM InterledgerTypes
 ;
@@ -45,7 +44,7 @@ QuoteLiquidityResponseData ::= SEQUENCE {
     -- be able to honor this liquidity curve. Note that a quote in ILP is
     -- non-committal, meaning that the liquidity is only likely to be available,
     -- but not reserved and therefore not guaranteed.
-    expiresAt Timestamp,
+    expiresAt GeneralizedTime,
 
     -- Enable ASN.1 Extensibility
     extensions SEQUENCE {

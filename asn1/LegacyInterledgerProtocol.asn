@@ -1,0 +1,78 @@
+LegacyInterledgerProtocol
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt64
+    FROM GenericTypes
+
+    Address
+    FROM InterledgerTypes
+;
+
+-- the following packet type is experimental and may still change
+ForwardedPaymentData ::= SEQUENCE {
+    -- Destination ILP Address
+    account Address,
+    -- Information for recipient (transport layer information)
+    data OCTET STRING (SIZE (0..32767)),
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
+}
+
+InterledgerProtocolPaymentData ::= SEQUENCE {
+    -- Amount which must be received at the destination
+    amount UInt64,
+    -- Destination ILP Address
+    account Address,
+    -- Information for recipient (transport layer information)
+    data OCTET STRING (SIZE (0..32767)),
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
+}
+
+InterledgerProtocolErrorData ::= SEQUENCE {
+    -- Standardized error code
+    code IA5String (SIZE (3)),
+    -- Corresponding error name
+    name IA5String,
+    -- Participant that originally emitted the error
+    triggeredBy Address,
+    -- Participants that forwarded the error
+    forwardedBy SEQUENCE OF Address,
+    -- Time of emission
+    triggeredAt GeneralizedTime,
+    -- Additional data
+    data OCTET STRING (SIZE (0..8192)),
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
+}
+
+InterledgerProtocolFulfillmentData ::= SEQUENCE {
+    -- Information for sender (transport layer information)
+    data OCTET STRING (SIZE (0..32767))
+}
+
+InterledgerProtocolRejectionData ::= SEQUENCE {
+    -- Standardized error code
+    code IA5String (SIZE (3)),
+    -- Participant that originally emitted the error
+    triggeredBy Address,
+    -- User-readable error message
+    message UTF8String (SIZE (0..8191)),
+    -- Machine-readable error data, dependent on code
+    data OCTET STRING (SIZE (0..32767)),
+    -- Enable ASN.1 Extensibility
+    extensions SEQUENCE {
+        ...
+    }
+}
+
+END

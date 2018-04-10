@@ -8,12 +8,17 @@ IMPORTS
     VarBytes
     FROM GenericTypes
 
+    InterledgerPrepare,
+    InterledgerFulfill,
+    InterledgerReject
+    FROM InterledgerProtocol
+
     InterledgerProtocolPaymentData,
     ForwardedPaymentData,
     InterledgerProtocolErrorData,
     InterledgerProtocolFulfillmentData,
     InterledgerProtocolRejectionData
-    FROM InterledgerProtocol
+    FROM LegacyInterledgerProtocol
 
     QuoteLiquidityRequestData,
     QuoteLiquidityResponseData,
@@ -38,9 +43,12 @@ PacketSet PACKET ::= {
     {6 QuoteByDestinationAmountRequestData} |
     {7 QuoteByDestinationAmountResponseData} |
     {8 InterledgerProtocolErrorData} |
-    {9 InterledgerProtocolFulfillmentData } |
+    {9 InterledgerProtocolFulfillmentData} |
     {10 ForwardedPaymentData} |
-    {11 InterledgerProtocolRejectionData}
+    {11 InterledgerProtocolRejectionData} |
+    {12 InterledgerPrepare} |
+    {13 InterledgerFulfill} |
+    {14 InterledgerReject}
 }
 
 InterledgerPacket ::= SEQUENCE {
