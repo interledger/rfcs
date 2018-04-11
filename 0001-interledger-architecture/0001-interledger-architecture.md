@@ -1,6 +1,6 @@
 ---
 title: Interledger Architecture
-draft: 2
+draft: 3
 ---
 # Interledger Architecture
 
@@ -110,17 +110,22 @@ SPSP uses Webfinger ([RFC 7033](https://tools.ietf.org/html/rfc7033)), an HTTPS-
 
 Transport layer protocols are end-to-end protocols used by the senders and receivers of Interledger payments to determine the payment condition and other details. The guarantees afforded to the sender vary depending on the type of transport protocol used.
 
-There are currently two transport layer protocols:
+There are currently three transport layer protocols:
+
+* [Loopback Transport (LT)](../0029-loopback-transport/0029-loopback-transport.md)
+  In the Loopback Transport protocol, the sender temporarily opens a direct ILPv4 connection to the receiver, identified by a loopback address. The sender then sends Interledger payments, via other routes, to her own loopback address "at" the receiver. During the prepare phase, Interledger payments travel from the sender, via a number of connectors, to the receiver, and loop back to the sender (hence the name), who is the sole possessor of the fulfillment. The sender has full control over the accept/reject decision for each Interledger payment sent.
+
+  **LT is the simplest transport layer protocol of the three.**
 
 * [Pre-Shared Key (PSK)](../0016-pre-shared-key/0016-pre-shared-key.md)
 
-    In Pre-Shared Key (PSK) protocol, the sender and receiver use a shared secret to generate the payment condition, authenticate the ILP packet, and encrypt application data. Using PSK, the sender is guaranteed that fulfillment of their transfer indicates the receiver got the payment, provided that no one aside from the sender and receiver have the secret and the sender did not submit the fulfillment.
+    In Pre-Shared Key (PSK) protocol, a direct communication channel between sender and receiver is not required; once a shared secret has been established, it can be used to generate the payment condition, authenticate the ILP packet, and encrypt application data. Using PSK, the sender is guaranteed that fulfillment of their transfer indicates the receiver got the payment, provided that no one aside from the sender and receiver have the secret and the sender did not submit the fulfillment.
 
-    **PSK is recommended for most use cases.**
+   **PSK achieves lower latency than LT.**
 
 * [Interledger Payment Request (IPR)](../0011-interledger-payment-request/0011-interledger-payment-request.md)
 
-    In the Interledger Payment Request (IPR) protocol, the receiver generates the payment details and condition. The receiver does not share the secret used to generate the condition and fulfillment with the sender or anyone else, but the sender must ask the recipient to generate and share a condition before sending each payment. IPR is primarily useful for building non-repudiable application layer protocols, in which the sender's posession of the fulfillment proves to third parties that the sender has paid the receiver for a specific obligation.
+    In the Interledger Payment Request (IPR) protocol, the receiver generates the payment details and condition. The receiver does not share the secret used to generate the condition and fulfillment with the sender or anyone else, but the sender must ask the receiver to generate and share a condition before sending each payment. IPR is primarily useful for building non-repudiable application layer protocols, in which the sender's possession of the fulfillment proves to third parties that the sender has paid the receiver for a specific obligation.
 
 ### Interledger Layer
 

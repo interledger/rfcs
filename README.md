@@ -36,13 +36,18 @@ For the main reference implementation of the ILP stack, see [Interledger.js](htt
 
 ## Protocols Built Upon ILP
 
+* **[29: Loopback Transport (LT)](0029-loopback-transport/0029-loopback-transport.md)**
+
+  One of the recommended Transport Layer protocols for most use cases, which handles quoting, individual payments, chunked payments, and streaming payments using a loopback link between the sender and receiver.
+
 * **[9: Simple Payment Setup Protocol (SPSP)](0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md)**
 
-  A basic Application Layer protocol that uses HTTPS to exchange details needed to set up an Interledger payment.
+  A basic Application Layer protocol that uses HTTPS to exchange details needed to set up an Interledger payment (currently only supports PSKv2).
 
 * **[25: Pre-Shared Key V2 (PSKv2)](0025-pre-shared-key-2/0025-pre-shared-key-2.md)**
 
-  The recommended Transport Layer protocol for most use cases, which handles quoting, individual payments, chunked payments, and streaming payments using a shared secret between the sender and receiver.
+  A more advanced Transport Layer protocol which uses a shared secret to establish a virtualized end-to-end link between the sender and receiver.
+
 
 ## Ledger Layer
 
