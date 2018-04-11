@@ -96,6 +96,14 @@ The Interledger stack is separated into four layers:
 
 ### Application Layer
 
+> An *application layer* protocol (like HTTPS) presents an API for the actual application to use. It does not specify an algorithm that an application must implement. As such, I think our layering metaphor is miss-layered. (see comments in SPSP)
+>
+> The SPSP protocol provides session information and destination account discovery. It does not do the rest of what is described below.
+>
+> As described below, I don't see any ILP RFC's which actually specifiy an application layer protocol.
+>
+> An example of an *application layer* protocol would be something like the Ripple Payment Services Protocol. At minimum, it accepts an *entity address* and either an *invoice id* or *destination amount*. From this information the protocol encapulates an end-to-end payment from the sender to the receiver. The encapsulation includes all of what is described below.
+
 The application layer is the top layer of the Interledger protocol suite. Protocols on this layer are responsible for:
 
 1. Destination account discovery
