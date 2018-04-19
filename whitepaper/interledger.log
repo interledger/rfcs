@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=latex 2018.4.19)  19 APR 2018 14:10
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=latex 2018.4.19)  19 APR 2018 14:35
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -527,39 +527,32 @@ LaTeX Font Info:    Font shape `T1/fvm/m/n' will be
  [1
 
 ] [2] [3]
-Overfull \hbox (29.3971pt too wide) in paragraph at lines 115--122
+Overfull \hbox (29.3971pt too wide) in paragraph at lines 114--121
 \T1/fve/m/n/10.95 who may be able to present the SHA256 preim-age of the \T1/fv
 m/m/n/10.95 executionCondition\T1/fve/m/n/10.95 ,
  []
 
 
-Overfull \hbox (120.27885pt too wide) in paragraph at lines 115--122
-\T1/fve/m/n/10.95 in that or-der (see https://github.com/interledger/rfcs/blob/
-master/asn1/InterledgerProtocol.asn). 
- []
-
-
-Overfull \hbox (3.84377pt too wide) in paragraph at lines 124--127
+Overfull \hbox (3.84377pt too wide) in paragraph at lines 123--126
 \T1/fve/m/n/10.95 A Ful-fill packet is an OER se-quence of two fields: \T1/fvm/
 m/n/10.95 fulfillment\T1/fve/m/n/10.95 , a \T1/fvm/m/n/10.95 UInt256
  []
 
 
-Overfull \hbox (73.15475pt too wide) in paragraph at lines 129--134
+Overfull \hbox (24.88544pt too wide) in paragraph at lines 128--133
 \T1/fvm/m/n/10.95 (size 3) \T1/fve/m/n/10.95 from the list of In-terledger Er-r
-or Codes, see https://interledger.org/rfcs/0027-
+or Codes, see https:// in-terledger.org/
  []
 
 
-Overfull \hbox (46.5074pt too wide) in paragraph at lines 129--134
-\T1/fve/m/n/10.95 interledger-protocol-4/#error-codes), \T1/fvm/m/n/10.95 trigg
-eredBy \T1/fve/m/n/10.95 (\T1/fvm/m/n/10.95 IA5String (size 1..1023)\T1/fve/m/n
-/10.95 ,
+Overfull \hbox (9.80759pt too wide) in paragraph at lines 128--133
+\T1/fve/m/n/10.95 rfcs/ 0027-interledger-protocol-4/ #error-codes), \T1/fvm/m/n
+/10.95 triggeredBy \T1/fve/m/n/10.95 (\T1/fvm/m/n/10.95 IA5String
  []
 
 [4]
 LaTeX Font Info:    Font shape `T1/fve/b/n' will be
-(Font)              scaled to size 9.85492pt on input line 145.
+(Font)              scaled to size 9.85492pt on input line 144.
 
 No file interledger.bbl.
 [5] (./interledger.aux) ) 
@@ -572,4 +565,4 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  55i,6n,54p,392b,219s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on interledger.dvi (5 pages, 18228 bytes).
+Output written on interledger.dvi (5 pages, 18248 bytes).

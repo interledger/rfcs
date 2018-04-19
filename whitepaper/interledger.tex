@@ -81,10 +81,9 @@ tildes ({\tt \textasciitilde}),
 and hyphens ({\tt -}).
 
 \subsection{Static Routing}
-In Interledger networks where the set of agents participating in the network and the accounting relationships between them don't change,
-an easy way to make sure that all agents in the network know how to route multi-transfer payments towards their destination, would be to configure each agent with static information about the
-network topology.
-In any case, the first two agents to form a new network can choose their own ILP addresses freely, as long as they are different from each other. When a new agent joins, one of two things can happen:
+In Interledger networks where the set of agents participating in the network and the connections between them don't change,
+an easy way to make sure that all agents in the network know how to route multi-transfer payments towards their destination, would be to assign an ILP address to each agent, and statically configure the forwarding rules for each destination in each agent. In any case, the first two agents to form a new network can choose their own ILP addresses that way.
+But when a new agent joins, one of two things can happen:
 they may become a child of the agent through which they get joined to the network, or become a first-class citizen.
 
 \subsection{Sub-Addresses}
@@ -96,7 +95,7 @@ way to generate new ILP addresses.
 If the new agent wants to become a first-class citizen of the network, they can pick their ILP address at will, and send their neighbor a message to broadcast the address they picked.
 If that address already exists in the network, the neighbor should respond with an error message. Otherwise, they can forward the broadcast to inform all existing agents of the agent
 that newly joined the network. Just like a child node may only be reached through its parent, it may also be set up to only send payments through its parent. In that case, it does not need
-to take route broadcasts into account, and can instead rely on its parent to take care of routing each of its outgoing payments to the right direction.
+to take route broadcasts into account, and can instead rely on its parent to take care of routing each of its outgoing payments in the right direction.
 
 \section{Interledger Packets}
 An Interledger Packet is a standardized message, which two neighbors can use for communicating about Interledger transfers. There are three Interledger Packet
@@ -118,7 +117,7 @@ A Prepare packet is an OER sequence containing five fields:
 {\tt executionCondition} (the HTLA hash, as a {\tt UInt256}),
 {\tt destination} (the ILP address of the payment's receiver, who may be able to present the SHA256 preimage of the {\tt executionCondition}, as an {\tt IA5String (size 1..1023)}), and
 {\tt data} (to be copied to the next transfer in the payment chain, as an {\tt OCTET STRING (size 0..32767)}),
-in that order (see https://github.com/interledger/rfcs/blob/master/asn1/InterledgerProtocol.asn).
+in that order (see https:// github.com/ interledger/ rfcs/ blob/ master/ asn1/ InterledgerProtocol.asn).
 
 \subsection{Fulfill}
 A Fulfill packet is an OER sequence of two fields:
@@ -127,7 +126,7 @@ and {\tt data} (to be passed back unaltered from receiver to sender), an {\tt OC
 
 \subsection{Reject}
 A Reject packet is an OER sequence of four fields:
-{\tt code} (an {\tt IA5String (size 3)} from the list of Interledger Error Codes, see https://interledger.org/rfcs/0027-interledger-protocol-4/\#error-codes),
+{\tt code} (an {\tt IA5String (size 3)} from the list of Interledger Error Codes, see https:// interledger.org/ rfcs/ 0027-interledger-protocol-4/ \#error-codes),
 {\tt triggeredBy} ({\tt IA5String (size 1..1023)}, the ILP address of the agent who triggered this rejection),
 {\tt message} ({\tt Ia5String (size 0..8191)}, a human-readable error message),
 and {\tt data} (to be passed back unaltered from receiver to sender, an {\tt OCTET STRING (size 0..32767)}, in that order.
