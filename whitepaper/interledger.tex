@@ -47,43 +47,44 @@
 \maketitle
 \begin{abstract}
 In 2015, Evan Schwartz and Stefan Thomas published version 1 of the Interledger protocol (ILP). After three years of research,
-we are proud to present its evolution, version 4. ILPv4 uses a chain of Hash Time Lock Agreements (transfers) between network neighbors, to form
-multi-hop Interledger payments that remotely interconnect non-neighbors.
+we are proud to present its evolution, ILP version 4. ILPv4 uses a chain of Hash Time Lock Agreements (HTLAs) between network neighbors, to form
+multi-transfer Interledger payments that remotely interconnect non-neighbors.
 \end{abstract}
 
 \section{Conditional Transfers between Neighbors}
 Consider a network of agents, where each agent has accounting relationships with at least one other agent in the network. An accounting
-relationship between two agents is defined by a unit of value, and a log of HTLAs, whose amounts (expressed in the relationship's unit of value)
-can be netted against each other (total amount in one direction, minus total amount in the other direction) to define what one agent owes the other.
+relationship between two agents is defined by a unit of value and a log of HTLAs whose amounts are expressed in this unit of value, so that they
+can be netted against each other (total amount in one direction, minus total amount in the other direction), to define what one agent owes the other.
 
 \subsection{Hash Time Lock Agreements}
 Suppose Alice and Bob are two agents who are neighbors in an Interledger network. A Hash Time Lock Agreement (HTLA) between them is then
-defined by a {\tt hash}, a {\tt time},  and an agreed {\tt amount}. If Alice sends such a HTLA to Bob, and Bob rejects the agreement, the state of their accounting
+defined by a {\tt hash}, a {\tt time}, and an agreed {\tt amount}. If Alice sends such a HTLA to Bob, and Bob rejects the agreement, the state of their accounting
 relationship does not change. However, if Bob presents the SHA256 preimage of the {\tt hash} before {\tt time}, then the HTLA is added to the relationship's log, to say Alice
 now  owes an additional {\tt amount} units of value to Bob.
 
 \subsection{Interledger Transfers}
-An Interledger Transfer is a specific kind of Hash Time Lock Agreement, designed to form multi-hop chains of HTLAs in the network. To this end,
-it specifies a {\tt destination}, which is an ILP address: a hierarchical identifier for the agent in the network who may be able to produce the SHA256 preimage of the
-HTLA's hash. Apart from this destination field, the packets that describe Interledger transfers have {\tt data} fields, which should be transported end-to-end over a multi-hop chain (see below).
+An Interledger Transfer is a specific kind of Hash Time Lock Agreement, designed to form multi-transfer chains of HTLAs in the network. To this end,
+it specifies a {\tt destination}, which is an ILP address: a hierarchical identifier for an agent in the network who may be able to produce the SHA256 preimage of the
+HTLA's hash. Apart from this destination field, the packets that describe an Interledger transfer also have {\tt data} fields, which should be transported end-to-end over a multi-transfer chain (see below).
 
-\section{Multi-hop Hashlocks}
+\section{Multi-transfer Hashlocks}
 Suppose Alice sends an Interledger Transfer to Bob, whose {\tt destination} points at one of Bob's other network neighbors, Charlie. Bob can then create a second
 transfer, from him to Charlie, with the same {\tt hash}, and with a slightly earlier {\tt time} deadline. If Charlie fulfills this transfer from Bob on time, then Bob will be able
-to use the preimage presented by Charlie, to fulfill the incoming transfer from Alice before its deadline. We call this a two-hop payment: from Alice, via Bob, to Charlie.
+to use the preimage presented by Charlie, to fulfill the incoming transfer from Alice before its deadline. We call this a two-transfer payment (from Alice, via Bob, to Charlie) and the same
+chaining method can be repeated to create payments with more than two transfers.
 
 \section{ILP Addresses}
 As stated earlier, an ILP address is a hierarchical identifier for a specific agent in the network.
 An ILP address is a string, consisting of one or more segments, separated by dots ({\tt .}). Each segment may contain alphanumeric characters (upper or lower case, case-sensitive),
-underscores ({\tt _}),
-tildes ({\tt ~|),
+underscores ({\tt \_}),
+tildes ({\tt ~}),
 and hyphens ({\tt -}).
 
 \subsection{Static Routing}
 In Interledger networks where the set of agents participating in the network and the accounting relationships between them don't change,
-an easy way to make sure that all agents in the network know how to route multi-hop payments towards their destination, would be to configure each agent with static information about the
+an easy way to make sure that all agents in the network know how to route multi-transfer payments towards their destination, would be to configure each agent with static information about the
 network topology.
-In any case, the first two agents to form a new network can choose their own identifiers freely, as long as they are different from each other. When a new agent joins, one of two things can happen:
+In any case, the first two agents to form a new network can choose their own ILP addresses freely, as long as they are different from each other. When a new agent joins, one of two things can happen:
 they may become a child of the agent through which they get joined to the network, or become a first-class citizen.
 
 \subsection{Sub-Addresses}
@@ -117,7 +118,7 @@ A Prepare packet is an OER sequence containing five fields:
 {\tt executionCondition} (the HTLA hash, as a {\tt UInt256}),
 {\tt destination} (the ILP address of the payment's receiver, who may be able to present the SHA256 preimage of the {\tt executionCondition}, as an {\tt IA5String (size 1..1023)}), and
 {\tt data} (to be copied to the next transfer in the payment chain, as an {\tt OCTET STRING (size 0..32767)}),
-in that order (see https://github.com/interledger/rfcs/blob/master/asn1/InterledgerProtocol.asn#L16-L31).
+in that order (see https://github.com/interledger/rfcs/blob/master/asn1/InterledgerProtocol.asn).
 
 \subsection{Fulfill}
 A Fulfill packet is an OER sequence of two fields:
@@ -126,9 +127,9 @@ and {\tt data} (to be passed back unaltered from receiver to sender), an {\tt OC
 
 \subsection{Reject}
 A Reject packet is an OER sequence of four fields:
-{\tt code} (an {\tt IA5String (size 3)} from the list of Interledger Error Codes, see https://interledger.org/rfcs/0027-interledger-protocol-4/#error-codes),
-{\tt triggeredBy} (}IA5String (size 1..1023)}, the ILP address of the agent who triggered this rejection),
-{\tt message} (}Ia5String (size 0..8191)}, a human-readable error message),
+{\tt code} (an {\tt IA5String (size 3)} from the list of Interledger Error Codes, see https://interledger.org/rfcs/0027-interledger-protocol-4/\#error-codes),
+{\tt triggeredBy} ({\tt IA5String (size 1..1023)}, the ILP address of the agent who triggered this rejection),
+{\tt message} ({\tt Ia5String (size 0..8191)}, a human-readable error message),
 and {\tt data} (to be passed back unaltered from receiver to sender, an {\tt OCTET STRING (size 0..32767)}, in that order.
 
 \subsection{Timing Disputes}
