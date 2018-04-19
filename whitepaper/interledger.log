@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=latex 2018.4.19)  19 APR 2018 13:48
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=latex 2018.4.19)  19 APR 2018 13:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -507,11 +507,6 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <8> on input line 47.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <6> on input line 47.
-
-Overfull \hbox (249.39723pt too wide) in paragraph at lines 47--47
- [][] 
- []
-
 LaTeX Font Info:    Font shape `T1/fve/m/n' will be
 (Font)              scaled to size 8.99994pt on input line 48.
 LaTeX Font Info:    Font shape `T1/fve/b/n' will be
@@ -523,6 +518,7 @@ LaTeX Font Info:    Font shape `T1/fve/b/n' will be
 LaTeX Font Info:    Font shape `T1/fve/b/n' will be
 (Font)              scaled to size 10.79993pt on input line 59.
 LaTeX Font Info:    Try loading font information for T1+fvm on input line 61.
+
 (/usr/local/texlive/2017/texmf-dist/tex/latex/bera/t1fvm.fd
 File: t1fvm.fd 2004/09/07 scalable font definitions for T1/fvm.
 )
@@ -570,10 +566,10 @@ No file interledger.bbl.
 Here is how much of TeX's memory you used:
  12353 strings out of 492996
  245291 string characters out of 6132730
- 274641 words of memory out of 5000000
+ 275641 words of memory out of 5000000
  15705 multiletter control sequences out of 15000+600000
  26879 words of font info for 36 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  55i,6n,54p,392b,219s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on interledger.dvi (5 pages, 18144 bytes).
+Output written on interledger.dvi (5 pages, 18232 bytes).
