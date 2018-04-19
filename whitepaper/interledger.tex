@@ -1,0 +1,150 @@
+\documentclass[11pt,twoside,a4paper]{article}
+\usepackage{tikz}
+
+\usepackage{bera}% optional: just to have a nice mono-spaced font
+\usepackage{listings}
+\usepackage{xcolor}
+
+\colorlet{punct}{red!60!black}
+\definecolor{background}{HTML}{EEEEEE}
+\definecolor{delim}{RGB}{20,105,176}
+\colorlet{numb}{magenta!60!black}
+
+\lstdefinelanguage{json}{
+    basicstyle=\normalfont\ttfamily,
+%    numbers=left,
+%    numberstyle=\scriptsize,
+%    stepnumber=1,
+%    numbersep=8pt,
+%    showstringspaces=false,
+%    breaklines=true,
+%    frame=lines,
+%    backgroundcolor=\color{background},
+%    literate=
+%     *{0}{{{\color{numb}0}}}{1}
+%      {1}{{{\color{numb}1}}}{1}
+%      {2}{{{\color{numb}2}}}{1}
+%      {3}{{{\color{numb}3}}}{1}
+%      {4}{{{\color{numb}4}}}{1}
+%      {5}{{{\color{numb}5}}}{1}
+%      {6}{{{\color{numb}6}}}{1}
+%      {7}{{{\color{numb}7}}}{1}
+%      {8}{{{\color{numb}8}}}{1}
+%      {9}{{{\color{numb}9}}}{1}
+%      {:}{{{\color{punct}{:}}}}{1}
+%      {,}{{{\color{punct}{,}}}}{1}
+%      {\{}{{{\color{delim}{\{}}}}{1}
+%      {\}}{{{\color{delim}{\}}}}}{1}
+%      {[}{{{\color{delim}{[}}}}{1}
+%      {]}{{{\color{delim}{]}}}}{1},
+}
+\lstset{language=json}
+
+\begin{document}
+\title{{\em ILP v4}: Version 4 of the Interledger Protocol.}
+\author{Dennis Appelt, Adrian Hope-Bailie, Michiel de Jong, Evan Schwartz, Ben Sharafian, Stefan Thomas, Bob Way}
+\date{April 2018}
+\maketitle
+\begin{abstract}
+In 2015, Evan Schwartz and Stefan Thomas published version 1 of the Interledger protocol (ILP). After three years of research,
+we are proud to present its evolution, version 4. ILPv4 uses a chain of Hash Time Lock Agreements (transfers) between network neighbors, to form
+multi-hop Interledger payments that remotely interconnect non-neighbors.
+\end{abstract}
+
+\section{Conditional Transfers between Neighbors}
+Consider a network of agents, where each agent has accounting relationships with at least one other agent in the network. An accounting
+relationship between two agents is defined by a unit of value, and a log of Interledger transfers, which together define what one agent owes the other.
+
+\subsection{Hash Time Lock Agreements}
+Suppose Alice and Bob are two agents who are neighbors in an Interledger network. A Hash Time Lock Agreement (HTLA) between them is then
+defined by a {\tt hash}, a {\tt time},  and an agreed {\tt amount}. If Alice sends such a HTLA to Bob, and Bob rejects the agreement, the state of their accounting
+relationship does not change. However, if Bob presents the SHA256 preimage of the {\tt hash} before {\tt time}, then the HTLA says Alice owes {\tt amount} to Bob.
+
+\subsection{Interledger Transfers}
+An Interledger Transfer is a specific kind of Hash Time Lock Agreement, designed to form multi-hop chains of HTLAs in the network. To this end,
+it specifies a {\tt destination}, which is an ILP address: a hierarchical identifier for the agent in the network who may be able to produce the SHA256 preimage of the
+HTLA's hash. Apart from this destination field, Interledger transfers have {\tt data} fields, which should be transported end-to-end over a multi-hop chain (see below).
+
+\section{Multi-hop Hashlocks}
+Suppose Alice sends an Interledger Transfer to Bob, whose {\tt destination} points at one of Bob's other network neighbors, Charlie. Bob can then create a second
+transfer, from him to Charlie, with the same {\tt hash}, and with a slightly earlier {\tt time} deadline. If Charlie fulfills this transfer from Bob, Bob will be able
+to use the preimage presented by Charlie, to fulfill the incoming transfer from Alice. We call this a two-hop transaction, from Alice, via Bob, to Charlie.
+
+\section{ILP Addresses}
+As stated earlier, the {\tt destination} field in a Prepare packet, and the {\tt triggeredBy} field in a Reject packet, are ILP addresses, a hierarchical identifier for an agent in the network.
+An ILP address consists of one or more segments, separated by a dot ({\tt .}). Each segment may contain alphanumeric characters (upper or lower case, case-sensitive),
+underscores ({\tt _}),
+tildes ({\tt ~|),
+and hyphens ({\tt -}).
+
+\subsection{Static Routing}
+In Interledger networks where the set of agents participating in the network and the accounting relationships between them don't change,
+an easy way to make sure that all agents in the network know how to route multi-hop payments towards their destination, would be to configure each agent with static information about the
+network topology. 
+In any case, the first two agents to form the network can choose their own identifiers freely, as long as they are different from each other. Then a new agent joins, one of two things can happen:
+they may become a child of the agent through which they get joined to the network, or become a first-class citizen.
+
+\subsection{Sub-Addresses}
+If the new agent becomes a child, then it takes the address of the parent through which it joins the network, and add one or more segments at the end. By using its parent's address as a
+prefix, other agents in the network will always be able to route payments to the new agent, provided they know how to route a payment to the new agent's parent.
+
+\subsection{Route Broadcasts}
+If the new agent wants to become a first-class citizen of the network, they can pick their ILP address at will, and send their neighbor a message to broadcast the address they picked.
+If that address already exists in the network, the neighbor should respond with an error message. Otherwise, they can forward the broadcast to inform all existing agents of the agent
+that newly joined the network.
+
+\section{Interledger Packets}
+An Interledger Packet is a standardized message, which two neighbors can use for communicating about Interledger transfers. There are three Interledger Packet
+types, {\tt Prepare} (for proposing a transfer), {\tt Fulfill} (for accepting a transfer from a neighbor), and {\tt Reject} (for explicitly rejecting it before the deadline).
+
+\subsection{End-to-end Data}
+As multiple transfers are chained into an Interledger payment, the initiator of the first transfer in the chain (the 'sender') may want to send some data to the
+beneficiary of the last transfer in the chain (the 'receiver'). For this, Prepare packets have a {\tt data} field. Each agent who participates in a chain of Interledger
+transfers is expected to copy this data unchanged from their incoming transfer's Prepare packet, to their outgoing transfer's Prepare packet. Likewise,
+just like one {\tt Prepare} packet triggers the next, and its data is carried over, each {\tt Fulfill} packet will generally trigger a {\tt Fulfill} packet, and each {\tt Reject}
+packet will trigger another {\tt Reject} packet, on the return path. For these, the {\tt data} field should also be copied over, so that the receiver can relay data back
+to the sender. This transportation of end-to-end data is not guaranteed by the chain of hashlock conditions, but can still be useful if sender and receiver sign
+the data payload cryptographically.
+
+\subsection{Prepare}
+A Prepare packet contains five fields: {\tt amount} (from the HTLA), {\tt expiresAt} (the HTLA deadline), {\tt executionCondition} (the HTLA hash), {\tt destination} (the ILP address
+of the payment's receiver, who may be able to present the SHA256 preimage of the {\tt executionCondition}), and {\tt data} (to be copied to the next transfer in the payment
+chain, to enable end-to-end communication from sender to receiver). These five fields are encoded in an OER sequence as a {\tt UInt64}, a {\tt PrintableString (size 17)}, a {\tt UInt256},
+an {\tt IA5String (size 1..1023)}, and an {\tt OCTET STRING (size 0..32767)}, in that order (see https://github.com/interledger/rfcs/blob/master/asn1/InterledgerProtocol.asn#L16-L31).
+
+\subsection{Fulfill}
+A Fulfill packet is an OER sequence of two fields: {\tt fulfillment}, a {\tt UInt256} for the SHA256 preimage of the {\tt executionCondition} from the transfer's Prepare packet,
+and {\tt data} (to be passed back unaltered from receiver to sender), an {\tt OCTET STRING (size 0..32767)}.
+
+\subsection{Reject}
+A Reject packet is an OER sequence of four fields:
+}code} (an {\tt IA5String (size 3)} from the list of Interledger Error Codes, see https://interledger.org/rfcs/0027-interledger-protocol-4/#error-codes),
+}triggeredBy} (}IA5String (size 1..1023)}, the ILP address of the agent who triggered this rejection),
+}message} (}Ia5String (size 0..8191)}, a human-readable error message),
+and {\tt data} (to be passed back unaltered from receiver to sender, an {\tt OCTET STRING (size 0..32767)}.
+
+\subsection{Timing Disputes}
+If Bob sends the Fulfill message before the {\tt expiresAt} timestamp from the corresponding Prepare message, but Alice only receives that message after the
+timestamp, they would likely disagree on whether that message was sent on time. In case of such timing disputes, the party sending the Fulfill
+packet is always given the benefit of the doubt. Note that this allows them to be owed the amount of the transfer, but they still rely on the other party's
+cooperation to actually net this debt against a transfer in the opposite direction, so it's probably not a lucrative way for one agent to steal from the other.
+
+\subsection{Idempotency}
+In the communication channel between two neighbors,
+a unique identifier should be assigned to each transfer. Each transfer starts with one participant (the Preparer) sending a Prepare packet.
+
+\subsubsection{Using Message Acknowledgement}
+If the communication channel supports delivery acknowledgement for messages, then the Preparer will keep repeating the Prepare packet, with its unique transfer identifier,
+until an acknowledgement is received.
+If the other participant can present the fulfillment on time, they will send a Fulfill packet, and keep repeating it with that same transfer identifier, until an acknowledgement is received.
+If the other participant cannot present the fulfillment on time, they will send a Reject packet as soon as possible, and keep repeating it with the transfer identifier,
+until an acknowledgement is received.
+
+\subsubsection{Without Message Acknowledgment}
+If the communication channel between two neighbors does not support delivery acknowledgment, then the Preparer should repeat the Prepare packet until either a Fulfill or Reject
+packet for the same unique transfer identifier is received. When the Preparer stops repeating the Prepare packet, the Fulfiller or Rejecter can conclude that their response packet
+was delivered successfully.
+
+\bibliography{whitepaper}
+\bibliographystyle{plain}
+\end{document}
