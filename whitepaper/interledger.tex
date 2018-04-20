@@ -126,7 +126,7 @@ and {\tt data} (to be passed back unaltered from receiver to sender), an {\tt OC
 
 \subsection{Reject}
 A Reject packet is an OER sequence of four fields:
-{\tt code} (an {\tt IA5String (size 3)} from the list of Interledger Error Codes, see https:// interledger.org/ rfcs/ 0027-interledger-protocol-4/ \#error-codes),
+{\tt code} (an {\tt IA5String (size 3)} from the list of Interledger Error Codes, see appendix B),
 {\tt triggeredBy} ({\tt IA5String (size 1..1023)}, the ILP address of the agent who triggered this rejection),
 {\tt message} ({\tt Ia5String (size 0..8191)}, a human-readable error message),
 and {\tt data} (to be passed back unaltered from receiver to sender, an {\tt OCTET STRING (size 0..32767)}, in that order.
@@ -263,6 +263,43 @@ InterledgerPacket ::= SEQUENCE {
 }
 
 END
+\end{verbatim}
+\section{Appendix B: Interledger Error Codes}
+\begin{verbatim}
+F__ - Final Error
+Final errors indicate that the payment is invalid and should not be retried unless the details are changed.
+
+Code	Name	Description	Data Fields
+F00	Bad Request	Generic sender error.	(empty)
+F01	Invalid Packet	The ILP packet was syntactically invalid.	(empty)
+F02	Unreachable	There was no way to forward the payment, because the destination ILP address was wrong or the connector does not have a route to the destination.	(empty)
+F03	Invalid Amount	The amount is invalid, for example it contains more digits of precision than are available on the destination ledger or the amount is greater than the total amount of the given asset in existence.	(empty)
+F04	Insufficient Destination Amount	The receiver deemed the amount insufficient, for example you tried to pay a $100 invoice with $10.	(empty)
+F05	Wrong Condition	The receiver generated a different condition and cannot fulfill the payment.	(empty)
+F06	Unexpected Payment	The receiver was not expecting a payment like this (the data and destination address don't make sense in that combination, for example if the receiver does not understand the transport protocol used)	(empty)
+F07	Cannot Receive	The receiver (beneficiary) is unable to accept this payment due to a constraint. For example, the payment would put the receiver above its maximum account balance.	(empty)
+F08	Amount Too Large	The packet amount is higher than the maximum a connector is willing to forward. Senders MAY send another pakcet with a lower amount. Connectors that produce this error SHOULD encode the amount they received and their maximum in the data to help senders determine how much lower the packet amount should be.	See ASN.1
+F99	Application Error	Reserved for application layer protocols. Applications MAY use names other than Application Error.	Determined by Application
+T__ - Temporary Error
+Temporary errors indicate a failure on the part of the receiver or an intermediary system that is unexpected or likely to be resolved soon. Senders SHOULD retry the same payment again, possibly after a short delay.
+
+Code	Name	Description	Data Fields
+T00	Internal Error	A generic unexpected exception. This usually indicates a bug or unhandled error case.	(empty)
+T01	Peer Unreachable	The connector has a route or partial route to the destination but was unable to reach the next connector. Try again later.	(empty)
+T02	Peer Busy	The next connector is rejecting requests due to overloading. If a connector gets this error, they SHOULD retry the payment through a different route or respond to the sender with a T03: Connector Busy error.	(empty)
+T03	Connector Busy	The connector is rejecting requests due to overloading. Try again later.	(empty)
+T04	Insufficient Liquidity	The connector would like to fulfill your request, but either the sender or a connector does not currently have sufficient balance or bandwidth. Try again later.	(empty)
+T05	Rate Limited	The sender is sending too many payments and is being rate-limited by a ledger or connector. If a connector gets this error because they are being rate-limited, they SHOULD retry the payment through a different route or respond to the sender with a T03: Connector Busy error.	(empty)
+T99	Application Error	Reserved for application layer protocols. Applications MAY use names other than Application Error.	Determined by Application
+R__ - Relative Error
+Relative errors indicate that the payment did not have enough of a margin in terms of money or time. However, it is impossible to tell whether the sender did not provide enough error margin or the path suddenly became too slow or illiquid. The sender MAY retry the payment with a larger safety margin.
+
+Code	Name	Description	Data Fields
+R00	Transfer Timed Out	The transfer timed out, meaning the next party in the chain did not respond. This could be because you set your timeout too low or because something look longer than it should. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time.	(empty)
+R01	Insufficient Source Amount	The amount received by a connector in the path was too little to forward (zero or less). Either the sender did not send enough money or the exchange rate changed. The sender MAY try again with a higher amount, but they SHOULD NOT do this indefinitely or a malicious connector could steal money from them.	(empty)
+R02	Insufficient Timeout	The connector could not forward the payment, because the timeout was too low to subtract its safety margin. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time.	(empty)
+R99	Application Error	Reserved for application layer protocols. Applications MAY use names other than Application Error.	Determined by Application
+
 \end{verbatim}
 \bibliography{whitepaper}
 \bibliographystyle{plain}
