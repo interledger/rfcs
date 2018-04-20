@@ -117,7 +117,7 @@ A Prepare packet is an OER sequence containing five fields:
 {\tt executionCondition} (the HTLA hash, as a {\tt UInt256}),
 {\tt destination} (the ILP address of the payment's receiver, who may be able to present the SHA256 preimage of the {\tt executionCondition}, as an {\tt IA5String (size 1..1023)}), and
 {\tt data} (to be copied to the next transfer in the payment chain, as an {\tt OCTET STRING (size 0..32767)}),
-in that order (see https:// github.com/ interledger/ rfcs/ blob/ master/ asn1/ InterledgerProtocol.asn).
+in that order (see appendix A).
 
 \subsection{Fulfill}
 A Fulfill packet is an OER sequence of two fields:
@@ -153,6 +153,117 @@ If the communication channel between two neighbors does not support delivery ack
 packet for the same unique transfer identifier is received. When the Preparer stops repeating the Prepare packet, the Fulfiller or Rejecter can conclude that their response packet
 was delivered successfully.
 
+\section{Appendix A: asn1 definitions}
+\begin{verbatim}
+InterledgerProtocol
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+UInt8 ::= INTEGER (0..255)
+UInt64 ::= INTEGER (0..18446744073709551615)
+UInt256 ::= OCTET STRING (SIZE(32))
+VarBytes ::= OCTET STRING
+
+-- Readable names for special characters that may appear in ILP addresses
+hyphen IA5String ::= "-"
+period IA5String ::= "."
+underscore IA5String ::= "_"
+tilde IA5String ::= "~"
+
+-- A standard ILP address
+Address ::= IA5String
+    (FROM
+        ( hyphen
+        | period
+        | "0".."9"
+        | "A".."Z"
+        | underscore
+        | "a".."z"
+        | tilde )
+    )
+    (SIZE (1..1023))
+
+-- --------------------------------------------------------------------------
+
+-- We are using ISO 8601 and not POSIX time, because ISO 8601 increases
+-- monotonically and never "travels back in time" which could cause issues
+-- with transfer expiries. It is also one of the most widely supported and most
+-- well-defined date formats as of 2017.
+--
+-- Our actual wire format leaves out any fixed/redundant characters, such as
+-- hyphens, colons, the "T" separator, the decimal period and the "Z" timezone
+-- indicator.
+--
+-- The wire format is four digits for the year, two digits for the month,
+-- two digits for the day, two digits for the hour, two digits for the minutes,
+-- two digits for the seconds and three digits for the milliseconds.
+--
+-- I.e. the wire format is: 'YYYYMMDDHHmmSSfff'
+--
+-- All times MUST be expressed in UTC time.
+
+Timestamp ::= PrintableString (SIZE(17))
+
+InterledgerPrepare ::= SEQUENCE {
+    -- Local amount (changes at each hop)
+    amount UInt64,
+
+    -- Expiry date
+    expiresAt Timestamp,
+
+    -- Execution condition
+    executionCondition UInt256,
+
+    -- Destination ILP Address
+    destination Address,
+
+    -- Information for recipient (transport layer information)
+    data OCTET STRING (SIZE (0..32767))
+}
+
+InterledgerFulfill ::= SEQUENCE {
+    -- Execution condition fulfillment
+    fulfillment UInt256,
+
+    -- Information for sender (transport layer information)
+    data OCTET STRING (SIZE (0..32767))
+}
+
+InterledgerReject ::= SEQUENCE {
+    -- Standardized error code
+    code IA5String (SIZE (3)),
+
+    -- Participant that originally emitted the error
+    triggeredBy Address,
+
+    -- User-readable error message
+    message UTF8String (SIZE (0..8191)),
+
+    -- Machine-readable error data, dependent on code
+    data OCTET STRING (SIZE (0..32767))
+}
+
+PACKET ::= CLASS {
+    &typeId UInt8 UNIQUE,
+    &Type
+} WITH SYNTAX {&typeId &Type}
+
+PacketSet PACKET ::= {
+    {12 InterledgerPrepare} |
+    {13 InterledgerFulfill} |
+    {14 InterledgerReject}
+}
+
+InterledgerPacket ::= SEQUENCE {
+    -- One byte type ID
+    type PACKET.&typeId ({PacketSet}),
+    -- Length-prefixed header
+    data PACKET.&Type ({PacketSet}{@type})
+}
+
+END
+\end{verbatim}
 \bibliography{whitepaper}
 \bibliographystyle{plain}
 \end{document}
