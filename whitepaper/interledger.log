@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=latex 2018.4.19)  19 APR 2018 14:35
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=latex 2018.4.19)  20 APR 2018 14:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -538,31 +538,257 @@ Overfull \hbox (3.84377pt too wide) in paragraph at lines 123--126
 m/n/10.95 fulfillment\T1/fve/m/n/10.95 , a \T1/fvm/m/n/10.95 UInt256
  []
 
-
-Overfull \hbox (24.88544pt too wide) in paragraph at lines 128--133
-\T1/fvm/m/n/10.95 (size 3) \T1/fve/m/n/10.95 from the list of In-terledger Er-r
-or Codes, see https:// in-terledger.org/
- []
-
-
-Overfull \hbox (9.80759pt too wide) in paragraph at lines 128--133
-\T1/fve/m/n/10.95 rfcs/ 0027-interledger-protocol-4/ #error-codes), \T1/fvm/m/n
-/10.95 triggeredBy \T1/fve/m/n/10.95 (\T1/fvm/m/n/10.95 IA5String
- []
-
 [4]
 LaTeX Font Info:    Font shape `T1/fve/b/n' will be
 (Font)              scaled to size 9.85492pt on input line 144.
+ [5]
+Overfull \hbox (73.0844pt too wide) in paragraph at lines 266--266
+[]\T1/fvm/m/n/10.95 -- Readable names for special characters that may appear in
+ ILP addresses[] 
+ []
+
+
+Overfull \hbox (96.81505pt too wide) in paragraph at lines 266--266
+[]\T1/fvm/m/n/10.95 -- --------------------------------------------------------
+------------------[] 
+ []
+
+
+Overfull \hbox (61.21907pt too wide) in paragraph at lines 266--266
+[]\T1/fvm/m/n/10.95 -- We are using ISO 8601 and not POSIX time, because ISO 86
+01 increases[] 
+ []
+
+
+Overfull \hbox (79.01706pt too wide) in paragraph at lines 266--266
+[]\T1/fvm/m/n/10.95 -- monotonically and never "travels back in time" which cou
+ld cause issues[] 
+ []
+
+
+Overfull \hbox (108.68037pt too wide) in paragraph at lines 266--266
+[]\T1/fvm/m/n/10.95 -- with transfer expiries. It is also one of the most widel
+y supported and most[] 
+ []
+
+
+Overfull \hbox (90.88239pt too wide) in paragraph at lines 266--266
+[]\T1/fvm/m/n/10.95 -- Our actual wire format leaves out any fixed/redundant ch
+aracters, such as[] 
+ []
+
+
+Overfull \hbox (102.74771pt too wide) in paragraph at lines 266--266
+[]\T1/fvm/m/n/10.95 -- hyphens, colons, the "T" separator, the decimal period a
+nd the "Z" timezone[] 
+ []
+
+
+Overfull \hbox (73.0844pt too wide) in paragraph at lines 266--266
+[]\T1/fvm/m/n/10.95 -- The wire format is four digits for the year, two digits 
+for the month,[] 
+ []
+
+
+Overfull \hbox (108.68037pt too wide) in paragraph at lines 266--266
+[]\T1/fvm/m/n/10.95 -- two digits for the day, two digits for the hour, two dig
+its for the minutes,[] 
+ []
+
+
+Overfull \hbox (43.42108pt too wide) in paragraph at lines 266--266
+[]\T1/fvm/m/n/10.95 -- two digits for the seconds and three digits for the mill
+iseconds.[] 
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [6]
+Overfull \hbox (7.8251pt too wide) in paragraph at lines 266--266
+[]    \T1/fvm/m/n/10.95 -- Information for recipient (transport layer informati
+on)[] 
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [7]
+Overfull \hbox (274.79494pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 Final errors indicate that the payment is invalid and shoul
+d not be retried unless the details are changed.[] 
+ []
+
+
+Overfull \hbox (43.42108pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 F01 Invalid Packet The ILP packet was syntactically invalid
+. (empty)[] 
+ []
+
+
+Overfull \hbox (595.15874pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 F02 Unreachable There was no way to forward the payment, be
+cause the destination ILP address was wrong or the connector does not have a ro
+ute to the destination.
+ []
+
+
+Overfull \hbox (915.52254pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 F03 Invalid Amount The amount is invalid, for example it co
+ntains more digits of precision than are available on the destination ledger or
+ the amount is greater than the total amount of the given asset in existence.
+ []
+
+
+Overfull \hbox (434.97684pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 F04 Insufficient Destination Amount The receiver deemed the
+ amount insufficient, for example you tried to pay a $100 invoice with $10.
+ []
+
+
+Overfull \hbox (209.53564pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 F05 Wrong Condition The receiver generated a different cond
+ition and cannot fulfill the payment.
+ []
+
+
+Overfull \hbox (957.05118pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 F06 Unexpected Payment The receiver was not expecting a pay
+ment like this (the data and destination address don't make sense in that combi
+nation, for example if the receiver does not understand the transport protocol 
+used)
+ []
+
+
+Overfull \hbox (719.74466pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 F07 Cannot Receive The receiver (beneficiary) is unable to 
+accept this payment due to a constraint. For example, the payment would put the
+ receiver above its maximum account balance.
+ []
+
+
+Overfull \hbox (1579.98079pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 F08 Amount Too Large The packet amount is higher than the m
+aximum a connector is willing to forward. Senders MAY send another pakcet with 
+a lower amount. Connectors that produce this error SHOULD encode the amount the
+y received and their maximum in the data to help senders determine how much low
+er the packet amount should be.
+ []
+
+
+Overfull \hbox (351.91956pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 F99 Application Error Reserved for application layer protoc
+ols. Applications MAY use names other than Application Error.
+ []
+
+[8]
+Overfull \hbox (909.58987pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 Temporary errors indicate a failure on the part of the rece
+iver or an intermediary system that is unexpected or likely to be resolved soon
+. Senders SHOULD retry the same payment again, possibly after a short delay.[] 
+
+ []
+
+
+Overfull \hbox (256.99695pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 T00 Internal Error A generic unexpected exception. This usu
+ally indicates a bug or unhandled error case.
+ []
+
+
+Overfull \hbox (488.3708pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 T01 Peer Unreachable The connector has a route or partial r
+oute to the destination but was unable to reach the next connector. Try again l
+ater.
+ []
+
+
+Overfull \hbox (951.11852pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 T02 Peer Busy The next connector is rejecting requests due 
+to overloading. If a connector gets this error, they SHOULD retry the payment t
+hrough a different route or respond to the sender with a T03: Connector Busy er
+ror.
+ []
+
+
+Overfull \hbox (179.87233pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 T03 Connector Busy The connector is rejecting requests due 
+to overloading. Try again later.
+ []
+
+
+Overfull \hbox (749.40797pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 T04 Insufficient Liquidity The connector would like to fulf
+ill your request, but either the sender or a connector does not currently have 
+sufficient balance or bandwidth. Try again later.
+ []
+
+
+Overfull \hbox (1366.40492pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 T05 Rate Limited The sender is sending too many payments an
+d is being rate-limited by a ledger or connector. If a connector gets this erro
+r because they are being rate-limited, they SHOULD retry the payment through a 
+different route or respond to the sender with a T03: Connector Busy error.
+ []
+
+
+Overfull \hbox (351.91956pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 T99 Application Error Reserved for application layer protoc
+ols. Applications MAY use names other than Application Error.
+ []
+
+
+Overfull \hbox (1425.73155pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 Relative errors indicate that the payment did not have enou
+gh of a margin in terms of money or time. However, it is impossible to tell whe
+ther the sender did not provide enough error margin or the path suddenly became
+ too slow or illiquid. The sender MAY retry the payment with a larger safety ma
+rgin.[] 
+ []
+
+
+Overfull \hbox (1906.27725pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 R00 Transfer Timed Out The transfer timed out, meaning the 
+next party in the chain did not respond. This could be because you set your tim
+eout too low or because something look longer than it should. The sender MAY tr
+y again with a higher expiry, but they SHOULD NOT do this indefinitely or a mal
+icious connector could cause them to tie up their money for an unreasonably lon
+g time.
+ []
+
+
+Overfull \hbox (1627.4421pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 R01 Insufficient Source Amount The amount received by a con
+nector in the path was too little to forward (zero or less). Either the sender 
+did not send enough money or the exchange rate changed. The sender MAY try agai
+n with a higher amount, but they SHOULD NOT do this indefinitely or a malicious
+ connector could steal money from them.
+ []
+
+
+Overfull \hbox (1508.78883pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 R02 Insufficient Timeout The connector could not forward th
+e payment, because the timeout was too low to subtract its safety margin. The s
+ender MAY try again with a higher expiry, but they SHOULD NOT do this indefinit
+ely or a malicious connector could cause them to tie up their money for an unre
+asonably long time.
+ []
+
+
+Overfull \hbox (351.91956pt too wide) in paragraph at lines 303--303
+[]\T1/fvm/m/n/10.95 R99 Application Error Reserved for application layer protoc
+ols. Applications MAY use names other than Application Error.
+ []
 
 No file interledger.bbl.
-[5] (./interledger.aux) ) 
+[9] (./interledger.aux) ) 
 Here is how much of TeX's memory you used:
  12353 strings out of 492996
  245291 string characters out of 6132730
- 275641 words of memory out of 5000000
+ 277641 words of memory out of 5000000
  15705 multiletter control sequences out of 15000+600000
  26879 words of font info for 36 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 55i,6n,54p,392b,219s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 55i,6n,54p,408b,268s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on interledger.dvi (5 pages, 18248 bytes).
+Output written on interledger.dvi (9 pages, 27572 bytes).
