@@ -133,9 +133,9 @@ and {\tt data} (to be passed back unaltered from receiver to sender, an {\tt OCT
 
 \subsection{Timing Disputes}
 If Bob sends the Fulfill message before the {\tt expiresAt} timestamp from the corresponding Prepare message, but Alice only receives that message after the
-timestamp, they would likely disagree on whether that HTLA was fulfilled on time. In case of such timing disputes, the party sending the Fulfill
-packet is always given the benefit of the doubt. Note that this allows them to be owed the amount of the transfer, but they still rely on the other party's
-cooperation to actually net this debt against a transfer in the opposite direction, so it will not be a lucrative way for one agent to steal from a neighboring one.
+timestamp, they would likely disagree on whether that HTLA was fulfilled on time.
+These disputed packets are accounted by both parties. If Alice disputes too many of Bob's fulfills, she should cease to accept transfers from him,
+at least until the matter is cleared up and reconciled.
 
 \subsection{Idempotency}
 In the communication channel between two neighbors,
