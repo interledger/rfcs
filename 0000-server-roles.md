@@ -1,10 +1,10 @@
 ---
-title: Interledger server roles
+title: Interledger node roles
 draft: 1
 ---
-# Interledger server roles
+# Interledger node roles
 
-This document describes the different roles a server can play on the Interledger main net or testnet: sender, connector, or receiver.
+This document describes the different roles a node can play on the Interledger main net or testnet: sender, connector, or receiver.
 
 ## Bilateral links
 
@@ -63,6 +63,8 @@ The ping protocol should be implemented [like in ilp-connector v21.3.0](https://
 A receiver should run an [SPSP](https://github.com/interledger/rfcs/blob/5641d91e806a8c3e27d97b91c76cacd13a87444b/0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) end-point to give out shared secrets and accept [PSK2 (draft 1)](https://interledger.org/rfcs/0025-pre-shared-key-2/draft-1.html) payments at its ILP address. Using the [payment pointer](https://github.com/interledger/rfcs/blob/e949d28c19936e379e8fb5e6579b070ac66c018a/0000-payment-pointers/0000-payment-pointers.md) for that SPSP endpoint, it may expose services that support payment pointer discovery. There are three options for doing this: paid APIs can support [HTTP-ILP, draft 3](https://interledger.org/rfcs/0014-http-ilp/draft-3.html), monetized web pages can support [web-monetization](), and web shops can support [web-payments]().
 
 ## The Sender Role
+
+Unlike connectors and receivers, senders don't generally need to be addressable over the Internet; when playing the client role in a BTP/2.0 or BTP/2.0-I relation, they can run entirely client-side.
 
 A sender may initiate Interledger payments by sending a Prepare packet to a neighbor. There are basically two ways to do this: circular payments, and end-to-end payments. A circular payment goes from the sender, via (generally) two or more connectors, back to the sender. This means the destination of the payment is under the sender's own control, and the Prepare packet loops back to the sender through one of the their other neighbors. The sender can therefore just create fulfillment randomly and keep it secret. They can then use that fulfillment's SHA256 hash as the payment's condition, and once the Prepare packet loops around, complete the circular payment by sending back a Fulfill packet, using the fulfillment they previously kept secret.
 
