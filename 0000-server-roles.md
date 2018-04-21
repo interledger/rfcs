@@ -6,14 +6,18 @@ draft: 1
 
 This document describes the different roles a server can play on the Interledger main net or testnet: sender, connector, or receiver.
 
-## The Connector Role
+## Bilateral links
 
-An Interledger Connector should expose one or more end-points for clients to connect with. The behavior of each end-point should
-follow one of four standard bilateral transfer protocols:
-[BTP/2.0](https://github.com/interledger/rfcs/blob/35e6dd7e065f3c3232304d012429d1b7e3eb0d39/0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md),
-BTP/2.0-I,
-HTTP-OER-ASYNC, or
-HTTP-OER-SYNC.
+All network participants should connect to one or more other network participants using one of four bilateral transfer protocols:
+BTP/2.0-I, HTTP-OER-ASYNC, or HTTP-OER-SYNC. Note that for the two BTP/2.0 variations, one neighbor plays the server role; the other plays the client role.
+For the two HTTP-OER variations, both neighbors implement an equal role.
+
+Depending on which settlement ledger is used, side protocols (i.e., protocols with a protocolName other than `'ilp'`) should be implemented accordingly. For instance, https://github.com/interledgerjs/ilp-plugin-xrp-asym-server/issues/10 describes a number of additional protocols to be used for sending XRP payment channel claims.
+
+All side protocols are considered to be ledger-specific, for instance see https://github.com/interledgerjs/ilp-plugin-xrp-asym-server/issues/10 in the case of XRP payment channels.
+
+### BTP/2.0
+BTP/2.0 is defined in [BTP (draft 7)](https://interledger.org/rfcs/0023-bilateral-transfer-protocol/draft-7.html).
 
 ### BTP/2.0-I
 BTP/2.0-I is defined as BTP/2.0 with idempotency: each request should be repeated regularly until a response is received, and each time a repeated request is received, the same response should be given. This means each peer needs to remember the responses it send until the sender has stopped repeating that request, and has moved on to newer requests.
@@ -34,10 +38,13 @@ HTTP-OER-SYNC is like HTTP-OER-ASYNC, except that the Fulfill or Reject packet i
 This means that there is no way to know whether Fulfill or Reject packets were delivered successfully, except for the assumption that if they were
 not delivered successfully, then the other party would repeat the request.
 
-On top of this, the server should respond to ilp/forwarded, ilp/il-dcp, ilp/il-balance, and route-broadcast requests (see below). If BTP is used, the server should also respond to [auth](https://github.com/interledger/rfcs/pull/372), and may also initiate ilp/forwarded, paychan, and route-broadcast requests, but not ilp/il-dcp, ilp/il-balance, or info requests. Depending on which settlement ledger is used, other protocols should be implemented accordingly. For instance, https://github.com/interledgerjs/ilp-plugin-xrp-asym-server/issues/10 describes a number of additional protocols to be used for sending XRP payment channel claims.
+## Connector requirements
+On top of these bilateral relations, apart from the side protocols, the `'ilp'` protocol carries ILP packets for various purposes.
+The request has the form of an ILP Prepare, and the response has the form of an ILP Fulfill (if successful) or an ILP Reject (if unsuccessful).
+Encoded ILP-packets, the request types a connector should respond to are: ilp/forwarded, ilp/il-dcp, ilp/il-balance, and route-broadcast.
 
-### ILP
-ILP packets are used for various purposes. The request has the form of an ILP Prepare, and the response has the form of an ILP Fulfill (if successful) or an ILP Reject (if unsuccessful).
+#### forwarded
+If the destination address does not start with `peer.`, then the connector should try to obtain the fulfillment by forwarding the payment to the destination address. It may charge a reasonable transaction fee, require a reasonable amount of time to pass on prepares and pass back fulfills, and have a reasonable failure rate.
 
 #### il-dcp
 If the destination address is `peer.config` then the server should respond as described in https://github.com/interledgerjs/ilp-protocol-ildcp/issues/1.
@@ -50,12 +57,6 @@ Route broadcasts should be implemented like in [ilp-connector v21.3.0](https://g
 
 #### ping
 The ping protocol should be implemented [like in ilp-connector v21.3.0](https://github.com/interledgerjs/ilp-connector/blob/v21.3.0/src/controllers/echo.ts).
-
-#### forwarded
-If the destination address does not start with `peer.`, then the connector should try to obtain the fulfillment by forwarding the payment to the shop or payee indicated by the address. It should have no more than a reasonable value for transaction fee charged, the time taken to pass on prepares and pass back fulfills, and the failure rate.
-
-### Other BTP protocolNames
-All other protocols are considered to be ledger-specific, see https://github.com/interledgerjs/ilp-plugin-xrp-asym-server/issues/10 in the case of XRP payment channels.
 
 ## The Receiver Role
 
