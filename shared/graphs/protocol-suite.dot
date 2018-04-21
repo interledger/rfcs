@@ -60,20 +60,12 @@ graph G {
     fontname = "helvetica";
   }
 
-  lli1:s -- l1:nw;
-  lli2:s -- l1:ne;
-  lli3:s -- l2:nw;
-  lli4:s -- l2:ne [style=dotted];
-  lli5:s -- l3:nw [style=dotted];
-  lli6:s -- l3:ne [style=dotted];
-
-  l1 [shape=box label="Ledger 1"];
-  l2 [shape=box label="Ledger 2"];
-  l3 [shape=box label="Ledger N" style=dotted];
+  lli1 -- lli2;
+  lli3 -- lli4 [style=dotted];
+  lli5 -- lli6 [style=dotted];
 
   { rank=same; app app1 app2 }
   { rank=same; transport tr1 tr2 }
   { rank=same; interledger im1 im2 im3 im4 }
   { rank=same; ledger lli1 lli2 lli3 lli4 lli5 lli6}
-  { rank=same; l1 l2 l3 }
 }

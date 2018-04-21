@@ -13,6 +13,8 @@ const buildGraph = (graph) => {
   fs.writeFileSync(svgFile, svgData, 'utf8')
 }
 
-buildGraph('../shared/graphs/interledger-model')
-buildGraph('../shared/graphs/protocol-suite')
-buildGraph('../shared/graphs/transfer-states')
+for (let file of fs.readdirSync(path.resolve(__dirname, '../shared/graphs'))) {
+  if (file.endsWith('.dot')) {
+    buildGraph(path.resolve(__dirname, '../shared/graphs') + '/' + file.substring(0, file.length - 4))
+  }
+}

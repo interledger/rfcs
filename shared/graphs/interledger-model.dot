@@ -8,17 +8,9 @@ graph G {
   c1 [shape=box style=filled color=lightgrey label="Connector"];
   c2 [shape=box style=filled color=lightgrey label="Connector"];
 
-  l1 [shape=box label="Ledger"];
-  l2 [shape=box label="Ledger"];
-  l3 [shape=box label="Ledger"];
-
-  s:s -- l1:nw;
-  c1:sw -- l1:ne;
-  c1:se -- l2:nw;
-  c2:sw -- l2:ne;
-  c2:se -- l3:nw;
-  r:s -- l3:ne;
+  s:e -- c1:w;
+  c1:e -- c2:w;
+  c2:e -- r:w;
 
   { rank=same; s c1 c2 r }
-  { rank=same; l1 l2 l3 }
 }
