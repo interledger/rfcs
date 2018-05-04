@@ -88,7 +88,7 @@ Participants may have pre-funded or post-funded accounts with one another.
 
 In the case of pre-funded accounts, senders send some amount to their connector to cover packets they will send. Senders can use transfers on an underlying ledger, payment channel updates, or any other means to send value to the connector. Senders can pre-fund their accounts as much or as little as they choose based on how much they trust the connector to forward ILP packets for them and the volume of packets the sender expects to send.
 
-In the case of post-funded accounts, senders transfer value to their connector after they have recevied the fulfillments for one or more outgoing ILP packets. If participants use payment channels, they may choose to sign an update to the payment channel to cover the value of each packet sent and thus minimize the amount the connector must trust the sender for. If participants use some other means of rebalancing, such as transfers on a slower ledger or delivery of physical assets, they may wish to rebalance their accounts less frequently and settle for larger amounts.
+In the case of post-funded accounts, senders transfer value to their connector after they have received the fulfillments for one or more outgoing ILP packets. If participants use payment channels, they may choose to sign an update to the payment channel to cover the value of each packet sent and thus minimize the amount the connector must trust the sender for. If participants use some other means of rebalancing, such as transfers on a slower ledger or delivery of physical assets, they may wish to rebalance their accounts less frequently and settle for larger amounts.
 
 ## Specification
 
@@ -165,7 +165,7 @@ Final errors indicate that the payment is invalid and should not be retried unle
 | **F05** | **Wrong Condition** | The receiver generated a different condition and cannot fulfill the payment. | (empty) |
 | **F06** | **Unexpected Payment** | The receiver was not expecting a payment like this (the data and destination address don't make sense in that combination, for example if the receiver does not understand the transport protocol used) | (empty) |
 | **F07** | **Cannot Receive** | The receiver (beneficiary) is unable to accept this payment due to a constraint. For example, the payment would put the receiver above its maximum account balance. | (empty) |
-| **F08** | **Amount Too Large** | The packet amount is higher than the maximum a connector is willing to forward. Senders MAY send another pakcet with a lower amount. Connectors that produce this error SHOULD encode the amount they received and their maximum in the `data` to help senders determine how much lower the packet amount should be. | See [ASN.1](../asn1/InterledgerErrorData.asn) |
+| **F08** | **Amount Too Large** | The packet amount is higher than the maximum a connector is willing to forward. Senders MAY send another packet with a lower amount. Connectors that produce this error SHOULD encode the amount they received and their maximum in the `data` to help senders determine how much lower the packet amount should be. | See [ASN.1](../asn1/InterledgerErrorData.asn) |
 | **F99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. | Determined by Application |
 
 #### T__ - Temporary Error
