@@ -26,7 +26,7 @@ StreamEncryptionEnvelope ::= SEQUENCE {
     -- Note: This is NOT encoded as a variable length (length-prefixed)
     -- octet string. The size is constrained by the length of the data
     -- field in the InterledgerPrepare, InterledgerFulfill, or InterledgerReject
-    -- packet containing this Psk2EncryptionEnvelope
+    -- packet containing this StreamEncryptionEnvelope
     cipherText OCTET STRING (SIZE (0..32739))
 }
 
@@ -44,6 +44,7 @@ StreamPacket ::= SEQUENCE {
   -- If attached to a Fulfill or Reject packet, amount that arrived at the receiver
   prepareAmount VarUInt,
 
+  -- Array of Frames
   frames SEQUENCE OF StreamFrame
 }
 
@@ -53,30 +54,20 @@ FRAME ::= CLASS {
 } WITH SYNTAX {&typeId &Type}
 
 FrameSet FRAME ::= {
-  -- Connection-related frames (hex 0x0?)
-  {1 ConnectionNewAddress} |
-  {2 ConnectionError} |
-  --{3 ApplicationError} |
-  --{4 ConnectionMaxMoney} |
-  --{5 ConnectionMoneyBlocked} |
-  --{6 ConnectionMaxData} |
-  --{7 ConnectionDataBlocked} |
-  --{8 ConnectionMaxStreamId} |
-  --{9 ConnectionStreamIdBlocked} |
+  {1 ConnectionError} |
+  {2 ConnectionNewAddress} |
+  {3 ConnectionMaxData} |
+  {4 ConnectionDataBlocked} |
+  {5 ConnectionMaxStreamId} |
+  {6 ConnectionStreamIdBlocked} |
 
-  -- MoneyStream-related frames (hex 0x1?)
-  {16 StreamMoney} |
-  {17 StreamMoneyEnd} |
-  {18 StreamMoneyMax} |
-  --{19 StreamMoneyBlocked} |
-  --{20 StreamMoneyError} |
-
-  -- DataStream-related frames (hex 0x2?)
-  {32 StreamData} |
-  {33 StreamDataEnd} |
-  --{34 StreamDataMax} |
-  --{35 StreamDataBlocked} |
-  --{36 StreamDataError}
+  {16 StreamClose} |
+  {17 StreamMoney} |
+  {18 StreamMaxMoney} |
+  {19 StreamMoneyBlocked} |
+  {20 StreamData} |
+  {21 StreamMaxData} |
+  {22 StreamDataBlocked}
 }
 
 StreamFrame ::= SEQUENCE {
@@ -88,8 +79,8 @@ ConnectionError ::= SEQUENCE {
   -- Numeric error code
   code UInt8,
 
-  -- Human-readable error message (UTF-8)
-  message VarBytes
+  -- Human-readable error message
+  message UTF8String
 }
 
 ConnectionNewAddress ::= SEQUENCE {
@@ -97,8 +88,35 @@ ConnectionNewAddress ::= SEQUENCE {
   address Address
 }
 
+ConnectionMaxData ::= SEQUENCE {
+  maxOffset VarUInt
+}
+
+ConnectionDataBlocked ::= SEQUENCE {
+  maxOffset VarUInt
+}
+
+ConnectionMaxStreamId ::= SEQUENCE {
+  maxStreamId VarUInt
+}
+
+ConnectionStreamIdBlocked ::= SEQUENCE {
+  maxStreamId VarUInt
+}
+
+StreamClose ::= SEQUENCE {
+  -- Identifier of the stream
+  streamId VarUInt,
+
+  -- Numeric error code
+  code UInt8,
+
+  -- Human-readable error message
+  message UTF8String
+}
+
 StreamMoney ::= SEQUENCE {
-  -- Identifier of the MoneyStream
+  -- Identifier of the stream
   streamId VarUInt,
 
   -- The proportion of the Prepare amount that should go to this stream
@@ -106,24 +124,26 @@ StreamMoney ::= SEQUENCE {
   shares VarUInt
 }
 
-StreamMoneyEnd ::= SEQUENCE {
-  -- Identifier of the MoneyStream
+StreamMaxMoney ::= SEQUENCE {
+  -- Identifier of the stream
   streamId VarUInt,
 
-  -- The proportion of the Prepare amount that should go to this stream
-  -- i.e. the amount for a given stream = prepare amount * shares / (sum of shares from all StreamMoney frames in the packet)
-  shares VarUInt
-}
-
-StreamMoneyMax ::= SEQUENCE {
-  -- Identifier of the MoneyStream
-  streamId VarUInt,
-
-  -- Maximum amount the MoneyStream can receive
+  -- Maximum amount the stream can receive
   receiveMax VarUInt,
 
-  -- Total amount the MoneyStream has received so far
+  -- Total amount the stream has received so far
   totalReceived VarUInt
+}
+
+StreamMoneyBlocked ::= SEQUENCE {
+  -- Identifier of the stream
+  streamId VarUInt,
+
+  -- Maximum amount the stream can send
+  sendMax VarUInt,
+
+  -- Total amount the stream has sent so far
+  totalSent VarUInt
 }
 
 StreamData ::= SEQUENCE {
@@ -138,16 +158,20 @@ StreamData ::= SEQUENCE {
   data VarBytes
 }
 
-StreamDataEnd ::= SEQUENCE {
-  -- Identifier of the DataStream
+StreamMaxData ::= SEQUENCE {
+  -- Identifier of the stream
   streamId VarUInt,
 
-  -- Byte number of the first byte in this frame within the whole DataStream
-  -- (the first StreamData frame sent for a given DataStream will have an offset of 0)
-  offset VarUInt,
+  -- Maximum number of bytes the endpoint is willing to receive on this stream
+  maxOffset VarUInt
+}
 
-  -- Application data
-  data VarBytes
+StreamDataBlocked ::= SEQUENCE {
+  -- Identifier of the stream
+  streamId VarUInt,
+
+  -- Maximum number of bytes the endpoint wants to send on this stream
+  maxOffset VarUInt
 }
 
 END
