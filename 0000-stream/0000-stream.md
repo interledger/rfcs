@@ -3,7 +3,7 @@ title: STREAM - A Multiplexed Money and Data Transport for ILP
 draft: 1
 ---
 
-# STREAM: A Multiplexed Money and Data Transport Protocol for ILP
+# STREAM: A Multiplexed Money and Data Transport for ILP
 
 ## 1. Introduction
 
