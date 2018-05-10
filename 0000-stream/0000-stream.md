@@ -52,11 +52,11 @@ Some applications involve sending money and/or data on an ongoing basis, whereas
 
 In an application that uses an ongoing flow of money, an endpoint can open a single stream and continue sending money on it for the duration of some paid interaction.
 
-In another another application, an endpoint can open a stream, send a specific amount of money through it, and then close the stream to indicate the payment is complete. In this case, the stream abstraction provides a mechanism to "frame" a payment or message that may be split across multiple packets. New streams can be opened and closed on the same connection to send multiple messages.
+In another application, an endpoint can open a stream, send a specific amount of money through it, and then close the stream to indicate the payment is complete. In this case, the stream abstraction provides a mechanism to "frame" a payment or message that may be split across multiple packets. New streams can be opened and closed on the same connection to send multiple messages.
 
 STREAM uses bidirectional streams, which can be used for request/response flows or one-way messages.
 
-The choice streams as the key abstraction is inspired by [QUIC](https://quicwg.github.io/base-drafts/draft-ietf-quic-transport.html#rfc.section.9) and the earlier [Structured Streams Transport (SST)](http://www.brynosaurus.com/pub/net/sst.pdf).
+The choice of streams as the key abstraction is inspired by [QUIC](https://quicwg.github.io/base-drafts/draft-ietf-quic-transport.html#rfc.section.9) and the earlier [Structured Streams Transport (SST)](http://www.brynosaurus.com/pub/net/sst.pdf).
 
 ### 3.3. Multiplexed Streams
 
@@ -142,7 +142,7 @@ Senders SHOULD send `StreamMoneyBlocked` and `StreamDataBlocked` frames when the
 
 #### 4.4.5. Closing Streams
 
-Either endpoint can close a stream using a `StreamClose` frame. Implementations MAY allow half-open streams.
+Either endpoint can close a stream using a `StreamClose` frame. Implementations MAY allow half-open streams (where one side has closed and the other is still able to send).
 
 `StreamClose` frames are used to communicate both normal stream closes as well as errors.
 
@@ -154,7 +154,7 @@ The receiving endpoint MUST close the connection with a `FlowControlError` if th
 
 ### 4.6. Closing Connections
 
-Either endpoint can close the connection using a `ConnectionClose` frame. Implementations MAY allow half-open connections.
+Either endpoint can close the connection using a `ConnectionClose` frame. Implementations MAY allow half-open connections (where one side has closed the connection and the other is still able to send).
 
 `ConnectionClose` frames are used to communicate both normal connection closes as well as errors.
 
@@ -299,6 +299,8 @@ If implementations allow half-open streams, an endpoint MAY continue sending mon
 The amount of money that should go to each stream is calculated by dividing the number of shares for the given stream by the total number of shares in all of the `StreamMoney` frames in the packet.
 
 For example, if an ILP Prepare packet has an amount of 100 and three `StreamMoney` frames with 5, 15, and 30 shares for streams 2, 4, and 6, respectively, that would indicate that stream 2 should get 10 units, stream 4 gets 30 units, and stream 6 gets 60 units.
+
+If the Prepare amount is not divisible by the total number of shares, implementations SHOULD round the stream amounts down. The remainder SHOULD be allocated to the lowest-numbered open stream that has not reached its maximum receive amount.
 
 #### 5.3.9. `StreamMaxMoney` Frame
 
