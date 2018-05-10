@@ -78,7 +78,7 @@ Implementations SHOULD set the minimum acceptable amount in each packet sent to 
 
 STREAM packets are encoded, [encrypted](#encryption), and sent as the `data` field in [ILP Prepare, Fulfill, or Reject packets](../0027-interledger-protocol-4/0027-interledger-protocol-4.md#ilp-prepare).
 
-Each STREAM packet consists of multiple [frames](#frame-types), which can be used to send money, data, or control-related information.
+Each STREAM packet consists of multiple [frames](#53-frames), which can be used to send money, data, or control-related information.
 
 ### 3.6. Packet Acknowledgements (ACKs)
 
@@ -148,7 +148,7 @@ Either endpoint can close a stream using a `StreamClose` frame. Implementations 
 
 ### 4.5. Connection-Level Flow Control
 
-Similar to the [stream-level flow control](#4-4-4-stream-level-flow-control), endpoints can limit the total amount of incoming data on all streams. Endpoints advertise the total number of bytes they are willing to receive on a given connection using `ConnectionMaxData` frames. Endpoints MAY increase the advertised limits by sending additional `ConnectionMaxData` frames with higher total byte limits.
+Similar to the [stream-level flow control](#444-stream-level-flow-control), endpoints can limit the total amount of incoming data on all streams. Endpoints advertise the total number of bytes they are willing to receive on a given connection using `ConnectionMaxData` frames. Endpoints MAY increase the advertised limits by sending additional `ConnectionMaxData` frames with higher total byte limits.
 
 The receiving endpoint MUST close the connection with a `FlowControlError` if the sender violates the advertised limit.
 
@@ -184,7 +184,7 @@ Note that the `Ciphertext` is NOT length-prefixed. The length can be inferred fr
 
 #### 5.1.2. Encryption Pseudocode
 
-The encryption key used for every packet sent for a given connection is derived from the shared secret and the string `"ilp_stream_encryption"` using an HMAC.
+The encryption key used for every packet sent for a given connection is the HMAC-SHA256 digest of the shared secret and the string `"ilp_stream_encryption"`, encoded as UTF-8 or ASCII (the byte representation is the same with both encodings).
 
 ```
 iv = random_bytes(12)
@@ -242,7 +242,7 @@ The frame types are as follows and each is described in greater detail below:
 
 | Field | Type | Description |
 |---|---|---|
-| Error Code | UInt8 | Machine-readable [Error Code](#5-4-error-codes) indicating why the connection was closed. |
+| Error Code | UInt8 | Machine-readable [Error Code](#54-error-codes) indicating why the connection was closed. |
 | Error Message | Utf8String | Human-readable string intended to give more information helpful for debugging purposes. |
 
 If implementations allow half-open connections, an endpoint MAY continue sending packets after receiving a `ConnectionClose` frame. Otherwise, the endpoint MUST close the connection immediately.
@@ -284,7 +284,7 @@ Endpoints MUST NOT exceed the total number of bytes the other endpoint is willin
 | Field | Type | Description |
 |---|---|---|
 | Stream ID | VarUInt | Identifier of the stream this frame refers to. |
-| Error Code | UInt8 | Machine-readable [Error Code](#5-4-error-codes) indicating why the stream was closed. |
+| Error Code | UInt8 | Machine-readable [Error Code](#54-error-codes) indicating why the stream was closed. |
 | Error Message | Utf8String | Human-readable string intended to give more information helpful for debugging purposes. |
 
 If implementations allow half-open streams, an endpoint MAY continue sending money or data for this stream after receiving a `StreamClose` frame. Otherwise, the endpoint MUST close the stream immediately.
@@ -374,7 +374,7 @@ condition = random_bytes(32)
 
 If the sender does want the receiver to be able to fulfill the condition, the condition MUST be generated in the following manner.
 
-The `shared_secret` is the cryptographic seed exchanged during [Setup](#4-1-setup). The `data` is the encrypted STREAM packet.
+The `shared_secret` is the cryptographic seed exchanged during [Setup](#41-setup). The string `"ilp_stream_fulfillment"` is encoded as UTF-8 or ASCII (the byte representation is the same with both encodings). The `data` is the encrypted STREAM packet.
 
 ```
 hmac_key = hmac_sha256(shared_secret, "ilp_stream_fulfillment")
@@ -386,7 +386,7 @@ condition = sha256(fulfillment)
 
 The following pseudocode details how the receiver regenerates the fulfillment from the data.
 
-The `shared_secret` is the cryptographic seed exchanged during [Setup](#4-1-setup). The `data` is the encrypted STREAM packet.
+The `shared_secret` is the cryptographic seed exchanged during [Setup](#41-setup). The string `"ilp_stream_fulfillment"` is encoded as UTF-8 or ASCII (the byte representation is the same with both encodings). The `data` is the encrypted STREAM packet.
 
 ```
 hmac_key = hmac_sha256(shared_secret, "ilp_stream_fulfillment")
