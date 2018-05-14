@@ -66,11 +66,11 @@ Each connection can include multiple streams, each of which is used to send mone
 
 Streams are given numerical IDs. Client-initiated streams are given odd numbers starting with 1 and server-initiated streams are given even numbers starting with 2 (this is used to avoid collisions if both endpoints open streams at the same time).
 
-Endpoints can limit the number of concurrently active incoming streams by adjusting the maximum stream ID and communicating that limit to the other endpoint.
+Endpoints can limit the number of concurrently active incoming streams by adjusting the maximum stream ID and communicating that limit to the other endpoint using a `ConnectionMaxStreamId` frame. Implementations SHOULD use a default max stream ID of 20, which allows each endpoint to open up to 10 concurrent streams.
 
 ### 3.4. Exchange Rates
 
-A critical function of Interledger Transport Protocols is to determine the path exchange rate and handle any changes in the rate. STREAM packets include a minimum acceptable amount in ILP Prepare packets and the amount that arrived at the other endpoint in the Fulfill or Reject packet.
+A critical function of Interledger Transport Protocols is to determine the path exchange rate and handle any changes in the rate. STREAM packets include a minimum acceptable amount in ILP Prepare packets and the amount that arrived at the other endpoint in the Fulfill or Reject packet. Senders SHOULD judge amounts and prices only in their own units using the calculated path exchange rate, because destination units can be manipulated by the receiver (by using a connector with an exchange rate they control).
 
 Implementations SHOULD use the ratio of the amount that arrived at the remote endpoint and the amount sent to determine the path exchange rate. They MAY send an unfulfillable test packet when the connection is initiated to estimate the path exchange rate.
 
@@ -110,9 +110,9 @@ STREAM packets are completely encrypted so endpoints must try to decrypt and par
 
 When a client connects to a server, they MUST communicate their ILP address to the server using a `ConnectionNewAddress` frame.
 
-Either endpoint MAY change their ILP address at any point during a connection by sending a `ConnectionNewAddress` frame.
+Either endpoint MAY change their ILP address at any point during a connection by sending a `ConnectionNewAddress` frame. To ensure the new address is received and acknowledged, implementations MAY choose to send these frames only in ILP Prepare packets.
 
-An attacker could cause an unsuspecting endpoint to participate in a Denial of Service (DoS) attack on a third-party endpoint. To mitigate this, endpoints SHOULD refrain from sending large numbers of packets or large amounts of data to a new ILP address before validating that the ILP address is controlled by the same party that knows the shared secret. STREAM uses the authenticated request/response packets in lieu of [QUIC's explicit Path Validation](https://quicwg.github.io/base-drafts/draft-ietf-quic-transport.html#rfc.section.6.7).
+Implementations SHOULD wait for a valid response (encrypted with the same shared secret) from the new address to validate the new path. STREAM uses the authenticated request/response packets in lieu of [QUIC's explicit Path Validation](https://quicwg.github.io/base-drafts/draft-ietf-quic-transport.html#rfc.section.6.7). Implementations SHOULD refrain from sending large numbers of packets or large amounts of data to a new ILP address before validating the path to avoid being tricked into participating in a Denial of Service (DoS) attack on a third-party endpoint.
 
 ### 4.4. Streams
 
@@ -196,7 +196,7 @@ encryption_key = hmac_sha256(shared_secret, "ilp_stream_encryption")
 
 #### 5.1.3. Maximum Number of Packets Per Connection
 
-Implementations MUST close the connection once either endpoint has sent 2^31 packets. According to [NIST](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf), it is unsafe to use AES-GCM for more than 2^32 packets using the same encryption key.
+Implementations MUST close the connection once either endpoint has sent 2^31 packets. According to [NIST](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf), it is unsafe to use AES-GCM for more than 2^32 packets using the same encryption key. (STREAM uses the limit of 2^31 because both endpoints encrypt packets with the same key.)
 
 ### 5.2. STREAM Packet
 
@@ -404,7 +404,8 @@ fulfillment = hmac_sha256(hmac_key, data)
 ## Appendix A: Similarities and Differences with QUIC
 
 Unlike QUIC, STREAM:
-- Has only one packet type and the shared secret identifies the Connection rather than a separate Connection ID.
+- Has only one packet header instead of QUIC's short and long headers.
+- Uses the shared secret identifies the Connection rather than having a separate Connection ID.
 - Does not include a cryptographic handshake, because STREAM assumes a symmetric secret is communicated out of band.
 - Does not support unidirectional frames. The QUIC community had significant debate over whether to include unidirectional streams, bidirectional streams, or both. They settled on both primarily to support the HTTP request/response pattern as well as HTTP/2 Server Push. Unidirectional streams were left out of STREAM because they add complexity and are a premature optimization for this protocol now.
 - Does not have ACK frames, because ILP Prepare packets must be acknowledged with either a Fulfill or Reject packet. If the response includes an (authenticated) STREAM packet, the sender can treat that as an acknowledgement of the control and data frames from the Prepare packet they sent.
