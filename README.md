@@ -40,7 +40,7 @@ For the main reference implementation of the ILP stack, see [Interledger.js](htt
 
   A basic Application Layer protocol that uses HTTPS to exchange details needed to set up an Interledger payment.
 
-* **[25: Pre-Shared Key V2 (PSKv2)](0025-pre-shared-key-2/0025-pre-shared-key-2.md)**
+* **[29: STREAM](0029-stream/0029-stream.md)**
 
   The recommended Transport Layer protocol for most use cases, which handles quoting, individual payments, chunked payments, and streaming payments using a shared secret between the sender and receiver.
 
