@@ -28,8 +28,10 @@ Definitions of terms that are used in this document:
 
 - **Client** - The endpoint initiating a STREAM connection
 - **Server** - The endpoint accepting incoming STREAM connections
-- **Endpoint** - The client or server end of a connection
+- **Endpoint** - The client or server end of a connection, which can be the sender or receiver of money and/or data
 - **Connection** - The session established between two endpoints that uses a single shared secret and multiplexes multiple streams of money and/or data
+- **Sender** - The endpoint that sends a particular ILP Prepare packet. Because STREAM connections are bi-directional, either endpoint can be the sender of a given packet
+- **Receiver** - The endpoint that receives a particular ILP Prepare packet and responds with either an ILP Fulfill or Reject packet. Because STREAM connections are bi-directional, either endpoint can be the receiver of a given packet
 - **Stream** - A logical, bi-directional channel of ordered bytes and money within a STREAM connection
 - **Shared Secret** - A cryptographically-secure random seed that is shared between the two endpoints comprising a connection and is used to derive keys for encrypting packets and generating conditions and fulfillments
 - **STREAM packet** - A payload sent as the data portion of an ILP packet that can be parsed by a STREAM endpoint
@@ -355,8 +357,10 @@ Error codes are sent in `StreamClose` and `ConnectionClose` frames to indicate w
 | `0x03` | `EndpointBusy` | The endpoint is temporarily overloaded and unable to process the packet. |
 | `0x04` | `FlowControlError` | The other endpoint exceeded the flow control limits advertised. |
 | `0x05` | `StreamIdError` | The other endpoint opened more streams than allowed. |
-| `0x06` | `ProtocolViolation` | The other endpoint sent invalid data or otherwise violated the protocol. |
-| `0x07` | `ApplicationError` | The application using STREAM closed the stream or connection with an error. |
+| `0x06` | `StreamStateError` | The other endpoint sent frames for a stream that is already closed. |
+| `0x07` | `FrameFormatError` | The other endpoint sent a frame with invalid syntax. |
+| `0x08` | `ProtocolViolation` | The other endpoint sent invalid data or otherwise violated the protocol. |
+| `0x09` | `ApplicationError` | The application using STREAM closed the stream or connection with an error. |
 
 ## 6. Condition and Fulfillment Generation
 
