@@ -1,6 +1,6 @@
 ---
 title: Web Monetization
-draft: 1
+draft: 2
 ---
 
 # Web Monetization
@@ -42,7 +42,7 @@ The browser or browser extension which provides Web Monetization will likely use
 - The user's browser or Web Monetization extension decides whether to pay the page.
 - If the user's browser decides not to pay, an error is thrown from the `monetize` promise.
 - If the user's browser pays, the `monetize` promise resolves.
-- The webpage may run some code in order to thank the user or offer them additional content. This does not guarantee that the site way paid, because it runs client-side. If confirmation of receipt is required, the backend which provides the SPSP server can be queried.
+- The webpage may run some code in order to thank the user or offer them additional content. This does not guarantee that the site was paid, because it runs client-side. If confirmation of receipt is required, the backend which provides the SPSP server can be queried.
 
 ## Specification
 
