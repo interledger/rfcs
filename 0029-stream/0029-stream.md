@@ -122,7 +122,7 @@ Once a connection is established, either endpoint can create streams to send mon
 
 Streams are opened when either side sends a `StreamMoney` or `StreamData` frame with a previously unused stream ID.
 
-Client streams must be odd-numbered starting with 1 and server-initiated streams must be even-numbered starting with 2. If an endpoint sends a packet for an unopened stream with the wrong number, the receiving endpoint MUST close the connection with a `ProtocolViolationError`.
+Client streams MUST be odd-numbered starting with 1 and server-initiated streams MUST be even-numbered starting with 2. If an endpoint sends a packet for an unopened stream with the wrong number, the receiving endpoint MUST close the connection with a `ProtocolViolationError`.
 
 #### 4.4.2. Sending Money
 
@@ -136,7 +136,7 @@ Data can be sent for a given stream by sending an ILP Prepare packet with a `Str
 
 Each endpoint can limit the amount of money and data they are willing to receive on a particular stream. STREAM uses a credit-based flow control scheme inspired by [QUIC](https://quicwg.github.io/base-drafts/draft-ietf-quic-transport.html#rfc.section.10). Each endpoint advertises the maximum amount of money they are willing to receive, using `StreamMaxMoney` frames, as well as the maximum number of bytes each stream can receive, using `StreamMaxData` frames.
 
-Endpoints MAY advertise larger offsets at any point by sending new `StreamMaxMoney` or `StreamMaxData` frames. An endpoint MUST NOT renege on an advertisement. Once an endpoint advertises a given maximum receive amount or maximum byte offset, they MUST NOT advertise a smaller value later. The sending endpoint could receive the frames out of order and so they must ignore flow control offsets that do not increase the window.
+Endpoints MAY advertise larger offsets at any point by sending new `StreamMaxMoney` or `StreamMaxData` frames. An endpoint MUST NOT renege on an advertisement. Once an endpoint advertises a given maximum receive amount or maximum byte offset, they MUST NOT advertise a smaller value later. The sending endpoint could receive the frames out of order and so they MUST ignore flow control offsets that do not increase the window.
 
 The receiving endpoint MUST close the connection with a `FlowControlError` if the sender violates the advertised stream limits.
 
@@ -206,7 +206,7 @@ See the [ASN.1 definition](../asn1/Stream.asn) for the formal packet specificati
 |---|---|---|
 | Version | UInt8 | `1` for this version |
 | ILP Packet Type | UInt8 | ILPv4 packet type this STREAM packet MUST be sent in (`12` for Prepare, `13` for Fulfill, and `14` for Reject). Endpoints MUST discard STREAM packets that comes in on the wrong ILP Packet Type. (This is done to prevent malicious intermediaries from swapping the `data` fields from different valid ILP packets.) |
-| Sequence | VarUInt | Identifier for an ILP request / resopnse. Clients and Servers track their own outgoing packet sequence numbers and increment the `Sequence` for each ILP Prepare they send. The Receiver MUST respond with a STREAM packet that includes the same `Sequence` as the Sender's Prepare packet. A sender MUST discard a STREAM packet in which the `Sequence` does not match the STREAM packet sent with their ILP Prepare. |
+| Sequence | VarUInt | Identifier for an ILP request / response. Clients and Servers track their own outgoing packet sequence numbers and increment the `Sequence` for each ILP Prepare they send. The Receiver MUST respond with a STREAM packet that includes the same `Sequence` as the Sender's Prepare packet. A sender MUST discard a STREAM packet in which the `Sequence` does not match the STREAM packet sent with their ILP Prepare. |
 | Prepare Amount | VarUInt | If the STREAM packet is sent on an ILP Prepare, this represents the minimum the receiver should accept. If the packet is sent on an ILP Fulfill or Reject, this represents the amount that the receiver got in the Prepare. |
 | Frames | SEQUENCE OF Frame | An array of Frames, which are specified below. |
 | Junk Data | N/A | Extra bytes that MUST be ignored. Implementations MAY append zero-bytes to pad packets to a specific size. Future versions of STREAM may specify additional fields that come after the `Frames` (zero-bytes MUST be used for padding to avoid confusion with future protocol versions). |
@@ -405,7 +405,7 @@ fulfillment = hmac_sha256(hmac_key, data)
 
 Unlike QUIC, STREAM:
 - Has only one packet header instead of QUIC's short and long headers.
-- Uses the shared secret identifies the Connection rather than having a separate Connection ID.
+- Uses the shared secret to identify the Connection rather than having a separate Connection ID.
 - Does not include a cryptographic handshake, because STREAM assumes a symmetric secret is communicated out of band.
 - Does not support unidirectional frames. The QUIC community had significant debate over whether to include unidirectional streams, bidirectional streams, or both. They settled on both primarily to support the HTTP request/response pattern as well as HTTP/2 Server Push. Unidirectional streams were left out of STREAM because they add complexity and are a premature optimization for this protocol now.
 - Does not have ACK frames, because ILP Prepare packets must be acknowledged with either a Fulfill or Reject packet. If the response includes an (authenticated) STREAM packet, the sender can treat that as an acknowledgement of the control and data frames from the Prepare packet they sent.
