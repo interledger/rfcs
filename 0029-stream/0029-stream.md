@@ -5,9 +5,64 @@ draft: 1
 
 # STREAM: A Multiplexed Money and Data Transport for ILP
 
+## Abstract
+
+This document specifies the STREAM Interledger Transport protocol, which provides for reliably sending money and data over ILP. STREAM is designed to be used in applications that involve streaming payments or data, as well as those that require sending larger discrete payments and messages. A virtual connection is established between a "client" and a "server" and can be used to send authenticated ILP packets between them.
+
+**Table of Contents:**
+
+- [1. Introduction](#1-introduction)
+- [2. Conventions and Definitions](#2-conventions-and-definitions)
+- [3. Overview](#3-overview)
+  - [3.1. Relationship with Other Protocols](#31-relationship-with-other-protocols)
+  - [3.2. Why Streams?](#32-why-streams)
+  - [3.3. Multiplexed Streams](#33-multiplexed-streams)
+  - [3.4. Exchange Rates](#34-exchange-rates)
+  - [3.5. Packets and Frames](#35-packets-and-frames)
+  - [3.6. Packet Acknowledgements (ACKs)](#36-packet-acknowledgements-acks)
+- [4. Life of a Connection](#4-life-of-a-connection)
+  - [4.1. Setup](#41-setup)
+  - [4.2. Matching Packets to Connections](#42-matching-packets-to-connections)
+  - [4.3. Client Address Communication and Connection Migration](#43-client-address-communication-and-connection-migration)
+  - [4.4. Streams](#44-streams)
+    - [4.4.1. Opening New Streams](#441-opening-new-streams)
+    - [4.4.2. Sending Money](#442-sending-money)
+    - [4.4.3. Sending Data](#443-sending-data)
+    - [4.4.4. Stream-Level Flow Control](#444-stream-level-flow-control)
+    - [4.4.5. Closing Streams](#445-closing-streams)
+  - [4.5. Connection-Level Flow Control](#45-connection-level-flow-control)
+  - [4.6. Closing Connections](#46-closing-connections)
+- [5. Packet and Frame Specification](#5-packet-and-frame-specification)
+  - [5.1. Encryption](#51-encryption)
+    - [5.1.1. Encryption Envelope](#511-encryption-envelope)
+    - [5.1.2. Encryption Pseudocode](#512-encryption-pseudocode)
+    - [5.1.3. Maximum Number of Packets Per Connection](#513-maximum-number-of-packets-per-connection)
+  - [5.2. STREAM Packet](#52-stream-packet)
+  - [5.3. Frames](#53-frames)
+    - [5.3.1. `ConnectionClose` Frame](#531-connectionclose-frame)
+    - [5.3.2. `ConnectionNewAddress` Frame](#532-connectionnewaddress-frame)
+    - [5.3.3. `ConnectionMaxData` Frame](#533-connectionmaxdata-frame)
+    - [5.3.4. `ConnectionDataBlocked` Frame](#534-connectiondatablocked-frame)
+    - [5.3.5. `ConnectionMaxStreamId` Frame](#535-connectionmaxstreamid-frame)
+    - [5.3.6. `ConnectionStreamIdBlocked` Frame](#536-connectionstreamidblocked-frame)
+    - [5.3.7. `StreamClose` Frame](#537-streamclose-frame)
+    - [5.3.8. `StreamMoney` Frame](#538-streammoney-frame)
+    - [5.3.9. `StreamMaxMoney` Frame](#539-streammaxmoney-frame)
+    - [5.3.10. `StreamMoneyBlocked` Frame](#5310-streammoneyblocked-frame)
+    - [5.3.11. `StreamData` Frame](#5311-streamdata-frame)
+    - [5.3.12. `StreamMaxData` Frame](#5312-streammaxdata-frame)
+    - [5.3.13. `StreamDataBlocked` Frame](#5313-streamdatablocked-frame)
+  - [5.4. Error Codes](#54-error-codes)
+- [6. Condition and Fulfillment Generation](#6-condition-and-fulfillment-generation)
+  - [6.1. Unfulfillable Condition](#61-unfulfillable-condition)
+    - [6.2. Fulfillable Condition](#62-fulfillable-condition)
+    - [6.3. Fulfillment Generation](#63-fulfillment-generation)
+- [Appendix A: Similarities and Differences with QUIC](#appendix-a--similarities-and-differences-with-quic)
+
 ## 1. Introduction
 
 STREAM is a multiplexed Interledger Transport Protocol that provides for sending multiple "streams" of money and data between two parties using ILP. STREAM is designed to provide a flexible set of features that allow it to be used for multiple payment and messaging applications:
+
 - Sending money and data over ILP
 - Segmenting larger payments or messages into packets and reassembling them
 - Bi-directional communication between two endpoints through ILP
@@ -188,10 +243,10 @@ Note that the `Ciphertext` is NOT length-prefixed. The length can be inferred fr
 
 The encryption key used for every packet sent for a given connection is the HMAC-SHA256 digest of the shared secret and the string `"ilp_stream_encryption"`, encoded as UTF-8 or ASCII (the byte representation is the same with both encodings).
 
-```
-iv = random_bytes(12)
-encryption_key = hmac_sha256(shared_secret, "ilp_stream_encryption")
-{ ciphertext, auth_tag } = aes_256_gcm(encryption_key, iv, data)
+```js
+var iv = random_bytes(12);
+var encryption_key = hmac_sha256(shared_secret, "ilp_stream_encryption");
+var { ciphertext, auth_tag } = aes_256_gcm(encryption_key, iv, data);
 ```
 
 #### 5.1.3. Maximum Number of Packets Per Connection
@@ -366,12 +421,12 @@ Error codes are sent in `StreamClose` and `ConnectionClose` frames to indicate w
 
 There are two methods the sender can use to generate the condition, depending on whether they want the payment to be fulfillable or not.
 
-#### 6.1. Unfulfillable Condition
+### 6.1. Unfulfillable Condition
 
 If the sender does not want the receiver to be able to fulfill the payment (as for an informational quote), they can generate an unfulfillable random condition.
 
-```
-condition = random_bytes(32)
+```js
+var condition = random_bytes(32);
 ```
 
 #### 6.2. Fulfillable Condition
@@ -380,10 +435,10 @@ If the sender does want the receiver to be able to fulfill the condition, the co
 
 The `shared_secret` is the cryptographic seed exchanged during [Setup](#41-setup). The string `"ilp_stream_fulfillment"` is encoded as UTF-8 or ASCII (the byte representation is the same with both encodings). The `data` is the encrypted STREAM packet.
 
-```
-hmac_key = hmac_sha256(shared_secret, "ilp_stream_fulfillment")
-fulfillment = hmac_sha256(hmac_key, data)
-condition = sha256(fulfillment)
+```js
+var hmac_key = hmac_sha256(shared_secret, "ilp_stream_fulfillment");
+var fulfillment = hmac_sha256(hmac_key, data);
+var condition = sha256(fulfillment);
 ```
 
 #### 6.3. Fulfillment Generation
@@ -392,18 +447,15 @@ The following pseudocode details how the receiver regenerates the fulfillment fr
 
 The `shared_secret` is the cryptographic seed exchanged during [Setup](#41-setup). The string `"ilp_stream_fulfillment"` is encoded as UTF-8 or ASCII (the byte representation is the same with both encodings). The `data` is the encrypted STREAM packet.
 
+```js
+var hmac_key = hmac_sha256(shared_secret, "ilp_stream_fulfillment");
+var fulfillment = hmac_sha256(hmac_key, data);
 ```
-hmac_key = hmac_sha256(shared_secret, "ilp_stream_fulfillment")
-fulfillment = hmac_sha256(hmac_key, data)
-```
-
-## 7. Security Considerations
-
-**TODO**
 
 ## Appendix A: Similarities and Differences with QUIC
 
 Unlike QUIC, STREAM:
+
 - Has only one packet header instead of QUIC's short and long headers.
 - Uses the shared secret to identify the Connection rather than having a separate Connection ID.
 - Does not include a cryptographic handshake, because STREAM assumes a symmetric secret is communicated out of band.
