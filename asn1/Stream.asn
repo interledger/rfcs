@@ -49,7 +49,7 @@ StreamPacket ::= SEQUENCE {
 }
 
 FRAME ::= CLASS {
-  &typedId UInt8 UNIQUE,
+  &typeId UInt8 UNIQUE,
   &Type
 } WITH SYNTAX {&typeId &Type}
 
@@ -72,7 +72,7 @@ FrameSet FRAME ::= {
 
 StreamFrame ::= SEQUENCE {
   type FRAME.&typeId ({FrameSet}),
-  data FRAME.&Type ({PacketSet}{@type})
+  data FRAME.&Type ({FrameSet}{@type})
 }
 
 ConnectionError ::= SEQUENCE {
