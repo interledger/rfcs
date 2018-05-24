@@ -76,3 +76,4 @@ will have to be queried in order to confirm how much has been paid to a specific
 `Promise<void>` - A promise which resolves if the user decides to send money to the page.
 
 Rejects with `Error` if the user's browser decides not to send money to this page.
+
