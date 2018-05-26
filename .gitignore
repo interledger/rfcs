@@ -7,3 +7,7 @@
 # Ignore ASNLab IDE files
 /.project
 /.buildpath
+
+/whitepaper/*.aux
+/whitepaper/*.dvi
+/whitepaper/*.log
