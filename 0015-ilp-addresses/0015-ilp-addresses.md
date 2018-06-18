@@ -1,6 +1,6 @@
 ---
 title: ILP Addresses
-draft: 3
+draft: 4
 ---
 # ILP Addresses - v2.0.0
 
@@ -36,7 +36,7 @@ The following ABNF specification defines the format for the contents of all ILP 
 address     = scheme 1*( separator segment )
 
 scheme      = "g" / "private" / "example" / "peer" / "self" /
-              "test" / "test1" / "test2" / "test3"
+              "test" / "test1" / "test2" / "test3" / "local"
 
 separator   = "."
 
@@ -45,7 +45,7 @@ segment     = 1*( ALPHA / DIGIT / "_" / "~" / "-" )
 
 You can also use the following regular expressions to verify the same requirements:
 
-    (?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3]?)([.][a-zA-Z0-9_~-]+)+$
+    (?=^.{1,1023}$)^(g|private|example|peer|self|test[1-3]?|local)([.][a-zA-Z0-9_~-]+)+$
 
 (If your regular expression engine does not support lookahead, you must drop the first parenthesis and separately enforce the overall length requirement of 1023 characters or less.)
 
