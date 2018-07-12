@@ -10,6 +10,8 @@ This document defines the basic functions of an ILP node.
 
 The document is specific to the requirements of a "core" node that only operates at the ILP layer and does not concern itself with functionality in the higher protocol layers (e.g. STREAM, PSK2, etc). In other words, this document describes the functions of a node that is neither a sender or receiver of ILP packets but rather a "middle-box", to borrow some Internet terminology.
 
+An ILP node is also described as a connector. In this document, to emphasize that is is a node of the entire ILP network graph that routes ILP packets, it is written as an ILP node rather than a connector.
+
 # Overview
 
 An ILP node is very similar to a network router on an IP network. It has multiple incoming and outgoing links on which it sends and receives packets of data. It's primary function is to route incoming packets, on any links, to the appropriate outgoing link.
