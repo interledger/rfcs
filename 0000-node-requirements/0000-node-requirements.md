@@ -123,6 +123,6 @@ A node MUST run either in a test network or on the live network but never on bot
 Because routing ILP packet means transferring value to the next node (or the terminal receiver: payee), a node needs an actual method to reconcile the owed payments and/or the due. Roughly classifying it, possible options are the below.
 
 - Online method
-  - In most cases, the transfer is done on a ledger that is connected online through an account on it. Because some ledgers have difficulty in processing massive transactions, using payment channel is a realistic measure.
+  - In most cases, the transfer is done on a ledger that is connected online through an account on it. Because some ledgers have difficulty in processing massive transactions, using payment channel is a realistic measure. Passing value from an account of a node that owes the value to an account of a node that has the due, means the reconciliation.
 - Offline method
   - Although this is just a hypothetical option, it is not neccesarily required to transfer value online. A node can reconcile offline.
