@@ -43,18 +43,18 @@ Web Monetization works in two stages: first, the user registers their provider w
 
 - The user visits their provider's webpage.
 - If the provider expects visitors who do not have web monetization natively supported in their browsers, the polyfill's script is loaded.
-- The provider's webpage calls `window.registerWebMonetizationHandler`.
+- The provider's webpage calls `window.WebMonetization.register`.
 - The user is redirected to the web monetization polyfill's webpage to confirm. If the browser supports WM natively, the browser might display a native pop-up box instead.
-- If the user confirms the registration, they will be redirected to a `destUrl` specified by the page that called `window.registerWebMonetizationHandler`.
-  - If the polyfill is being used, a `handlerUrl` specified by the page that called `window.registerWebMonetizationHandler` is put into localStorage.
+- If the user confirms the registration, they will be redirected to a `destUrl` specified by the page that called `window.WebMonetization.register`.
+  - If the polyfill is being used, a `handlerUrl` specified by the page that called `window.WebMonetization.register` is put into localStorage.
   - If the browser supports WM natively, `handlerUrl` is stored in the browser's state.
-- If the user cancels the registration, they will be redirected to a `cancelUrl` specified by the page that called `window.registerWebMonetizationHandler`.
+- If the user cancels the registration, they will be redirected to a `cancelUrl` specified by the page that called `window.WebMonetization.register`.
 
 ### Monetization
 
 - The user visits a webpage.
 - If the page expects visitors who do not have web monetization natively supported in their browsers, the polyfill's script is loaded.
-- When the page wants to open an ILP/STREAM connection, it calls `window.monetize.createConnection()` with a `destinationAccount` and `sharedSecret`.
+- When the page wants to open an ILP/STREAM connection, it calls `window.WebMonetization.monetize()` with a `destinationAccount` and `sharedSecret`.
   - The polyfill embeds an iframe to its own domain. This allows it to read the handler URL stored during [Registration](#registration). If the browser supports WM natively it loads the handler URL from its own state.
   - The polyfill's iframe embeds another iframe to the handler URL, or the browser creates an iframe-like contruct pointing to the handler URL.
   - An ILP/STREAM connection object is returned from the function for the site to use.
@@ -66,13 +66,13 @@ Web Monetization works in two stages: first, the user registers their provider w
 
 #### Register
 
-```
-window.registerWebMonetizationHandler({
+```ts
+window.WebMonetization.register({
   name: string,
   handlerUri: string,
   destUri?: string,
   cancelUri?: string,
-})
+}): void
 ```
 
 ##### Parameters
@@ -91,11 +91,11 @@ window.registerWebMonetizationHandler({
 
 #### Monetize
 
-```
-window.monetize.createIlpConnection({
+```ts
+window.WebMonetization.monetize({
   destinationAccount: string,
   sharedSecret: string
-})
+}): Promise<IlpConnection>
 ```
 
 ##### Parameters
@@ -108,10 +108,154 @@ window.monetize.createIlpConnection({
 
 ##### Returns
 
-- `Promise<IlpConnection>` - An ILP/STREAM connection that can be used to sendmoney and data.
-  - This IlpConnection's API can be found [here](https://interledgerjs.github.io/ilp-protocol-stream/classes/_connection_.connection.html).
+- `Promise<IlpConnection>` - An [ILP/STREAM connection](#ilp-connection-class) that can be used to send money and data.
 - Rejects with `Error` if the connection could not be established.
 - Rejects with `NoHandlerRegisteredError` if the browser is not enabled for Web Monetization and/or has no handler registered.
+
+### ILP Connection Class
+
+#### Events
+
+| Name | Fields | Emitted |
+|:---|:---|:---|
+| `stream` | [`Event.stream: IlpStream`](#ilp-stream-class) | When the other side of the connection opens a stream. |
+| `close` | | When the connection closes. |
+| `error` | `Event.error: Error` | When an error occurs on this ILP connection. |
+
+#### Fields (Read-only)
+
+| Name | Type | Description |
+|:---|:---|:---|
+| `connectionTag` | `String` | A unique tag on this connection set at establishment. |
+| `lastPacketExchangeRate` | `Number` | Exchange rate observed on the most recent packet over this connection. |
+| `minimumAcceptableExchangeRate` | `Number` | The least favorable connection allowed on this exchange rate. |
+| `totalDelivered` | `String` | The amount of money sent to the destination (in destination units). |
+| `totalSent` | `String` | The amount of money sent to the destination (in our units). |
+| `totalReceived` | `String` | The amount of money received (in our units). |
+
+#### Create Stream
+
+```ts
+connection.createStream(): IlpStream
+```
+
+##### Returns
+
+- `IlpStream` - An [ILP Stream](#ilp-stream-class) object.
+
+#### End Connection
+
+```ts
+connection.close(): void
+```
+
+### ILP Stream Class
+
+#### Events
+
+| Name | Fields | Emitted |
+|:---|:---|:---|
+| `data` | `Event.data: Uint8Array` | When data is received over the stream. |
+| `money` | `Event.amount: String` | When money is received over the stream. |
+| `outgoing_money` | `Event.amount: String` | When money is sent over the stream. |
+| `close` | | When the stream is closed. |
+| `error` | `Event.error: Error` | When the stream encounters an error. |
+
+#### Fields (Read-only)
+
+| Name | Type | Value |
+|:---|:---|:---|
+| `id` | `String` | The id of this stream, unique to this connection. |
+| `receiveMax` | `String` | The maximum amount you permit this stream to receive. Change with `setReceiveMax()` |
+| `sendMax` | `String` | The amount you will try to send on this stream. Change with `setSendMax()` |
+| `totalReceived` | `String` | The total amount received so far on this stream. |
+| `totalSent` | `String` | The total amount sent so far on this stream. |
+
+#### Check if Stream is Open
+
+```ts
+stream.isOpen(): Boolean
+```
+
+##### Returns
+
+- `Boolean`, whether the stream is open.
+
+#### Allow Money to be Received
+
+```ts
+stream.setReceiveMax(amount: String): void
+```
+
+Sets the maximum that can be received. Must be called with
+increasing values.
+
+##### Parameters
+
+- `amount: String` - The amount to receive (in our units).
+
+#### Wait for Money to be Received
+
+```ts
+stream.receiveTotal(amount: String, timeout?: Number): Promise<void>
+```
+
+Sets the maximum that can be received and waits until that amount has been
+reached. Must be called with increasing `amount`s.
+
+##### Parameters
+
+- `amount: String` - The amount to receive (in our units).
+- `timeout: Number` - How long (in ms) to wait for this function to complete.
+
+#### Try to Send Money
+
+```ts
+stream.setSendMax(amount: String): Promise<void>
+```
+
+Sets the maximum that can be sent. The stream will send as much as the receiver
+is willing to receive, up to this maximum.The stream will send as much as the
+receiver is willing to receive, up to this maximum. Must be called with
+increasing values.
+
+##### Parameters
+
+- `amount: String` - The amount to send (in our units).
+
+#### Wait for Money to be Sent
+
+```ts
+stream.sendTotal(amount: String, timeout?: Number): Promise<void>
+```
+
+Sets the maximum that can be sent and waits until that amount has been
+sent. Must be called with increasing `amount`s.
+
+##### Parameters
+
+- `amount: String` - The amount to send (in our units).
+- `timeout: Number` - How long (in ms) to wait for this function to complete.
+
+#### Send Data on the Stream
+
+```ts
+stream.send(msg: Uint8Array | String): Promise<void>
+```
+
+Sends data over the stream, which will be emitted as `data` events on the other
+side. The data may be broken into chunks or buffered; one `send` call doesn't
+necessarily correspond to a single `data` event.
+
+##### Parameters
+
+- `msg: Uint8Array | String` - The data to send over the stream.
+
+#### Close the Stream
+
+```ts
+stream.close(): void
+```
 
 ### Web Monetization Handler API
 
@@ -119,7 +263,7 @@ The `handlerURL` that is registered is embedded as an iframe. Messages are passe
 
 #### Request
 
-```
+```ts
 {
   id: string,
   request: string
@@ -133,7 +277,7 @@ The `handlerURL` that is registered is embedded as an iframe. Messages are passe
 
 #### Response (Success)
 
-```
+```ts
 {
   id: string,
   response: string
@@ -147,7 +291,7 @@ The `handlerURL` that is registered is embedded as an iframe. Messages are passe
 
 #### Response (Error)
 
-```
+```ts
 {
   id: string,
   error: string,
