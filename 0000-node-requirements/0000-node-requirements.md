@@ -117,3 +117,12 @@ Routing data updates, IL-DCP and other peer-to-peer protocols use ILP packets wh
 **`test.*`, `test1.*`, `test2.*`, and `test3.*`**
 
 A node MUST run either in a test network or on the live network but never on both. If a node is running on the test network it MUST reject all packets in the global address-space, `g.*`. Likewise, if node is running on the live netw    ork it MUST reject any packets with addresses in the `test.*`, `test1.*`, `test2.*`, or `test3.*` address-spaces.
+
+## Actual Means of Transferring Value
+
+Because routing ILP packet means transferring value to the next node (or the terminal receiver: payee), a node needs an actual method to reconcile the owed payments and/or the due. Roughly classifying it, possible options are the below.
+
+- Online method
+  - In most cases, the transfer is done on a ledger through an account on it. Because some ledgers have difficulty in processing massive transactions, using payment channel is a realistic measure.
+- Offline method
+  - Although this is just a hypothetical option, it is not neccesarily required to transfer value online. A node can reconcile offline.
