@@ -14,7 +14,6 @@ Web Monetization is a proposed browser API that uses ILP micropayments to moneti
 - The **webmaster** is the party who is running a site.
 - The **user** is the party who is accessing the site.
 - The **provider** is the party providing Interledger access to the user.
-- **The polyfill** is a site that hosts the static scripts to polyfill web monetization.
 
 ### Design Goals
 
@@ -42,23 +41,19 @@ Web Monetization works in two stages: first, the user registers their provider w
 ### Registration
 
 - The user visits their provider's webpage.
-- If the provider expects visitors who do not have web monetization natively supported in their browsers, the polyfill's script is loaded.
 - The provider's webpage calls `window.WebMonetization.register`.
-- The user is redirected to the web monetization polyfill's webpage to confirm. If the browser supports WM natively, the browser might display a native pop-up box instead.
+- The user is redirected to a confirmation webpage to confirm. The browser might display a native pop-up box instead.
 - If the user confirms the registration, they will be redirected to a `destUrl` specified by the page that called `window.WebMonetization.register`.
-  - If the polyfill is being used, a `handlerUrl` specified by the page that called `window.WebMonetization.register` is put into localStorage.
-  - If the browser supports WM natively, `handlerUrl` is stored in the browser's state.
+  - `handlerUrl` is stored in the browser's state.
 - If the user cancels the registration, they will be redirected to a `cancelUrl` specified by the page that called `window.WebMonetization.register`.
 
 ### Monetization
 
 - The user visits a webpage.
-- If the page expects visitors who do not have web monetization natively supported in their browsers, the polyfill's script is loaded.
 - When the page wants to open an ILP/STREAM connection, it calls `window.WebMonetization.monetize()` with a `destinationAccount` and `sharedSecret`.
-  - The polyfill embeds an iframe to its own domain. This allows it to read the handler URL stored during [Registration](#registration). If the browser supports WM natively it loads the handler URL from its own state.
-  - The polyfill's iframe embeds another iframe to the handler URL, or the browser creates an iframe-like contruct pointing to the handler URL.
+  - The browser creates an iframe to the handler URL, reading from the state that was stored during [registration](#registration).
   - An ILP/STREAM connection object is returned from the function for the site to use.
-- When the page wants to use the ILP/STREAM connection, they use the javascript STREAM API to send money and/or data. The polyfill/browser sends outgoing ILP packets to the handler iframe using `postMessage`. The handler iframe forwards incoming packets by calling `window.parent.postMessage`.
+- When the page wants to use the ILP/STREAM connection, they use the javascript STREAM API to send money and/or data. The browser sends outgoing ILP packets to the handler iframe using `postMessage`. The handler iframe forwards incoming packets by calling `window.parent.postMessage`.
 
 ## Specification
 
@@ -259,7 +254,7 @@ stream.close(): void
 
 ### Web Monetization Handler API
 
-The `handlerURL` that is registered is embedded as an iframe. Messages are passed to it with `iframe.contentWindow.postMessage`, and messages are sent from the iframe to the polyfill/browser via `window.parent.postMessage`.
+The `handlerURL` that is registered is embedded as an iframe. Messages are passed to it with `iframe.contentWindow.postMessage`, and messages are sent from the iframe to the browser via `window.parent.postMessage`.
 
 #### Request
 
