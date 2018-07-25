@@ -42,10 +42,9 @@ Web Monetization works in two stages: first, the user registers their provider w
 
 - The user visits their provider's webpage.
 - The provider's webpage calls `window.WebMonetization.register`.
-- The user is redirected to a confirmation webpage to confirm. The browser might display a native pop-up box instead.
-- If the user confirms the registration, they will be redirected to a `destUrl` specified by the page that called `window.WebMonetization.register`.
-  - `handlerUrl` is stored in the browser's state.
-- If the user cancels the registration, they will be redirected to a `cancelUrl` specified by the page that called `window.WebMonetization.register`.
+- The browser will display a native pop-up box asking the user whether they want to set the handler proposed by the page.
+  - If the user confirms, `handlerUrl` is stored in the browser's state and `window.WebMonetization.register` resolves to true.
+  - If the user cancels the registration, `window.WebMonetization.register` will resolve to false.
 
 ### Monetization
 
@@ -64,10 +63,8 @@ Web Monetization works in two stages: first, the user registers their provider w
 ```ts
 window.WebMonetization.register({
   name: string,
-  handlerUri: string,
-  destUri?: string,
-  cancelUri?: string,
-}): void
+  handlerUri: string
+}): Promise<Boolean>
 ```
 
 ##### Parameters
@@ -77,12 +74,10 @@ window.WebMonetization.register({
 | opts | `Object` | The options for registering a handler. |
 | opts.name | `String` | Name of the provider (for display). |
 | opts.handlerUri | `String` | URL to handler. |
-| opts.destUri | `String` | _(Optional)_ URL to redirect after registration success. |
-| opts.cancelUri | `String` | _(Optional)_ URL to redirect after registration is canceled. |
 
 ##### Returns
 
-- Returns `void`; redirects the page.
+- `Promise<Boolean>` - Whether the handler was set successfully.
 
 #### Monetize
 
