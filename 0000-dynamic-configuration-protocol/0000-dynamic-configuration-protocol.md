@@ -34,7 +34,7 @@ In short, **ILDCP is a protocol used for transferring node and ledger informatio
 ## Protocol Detail
 
 ### Procedure
-Aquisition is done in the following procedure.
+Acquisition is done in the following procedure.
 
 1. A child node requests information to the corresponded parent node
 2. The parent node responds information to the child node
