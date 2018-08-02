@@ -1,0 +1,60 @@
+RouteBroadcastingProtocol DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+
+IMPORTS
+  UInt8,
+  UInt16,
+  UInt32
+  FROM GenericTypes
+  Address
+  FROM InterledgerTypes
+;
+
+-- Route Control Request
+
+SyncMode ::= INTEGER {
+  idle (0),
+  sync (1)
+} (0..255)
+
+RoutingTableId ::= OCTET STRING (SIZE (16))
+
+Feature ::= OCTET STRING
+
+RouteControlRequestData ::= SEQUENCE {
+  syncMode SyncMode, -- the state that the node wants the counterpart node to be
+  routingTableId RoutingTableId, -- the routing table ID that the requesting node knows at that point
+  knownEpochIndex UInt32, -- the epoch that the requesting node knows at that point
+  features SEQUENCE OF Feature -- reserved for the future, currently not used
+}
+
+-- Route Update Request
+
+Auth ::= OCTET STRING (SIZE (32))
+
+Property ::= SEQUENCE {
+  meta UInt8,
+  id UInt16,
+  value OCTET STRING
+}
+
+NewRoute ::= SEQUENCE {
+  addedRoutePrefix Address, -- the prefix of the added route
+  path SEQUENCE OF Address, -- the hops destinated to the prefix node
+  auth Auth, -- reserved for the future, currently not used
+  props SEQUENCE OF Property -- reserved for the future, currently not used
+}
+
+-- NOTICE: The log of "toEpochIndex" will NOT be included.
+-- e.g. with this log: [ a, b, c, d ], update request from 0 to 2 means [ a, b ]
+RouteUpdateRequestData ::= SEQUENCE {
+  routingTableId RoutingTableId, -- the routing table ID that the requesting node knows at that point
+  currentEpochIndex UInt32, -- current epoch index of the node that requests the update for the other nodes
+  fromEpochIndex UInt32, -- the epoch index that the log of this update request starts from
+  toEpochIndex UInt32, -- the epoch index that the log of this update request ends at
+  holdDownTime UInt32, -- reserved for the future, currently not used
+  speaker Address, -- the ILP address of the requesting node
+  addedRoutes SEQUENCE OF NewRoute, -- the added routes
+  withdrawnRoutes SEQUENCE OF Address -- the withdrawn routes
+}
+
+END
