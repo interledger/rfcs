@@ -126,7 +126,7 @@ _Note: The reason for the "holding" part is that it protects the assets.  If any
 
 **Asset Exchange & Connectors**
 
-What's particularly useful about about ILP payments, is that the _kind_ of asset being sent doesn't need to be the same kind as the asset that is received.  The asset kind may be exchanged a few times during a payment.
+What's particularly useful about ILP payments, is that the _kind_ of asset being sent doesn't need to be the same kind as the asset that is received.  The asset kind may be exchanged a few times during a payment.
 
 In the example above, if there wasn't a convenient connector available for USD and JPY, the payment could have involved two or more connectors.  For example, the first connector could be happy to gain US Dollars on the senders ledger, and provide Mexican Peso's on another ledger.  A second connector may be happy to gain some Mexican Peso's on the first connectors ledger, and lose some Japanese Yen on the receivers ledger.  In this case the payment would have involved seven parties acting together.  One sender, two connectors, one receiver and three ledgers.
 
