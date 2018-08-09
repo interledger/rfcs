@@ -54,14 +54,15 @@ The request and the response above are transferred in [ILP packets](../0027-inte
   - The `type` of the ILP packet is `ILP Fulfill` (type id: 13)
   - The `fulfillment` of the ILP packet is 32byte octet string all filled with zeros
   - The `data` of the ILP packet is the below in the exact order:
-    - Variable-length octet string of ILP address that the child should use, that can be decoded in `ASCII` format
-    - Uint8 of asset scale
-    - Variable-length octet string of asset code, that can be decoded in `UTF-8` format
+    - `Variable-length octet string`: ILP address that the child should use, that can be decoded in `ASCII` format
+    - `Uint8`: asset scale
+    - `Variable-length octet string`: asset code, that can be decoded in `UTF-8` format
 - Error
   - The `type` of the ILP packet is `ILP Reject` (type id: 14)
-  - The `code` of the ILP packet is arbitrary, depends on the situation
-  - The `message` of the ILP packet is arbitrary, depends on the situation
-  - The `triggeredBy` of the ILP packet is the ILP address of the parent node
+  - The `code` of the ILP packet is arbitrary, depending on the situation
+  - The `message` of the ILP packet is arbitrary, depending on the situation
+  - The `triggeredBy` of the ILP packet is the ILP depending of the parent node
   - The `data` of the ILP packet is empty (size: 0)
 
+### Encoding Rule
 The ASN.1 definition of ILP packet is described in [InterledgerProtocol.asn](../asn1/InterledgerProtocol.asn). How the variable-length octet string and Uint8 are written into binary is described in [Notes on OER Encoding](../0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md).
