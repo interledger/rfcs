@@ -13,12 +13,12 @@ Before looking into this document, reading the following documents is highly rec
 
 ## Terminology
 
-- **Node** represents a [connector](../0001-interledger-architecture/0001-interledger-architecture.md#connectors) in this document. Nodes are connected each other and the relationship between two nodes is described as the below.
+- A **node** represents a [connector](../0001-interledger-architecture/0001-interledger-architecture.md#connectors) in this document. Nodes are connected each other and the relationship between two nodes is described as the below.
   - `parent` and `child`, one node is the `parent` of another node that is relatively `child`.
   - `peer` and `peer`, two nodes are connected equally.
 
 ## Overview
-Interledger Protocol is a protocol suite that consists of several protocols including [Birateral Transfer Protocol](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md), Route Broadcasting Protocol and the other protocols. Dynamic Configuration Protocol (ILDCP) is one of them.
+Interledger Protocol is a protocol suite that consists of several protocols including [Bilateral Transfer Protocol](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md), Route Broadcasting Protocol and the other protocols. Dynamic Configuration Protocol (ILDCP) is one of them.
 
 A node must have its ILP address to make the other nodes route ILP packet appropriately. Therefore those who run a node have to specify the ILP address of the node when start it up. If the node is a child of a certain node, the ILP address that the child node should use can be automatically given by the parent node using ILDCP so that the child node doesn't need to specify it.
 
@@ -61,7 +61,7 @@ The request and the response above are transferred in [ILP packets](../0027-inte
   - The `type` of the ILP packet is `ILP Reject` (type id: 14)
   - The `code` of the ILP packet is arbitrary, depending on the situation
   - The `message` of the ILP packet is arbitrary, depending on the situation
-  - The `triggeredBy` of the ILP packet is the ILP depending of the parent node
+  - The `triggeredBy` of the ILP packet is the ILP address of the parent node
   - The `data` of the ILP packet is empty (size: 0)
 
 ### Encoding Rule
