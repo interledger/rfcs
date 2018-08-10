@@ -20,7 +20,7 @@ Before looking into this document, reading the following documents is highly rec
 ## Overview
 Interledger Protocol is a protocol suite that consists of several protocols including [Bilateral Transfer Protocol](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md), Route Broadcasting Protocol and the other protocols. Dynamic Configuration Protocol (ILDCP) is one of them.
 
-A node must have its ILP address to make the other nodes route ILP packet appropriately. Therefore those who run a node have to specify the ILP address of the node when start it up. If the node is a child of a certain node, the ILP address that the child node should use can be automatically given by the parent node using ILDCP so that the child node doesn't need to specify it.
+A node must have its ILP address to make the other nodes route ILP packet appropriately. Therefore those who run a node have to specify the ILP address of the node when starting it up. If the node is a child of a certain node, the ILP address that the child node should use can be automatically given by the parent node using ILDCP so that the child node doesn't need to specify it.
 
 In short, **ILDCP is a protocol used for transferring node and ledger information from a parent node to a child node**. The transferred information is:
 
@@ -34,11 +34,11 @@ In short, **ILDCP is a protocol used for transferring node and ledger informatio
 ## Protocol Detail
 
 ### Procedure
-Acquisition is done in the following procedure.
+An acquisition is done in the following procedure.
 
 1. A child node requests information to the corresponded parent node
 2. The parent node responds information to the child node
-3. If the request can not be deserialized and interpreted as appropriate, the parent node should respond error
+3. If the request cannot be deserialized and interpreted as appropriate, the parent node should respond error
 
 ### Packet
 The request and the response above are transferred in [ILP packets](../0027-interledger-protocol-4/0027-interledger-protocol-4.md#specification) in a specific manner. The manner is:
