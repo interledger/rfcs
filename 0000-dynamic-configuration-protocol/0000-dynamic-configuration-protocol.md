@@ -54,6 +54,9 @@ The request and the response above are transferred in [ILP packets](../0027-inte
   - The `type` of the ILP packet is `ILP Fulfill` (type id: 13)
   - The `fulfillment` of the ILP packet is 32byte octet string all filled with zeros
   - The `data` of the ILP packet is described at `DynamicConfigureResponseData` in [ASN.1 definition](#asn1-definition)
+    - `Variable-length octet string`: ILP address that the child should use, that can be decoded in `ASCII` format
+    - `Uint8`: asset scale
+    - `Variable-length octet string`: asset code, that can be decoded in `UTF-8` format
 - Error
   - The `type` of the ILP packet is `ILP Reject` (type id: 14)
   - The `code` of the ILP packet is arbitrary, depending on the situation
@@ -62,7 +65,7 @@ The request and the response above are transferred in [ILP packets](../0027-inte
   - The `data` of the ILP packet is empty (size: 0)
 
 ### ASN.1 Definition
-The ASN.1 definition of ILP packets is described in [InterledgerProtocol.asn](../asn1/InterledgerProtocol.asn) and Dynamic Configure Protocol data is in [DynamicConfigureProtocol.asn](./DynamicConfigureProtocol.asn) as well.
+The ASN.1 definition of ILP packets is described in [InterledgerProtocol.asn](../asn1/InterledgerProtocol.asn) and Dynamic Configure Protocol data is in [DynamicConfigurationProtocol.asn](./DynamicConfigurationProtocol.asn) as well.
 
 ### Encoding Rule
 How ASN.1 types are written into binary is described in [Notes on OER Encoding](../0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md).
