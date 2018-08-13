@@ -1,6 +1,7 @@
 ---
 title: Pre-Shared Key V2 (PSKv2) Transport Protocol
-draft: 2
+draft: FINAL
+deprecated: 0029-stream
 ---
 # Pre-Shared Key V2 (PSKv2) Transport Protocol
 
