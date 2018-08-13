@@ -7,7 +7,7 @@ IMPORTS
   FROM InterledgerTypes
 ;
 
-DynamicConfigureResponseData ::= SEQUENCE {
+DynamicConfigurationResponseData ::= SEQUENCE {
   clientAddress Address, -- the ILP address that the child should use
   assetScale UInt8, -- asset scale
   assetCode UTF8String -- asset code
