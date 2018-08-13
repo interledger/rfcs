@@ -71,7 +71,7 @@ The lifecycle of a routing table is like the below:
   - When the node is restarted
 
 ### Routing Table ID
-A routing table has its identifier, that is called **routing table ID**. A routing table ID is used for identifying its instance, and the ID is given when the table is created as empty. A routing table ID is a UUID.
+A routing table has its identifier, that is called **routing table ID**. A routing table ID is used for identifying its instance, and the ID is given when the table is created as empty. A routing table ID is a [UUID v4](https://tools.ietf.org/html/rfc4122#section-4.1.3).
 
 ### Epoch
 Every time the routing table is modified, the update is logged and the revision number of the table is increased. The revision number of the table is called an **epoch**.
