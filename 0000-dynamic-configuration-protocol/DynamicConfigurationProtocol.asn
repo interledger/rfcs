@@ -1,0 +1,16 @@
+DynamicConfigurationProtocol DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+
+IMPORTS
+  UInt8
+  FROM GenericTypes
+  Address
+  FROM InterledgerTypes
+;
+
+DynamicConfigureResponseData ::= SEQUENCE {
+  clientAddress Address, -- the ILP address that the child should use
+  assetScale UInt8, -- asset scale
+  assetCode UTF8String -- asset code
+}
+
+END
