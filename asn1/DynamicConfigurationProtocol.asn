@@ -1,4 +1,7 @@
-DynamicConfigurationProtocol DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+DynamicConfigurationProtocol 
+DEFINITIONS 
+AUTOMATIC TAGS ::= 
+BEGIN
 
 IMPORTS
   UInt8
