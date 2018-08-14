@@ -14,7 +14,7 @@ Such a node is often referred to as a **connector** as it provides connectivity 
 
 # Overview
 
-An ILP node is very similar to a network router on an IP network. It has multiple incoming and outgoing links on which it sends and receives packets of data. It's primary function is to route incoming packets, on any links, to the appropriate outgoing link.
+An ILP node is very similar to a network router on an IP network. It has multiple incoming and outgoing links on which it sends and receives packets of data. Its primary function is to route incoming packets, on any links, to the appropriate outgoing link.
 
 Where an ILP node differs from an IP router is that it MUST be stateful. ILP packets come in request/response pairs so a node that receives a request on one link, and then routes it out on another, MUST ensure it is able to match any response it gets back on the outgoing link to the original request sent on that link. It MUST also route the response back along the same incoming link on which it received the original incoming request.
 
@@ -104,7 +104,7 @@ A node must maintain routing information that allows it to determine where to fo
 
 Generally a node will prefer to route packets to a child, over a peer, over a parent as this will likely be the most lucrative for the node. (See [Gao-Rexford](https://people.eecs.berkeley.edu/~sylvia/cs268-2016/papers/gao-rexford.pdf))
 
-Most nodes will maintain a routing table that tracks its **links**, the **address-spaces** that can be delivered to over those links (identified by an address prefix) and the **link relation** of the link. They will attempt to match the destination address of incoming packets with an address prefix in the table to determine the link to forward the packet over. The data in the table is maintained through exchange of routing data by the node with all of it's peers.
+Most nodes will maintain a routing table that tracks its **links**, the **address-spaces** that can be delivered to over those links (identified by an address prefix) and the **link relation** of the link. They will attempt to match the destination address of incoming packets with an address prefix in the table to determine the link to forward the packet over. The data in the table is maintained through exchange of routing data by the node with all of its peers.
 
 When a node's routing data changes in such a way that it is necessary to notify its peers the node will broadcast the changes to all peers. Likewise, the node will continuously be processing incoming updates from its peers.
 
