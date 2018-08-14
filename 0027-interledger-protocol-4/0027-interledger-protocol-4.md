@@ -1,6 +1,6 @@
 ---
 title: Interledger Protocol V4 (ILPv4)
-draft: 2
+draft: 3
 ---
 
 # Interledger Protocol V4

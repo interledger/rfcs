@@ -1,6 +1,6 @@
 ---
 title: The Connector to Connector protocol
-draft: 4
+draft: 5
 ---
 # Connector to Connector protocol
 
