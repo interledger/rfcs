@@ -4,11 +4,13 @@ draft: 1
 ---
 # Interledger Node - Requirements Specification
 
-An ILP node is a system that performs the necessary functions to route ILP packets between peers on the open Interledger network.
-
 This document defines the basic functions of an ILP node. 
 
-The document is specific to the requirements of a "core" node that only operates at the ILP layer and does not concern itself with functionality in the higher protocol layers (e.g. STREAM, PSK2, etc). In other words, this document describes the functions of a node that is neither a sender or receiver of ILP packets but rather a "middle-box", to borrow some Internet terminology.
+An ILP node is a system that performs the necessary functions to route ILP packets between peers on the open Interledger network.
+
+The document is specific to the requirements of a "core" node that only operates at the ILP layer and does not concern itself with functionality in the higher protocol layers (e.g. STREAM, PSK2, etc). In other words, this document describes the functions of a node that is neither a sender or receiver of ILP packets but rather a "middlebox", to borrow some Internet terminology.
+
+Such a node is often referred to as a **connector** as it provides connectivity between different networks.
 
 # Overview
 
@@ -115,3 +117,34 @@ Routing data updates, IL-DCP and other peer-to-peer protocols use ILP packets wh
 **`test.*`, `test1.*`, `test2.*`, and `test3.*`**
 
 A node MUST run either in a test network or on the live network but never on both. If a node is running on the test network it MUST reject all packets in the global address-space, `g.*`. Likewise, if node is running on the live netw    ork it MUST reject any packets with addresses in the `test.*`, `test1.*`, `test2.*`, or `test3.*` address-spaces.
+
+## Settlement
+
+When a node routes a packet it is accepting an offer, from the requesting peer, to pay for proof-of-delivery of that packet. When it returns a valid response to the requesting peer (an ILP Fulfill packet with the correct fulfillment) before the expiry of the request, this creates an obligation between the peers. The requesting peer now owes the forwarding peer the amount specified in the request packet.
+
+According to an agreed schedule the two peers will reconcile and settle the obligations created between them as a result of successfully forwarding ILP packets. It is important to note that this process is a bi-lateral concern and does not impact the settlement of obligations between other nodes involved in forwarding that packet.
+
+The specific schedule and mechansim for doing this will be specific to the settlement system used by the peers (e.g. payment channels on a distributed ledger, traditional wire transfers via the banking system, etc.), therefor the functionality required to do this is not included in the core node but rather in settlement-system-specific plugins or adaptors.
+
+It is necessary for the node to have a view of the current outstanding obligations with the peer (the peer's account balance) in order to apply approriate risk management measures when processing packets from the peer.
+
+The logic that determines when to perform a settlement is currently implemented within the node (as opposed to in the plugin) and as such the node must instruct the plugin when to perform a settlement. This reduces the outstanding obligations with the peer to a limit that the node considers safe such that it can forward further packets for the peer.
+
+Where the plugin is managing the balance of the peer it may be possible to simplify the interface between the node and the plugin to simply be the exchange of ILP packets however it is likely that the node will still need to have a view of the peer's unsettled balance to allow it to apply risk management measures of its own.
+
+More details are provided in (Balance Management)[#balance-management].
+
+### Plugin Interface
+
+The interface between these plugins and the node exposes the following functions:
+
+ - Send ILP Packet
+ - Receive ILP Packet
+ - Notification of a settlement event
+ - Request to perform settlement
+ 
+ A concrete implementation of this interface is defined for the reference Javascript node implementation in the [Ledger Plugin Interface v2](../0024-ledger-plugin-interface-2/0024-ledger-plugin-interface-2.md).
+ 
+ ## Balance Management
+ 
+ TODO
