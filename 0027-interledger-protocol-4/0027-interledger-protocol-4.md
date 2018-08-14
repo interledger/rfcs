@@ -64,7 +64,7 @@ ILPv4 can use [unidirectional](../0022-hashed-timelock-agreements/0022-hashed-ti
 
 1. Sender has an account with at least one connector
 2. Sender and connector have funds on some shared ledger or settlement system to rebalance their accounts with one another. If the ledger supports payment channels, participants may have unidirectional or bidirectional payment channels open with one another to rebalance their accounts.
-3. Sender and connector have an authenticated communication channel through which they will send ILP packets, such as a Secure WebSocket (WSS). Note that connectors use their authenticated communication channels with their peers and customers to determine the source of each packet (packets do not contain the source address)
+3. Sender and connector have an authenticated communication channel through which they will send ILP packets, such as a Secure WebSocket (WSS). Note that connectors use their authenticated communication channels with their peers and customers to determine the source of each packet (packets do not contain the source address).
 4. Sender and receiver use a higher-level protocol and/or out-of-band authenticated communication channel to agree on the destination account and packet condition. They may use a protocol like the [Pre-Shared Key V2](../0025-pre-shared-key-2/0025-pre-shared-key-2.md) protocol, which establishes a shared secret and can be used to generate conditions for many packets.
 
 ### ILP Packet Lifecycle
