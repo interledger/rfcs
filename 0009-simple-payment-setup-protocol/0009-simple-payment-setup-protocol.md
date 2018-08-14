@@ -1,22 +1,22 @@
 ---
 title: The Simple Payment Setup Protocol (SPSP)
-draft: 5
+draft: 6
 ---
 # Simple Payment Setup Protocol (SPSP)
 
 ## Preface
 
-This document describes the Simple Payment Setup Protocol (SPSP), a basic protocol for exchanging payment information between senders and receivers to facilitate payment over Interledger. SPSP uses the [Pre-Shared Key Version 2 (PSK2)](../0025-pre-shared-key-2/0025-pre-shared-key-2.md) transport protocol for condition generation and data encoding.
+This document describes the Simple Payment Setup Protocol (SPSP), a basic protocol for exchanging payment information between senders and receivers to facilitate payment over Interledger. SPSP uses the [STREAM](../0029-stream/0029-stream.md) transport protocol for condition generation and data encoding.
 
 ## Introduction
 
 ### Motivation
 
-PSK2 does not specify how payment details, such as the ILP address or shared secret, should be exchanged between the sender and receiver. SPSP is a minimal protocol that uses HTTPS for communicating these details.
+STREAM does not specify how payment details, such as the ILP address or shared secret, should be exchanged between the sender and receiver. SPSP is a minimal protocol that uses HTTPS for communicating these details.
 
 ### Scope
 
-SPSP provides for exchanging basic receiver details needed by a sender to set up a PSK2 payment. It is intended for use by end-user applications.
+SPSP provides for exchanging basic receiver details needed by a sender to set up a STREAM payment. It is intended for use by end-user applications.
 
 ### Interfaces
 
@@ -33,30 +33,28 @@ Any SPSP receiver will run an SPSP server and expose an HTTPS endpoint called th
 * **SPSP Client** - The sender application that uses SPSP to interact with the SPSP Server
 * **SPSP Server** - The server used on the receiver's side to handle SPSP requests
 * **SPSP Endpoint** - The specific HTTPS endpoint on the SPSP server used for setting up a payment
-* **PSK Module** - Software included in the SPSP Client and Server that implements the [Pre-Shared Key Version 2](../0025-pre-shared-key-2/0025-pre-shared-key-2.md) protocol.
+* **STREAM Module** - Software included in the SPSP Client and Server that implements the [STREAM](../0029-stream/0029-stream.md) protocol.
 
 ## Overview
 
 ### Relation to Other Protocols
 
-SPSP is used for exchanging payment information before an ILP payment is initiated. The sender and receiver use the [Pre-Shared Key Version 2 (PSK2)](../0025-pre-shared-key-2/0025-pre-shared-key-2.md) transport protocol to generate the ILP packets. The receiver generates the shared secret and ILP address to be used in PSK2 and communicates it to the sender over HTTPS.
+SPSP is used for exchanging payment information before an ILP payment is initiated. The sender and receiver use the [STREAM](../0029-stream/0029-stream.md) transport protocol to generate the ILP packets. The receiver generates the shared secret and ILP address to be used in STREAM and communicates it to the sender over HTTPS.
 
 ### Model of Operation
 
 We assume that the sender knows the receiver's SPSP endpoint (see [Payment Pointers](../0026-payment-pointers/0026-payment-pointers.md)).
 
 1. The sender's SPSP Client queries the receiver's SPSP Endpoint.
-2. The SPSP Endpoint responds with the receiver info, including the receiver's ILP address and the shared secret to be used in PSK2. It MAY respond with a balance associated with this SPSP receiver, i.e. in the case of an invoice.
+2. The SPSP Endpoint responds with the receiver info, including the receiver's ILP address and the shared secret to be used in STREAM. It MAY respond with a balance associated with this SPSP receiver, i.e. in the case of an invoice.
 3. The sender constructs an ILP payment using the receiver's ILP address.
 4. The sender begins sending the payment.
-  1. The sender uses PSK2 to generate the payment chunk and format additional data intended for the reciever to be sent with the payment.
-  2. The sender sends a prepare packet to a connector with the condition and ILP address produced by PSK2.
-  3. The receiver's PSK2 module registers the incoming packet, parses, and validates the ILP packet.
-  4. The receiver MAY submit the incoming packet to an external system for review to ensure that the funds are wanted.
-  5. If the payment is expected, the receiver's PSK2 module derives a fulfillment packet from the prepare packet. If not, the PSK2 module replies with a reject packet.
-  6. The receiver MAY update a balance related to this SPSP receiver, i.e. in the case of an invoice.
-  7. The fulfillment or rejection packet comes back to the sender.
-  8. The sender MAY send further payment chunks with PSK2 (repeating these steps).
+    1. The sender uses STREAM to establish a ILP/STREAM connection to the receiver.
+    2. The sender will construct a stream to the receiver on the ILP/STREAM connection.
+    3. The sender will adjust their `sendMax` to reflect the amount they're willing to send.
+    4. The receiver will adjust their `receiveMax` to reflect the amount they're willing to receive.
+    5. The sender's and receiver's STREAM modules will move as much value as possible while staying inside these bounds.
+    6. If the sender reaches their `sendMax`, they end the stream and the connection. If the receiver reaches their `receiveMax`, they will end the STREAM and the connection.
 
 ## Specification
 
@@ -78,13 +76,13 @@ The sender queries the SPSP endpoint to get information about the type of paymen
 ``` http
 GET /.well-known/pay HTTP/1.1
 Host: example.com
-Accept: application/spsp+json
+Accept: application/spsp4+json, application/spsp+json
 ```
 
 #### Response
 ``` http
 HTTP/1.1 200 OK
-Content-Type: application/spsp+json
+Content-Type: application/spsp4+json
 
 {
   "destination_account": "example.ilpdemo.red.bob",
@@ -109,7 +107,7 @@ so a minimal SPSP response looks like:
 
 ``` http
 HTTP/1.1 200 OK
-Content-Type: application/spsp+json
+Content-Type: application/spsp4+json
 
 {
   "destination_account": "example.ilpdemo.red.bob",
@@ -123,7 +121,7 @@ The response MUST contain at least the following headers:
 
 | Header          | Description                                                |
 |:----------------|:-----------------------------------------------------------|
-| `Content-Type`  | MUST be `application/json` to indicates the response is encoded as [JSON](http://www.json.org/). |
+| `Content-Type`  | MUST be `application/spsp4+json` to indicates the response is encoded as [JSON](http://www.json.org/) and that the ILP payment should be sent via STREAM. |
 | `Cache-Control` | Indicates how long the SPSP Client should cache the response. See supported cache-control directives below. |
 
 To handle as many transactions per second as possible, the SPSP Client caches results from the SPSP Server. The information returned by the SPSP Server is not expected to change rapidly, so repeated requests for the same information are usually redundant. The server communicates how long to cache results for using the HTTP-standard [`Cache-Control` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) in the responses to RESTful API calls.
@@ -142,7 +140,7 @@ The response body is a JSON object that includes basic account details necessary
 | Field | Type | Description |
 |---|---|---|
 | `destination_account` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) | ILP Address of the receiver's account |
-| `shared_secret` | 32 bytes, [base64 encoded](https://en.wikipedia.org/wiki/Base64) (including padding) | The shared secret to be used by this specific http client in the [Pre-Shared Key protocol](../0025-pre-shared-key-2/0025-pre-shared-key-2.md). Should be shared only by the server and this specific http client, and should therefore be different in each query response. |
+| `shared_secret` | 32 bytes, [base64 encoded](https://en.wikipedia.org/wiki/Base64) (including padding) | The shared secret to be used by this specific http client in the [STREAM](../0029-stream/0029-stream.md). Should be shared only by the server and this specific http client, and should therefore be different in each query response. |
 | `balance`  | Object | _(OPTIONAL)_ Details of this receiver's balance. Used for invoices and similar temporary accounts. |
 | `balance.maximum` | Integer String | Maximum amount, denoted in the minimum divisible units of the receiver's account, which the receiver will accept. This represents the highest sum that incoming chunks are allowed to reach, not the highest size of an individual chunk (which is determined by path MTU). If this is an invoice the `balance.maximum` is the amount at which the invoice would be considered paid. |
 | `balance.current` | Integer String | Current sum of all incoming chunks. |
@@ -161,7 +159,7 @@ The response body is a JSON object that includes basic account details necessary
 
 ``` http
 HTTP/1.1 404 Not Found
-Content-Type: application/json
+Content-Type: application/spsp4+json
 
 {
   "id": "InvalidReceiverError",
@@ -171,12 +169,12 @@ Content-Type: application/json
 
 ### Payment Setup
 
-The sender uses the receiver details to create the PSK2 payment:
+The sender uses the receiver details to create the STREAM connection:
 
-* The `destination_account` should be used as the PSK2 destinationAccount.
-* The `shared_secret` should be used as the PSK2 sharedSecret.
-* If present, the `balance.maximum` SHOULD be used as the PSK2 chunked payment destination amount.
+* The `destination_account` should be used as the STREAM destinationAccount.
+* The `shared_secret` should be decoded from base64 and used as the STREAM sharedSecret.
+* If present, the `balance.maximum - balance.current` SHOULD be used as the STREAM `receiveMax`.
 
 In a UI, the `asset_info` and `receiver_info` objects (if present) can be used for display purposes. These objects can be manipulated by the receiver in any way, so amounts SHOULD be displayed in source units when possible.
 
-Note that the sender can send as many PSK2 payments as they want using the same receiver info. The sender SHOULD query the receiver again once the time indicated in the [`Cache-Control` header](#response-headers) has passed.
+Note that the sender can send as many STREAM payments as they want using the same receiver info. The sender SHOULD query the receiver again once the time indicated in the [`Cache-Control` header](#response-headers) has passed.
