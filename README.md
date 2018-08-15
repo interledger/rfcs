@@ -19,10 +19,6 @@ For the main reference implementation of the ILP stack, see [Interledger.js](htt
 
   Definitions of Interledger terminology.
 
-* **[20: Explain Like I'm Five (ELI5)](0020-explain-like-im-five/0020-explain-like-im-five.md)**
-
-  Basic explanation of Interledger.
-
 ## Core Interledger Protocol Specs
 
 
@@ -53,10 +49,4 @@ For the main reference implementation of the ILP stack, see [Interledger.js](htt
 * **[23: Bilateral Transfer Protocol (BTP)](0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md)**
 
   Recommended API for trustlines and payment channels.
-
-## Routing
-
-* **[10: Connector-To-Connector Protocol (CCP)](0010-connector-to-connector-protocol/0010-connector-to-connector-protocol.md)**
-
-  A protocol used by connectors to communicate routing information.
 
