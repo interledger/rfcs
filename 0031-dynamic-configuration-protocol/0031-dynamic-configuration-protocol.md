@@ -1,6 +1,6 @@
 ---
 title: Interledger Dynamic Configuration Protocol
-draft: 1
+draft: 2
 ---
 
 # Interledger Dynamic Configuration Protocol (ILDCP) v1
