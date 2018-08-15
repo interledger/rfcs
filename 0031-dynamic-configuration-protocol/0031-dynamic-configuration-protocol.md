@@ -23,7 +23,7 @@ Interledger is a protocol suite that consists of several protocols including the
 
 In order to participate in the network a node must have an [ILP address](../0015-ilp-addresses/0015-ilp-addresses.md). This address is part of a heirarchical address space where child nodes MAY be allocated addresses within the address space of their parent node. This makes routing on the network more efficient than if all nodes had top-level addresses.
 
-A node is therefor either configured with an address which it broadcasts to its peers or, if the node has a parent in the network hierarchy, the ILP address of the child node can be allocated to it by the parent. This is done using ILDCP.
+A node is therefore either configured with an address which it broadcasts to its peers or, if the node has a parent in the network hierarchy, the ILP address of the child node can be allocated to it by the parent. This is done using ILDCP.
 
 In short, **ILDCP is a protocol used for transferring node and ledger information from a parent node to a child node**. The transferred information is:
 
