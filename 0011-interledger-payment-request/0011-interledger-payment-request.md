@@ -1,6 +1,6 @@
 ---
 title: Interledger Payment Requests (IPR)
-draft: 2
+draft: 3
 ---
 # Interledger Payment Request (IPR)
 
