@@ -21,7 +21,7 @@ This specification assumes the reader is familiar with the following documents:
 ## Overview
 Interledger is a protocol suite that consists of several protocols including the [Bilateral Transfer Protocol](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md), the Route Broadcasting Protocol and others necessary for establishment, operation and maintenance of the network. Interledger Dynamic Configuration Protocol (ILDCP) is one of these protocols.
 
-In order to participate in the network a node must have an ILP address. This address is part of a heirarchical address space where child nodes MAY be allocated addresses within the address space of their parent node. This makes routing on the network more efficient than if all nodes had top-level addresses.
+In order to participate in the network a node must have an [ILP address](../0015-ilp-addresses/0015-ilp-addresses.md). This address is part of a heirarchical address space where child nodes MAY be allocated addresses within the address space of their parent node. This makes routing on the network more efficient than if all nodes had top-level addresses.
 
 A node is therefor either configured with an address which it broadcasts to its peers or, if the node is a child of a parent peer-node, the ILP address of the child node can be allocated to it by the parent. This is done using ILDCP.
 
