@@ -34,7 +34,7 @@ In short, **ILDCP is a protocol used for transferring node and ledger informatio
 - An asset scale for amounts that will be used in ILP packets exchanged between the nodes.
   - e.g. `6`
 
-Although these are defined so far, ILDCP could be used for further functionality between nodes, extending the definition.
+Future versions of the protocol MAY exchange additional configuration information.
 
 ## Protocol Detail
 
