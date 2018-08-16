@@ -1,6 +1,7 @@
 ---
 title: The Interledger Quoting Protocol (ILQP)
-draft: 5
+draft: FINAL
+deprecated: true
 ---
 # Interledger Quoting Protocol (ILQP)
 

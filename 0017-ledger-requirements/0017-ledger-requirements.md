@@ -1,7 +1,11 @@
 ---
 title: Ledger Layer Requirements
-draft: 1
+draft: FINAL
+deprecated: 0027-interledger-protocol-4
 ---
+
+**Since ILPv4 the protocol has placed no specific requirements on underlying settlement ledgers.**
+
 # Ledger Layer Requirements
 
 ## Introduction
