@@ -15,7 +15,7 @@ A number of the protocols define data structures in ASN.1 notation. The collecti
 
 Changes to these files are automatically checked and compiled during CI using online ASN.1 tools from OSS Nokalva. If you need ASN.1 tools for any work you're doing on Interledger please contact them for assistance.
 
-[![OSS Nokalva](./assets/osslogo.png)](http://asn1-playground.oss.com/)
+[![OSS Nokalva](https://raw.githubusercontent.com/interledger/rfcs/master/assets/osslogo.png)](http://asn1-playground.oss.com/)
 
 You can also check your ASN.1 definitions online using OSS Nokalva's ASN.1 Playground available at http://asn1.io/
 
