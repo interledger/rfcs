@@ -13,13 +13,13 @@ For the main reference implementation of the ILP stack, see [Interledger.js](htt
 
 A number of the protocols define data structures in ASN.1 notation. The collection of definitions is in [asn1](./asn1).
 
-Changes to these files are automatically checked and compiled during CI using online ASN.1 tools from OSS Nokalva. If you need ASN.1 tools for any work you're doing on Interledger please contact them for assitance.
+Changes to these files are automatically checked and compiled during CI using online ASN.1 tools from OSS Nokalva. If you need ASN.1 tools for any work you're doing on Interledger please contact them for assistance.
 
 [![OSS Nokalva](./assets/osslogo.png)](http://asn1-playground.oss.com/)
 
 You can also check your ASN.1 definitions online using OSS Nokalva's ASN.1 Playground available at http://asn1.io/
 
-The default encoding rules for Interledger protocols is OER as described in [Notes on OER encoding](./0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md).
+The default encoding rules for Interledger protocols are the Canonical Octet Encoding Rules as described in [Notes on OER encoding](./0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md).
 
 ## Interledger Overview and Explanatory Docs
 
