@@ -1,7 +1,11 @@
 ---
 title: The Connector to Connector protocol
-draft: 5
+draft: FINAL
+deprecated: true
 ---
+
+**A well-defined standard for automatic discovery of peers has not been taken up in the network. As such this spec has been deprecated to avoid confusion.**
+
 # Connector to Connector protocol
 
 ## Discovery

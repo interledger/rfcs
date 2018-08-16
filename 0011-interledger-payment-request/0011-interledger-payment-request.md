@@ -1,7 +1,11 @@
 ---
 title: Interledger Payment Requests (IPR)
-draft: 3
+draft: FINAL
+deprecated: true
 ---
+
+**The Interledger network, since adopting v4 of the protocol, has moved to a model where individual payments are almost always broken up into multiple smaller packets making it impractical to use IPR. As such this spec has been deprecated.**
+
 # Interledger Payment Request (IPR)
 
 The Interledger Payment Request (IPR) transport protocol is an end-to-end protocol in which the receiver of an Interledger payment first communicates a request for payment to the sender. This document also recommends a method for receivers to generate payment requests such that they can verify incoming payments without storing all outstanding requests.
