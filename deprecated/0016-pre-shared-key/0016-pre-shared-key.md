@@ -1,6 +1,7 @@
 ---
 title: The Pre-Shared Key Transport Protocol (PSK)
-draft: 4
+draft: FINAL
+deprecated: 0025-pre-shared-key-2
 ---
 # Pre-Shared Key Transport Protocol (PSK)
 
