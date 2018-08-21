@@ -90,13 +90,43 @@ If the routing table ID that an epoch is based on is changed, the epoch MUST be 
 A node is kind of an FSM that has a status of either:
 
 - IDLE
-  - Does not send route update to the counterpart node.
+  - Does not send routing information to the counterpart node.
 - SYNC
-  - Does send route update to the counterpart node.
+  - Does send route routing information to the counterpart node.
 
-The status can be changed by a route control request that is described below.
+The status can be changed by a **route control request** that is described below. The routing information is provided by a **route update request** that is described below as well.
 
 ## Protocol Detail
+### Operation Model
+The entire operation model is shown below.
+
+#### Requests
+- `Route Control Request`
+  - A request that ask the receiver node to be a specified state ([IDLE or SYNC](#node-finite-state-machine-fsm)).
+- `Route Update Request`
+  - A request that conveys routing information and ask the receiver node to update its routing table based on the information.
+
+#### Nodes
+- `Node A`
+  - Connected to `Node B`.
+  - A node that wants routing information from `Node B` to build its routing table.
+  - `Node A` wants `Node B` to send route update requests that convey routing information.
+- `Node B`
+  - Connected to `Node A`.
+  - A node whose status is IDLE at this point that means this node doesn't send any route update request to `Node A`.
+
+#### Procedure
+This is a normal procedure for instance.
+
+- `Node A` sends a **route control request** of `SYNC` to `Node B`
+- `Node B` receives the route control request and updates its status to `SYNC`
+  - This means that from hence, `Node B` sends route update requests to provide routing information for `Node A`
+- `Node B` responds that the state is correctly updated to `Node A`
+- (some time after the procedure above)
+- `Node B` sends a **route update request** that has routing information (some logs) to `Node A`
+- `Node A` receives the route update request, and updates its routing table based on the provided information.
+- `Node A` responds that the routing table is correctly updated to `Node B`
+
 ### Route Control
 #### Procedure
 Route control is done in the following procedure:
@@ -130,8 +160,8 @@ The request above is transferred in ILP packets in a specific manner. The manner
 #### Procedure
 Route Update is done in the following procedure:
 
-- A node requests an update to the corresponded node with information of route update logs.
-- The corresponded node updates its routing table, and respond that the request is done.
+- A node sends a route update request to the corresponded node with information of route update logs.
+- The receiver node updates its routing table, and responds that the request is done.
 - If the request cannot be deserialized or interpreted as appropriate, the corresponded node responds error.
 
 #### Packet
