@@ -107,7 +107,7 @@ Conclusively, the following is the general configuration of nodes depending on t
   - Configured to exchange routing information.
   - Does send route control requests and route update requests that are explained later in the [Requests](#requests) section.
 - `Parent` and `Child`
-  - Configured NOT to exchange routing information.
+  - Configured **NOT** to exchange routing information.
   - Does **NOT** send route control requests and route update requests.
   - That said, the nodes MAY be configured to exchange routing information for some specific situations.
 
