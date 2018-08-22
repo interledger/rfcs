@@ -86,11 +86,36 @@ The left image shows how epochs are stored. The right image shows an example of 
 
 If the routing table ID that an epoch is based on is changed, the epoch MUST be reset to `0`, so that the counter node can track all the updates from the node.
 
+### Link Relations and Routing
+There are 2 types of link relations:
+- `Peer` and `Peer`
+- `Parent` and `Child`
+
+In a `Parent` and `Child` relation, the ILP address of the child node is configured automatically using [IL-DCP](../0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md), and generally it is a sub-address of the parent node though it is not a requirement. For instance:
+- `Parent` node
+  - `g.parent-node`
+- `Child` node
+  - `g.parent-node.child-node`
+  - this is a sub-address of `g.parent-node`
+
+In this case, the parent node already knows the address of the child node, so the routing is a truism. The parent node knows when to transfer ILP packets to the child node, and the child node transfers ILP packets basically to the parent node because it is the gateway to the other addresses for the child node.
+
+On the other hand, in a `Peer` and `Peer` relation, the two nodes have different addresses respectively, and the further connected addresses are unclear. So in this case, it is generally helpful to configure to exchange routing information each other.
+
+Conclusively, the following is the general configuration of nodes depending on the relations.
+- `Peer` and `Peer`
+  - Configured to exchange routing information.
+  - Does send route control requests and route update requests that are explained later in the [Requests](#requests) section.
+- `Parent` and `Child`
+  - Configured NOT to exchange routing information.
+  - Does **NOT** send route control requests and route update requests.
+  - That said, the nodes MAY be configured to exchange routing information for some specific situations.
+
 ### Node Finite State Machine (FSM)
 A node is kind of an FSM that has a status of either:
 
 - IDLE
-  - Does not send routing information to the counterpart node.
+  - Does **NOT** send routing information to the counterpart node.
 - SYNC
   - Does send route routing information to the counterpart node.
 
@@ -133,6 +158,7 @@ Route control is done in the following procedure:
 
 - A node requests IDLE or SYNC mode to the corresponded node.
 - The corresponded node changes its status if needed, and respond that the request is done.
+- If the receiving node is not configured to send route updates, the receiving node responds error.
 - If the request cannot be deserialized or interpreted as appropriate, the corresponded node responds error.
 
 #### Packet
@@ -162,6 +188,7 @@ Route Update is done in the following procedure:
 
 - A node sends a route update request to the corresponded node with information of route update logs.
 - The receiver node updates its routing table, and responds that the request is done.
+- If the receiving node is not configured to receive route updates, the receiving node responds error.
 - If the request cannot be deserialized or interpreted as appropriate, the corresponded node responds error.
 
 #### Packet
