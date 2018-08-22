@@ -1,6 +1,7 @@
 ---
 title: Plugin RPC API
 draft: 3
+deprecated: 0023-bilateral-transfer-protocol
 ---
 # Plugin RPC API
 
