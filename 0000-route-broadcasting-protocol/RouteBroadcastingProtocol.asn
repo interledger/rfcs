@@ -53,8 +53,8 @@ RouteUpdateRequestData ::= SEQUENCE {
   toEpochIndex UInt32, -- the epoch index that the log of this update request ends at
   holdDownTime UInt32, -- reserved for the future, currently not used
   speaker Address, -- the ILP address of the requesting node
-  addedRoutes SEQUENCE OF NewRoute, -- the added routes
-  withdrawnRoutes SEQUENCE OF Address -- the withdrawn routes
+  addedRoutes SEQUENCE OF NewRoute, -- new routes that the speaker is advertising to the counterpart node
+  withdrawnRoutes SEQUENCE OF Address -- withdrawn routes that the speaker is advertising as being no longer valid or useful
 }
 
 END
