@@ -5,8 +5,8 @@ draft: 1
 
 # Route Broadcasting Protocol (RBP)
 
-## Prerequisite
-Before looking into this document, reading the following documents is highly recommended to understand the prerequisite knowledge.
+## Prerequisites
+This specification assumes the reader is familiar with the following documents:
 
 - [Interledger Architecture](../0001-interledger-architecture/0001-interledger-architecture.md)
 - [Interledger Protocol V4 (ILPv4)](../0027-interledger-protocol-4/0027-interledger-protocol-4.md)
@@ -16,7 +16,7 @@ Before looking into this document, reading the following documents is highly rec
   - The functionality of Route Broadcasting Protocol is similar to that of BGP.
 
 ## Terminology
-- A **node** represents a [connector](../0001-interledger-architecture/0001-interledger-architecture.md#connectors) in this document.
+- A **node** is a participant in an Interledger network. It may be a [connector](../0001-interledger-architecture/0001-interledger-architecture.md#connectors), a sender or a receiver.
 - A **hop** is going over a boundary to another space, or is the destination space itself. For instance, sending a packet from a node to another node is one hop.
 - An **ILP Address** is an identifier of a node or an account held by a node, that is different from an [IP address](https://tools.ietf.org/html/rfc791) or a [domain name](https://tools.ietf.org/html/rfc1035). Refer to [ILP Addresses - v2.0.0](../0015-ilp-addresses/0015-ilp-addresses.md) for more.
 - A **route** is a path: a series of nodes that a packet goes through.
@@ -25,7 +25,7 @@ Before looking into this document, reading the following documents is highly rec
 In this document, the routing logic, how to determine the next hop of ILP packets is out of scope while the focus is placed on how routing information, that is used to decide how ILP packets are routed, is transferred from a node to the other nodes.
 
 ## Overview
-Interledger Protocol is a protocol suite that consists of several protocols including [Bilateral Transfer Protocol](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md), Interledger Dynamic Configuration Protocol, and the other protocols. Route Broadcasting Protocol is one of them.
+Interledger Protocol is a protocol suite that consists of several protocols including [Bilateral Transfer Protocol](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md), [Interledger Dynamic Configuration Protocol](../0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md), and the other protocols. Route Broadcasting Protocol is one of them.
 
 In short, **Route Broadcasting Protocol is a protocol for transferring routing information from a node to the other nodes in ILP packets**. The routing information roughly includes the following elements (refer to [Protocol Detail](#protocol-detail) for more).
 
@@ -152,6 +152,15 @@ This is a normal procedure for instance.
 - `Node A` receives the route update request, and updates its routing table based on the provided information.
 - `Node A` responds that the routing table is correctly updated to `Node B`
 
+#### Packet
+The request and the response above are transferred in [ILP packets](../0027-interledger-protocol-4/0027-interledger-protocol-4.md#specification). 
+
+The `fulfillment` of the response packet is always a zero-filled 32 byte octet string, therefor the condition is always the SHA-256 hash digest of that, i.e. the Base64 decoded value of `Zmh6rfhivXdsj8GLjp+OIAiXFIVu4jOzkCpZHQ1fKSU=`.
+
+As with other bilateral protocols the packets are addressed directly to the peer using the `peer.` address prefix. RBP packets are specifically identified using the address `peer.route`.
+
+All current implementations of RBP default to an amount of `0` in the ILP packets used to request route control or update.
+
 ### Route Control
 #### Procedure
 Route control is done in the following procedure:
@@ -162,8 +171,6 @@ Route control is done in the following procedure:
 - If the request cannot be deserialized or interpreted as appropriate, the corresponded node responds error.
 
 #### Packet
-The request above is transferred in ILP packets in a specific manner. The manner is:
-
 - Request
   - The `type` of the ILP packet is `ILP Prepare` (type id: 12)
   - The `amount` of the ILP packet is `0`
@@ -211,7 +218,7 @@ Route Update is done in the following procedure:
   - The `data` of the ILP packet is empty (size: 0)
 
 ### ASN.1 Definition
-The ASN.1 definition of ILP packets is described in [InterledgerProtocol.asn](../asn1/InterledgerProtocol.asn) and Route Broadcasting Protocol data is in [RouteBroadcastingProtocol.asn](./RouteBroadcastingProtocol.asn) as well.
+The ASN.1 definition of ILP packets is described in [InterledgerProtocol.asn](../asn1/InterledgerProtocol.asn) and Route Broadcasting Protocol data is in [RouteBroadcastingProtocol.asn](./RouteBroadcastingProtocol.asn).
 
 ### Encoding Rule
-How ASN.1 types are written into binary is described in [Notes on OER Encoding](../0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md).
+All ASN.1 types are encoded using [Octet Encoding Rules](../0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md) as is the norm with all Interledger protocols.
