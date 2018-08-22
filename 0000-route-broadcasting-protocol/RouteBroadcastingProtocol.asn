@@ -1,4 +1,7 @@
-RouteBroadcastingProtocol DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+RouteBroadcastingProtocol
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
 
 IMPORTS
   UInt8,
