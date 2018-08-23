@@ -167,8 +167,8 @@ Route control is done in the following procedure:
 
 - A node requests IDLE or SYNC mode to the corresponded node.
 - The corresponded node changes its status if needed, and respond that the request is done.
-- If the receiving node is not configured to send route updates, the receiving node responds error.
-- If the request cannot be deserialized or interpreted as appropriate, the corresponded node responds error.
+- If the receiving node is not configured to send route updates, the receiving node responds with an error.
+- If the request cannot be deserialized or interpreted as appropriate, the corresponded node responds with an error.
 
 #### Packet
 - Request
@@ -195,8 +195,8 @@ Route Update is done in the following procedure:
 
 - A node sends a route update request to the corresponded node with information of route update logs.
 - The receiver node updates its routing table, and responds that the request is done.
-- If the receiving node is not configured to receive route updates, the receiving node responds error.
-- If the request cannot be deserialized or interpreted as appropriate, the corresponded node responds error.
+- If the receiving node is not configured to receive route updates, the receiving node responds with an error.
+- If the request cannot be deserialized or interpreted as appropriate, the corresponded node responds with an error.
 
 #### Packet
 - Request
