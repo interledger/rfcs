@@ -58,7 +58,7 @@ RouteUpdateRequestData ::= SEQUENCE {
   routingTableId RoutingTableId, -- the routing table ID that the requesting node knows at that point
   currentEpochIndex UInt32, -- current epoch index of the node that requests the update for the other nodes
   fromEpochIndex UInt32, -- the epoch index that the log of this update request starts from
-  toEpochIndex UInt32, -- the epoch index that the log of this update request ends at
+  toEpochIndex UInt32, -- the epoch index that the log of this update request ends at, exclusive
   holdDownTime UInt32, -- reserved for the future, currently not used
   speaker Address, -- the ILP address of the requesting node
   addedRoutes SEQUENCE OF NewRoute, -- new routes that the speaker is advertising to the counterpart node
