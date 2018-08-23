@@ -12,7 +12,7 @@ This document assumes the reader is familiar with the following document:
 
 ## Terminology
 - A **node** is a participant in an Interledger network. It may be a [connector](../0001-interledger-architecture/0001-interledger-architecture.md#connectors), a sender or a receiver.
-- A **payment** is sending value from one to another but it doesn't mean settled necessarily that is explained below. In the Interledger network, a payment could mean a **node-to-node** or an **end-to-end** payment.
+- A **payment** is sending value from one to another but it doesn't mean settled necessarily that is explained below. In the Interledger network, a payment could mean a **node-to-node** payment or an **end-to-end** payment.
   - A **node-to-node** payment means the intention of transferring value of a node (a connector, an endpoint sender, or an endpoint receiver) to another node which is directly connected to the sender node.
   - An **end-to-end** payment means the intention of transferring value of an endpoint sender to an endpoint receiver.
 - A **settlement** is ensuring that one has the paid value. For instance, executing a transaction on a certain ledger that the payee has an account on.
