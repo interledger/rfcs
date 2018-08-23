@@ -37,7 +37,7 @@ First of all, the diagram below shows the entire relationship between the protoc
 - Connections
   - (A) BTP over WebSocket
     - **Node** to **Node** connection
-    - In order to exchange payments, configuration and routing information, a node MUST have a WebSocket connection to another node.
+    - In order to exchange payments, configuration and routing information, a node MUST have secure communication channels with its peers. The current implementation uses WebSockets for it.
   - (B) Ledger specific connection
     - **Node** to **Ledger** connection
     - A node needs the means to settle its payments. Therefore the node has a connection to a ledger. The type of connection varies depending on the ledger.
