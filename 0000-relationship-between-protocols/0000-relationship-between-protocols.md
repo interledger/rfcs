@@ -41,6 +41,7 @@ First of all, the diagram below shows the entire relationship between the protoc
   - (B) Ledger specific connection
     - **Node** to **Ledger** connection
     - A node needs the means to settle its payments. Therefore the node has a connection to a ledger. The type of connection varies depending on the ledger.
+    - In the cases where blockchains are used for settlements, nodes MAY utilize payment channels because it is quick and inexpensive than issuing transactions every time the nodes want to settle.
   - (C) SPSP over HTTPS
     - **Application** to **SPSP Server** connection
     - To determine end-to-end payment information such as a shared secret, a destination address and so forth, an application connects to SPSP server over HTTPS.
