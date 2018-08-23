@@ -34,6 +34,11 @@ RouteControlRequestData ::= SEQUENCE {
 
 Auth ::= OCTET STRING (SIZE (32))
 
+-- meta (UInt8) is used as flags, and is reserved for the future.
+-- - 0x80 (1000 0000) : isOptional
+-- - 0x40 (0100 0000) : isTransitive
+-- - 0x20 (0010 0000) : isPartial
+-- - 0x10 (0001 0000) : isUtf8
 Property ::= SEQUENCE {
   meta UInt8,
   id UInt16,
