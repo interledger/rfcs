@@ -1,6 +1,6 @@
 ---
 title: Interledger Architecture
-draft: 3
+draft: 4
 ---
 # Interledger Architecture
 
@@ -115,6 +115,8 @@ There is currently one transport layer protocol:
 * [STREAM](../0029-stream/0029-stream.md) 
 
     In the STREAM protocol, the sender and receiver use a shared secret to generate the payment condition, authenticate the ILP packet, and encrypt the application data. Using STREAM, the sender is guaranteed that fulfillment of their transfer indicates the receiver got the payment, provided that no one aside from the sender and receiver have the secret and the sender did not submit the fulfillment. In addition, STREAM is a multiplexed ILP transport protocol that provides a full-duplex communication channel for money and data between endpoints. It also automatically determines how much money and data can be sent in each ILP packet. 
+
+### Interledger Layer
 
 The Interledger layer is responsible for forwarding Interledger packets between the sender and receiver. There is only one protocol on this layer: the Interledger Protocol v4 (ILPv4).
 
