@@ -87,11 +87,11 @@ The left image shows how epochs are stored. The right image shows an example of 
 If the routing table ID that an epoch is based on is changed, the epoch MUST be reset to `0`, so that the counter node can track all the updates from the node.
 
 ### Link Relations and Routing
-There are 2 types of link relations:
-- `Peer` and `Peer`
-- `Parent` and `Child`
+There are two types of link relations:
+- `Peer` to `Peer`
+- `Parent` to `Child`
 
-In a `Parent` and `Child` relation, the ILP address of the child node is configured automatically using [IL-DCP](../0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md), and generally it is a sub-address of the parent node though it is not a requirement. For instance:
+In a `Parent` to `Child` relation, the ILP address of the child node is configured automatically using [IL-DCP](../0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md), and generally it is a sub-address of the parent node though it is not a requirement. For instance:
 - `Parent` node
   - `g.parent-node`
 - `Child` node
@@ -100,13 +100,13 @@ In a `Parent` and `Child` relation, the ILP address of the child node is configu
 
 In this case, the parent node already knows the address of the child node, so the routing is a truism. The parent node knows when to transfer ILP packets to the child node, and the child node transfers ILP packets basically to the parent node because it is the gateway to the other addresses for the child node.
 
-On the other hand, in a `Peer` and `Peer` relation, the two nodes have different addresses respectively, and the further connected addresses are unclear. So in this case, it is generally helpful to configure to exchange routing information each other.
+On the other hand, in a `Peer` to `Peer` relation, the two nodes have different addresses respectively, and the further connected addresses are unclear. So in this case, it is generally helpful to configure to exchange routing information each other.
 
 Conclusively, the following is the general configuration of nodes depending on the relations.
-- `Peer` and `Peer`
+- `Peer` to `Peer`
   - Configured to exchange routing information.
   - Does send route control requests and route update requests that are explained later in the [Requests](#requests) section.
-- `Parent` and `Child`
+- `Parent` to `Child`
   - Configured **NOT** to exchange routing information.
   - Does **NOT** send route control requests and route update requests.
   - That said, the nodes MAY be configured to exchange routing information for some specific situations.
