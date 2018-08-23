@@ -54,7 +54,8 @@ First of all, the diagram below shows the entire relationship between the protoc
     - ILP is used for sending payment packets across multiple hops. Some other protocols, including those for node configuration and routing, are also built on top of ILP and use ILP packets to communicate that information between peers.
   - (3) STREAM
     - [STREAM - A Multiplexed Money and Data Transport for ILP](../0029-stream/0029-stream.md)
-    - STREAM is used for transferring money and data bidirectionally from applications.
+    - STREAM is built on top of ILP, and is used for transferring money and data bidirectionally from applications.
+    - Applications MAY build their own protocols on top of STREAM, and put data of the protocols into expansible data area of ILP.
   - (4) Application
     - The extensible data area of STREAM packets is used arbitrarily by applications.
   - (5) DCP
