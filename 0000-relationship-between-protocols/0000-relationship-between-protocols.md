@@ -54,16 +54,18 @@ First of all, the diagram below shows the entire relationship between the protoc
     - ILP is used for sending payment packets across multiple hops. Some other protocols, including those for node configuration and routing, are also built on top of ILP and use ILP packets to communicate that information between peers.
   - (3) STREAM
     - [STREAM - A Multiplexed Money and Data Transport for ILP](../0029-stream/0029-stream.md)
-    - STREAM is built on top of ILP, and is used for transferring money and data bidirectionally from applications.
-    - Applications MAY build their own protocols on top of STREAM, and put data of the protocols into expansible data area of ILP.
+    - STREAM is a protocol built on top of ILP, and is used for transferring money and data bidirectionally from applications.
+    - Applications MAY build their own protocols on top of STREAM, and put data of the protocols into extensible data area of STREAM packets.
   - (4) Application
     - The extensible data area of STREAM packets is used arbitrarily by applications.
   - (5) DCP
     - [Interledger Dynamic Configuration Protocol (ILDCP) v1](../0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md)
-    - DCP is used in order to exchange node information such as an ILP address.
+    - DCP is a protocol built on top of ILP, and is used in order to exchange node information such as an ILP address.
+    - DCP data is put into extensible data area of ILP packets.
   - (6) RBP
     - Route Broadcasting Protocol
-    - RBP is used for transferring routing information to build routing tables.
+    - RBP is a protocol built on top of ILP, and is used for transferring routing information to build routing tables.
+    - RBP data is put into extensible data area of ILP packets.
   - (7) SPSP
     - [The Simple Payment Setup Protocol (SPSP)](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md)
     - SPSP is used to determine end-to-end payment information such as a shared secret, a destination address and so forth.
