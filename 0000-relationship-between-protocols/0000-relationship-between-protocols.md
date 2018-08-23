@@ -51,7 +51,7 @@ First of all, the diagram below shows the entire relationship between the protoc
     - BTP is used for transferring ILP packets and messages that are used for settlements and so on between two nodes.
   - (2) ILP
     - [Interledger Protocol V4 (ILPv4)](../0027-interledger-protocol-4/0027-interledger-protocol-4.md)
-    - ILP is used for transferring payment, node configuration, and routing information.
+    - ILP is used for sending payment packets across multiple hops. Some other protocols, including those for node configuration and routing, are also built on top of ILP and use ILP packets to communicate that information between peers.
   - (3) STREAM
     - [STREAM - A Multiplexed Money and Data Transport for ILP](../0029-stream/0029-stream.md)
     - STREAM is used for transferring money and data bidirectionally from applications.
