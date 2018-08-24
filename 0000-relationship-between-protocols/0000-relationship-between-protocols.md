@@ -30,6 +30,8 @@ The scope of this document is the explication of the relationship between the In
 ## Perspective
 There are two diagrams, one is for the macro view that shows the main elements and its IP layer connections, another is for the micro view that shows protocols, interaction between programs, and the other details.
 
+The alphabets (A-C) and numbers (1-15), that are shown in the diagrams as **red characters**, are explained briefly in [Elements and Brief Explanations](#elements-and-brief-explanations) section.
+
 ### Connections
 
 ![Perspective of connections](images/perspective-connections.svg)
@@ -39,9 +41,6 @@ There are two diagrams, one is for the macro view that shows the main elements a
 ![Perspective of connections](images/perspective-protocols.svg)
 
 ### Elements and Brief Explanations
-
-The alphabets (A-C) and numbers (1-15) are shown in the diagram as **red characters**.
-
 #### Connections
 - (A) BTP over WebSocket
   - **Node** to **Node** connection
