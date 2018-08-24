@@ -24,7 +24,7 @@
     </marker>
   </defs>
   <metadata> Produced by OmniGraffle 7.8.1 
-    <dc:date>2018-08-24 07:24:26 +0000</dc:date>
+    <dc:date>2018-08-24 07:27:47 +0000</dc:date>
   </metadata>
   <g id="Perspective_-_Protocols" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
     <title>Perspective - Protocols</title>
@@ -431,9 +431,9 @@
         </text>
       </g>
       <g id="Graphic_241">
-        <rect x="659.6841" y="48.778845" width="116" height="24" fill="white"/>
-        <text transform="translate(659.6841 53.778845)" fill="black">
-          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x=".390625" y="11">(to SPSP server)</tspan>
+        <rect x="597.4436" y="48.778845" width="181" height="24" fill="white"/>
+        <text transform="translate(597.4436 53.778845)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x=".48535156" y="11">(to receiver SPSP server)</tspan>
         </text>
       </g>
       <g id="Graphic_242">
@@ -451,18 +451,18 @@
         <path d="M 619.9706 444.6891 L 619.9706 493.52073 L 664.24895 493.52073 L 804.2105 493.3023" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledArrow_Marker_2)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Graphic_246">
-        <rect x="675.9659" y="481.4439" width="75" height="24" fill="white"/>
-        <text transform="translate(680.9659 486.4439)" fill="black">
-          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x=".09472656" y="11">(to node)</tspan>
+        <rect x="668.4659" y="481.4439" width="90" height="24" fill="white"/>
+        <text transform="translate(673.4659 486.4439)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x=".3935547" y="11">(to Node C)</tspan>
         </text>
       </g>
       <g id="Line_249">
         <path d="M 804.2105 523.49194 L 662.0148 523.3762 L 565.63726 523.3762 L 565.63726 434.7891" marker-start="url(#FilledArrow_Marker_2)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
       </g>
       <g id="Graphic_248">
-        <rect x="668.907" y="511.41845" width="90" height="24" fill="white"/>
-        <text transform="translate(673.907 516.41845)" fill="black">
-          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x=".3935547" y="11">(to ledger)</tspan>
+        <rect x="661.907" y="511.41845" width="104" height="24" fill="white"/>
+        <text transform="translate(666.907 516.41845)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x=".19238281" y="11">(to Ledger A)</tspan>
         </text>
       </g>
     </g>
