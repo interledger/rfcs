@@ -119,7 +119,7 @@
         <rect x="-212.63866" y="119.25114" width="321.0301" height="334.95368" fill="white"/>
         <rect x="-212.63866" y="119.25114" width="321.0301" height="334.95368" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(-207.63866 126.25114)" fill="black">
-          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="69.100985" y="11">Node B: g.node-a.child-c</tspan>
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="69.100985" y="11">Node B: g.node-a.child-b</tspan>
         </text>
       </g>
       <g id="Graphic_116">
