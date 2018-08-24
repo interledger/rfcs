@@ -24,7 +24,7 @@
     </marker>
   </defs>
   <metadata> Produced by OmniGraffle 7.8.1 
-    <dc:date>2018-08-24 07:09:18 +0000</dc:date>
+    <dc:date>2018-08-24 07:24:26 +0000</dc:date>
   </metadata>
   <g id="Perspective_-_Protocols" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
     <title>Perspective - Protocols</title>
@@ -116,10 +116,10 @@
         </text>
       </g>
       <g id="Graphic_117">
-        <rect x="-168.63866" y="119.25114" width="277.0301" height="334.95368" fill="white"/>
-        <rect x="-168.63866" y="119.25114" width="277.0301" height="334.95368" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        <text transform="translate(-163.63866 126.25114)" fill="black">
-          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="47.100985" y="11">Node B: g.node-a.child-c</tspan>
+        <rect x="-212.63866" y="119.25114" width="321.0301" height="334.95368" fill="white"/>
+        <rect x="-212.63866" y="119.25114" width="321.0301" height="334.95368" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(-207.63866 126.25114)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="69.100985" y="11">Node B: g.node-a.child-c</tspan>
         </text>
       </g>
       <g id="Graphic_116">
@@ -317,7 +317,7 @@
         </text>
       </g>
       <g id="Line_189">
-        <path d="M -168.7122 166.36066 L -200.69215 166.36066 L -200.69215 408.2048 L -148.53866 408.2048" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledArrow_Marker_2)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+        <path d="M -168.7122 166.36066 L -190.17638 166.36066 L -190.17638 408.2048 L -148.53866 408.2048" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledArrow_Marker_2)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
       </g>
       <g id="Graphic_36">
         <rect x="501.3479" y="324.80114" width="192.9759" height="130" fill="white"/>
@@ -341,9 +341,9 @@
         </text>
       </g>
       <g id="Graphic_193">
-        <rect x="-212.63866" y="203.70482" width="24" height="140" fill="white"/>
-        <rect x="-212.63866" y="203.70482" width="24" height="140" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        <text transform="translate(-207.63866 338.7048) rotate(-90)" fill="#ff2600">
+        <rect x="-202.39873" y="207.22798" width="24" height="140" fill="white"/>
+        <rect x="-202.39873" y="207.22798" width="24" height="140" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(-197.39873 342.228) rotate(-90)" fill="#ff2600">
           <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="3.790039" y="11">(3)</tspan>
           <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="11"> STREAM Packet</tspan>
         </text>
