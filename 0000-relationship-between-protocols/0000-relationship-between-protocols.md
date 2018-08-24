@@ -54,7 +54,7 @@ The alphabets (A-C) and numbers (1-15), that are shown in the diagrams as **red 
   - To determine end-to-end payment information such as a shared secret, a destination address and so forth, an application connects to SPSP server over HTTPS.
 
 #### Protocols
-- Transport Layer Protocol
+- (What should I call BTP??)
   - (1) BTP
     - [Bilateral Transfer Protocol 2.0 (BTP/2.0)](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md)
     - BTP is used for transferring ILP packets and messages that are used for settlements and so on between two nodes.
@@ -65,10 +65,11 @@ The alphabets (A-C) and numbers (1-15), that are shown in the diagrams as **red 
   - (10) ILP Address
     - [ILP Addresses](../0015-ilp-addresses/0015-ilp-addresses.md)
     - An ILP address identifies a node.
-- Application Layer Protocols
+- Transport Layer Protocol
   - (3) STREAM
     - [STREAM - A Multiplexed Money and Data Transport for ILP](../0029-stream/0029-stream.md)
     - STREAM is a protocol built on top of ILP, and is used for transferring money and data bidirectionally from applications.
+- Application Layer Protocols
   - (4) Application
     - Applications MAY build their own protocols on top of STREAM, and put data of the protocols into extensible data area of STREAM packets.
   - (7) SPSP
