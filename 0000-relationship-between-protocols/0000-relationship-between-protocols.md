@@ -28,7 +28,7 @@ Because Interledger Protocol consists of several protocols and some related spec
 The scope of this document is the explication of the relationship between the Interledger protocols, and the details for it are out of scope. Some references are given for it though. i.e. This document draws a whole, big picture of ILP.
 
 ## Perspective
-There are two diagrams here, one is for the macro view that shows the main elements and its IP layer connections, another is for the micro view that shows protocols, interaction between programs, and the other details.
+There are two diagrams, one is for the macro view that shows the main elements and its IP layer connections, another is for the micro view that shows protocols, interaction between programs, and the other details.
 
 ### Connections
 
