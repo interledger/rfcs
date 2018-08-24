@@ -28,9 +28,15 @@ Because Interledger Protocol consists of several protocols and some related spec
 The scope of this document is the explication of the relationship between the Interledger protocols, and the details for it are out of scope. Some references are given for it though. i.e. This document draws a whole, big picture of ILP.
 
 ## Perspective
-First of all, the diagram below shows the entire relationship between the protocols.
+There are two diagrams here, one is for the macro view that shows the main elements and its IP layer connections, another is for the micro view that shows protocols and interaction between programs and the other details.
 
-![Perspective](images/perspective.svg)
+### Connections
+
+![Perspective of connections](images/perspective-connections.svg)
+
+### Protocols and Details
+
+![Perspective of connections](images/perspective-protocols.svg)
 
 ### Elements and Brief Explanations
 
@@ -49,7 +55,7 @@ The alphabets (A-C) and numbers (1-15) are shown in the diagram as **red charact
   - To determine end-to-end payment information such as a shared secret, a destination address and so forth, an application connects to SPSP server over HTTPS.
 
 #### Protocols
-- Transfer Layer Protocol
+- Transport Layer Protocol
   - (1) BTP
     - [Bilateral Transfer Protocol 2.0 (BTP/2.0)](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md)
     - BTP is used for transferring ILP packets and messages that are used for settlements and so on between two nodes.
