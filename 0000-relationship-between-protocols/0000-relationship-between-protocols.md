@@ -30,7 +30,7 @@ The scope of this document is the explication of the relationship between the In
 ## Perspective
 There are two diagrams, one is for the macro view that shows the main elements and its IP layer connections, another is for the micro view that shows protocols, the interaction between programs, and the other details.
 
-The alphabets (A-C) and numbers (1-15), that are shown in the diagrams as **red characters**, are explained briefly in [Elements and Brief Explanations](#elements-and-brief-explanations) section.
+The alphabets (A-C) and numbers (1-15), that are shown in the diagrams as **red characters**, are explained briefly in the [Elements and Brief Explanations](#elements-and-brief-explanations) section.
 
 ### Connections
 
@@ -73,7 +73,7 @@ This is an enlarged diagram of the above diagram, that shows mainly `Node A`, `N
     - STREAM is a protocol built on top of ILP, and is used for transferring money and data bidirectionally from applications.
 - Application Layer Protocols
   - (4) Application
-    - Applications MAY build their own protocols on top of STREAM, and put data of the protocols into extensible data area of STREAM packets.
+    - Applications MAY build their own protocols on top of STREAM, and put data of the protocols into the extensible data area of STREAM packets.
   - (7) SPSP
     - [The Simple Payment Setup Protocol (SPSP)](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md)
     - SPSP is used to determine end-to-end payment information such as a shared secret, a destination address and so forth.
@@ -81,11 +81,11 @@ This is an enlarged diagram of the above diagram, that shows mainly `Node A`, `N
   - (5) DCP
     - [Interledger Dynamic Configuration Protocol (ILDCP) v1](../0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md)
     - DCP is a protocol built on top of ILP, and is used in order to exchange node information such as an ILP address.
-    - DCP data is put into extensible data area of ILP packets.
+    - DCP data is put into the extensible data area of ILP packets.
   - (6) RBP
     - [Link to Route Broadcasting Protocol](..)
     - RBP is a protocol built on top of ILP, and is used for transferring routing information to build routing tables.
-    - RBP data is put into extensible data area of ILP packets.
+    - RBP data is put into the extensible data area of ILP packets.
 
 #### Data Structure and Encoding
 - (8) ASN.1
@@ -108,7 +108,7 @@ The functions shown below are just concepts, so their exact form may differ betw
   - A bilateral ledger tracks the balance of two nodes connected each other, including unsettled node-to-node payments.
 - (13) Routing Table Module
   - [Link to routing table](..)
-  - A routing table module aggregates incoming routing information and build the best routes for prefixes.
+  - A routing table module aggregates incoming routing information and builds the best routes for prefixes.
 - (14) Configuration Module
   - [Interledger Dynamic Configuration Protocol (ILDCP) v1](../0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md)
   - A configuration module retrieves an ILP address that the node should use and the other information from the parent node.
