@@ -28,7 +28,7 @@ Because Interledger Protocol consists of several protocols and some related spec
 The scope of this document is the explication of the relationship between the Interledger protocols, and the details for it are out of scope. Some references are given for it though. i.e. This document draws a whole, big picture of ILP.
 
 ## Perspective
-There are two diagrams, one is for the macro view that shows the main elements and its IP layer connections, another is for the micro view that shows protocols, interaction between programs, and the other details.
+There are two diagrams, one is for the macro view that shows the main elements and its IP layer connections, another is for the micro view that shows protocols, the interaction between programs, and the other details.
 
 The alphabets (A-C) and numbers (1-15), that are shown in the diagrams as **red characters**, are explained briefly in [Elements and Brief Explanations](#elements-and-brief-explanations) section.
 
@@ -37,6 +37,8 @@ The alphabets (A-C) and numbers (1-15), that are shown in the diagrams as **red 
 ![Perspective of connections](images/perspective-connections.svg)
 
 ### Protocols and Details
+
+This is an enlarged diagram of the above diagram, that shows mainly `Node A`, `Node B`, and `Ledger B`.
 
 ![Perspective of connections](images/perspective-protocols.svg)
 
