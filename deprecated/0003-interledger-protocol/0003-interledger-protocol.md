@@ -1,6 +1,7 @@
 ---
 title: The Interledger Protocol (ILP)
-draft: 9
+draft: FINAL
+deprecated: 0027-interledger-protocol-4
 ---
 # Interledger Protocol (ILP)
 
