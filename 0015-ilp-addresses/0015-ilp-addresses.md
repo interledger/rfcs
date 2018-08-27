@@ -26,6 +26,8 @@ ILP Addresses must meet the following requirements:
     - Underscore (`_`)
     - Tilde (`~`)
     - Hyphen (`-`)
+
+   A `segment` is a single element of those which an ILP Address is broken into, being separated by `.`. The allocation scheme is not included in segments.
 3. Each segment MUST be separated from other segments by a period character (`.`).
 5. Addresses MUST NOT end in a period (`.`) character, and MUST contain at least one segment after the allocation scheme prefix.
 6. The total length of an ILP Address must be no more than **1023 characters** including the allocation scheme prefix, separators, and all segments.
