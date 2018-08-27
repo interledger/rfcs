@@ -1,7 +1,11 @@
 ---
 title: Interledger Protocol - Explain Like I'm Five (ELI5)
-draft: 4
+draft: FINAL
+deprecated: true
 ---
+
+**This document describes concepts from older versions of ILP and is therefor mis-leading. It has been deprecated to avoid confusion.**
+
 ## Interledger Protocol: Explain Like I'm Five (ELI5)
 
 ### Introduction

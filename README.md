@@ -9,6 +9,18 @@ The process for submitting an RFC is documented in the [RFC Process](CONTRIBUTIN
 
 For the main reference implementation of the ILP stack, see [Interledger.js](https://github.com/interledgerjs).
 
+## ASN.1 and OER
+
+A number of the protocols define data structures in ASN.1 notation. The collection of definitions is in [asn1](./asn1).
+
+Changes to these files are automatically checked and compiled during CI using online ASN.1 tools from OSS Nokalva. If you need ASN.1 tools for any work you're doing on Interledger please contact them for assistance.
+
+[![OSS Nokalva](https://raw.githubusercontent.com/interledger/rfcs/master/assets/osslogo.png)](http://asn1-playground.oss.com/)
+
+You can also check your ASN.1 definitions online using OSS Nokalva's ASN.1 Playground available at http://asn1.io/
+
+The default encoding rules for Interledger protocols are the Canonical Octet Encoding Rules as described in [Notes on OER encoding](./0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md).
+
 ## Interledger Overview and Explanatory Docs
 
 * **[1: Interledger Architecture](0001-interledger-architecture/0001-interledger-architecture.md)**
@@ -18,10 +30,6 @@ For the main reference implementation of the ILP stack, see [Interledger.js](htt
 * **[19: Glossary](./0019-glossary/0019-glossary.md)**
 
   Definitions of Interledger terminology.
-
-* **[20: Explain Like I'm Five (ELI5)](0020-explain-like-im-five/0020-explain-like-im-five.md)**
-
-  Basic explanation of Interledger.
 
 ## Core Interledger Protocol Specs
 
@@ -53,10 +61,4 @@ For the main reference implementation of the ILP stack, see [Interledger.js](htt
 * **[23: Bilateral Transfer Protocol (BTP)](0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md)**
 
   Recommended API for trustlines and payment channels.
-
-## Routing
-
-* **[10: Connector-To-Connector Protocol (CCP)](0010-connector-to-connector-protocol/0010-connector-to-connector-protocol.md)**
-
-  A protocol used by connectors to communicate routing information.
 
