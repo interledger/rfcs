@@ -1,6 +1,6 @@
 ---
 title: Interledger Architecture
-draft: 2
+draft: 4
 ---
 # Interledger Architecture
 
@@ -73,7 +73,7 @@ As the `prepare` packet makes its way to the receiver, connectors only reserve t
 
 When the *receiver* receives the `prepare` packet, they return the `fulfill` packet to claim their funds. Each connector uses the same `fulfill` packet to claim their funds respectively from the party (sender or connector) that sent them the `prepare` packet.
 
-When forwarding a `prepare` packet from the sender-side account to the receiver-side account, each connector will reduce the timeout by a fixed amount. This provides a fixed time window to pass back the `fulfill` packet from the receiver-side account to the sender-side account later. A connector must have a fair chance to pass the `fulfill` packet back before the timeout on the sender-side account is reached, even if the `fulfill` packet was received on the receiver-side account at the last possible moment. Otherwise, it would be obligated to pay out on the receiver-side account with no obligation on their counterparty on the sender-side account to pay them back.
+When forwarding a `prepare` packet from the sender-side account to the receiver-side account, each connector will reduce the timeout by a fixed amount. This provides a fixed time window to pass back the `fulfill` packet from the receiver-side account to the sender-side account later. A connector must have a fair chance to pass the `fulfill` packet back before the timeout on the sender-side account is reached, even if the `prepare` packet was received on the receiver-side account at the last possible moment. Otherwise, it would be obligated to pay out on the receiver-side account with no obligation on their counterparty on the sender-side account to pay them back.
 
 For more details on the flow, see the [ILPv4 specification](../0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 
@@ -83,7 +83,7 @@ For more details on the flow, see the [ILPv4 specification](../0027-interledger-
 
 Interledger connectors accept some risk in exchange for the revenue they generate from facilitating payments. In the Interledger payment flow, connectors incur outgoing obligations on the receiver-side account, before they become entitled to incoming obligations on the sender-side account. After each connector receives a `fulfill` packet, they have a window of time to deliver the `fulfill` packet to their counterparty on the sender-side account. Connectors that fail to deliver the `fulfill` packet in time may lose money.
 
-If some connectors in the path of an Interledger packet receive the `fulfill` packet in time and others don't, the receiver will know the packet was received but the sender will not know. Usually, a single Interledger packet is part of a larger transaction or payment stream, so the sender may find out what happened when they receive the response for the next packet. Senders MAY also retry packets that expire. The exact behavior of senders and receivers with respect to retries is defined by the transport layer. For an example, see [IL-RFC 16](../0016-pre-shared-key/0016-pre-shared-key.md) for a description of the Pre-Shared Key (PSK) transport layer protocol.
+If some connectors in the path of an Interledger packet receive the `fulfill` packet in time and others don't, the receiver will know the packet was received but the sender will not know. Usually, a single Interledger packet is part of a larger transaction or payment stream, so the sender may find out what happened when they receive the response for the next packet. Senders MAY also retry packets that expire. The exact behavior of senders and receivers with respect to retries is defined by the transport layer. For an example, see [IL-RFC 29](../0029-stream/0029-stream.md) for a description of the STREAM transport layer protocol.
 
 Failing to deliver the `fulfill` packet in time is the main risk connectors face and there are a number of additional strategies connectors should employ to mitigate and manage this risk. For more details, see [IL-RFC 18](../0018-connector-risk-mitigations/0018-connector-risk-mitigations.md).
 
@@ -104,29 +104,23 @@ The application layer is the top layer of the Interledger protocol suite. Protoc
 4. Additional details to be communicated in ILP packet data
 
 An example of an application layer protocol is the [Simple Payment Setup Protocol (SPSP)](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md).
-SPSP uses Webfinger ([RFC 7033](https://tools.ietf.org/html/rfc7033)), an HTTPS-based protocol for communicating the destination ILP address and related details, and uses Pre-Shared Key (PSK) as the transport layer protocol.
+SPSP uses Webfinger ([RFC 7033](https://tools.ietf.org/html/rfc7033)), an HTTPS-based protocol for communicating the destination ILP address and related details, and uses STREAM as the transport layer protocol.
 
 ### Transport Layer
 
 Transport layer protocols are end-to-end protocols used by the senders and receivers of Interledger payments to determine the payment condition and other details. The guarantees afforded to the sender vary depending on the type of transport protocol used.
 
-There are currently two transport layer protocols:
+There is currently one transport layer protocol:
 
-* [Pre-Shared Key (PSK)](../0016-pre-shared-key/0016-pre-shared-key.md)
+* [STREAM](../0029-stream/0029-stream.md) 
 
-    In Pre-Shared Key (PSK) protocol, the sender and receiver use a shared secret to generate the payment condition, authenticate the ILP packet, and encrypt application data. Using PSK, the sender is guaranteed that fulfillment of their transfer indicates the receiver got the payment, provided that no one aside from the sender and receiver have the secret and the sender did not submit the fulfillment.
-
-    **PSK is recommended for most use cases.**
-
-* [Interledger Payment Request (IPR)](../0011-interledger-payment-request/0011-interledger-payment-request.md)
-
-    In the Interledger Payment Request (IPR) protocol, the receiver generates the payment details and condition. The receiver does not share the secret used to generate the condition and fulfillment with the sender or anyone else, but the sender must ask the recipient to generate and share a condition before sending each payment. IPR is primarily useful for building non-repudiable application layer protocols, in which the sender's posession of the fulfillment proves to third parties that the sender has paid the receiver for a specific obligation.
+    In the STREAM protocol, the sender and receiver use a shared secret to generate the payment condition, authenticate the ILP packet, and encrypt the application data. Using STREAM, the sender is guaranteed that fulfillment of their transfer indicates the receiver got the payment, provided that no one aside from the sender and receiver have the secret and the sender did not submit the fulfillment. In addition, STREAM is a multiplexed ILP transport protocol that provides a full-duplex communication channel for money and data between endpoints. It also automatically determines how much money and data can be sent in each ILP packet. 
 
 ### Interledger Layer
 
-The Interledger layer is responsible for forwarding Interledger packets between the sender and receiver. There is only one protocol on this layer: the Interledger Protocol (ILP).
+The Interledger layer is responsible for forwarding Interledger packets between the sender and receiver. There is only one protocol on this layer: the Interledger Protocol v4 (ILPv4).
 
-The [Interledger Protocol (ILP)](../0003-interledger-protocol/0003-interledger-protocol.md) is the core of the Interledger stack and defines standard address and packet formats that instruct connectors where to forward a packet. It also defines the [protocol flow](#interledger-protocol-flow) described above.
+The [Interledger Protocol v4 (ILPv4)](../0027-interledger-protocol-4/0027-interledger-protocol-4.md) is the core of the Interledger stack and defines standard address and packet formats that instruct connectors where to forward a packet. It also defines the [protocol flow](#interledger-protocol-flow) described above.
 
 [Interledger Addresses](../0015-ilp-addresses/0015-ilp-addresses.md) provide a universal way to address senders, receivers and connectors. Interledger addresses are hierarchical, dot-separated strings where the left-most segment is most significant. An example address might look like:
 `g.us.acmebank.acmecorp.sales.199` or `g.crypto.bitcoin.1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2`.
@@ -139,4 +133,4 @@ In order to move packets from one party (sender, receiver or connector) to anoth
 
 See [IL-RFC 17](../0017-ledger-requirements/0017-ledger-requirements.md) for a full description of the ledger layer requirements.
 
-Most implementations of Interledger use a plugin architecture to abstract the differences between different ledger layer protocols. For an example of this, see [IL-RFC 4](../0004-ledger-plugin-interface/0004-ledger-plugin-interface.md), which defines the interface for the Javascript implementation.
+Most implementations of Interledger use a plugin architecture to abstract the differences between different ledger layer protocols. For an example of this, see [IL-RFC 24](../0024-ledger-plugin-interface-2/0024-ledger-plugin-interface-2.md), which defines the interface for the Javascript implementation.
