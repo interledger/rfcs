@@ -34,7 +34,7 @@ renderer.heading = function (text, level, raw) {
 // (Allows github to be linked properly, and website as well)
 renderer.link = function (href, title, text) {
   // Converts something like `../xxxx-<anything>/xxxx-<anything>.md` to `../xxxx-<anything>`
-  href = href.replace(/^(\.{2}\/\d{4}-.*)\/(\d{4}-.*\.md)$/g, '$1')
+  href = href.replace(/^(\.{2}\/\d{4}-.*)\/(\d{4}-.*\.md)(\#[\w-]*)?$/g, '$1$3')
   return marked.Renderer.prototype.link.call(this, href, title, text);
 };
 
