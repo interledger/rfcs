@@ -83,7 +83,6 @@ This is an enlarged diagram of the above diagram, that shows mainly `Node A`, `N
     - DCP is a protocol built on top of ILP, and is used in order to exchange node information such as an ILP address.
     - DCP data is put into the extensible data area of ILP packets.
   - (6) RBP
-    - [Link to Route Broadcasting Protocol](..)
     - RBP is a protocol built on top of ILP, and is used for transferring routing information to build routing tables.
     - RBP data is put into the extensible data area of ILP packets.
 
@@ -107,7 +106,6 @@ The functions shown below are just concepts, so their exact form may differ betw
   - [Bilateral Transfer Protocol 2.0 (BTP/2.0)](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md#terminology)
   - A bilateral ledger tracks the balance of two nodes connected each other, including unsettled node-to-node payments.
 - (13) Routing Table Module
-  - [Link to routing table](..)
   - A routing table module aggregates incoming routing information and builds the best routes for prefixes.
 - (14) Configuration Module
   - [Interledger Dynamic Configuration Protocol (ILDCP) v1](../0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md)
