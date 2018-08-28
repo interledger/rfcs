@@ -199,9 +199,9 @@
         <line x1="592.8039" y1="404.7891" x2="592.8039" y2="394.6891" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
       </g>
       <g id="Graphic_172">
-        <text transform="translate(355.11046 178.5)" fill="black">
-          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x=".3701172" y="11">The identifier of nodes (g.xxx) is </tspan>
-          <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" y="11">(10) </tspan>
+        <text transform="translate(358.61046 178.5)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x=".4707031" y="11">The identifier of nodes (g.xxx) is </tspan>
+          <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" y="11">(3) </tspan>
           <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="11">ILP address</tspan>
         </text>
       </g>
@@ -234,7 +234,7 @@
             <rect x="512.5997" y="732.9913" width="120" height="58.80958" fill="white"/>
             <rect x="512.5997" y="732.9913" width="120" height="58.80958" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
             <text transform="translate(517.5997 774.30085)" fill="#ff2600">
-              <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="0" y="11">(6) </tspan>
+              <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="0" y="11">(7) </tspan>
               <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="11">DCP Packet</tspan>
             </text>
           </g>
@@ -258,7 +258,7 @@
             <rect x="676.81135" y="732.9913" width="120" height="58.80958" fill="white"/>
             <rect x="676.81135" y="732.9913" width="120" height="58.80958" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
             <text transform="translate(681.81135 774.30085)" fill="#ff2600">
-              <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="0" y="11">(7) </tspan>
+              <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="0" y="11">(8) </tspan>
               <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="11">RBP Packet</tspan>
             </text>
           </g>
@@ -266,12 +266,12 @@
         <g id="Graphic_170">
           <text transform="translate(247.73377 843.9912)" fill="black">
             <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="0" y="11">The details (order, value type, length) are defined as </tspan>
-            <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" y="11">(8)</tspan>
+            <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" y="11">(9)</tspan>
             <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="11"> </tspan>
             <tspan font-family="Courier" font-size="12" font-weight="700" fill="black" y="11">ASN.1</tspan>
             <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="11">.</tspan>
             <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="0" y="25">The ASN.1 structure is encoded in binary by </tspan>
-            <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" y="25">(9) </tspan>
+            <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" y="25">(10) </tspan>
             <tspan font-family="Courier" font-size="12" font-weight="700" fill="black" y="25">Canonical OER</tspan>
             <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="25"> rule.</tspan>
           </text>
@@ -296,7 +296,7 @@
           <rect x="276.73377" y="732.9913" width="191.65422" height="58.80958" fill="white"/>
           <rect x="276.73377" y="732.9913" width="191.65422" height="58.80958" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
           <text transform="translate(281.73377 774.30085)" fill="#ff2600">
-            <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="0" y="11">(3)</tspan>
+            <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="0" y="11">(4)</tspan>
             <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="11"> STREAM Packet</tspan>
           </text>
         </g>
@@ -304,7 +304,7 @@
           <rect x="293.388" y="732.9913" width="175" height="38" fill="white"/>
           <rect x="293.388" y="732.9913" width="175" height="38" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
           <text transform="translate(298.388 753.4913)" fill="#ff2600">
-            <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="0" y="11">(4)</tspan>
+            <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="0" y="11">(5)</tspan>
             <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="11"> Application Packet</tspan>
           </text>
         </g>
@@ -344,7 +344,7 @@
         <rect x="-202.39873" y="207.22798" width="24" height="140" fill="white"/>
         <rect x="-202.39873" y="207.22798" width="24" height="140" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(-197.39873 342.228) rotate(-90)" fill="#ff2600">
-          <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="3.790039" y="11">(3)</tspan>
+          <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="3.790039" y="11">(4)</tspan>
           <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="11"> STREAM Packet</tspan>
         </text>
       </g>
@@ -363,7 +363,7 @@
         <rect x="74.67987" y="250.20482" width="24" height="120" fill="white"/>
         <rect x="74.67987" y="250.20482" width="24" height="120" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(79.67987 365.2048) rotate(-90)" fill="#ff2600">
-          <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="4.591797" y="11">(6)</tspan>
+          <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="4.591797" y="11">(7)</tspan>
           <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="11"> DCP Packet</tspan>
         </text>
       </g>
@@ -371,7 +371,7 @@
         <rect x="315.5" y="50.102115" width="165" height="24" fill="white"/>
         <rect x="315.5" y="50.102115" width="165" height="24" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(320.5 55.102115)" fill="#ff2600">
-          <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="5.488281" y="11">(5)</tspan>
+          <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="5.488281" y="11">(6)</tspan>
           <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="11"> SPSP information</tspan>
         </text>
       </g>
@@ -382,7 +382,7 @@
         <rect x="537.7771" y="278.97584" width="120" height="24" fill="white"/>
         <rect x="537.7771" y="278.97584" width="120" height="24" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(542.7771 283.97584)" fill="#ff2600">
-          <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="4.591797" y="11">(7)</tspan>
+          <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="4.591797" y="11">(8)</tspan>
           <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="11"> RBP Packet</tspan>
         </text>
       </g>
@@ -390,7 +390,7 @@
         <line x1="592.8039" y1="404.7891" x2="592.8039" y2="394.6891" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
       </g>
       <g id="Line_232">
-        <path d="M 602.11046 197.5 L 602.11046 229.41045 L 563.9361 229.41045" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2.0,2.0" stroke-width="1"/>
+        <path d="M 600.9438 197.5 L 600.9438 228.78933 L 602.11046 228.78933 L 602.11046 229.41045 L 563.9361 229.41045" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2.0,2.0" stroke-width="1"/>
       </g>
       <g id="Group_237">
         <g id="Graphic_236">

@@ -64,35 +64,35 @@ This is an enlarged diagram of the above diagram, that shows mainly `Node A`, `N
   - (2) ILP
     - [Interledger Protocol V4 (ILPv4)](../0027-interledger-protocol-4/0027-interledger-protocol-4.md)
     - ILP is used for sending payment packets across multiple hops. Some other protocols, including those for node configuration and routing, are also built on top of ILP and use ILP packets to communicate that information between peers.
-  - (10) ILP Address
+  - (3) ILP Address
     - [ILP Addresses](../0015-ilp-addresses/0015-ilp-addresses.md)
     - An ILP address identifies a node.
 - Transport Layer Protocol
-  - (3) STREAM
+  - (4) STREAM
     - [STREAM - A Multiplexed Money and Data Transport for ILP](../0029-stream/0029-stream.md)
     - STREAM is a protocol built on top of ILP, and is used for transferring money and data bidirectionally from applications.
 - Application Layer Protocols
-  - (4) Application
+  - (5) Application
     - Applications MAY build their own protocols on top of STREAM, and put data of the protocols into the extensible data area of STREAM packets.
-  - (5) SPSP
+  - (6) SPSP
     - [The Simple Payment Setup Protocol (SPSP)](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md)
     - SPSP is used to determine end-to-end payment information such as a shared secret, a destination address and so forth.
 - Connector to Connector Protocol
-  - (6) DCP
+  - (7) DCP
     - [Interledger Dynamic Configuration Protocol (ILDCP) v1](../0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md)
     - DCP is a protocol built on top of ILP, and is used in order to exchange node information such as an ILP address.
     - DCP data is put into the extensible data area of ILP packets.
-  - (7) RBP
+  - (8) RBP
     - RBP is a protocol built on top of ILP, and is used for transferring routing information to build routing tables.
     - RBP data is put into the extensible data area of ILP packets.
 
 #### Data Structure and Encoding
-- (8) ASN.1
+- (9) ASN.1
   - [ASN.1 Project](https://www.itu.int/en/ITU-T/asn1/)
   - ASN.1 is used in order to specify data structure (order, type, and length).
   - Concrete packet structure of protocols is defined using ASN.1.
     - [asn1](../asn1/README.md)
-- (9) Canonical OER
+- (10) Canonical OER
   - [Notes on OER Encoding](../0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md)
   - ASN.1 doesn't specify its encoding rule. i.e. How packets are encoded in binary is defined separately.
   - Canonical OER is one of the specifications that define the encoding rule.
