@@ -22,7 +22,7 @@ This document assumes the reader is familiar with the following document:
   - Refer to [Interledger Architecture](../0001-interledger-architecture/0001-interledger-architecture.md) and [Perspective](#perspective).
 
 ## Motivation
-Because Interledger Protocol consists of several protocols and some related specifications, it is slightly difficult to grasp the entire relationship between the protocols. It is important for those who concretely implement ILP, to explicate the relationship so that they could quickly imagine how they should go forward. This document aims to build their mental models for ILP. A mental model is what a reader assumes something to be, reading some explanation. The mental model helps the reader predicting the behavior of what is explained even if the details are not given at that time.
+Because the Interledger Protocol suite consists of several protocols and some related specifications, it can be difficult to understand the relationship between each of the protocols. This document attempts to provide an overview and mental model of how the components fit together. It is primarily intended for implementers of parts of the Interledger stack but may also be useful for others who wish to understand how Interledger works as a whole. A mental model is what a reader assumes something to be, reading some explanation. The mental model helps the reader predicting the behavior of what is explained even if the details are not given at that time.
 
 ## Scope
 The scope of this document is the explication of the relationship between the Interledger protocols, and the details for it are out of scope. Some references are given for it though. i.e. This document draws a whole, big picture of ILP.
