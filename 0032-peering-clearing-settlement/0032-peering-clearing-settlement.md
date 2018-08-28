@@ -1,13 +1,15 @@
 ---
 title: Peering, Clearing and Settling on the Interledger network
-draft: 1
+draft: 2
 ---
+
+# Peering, Clearing and Settling
 
 The Interledger network is a graph of nodes (connectors) that have peered with one another by establishing a means of exchanging ILP packets and a means of paying one another for the successful forwarding and delivery of the packets.
 
 Further details on the ILP Protocol can be found in the [specification](../0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 
-# Accounts and Balances
+## Accounts and Balances
 
 The edge between any two nodes (peers) is a communication link (for exchanging ILP packets and other data), and an account held between the peers (the Interledger account). The Interledger account has a balance denominated in a mutually agreed upon asset (e.g. USD) at an agreed upon scale (e.g. 2). The balance on the account is **the net total of the amounts on any packets "successfully" routed between the peers**.
 
@@ -58,7 +60,7 @@ In financial accounting terms this could be viewed as a revenue/expense account 
 >   - Alice's balance is now 14 satoshis
 >   - Bob's balance is now -14 satoshis
 
-# Clearing
+## Clearing
 
 The traditional definition of clearing a payment is the process by which the two parties establish their net positions and reconcile any differences.
 
@@ -89,7 +91,7 @@ Further, this is a single packet, and a key principal of the Interledger network
 
 Nonetheless, it is likely that future bilateral protocols (like BTP) will define more detailed processes for reconciliation and clearing.
 
-# Settlement
+## Settlement
 
 It is unlikely that the flow of packets between two peers will always net out such that the balance continuously tends toward zero. In most cases flows will be predominantly in one direction and there will be a need for the peers to reduce (or raise) them back to 0.
 
@@ -103,7 +105,7 @@ Connectors will configure their own business rules regarding when to settle, bas
 
 For most implementations, this configuration will consist of, at a minimum, a maximum balance, and a settlement threshold. 
 
-## Maximum Balance
+### Maximum Balance
 
 When a connector receives an incoming packet from a peer it will ensure that the amount of the packet, added to the current balance, does not exceed the maximum balance. If it does it MUST reject he packet with a [T04 - Insufficient Liquidity](https://interledger.org/rfcs/0027-interledger-protocol-4/#error-codes) error.
 
@@ -115,7 +117,7 @@ In the former case the peer may choose to perform a settlement, even though it h
 
 In the latter case, the sending peer may need to throttle back on the packets it sends to the upstream peer or they will need to make an alternatiuve settlement arrangement that can accomodate the volume.
 
-## Settlement Threshold
+### Settlement Threshold
 
 When a connector receives a successful response from a peer it will evaluate if the amount of the packet, subtracted from the current balance, is less than the settlement threshold. If so, the connector should perform a settlement, following which the balance on the Interledger account is adjusted up by the settlement amount.
 
@@ -147,7 +149,7 @@ In a correctly configured peering the additive inverse (negation) of the settlem
 
 > Note how, because Bob has used very conservative limits on his maximum balance, and Alice has used a larger number for her settlement threshold, a situation will regularly arise where Bob reject packets from Alice because she is going to exceed Bob's maximum balance but she never hits her settlement threshold. While Alice can overcome this by settling whenever Bob rejects a packet with a T04 error a better solution would be for Alice to configure her threshold to be within Bob's maximum balance.
 
-## Settlement Models and Mechanisms
+### Settlement Models and Mechanisms
 
 It should be clear at this point that the successful exchange of ILP packets between peers creates obligations between them that must be settled.
 
@@ -159,7 +161,7 @@ Rather than take on any settlement risk, one peer may insist that the other alwa
 
 It is important to note that this has no impact on the settlement models used by others that have peered with these two nodes. An ILP packet can traveres a number of peer links, all of which have different settlement models and configurations.
 
-## Settlement vs Settlement
+### Settlement vs Settlement
 
 The term settlement can be heavily overloaded in a payments context so it is important to note that in this document we refer to settlement as the settling of the Interledger account between two peers.
 
