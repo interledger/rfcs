@@ -18,7 +18,7 @@ This document assumes the reader is familiar with the following document:
 - A **settlement** is ensuring that one has the paid value. For instance, executing a transaction on a certain ledger that the payee has an account on.
   - A **node-to-node** payment is settled by means that the two nodes agreed upon. It is usually a ledger that tracks the amount that both nodes have.
   - An **end-to-end** payment is settled through a chain of settlements of intermediaries above.
-  - Using [STREAM](../0029-stream/0029-stream.md) protocol, payments on the Interledger network could be bidirectional, thus settlements could be as well.
+  - Payments on the Interledger network could be bidirectional, thus settlements could be as well.
   - Refer to [Interledger Architecture](../0001-interledger-architecture/0001-interledger-architecture.md) and [Perspective](#perspective).
 
 ## Motivation
