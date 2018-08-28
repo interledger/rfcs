@@ -17,7 +17,7 @@ This document assumes the reader is familiar with the following document:
   - An **end-to-end** payment means the intention of transferring value of an endpoint sender to an endpoint receiver.
 - A **settlement** is ensuring that one has the paid value. For instance, executing a transaction on a certain ledger that the payee has an account on.
   - A **node-to-node** payment is settled by means that the two nodes agreed upon. It is usually a ledger that tracks the amount that both nodes have.
-  - An **end-to-end** payment is settled through a chain of settlements of intermediaries above.
+  - An **end-to-end** payment is settled through a chain of settlements of intermediaries above, because the end-to-end payment is a chain of node-to-node payments.
   - Payments on the Interledger network could be bidirectional, thus settlements could be as well.
   - Refer to [Interledger Architecture](../0001-interledger-architecture/0001-interledger-architecture.md) and [Perspective](#perspective).
 
