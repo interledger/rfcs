@@ -74,15 +74,15 @@ This is an enlarged diagram of the above diagram, that shows mainly `Node A`, `N
 - Application Layer Protocols
   - (4) Application
     - Applications MAY build their own protocols on top of STREAM, and put data of the protocols into the extensible data area of STREAM packets.
-  - (7) SPSP
+  - (5) SPSP
     - [The Simple Payment Setup Protocol (SPSP)](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md)
     - SPSP is used to determine end-to-end payment information such as a shared secret, a destination address and so forth.
 - Connector to Connector Protocol
-  - (5) DCP
+  - (6) DCP
     - [Interledger Dynamic Configuration Protocol (ILDCP) v1](../0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md)
     - DCP is a protocol built on top of ILP, and is used in order to exchange node information such as an ILP address.
     - DCP data is put into the extensible data area of ILP packets.
-  - (6) RBP
+  - (7) RBP
     - RBP is a protocol built on top of ILP, and is used for transferring routing information to build routing tables.
     - RBP data is put into the extensible data area of ILP packets.
 
