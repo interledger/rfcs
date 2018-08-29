@@ -1,5 +1,5 @@
 ---
-title: Peering, Clearing and Settling on the Interledger network
+title: Peering, Clearing and Settling
 draft: 2
 ---
 
