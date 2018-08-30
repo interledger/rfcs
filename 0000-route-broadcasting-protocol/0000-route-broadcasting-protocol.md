@@ -58,6 +58,8 @@ This mapping is called a **routing table**. In order to build a routing table, a
 
 *A routing table may be a mere list that contains `Prefix`, `Next hop`, and `Path`, it doesn't need to be a map necessarily. That said, a map is more suitable for this case than a list because of the efficiency of looking up.*
 
+A node sends an ILP packet to the next node that is determined by referencing the routing table **of the sending node** and the further hops are NOT determined at that time. The next node determines, referencing **its own routing table**, which node could be the best when received the ILP packet. This chain of discrete decisions of routes is the basis of the routing of the Interledger network.
+
 ### Routing Table Lifecycle
 The lifecycle of a routing table is like the below:
 
