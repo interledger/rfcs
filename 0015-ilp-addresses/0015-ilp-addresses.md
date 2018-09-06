@@ -12,9 +12,11 @@ Connectors maintain a _routing table_, mapping all of their peer connectors to o
 
 When a connector receives a prepare packet that is not addressed to itself, it finds the [longest prefix match](https://en.wikipedia.org/wiki/Longest_prefix_match) in its routing table for the destination address. 
 
-The connector determines the appropriate amount, and expiry, to put in the forwarded prepare packet and forwards the packet, with these new values, to the peer that it matched from the routing table. 
+The connector determines the appropriate information to put in the _prepare_ packet it forwards to the peer that it matched from the routing table. Later on, the connector expects to get a _fulfill_ or _reject_ packet from its peer. The connector MUST be able to match the prepare packet with this response.
 
-Later the connector MUST be able to match the fulfill or reject packet, returned by the peer, to the original prepare.
+This process continues at the next peer until either some peer accepts the packet and returns a _fulfill_ packet, or a peer rejects the packet by sending a _reject_ packet. If a connector cannot find a more specific match in its routing table, it replies with a _reject_ packet. (There are also other reasons to reject a payment.)
+
+For more detail on the lifecycle and contents of the packets, see the [Interledger Protocol v4 spec](../0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 
 ## Address Requirements
 
@@ -84,7 +86,7 @@ Not all addresses contain all this information, and some addresses may use multi
 
 _Neighborhoods_ are leading segments with no specific meaning, whose purpose is to help route to the right area. At this time, there is no official list of neighborhoods, but the following list of examples should illustrate what might constitute a neighborhood:
 
-- `crypto.` for ledgers related to decentralized crypto-currencies such as Bitcoin, Etherium, or XRP.
+- `crypto.` for ledgers related to decentralized crypto-currencies such as Bitcoin, Ethereum, or XRP.
 - `sepa.` for ledgers in the [Single Euro Payments Area](https://en.wikipedia.org/wiki/Single_Euro_Payments_Area).
 - `dev.` for Interledger Protocol development and early adopters
 

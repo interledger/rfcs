@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="-276.31405 304.3127 941.0246 264.1873" width="941.0246" height="264.1873">
+  <defs>
+    <font-face font-family="Courier" font-size="12" units-per-em="1000" underline-position="-178.22266" underline-thickness="57.61719" slope="0" x-height="456.54297" cap-height="586.91406" ascent="753.90625" descent="-246.09375" font-weight="400">
+      <font-face-src>
+        <font-face-name name="Courier"/>
+      </font-face-src>
+    </font-face>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="black">
+      <g>
+        <path d="M 8 0 L 0 -3 L 0 3 Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker_2" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-9 -4 10 8" markerWidth="10" markerHeight="8" color="black">
+      <g>
+        <path d="M -8 0 L 0 3 L 0 -3 Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+    <font-face font-family="Courier" font-size="12" units-per-em="1000" underline-position="-144.04297" underline-thickness="91.79688" slope="0" x-height="456.54297" cap-height="586.91406" ascent="753.90625" descent="-246.09375" font-weight="700">
+      <font-face-src>
+        <font-face-name name="Courier-Bold"/>
+      </font-face-src>
+    </font-face>
+  </defs>
+  <metadata> Produced by OmniGraffle 7.8.1 
+    <dc:date>2018-08-24 06:27:37 +0000</dc:date>
+  </metadata>
+  <g id="Perspective_-_Connections" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
+    <title>Perspective - Connections</title>
+    <g id="Perspective_-_Connections: Perspective">
+      <title>Perspective</title>
+      <g id="Graphic_145">
+        <rect x="414.21053" y="324.8127" width="230" height="124.5" fill="white"/>
+        <rect x="414.21053" y="324.8127" width="230" height="124.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(419.21053 331.8127)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="81.19531" y="11">Receiver</tspan>
+        </text>
+      </g>
+      <g id="Graphic_144">
+        <rect x="-255.81405" y="325.5" width="220" height="124" fill="white"/>
+        <rect x="-255.81405" y="325.5" width="220" height="124" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(-250.81405 332.5)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="83.39648" y="11">Sender</tspan>
+        </text>
+      </g>
+      <g id="Graphic_20">
+        <rect x="164" y="415.5" width="200" height="34" fill="white"/>
+        <rect x="164" y="415.5" width="200" height="34" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(169 425.5)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="73.396484" y="11">Node A</tspan>
+        </text>
+      </g>
+      <g id="Graphic_65">
+        <rect x="381.8" y="514" width="100" height="34" fill="white"/>
+        <rect x="381.8" y="514" width="100" height="34" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(386.8 524)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="16.195312" y="11">Ledger A</tspan>
+        </text>
+      </g>
+      <g id="Line_119">
+        <path d="M -112.48071 439.4 L -112.48071 495.1125 L 197.33333 495.1125 L 197.33333 459.4" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledArrow_Marker_2)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_132">
+        <rect x="434.21053" y="398.8127" width="200" height="34" fill="white"/>
+        <rect x="434.21053" y="398.8127" width="200" height="34" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(439.21053 408.8127)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="73.396484" y="11">Node C</tspan>
+        </text>
+      </g>
+      <g id="Graphic_152">
+        <rect x="95.5" y="514" width="100" height="34" fill="white"/>
+        <rect x="95.5" y="514" width="100" height="34" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(100.5 524)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="16.195312" y="11">Ledger B</tspan>
+        </text>
+      </g>
+      <g id="Line_153">
+        <path d="M -179.14738 429.5 L -179.14738 531 L 85.6 531" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_154">
+        <path d="M 230.66667 449.5 L 230.66667 531 L 205.4 531" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_161">
+        <rect x="434.21053" y="354.8127" width="200" height="34" fill="white"/>
+        <rect x="434.21053" y="354.8127" width="200" height="34" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(439.21053 364.8127)" fill="#ff2600">
+          <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x="37.390625" y="11">(15) </tspan>
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="11">SPSP Server</tspan>
+        </text>
+      </g>
+      <g id="Group_235">
+        <g id="Graphic_117">
+          <rect x="-245.81405" y="355.5" width="200" height="74" fill="white"/>
+          <rect x="-245.81405" y="355.5" width="200" height="74" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(-240.81405 362.5)" fill="black">
+            <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="73.396484" y="11">Node B</tspan>
+          </text>
+        </g>
+        <g id="Graphic_188">
+          <rect x="-235.81405" y="385.5" width="180" height="34" fill="white"/>
+          <rect x="-235.81405" y="385.5" width="180" height="34" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(-230.81405 395.5)" fill="black">
+            <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="45.393555" y="11">Application</tspan>
+          </text>
+        </g>
+      </g>
+      <g id="Line_71">
+        <path d="M 330.66667 459.4 L 330.66667 491.1202 L 500.8772 491.1202 L 500.8772 442.7127" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledArrow_Marker_2)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_69">
+        <path d="M 297.33333 449.5 L 297.33333 531 L 371.9 531" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_70">
+        <path d="M 567.5439 432.8127 L 567.5439 531 L 491.7 531" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_146">
+        <path d="M -55.81405 402.5 L -25.345225 402.5 L -25.345225 371.8127 L 424.31053 371.8127" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_147">
+        <rect x="113.74586" y="363.8127" width="137" height="14" fill="white"/>
+        <text transform="translate(113.74586 363.8127)" fill="#ff2600">
+          <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x=".08886719" y="11">(C) </tspan>
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="11">SPSP over HTTPS</tspan>
+        </text>
+      </g>
+      <g id="Graphic_241">
+        <rect x="-157.7694" y="524" width="217" height="14" fill="white"/>
+        <text transform="translate(-157.7694 524)" fill="#ff2600">
+          <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x=".4824219" y="11">(B)</tspan>
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="11"> Ledger specific connection</tspan>
+        </text>
+      </g>
+      <g id="Graphic_242">
+        <rect x="-43.62094" y="486.84667" width="159" height="14" fill="white"/>
+        <text transform="translate(-43.62094 486.84667)" fill="#ff2600">
+          <tspan font-family="Courier" font-size="12" font-weight="700" fill="#ff2600" x=".28710938" y="11">(A)</tspan>
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" y="11"> BTP over WebSocket</tspan>
+        </text>
+      </g>
+    </g>
+  </g>
+</svg>
