@@ -1,6 +1,6 @@
 ---
 title: Interledger Protocol V4 (ILPv4)
-draft: 4
+draft: 5
 ---
 
 # Interledger Protocol V4
@@ -117,7 +117,7 @@ The `amount` and `expiresAt` are fixed-length fields so that they may be modifie
 |---|---|---|
 | `amount` | UInt64 | Local amount, denominated in the minimum divisible unit of the asset of the bilateral relationship. This field is modified by each connector, who applies their exchange rate and adjusts the amount to the appropriate scale and precision of the outgoing account |
 | `expiresAt` | Fixed-Length [Interledger Timestamp](../asn1/InterledgerTypes.asn) | Date and time when the packet expires. Each connector changes the value of this field to set the expiry to an earlier time, before forwarding the packet. |
-| `executionCondition` | UInt256 | SHA-256 hash digest of the `fulfillment` that will execute the transfer of value represented by this packet |
+| `executionCondition` | UInt256 | SHA-256 hash digest of the `fulfillment` that will execute the transfer of value represented by this packet. Connectors MUST NOT modify this field. The receiver must be able to fulfill this condition to receive the money. |
 | `destination` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) | ILP Address of the receiver |
 | `data` | Variable-Length Octet String | End-to-end data. Connectors MUST NOT modify this data. Most higher-level protocols will encrypt and authenticate this data, so receivers will reject packets in which the data is modified |
 
