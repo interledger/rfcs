@@ -14,7 +14,7 @@ When a connector receives a prepare packet that is not addressed to itself, it f
 
 The connector determines the appropriate information to put in the _prepare_ packet it forwards to the peer that it matched from the routing table. Later on, the connector expects to get a _fulfill_ or _reject_ packet from its peer. The connector MUST be able to match the prepare packet with this response.
 
-This process continues at the next peer until either some peer accepts the payment and returns a _fulfill_ packet, or a peer rejects the payment by sending a _reject_ packet. If connector cannot find a more specific match in its routing table, it replies with a _reject_ packet. (There are also other reasons to reject a payment.)
+This process continues at the next peer until either some peer accepts the packet and returns a _fulfill_ packet, or a peer rejects the packet by sending a _reject_ packet. If a connector cannot find a more specific match in its routing table, it replies with a _reject_ packet. (There are also other reasons to reject a payment.)
 
 For more detail on the lifecycle and contents of the packets, see the [Interledger Protocol v4 spec](../0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 
