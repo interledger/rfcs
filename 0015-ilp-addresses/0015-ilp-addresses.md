@@ -1,6 +1,6 @@
 ---
 title: ILP Addresses
-draft: 5
+draft: 6
 ---
 # ILP Addresses - v2.0.0
 
@@ -22,17 +22,16 @@ For more detail on the lifecycle and contents of the packets, see the [Interledg
 
 ILP Addresses must meet the following requirements:
 
-1. The address MUST begin with a prefix indicating the allocation scheme. See [Allocation Schemes](#allocation-schemes) for more information.
-2. Each "segment" of the address MUST contain one or more of the following characters:
+1. ILP Addresses are made up of one or more segments.
+2. Each segment MUST be separated from other segments by a period character (`.`).
+3. The first segment MUST indicate the allocation scheme. See [Allocation Schemes](#allocation-schemes) for more information.
+4. Each segment MUST contain one or more of the following characters:
     - Alphanumeric characters, upper or lower case. (Addresses are **case-sensitive** so that they can contain data encoded in formats such as base64url.)
     - Underscore (`_`)
     - Tilde (`~`)
     - Hyphen (`-`)
-
-   A `segment` is a single element of those which an ILP Address is broken into, being separated by `.`. The allocation scheme is not included in segments.
-3. Each segment MUST be separated from other segments by a period character (`.`).
-5. Addresses MUST NOT end in a period (`.`) character, and MUST contain at least one segment after the allocation scheme prefix.
-6. The total length of an ILP Address must be no more than **1023 characters** including the allocation scheme prefix, separators, and all segments.
+5. Addresses MUST NOT end in a period (`.`) character, and MUST contain at least one segment after the allocation scheme.
+6. The total length of an ILP Address must be no more than **1023 characters** including the allocation scheme, separators, and all segments.
 
 The following ABNF specification defines the format for the contents of all ILP addresses and address prefixes. (You must also enforce the overal length requirement of 1023 characters or less.)
 
