@@ -126,7 +126,7 @@ According to an agreed schedule the two peers will reconcile and settle the obli
 
 The specific schedule and mechansim for doing this will be specific to the settlement system used by the peers (e.g. payment channels on a distributed ledger, traditional wire transfers via the banking system, etc.), therefor the functionality required to do this is not included in the core node but rather in settlement-system-specific plugins or adaptors.
 
-It is necessary for the node to have a view of the current outstanding obligations with the peer (the peer's account balance) in order to apply approriate risk management measures when processing packets from the peer.
+It is necessary for the node to have a view of the current outstanding obligations with the peer (the peer's account balance) in order to apply appropriate risk management measures when processing packets from the peer.
 
 The logic that determines when to perform a settlement is currently implemented within the node (as opposed to in the plugin) and as such the node must instruct the plugin when to perform a settlement. This reduces the outstanding obligations with the peer to a limit that the node considers safe such that it can forward further packets for the peer.
 
