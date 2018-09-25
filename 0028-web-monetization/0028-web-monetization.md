@@ -1,6 +1,6 @@
 ---
 title: Web Monetization
-draft: 3
+draft: 4
 ---
 
 # Web Monetization
@@ -122,6 +122,10 @@ window.WebMonetization.monetize({
 | `totalDelivered` | `String` | The amount of money sent to the destination (in destination units). |
 | `totalSent` | `String` | The amount of money sent to the destination (in our units). |
 | `totalReceived` | `String` | The amount of money received (in our units). |
+| `sourceAssetCode` | `String` | The three-letter asset code of the source account's units. |
+| `sourceAssetScale` | `Number` | The scale of the source account's units (i.e. if the units were cents, the scale would be `2` and the code would be `USD`) |
+| `destinationAssetCode` | `String | undefined` | The three-letter asset code of the destination account's units. This may not be present, depending on the destination's STREAM version. |
+| `destinationAssetScale` | `String | undefined` | The scale of the destination account's units. This may not be present, depending on the destination's STREAM version. |
 
 #### Create Stream
 
