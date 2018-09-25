@@ -43,7 +43,7 @@ workflows:
             branches:
               ignore:
                 - gh-pages
-      - deploy:
+      - deployment:
           requires:
             - test
           filters:
