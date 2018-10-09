@@ -1,6 +1,6 @@
 ---
 title: STREAM - A Multiplexed Money and Data Transport for ILP
-draft: 2
+draft: 3
 ---
 
 # STREAM: A Multiplexed Money and Data Transport for ILP
@@ -151,7 +151,7 @@ A server MUST communicate the following values to a client using an **authentica
 
 - STREAM Version (optional -- assumed to be version 1 unless specified)
 - Server ILP Address
-- Cryptographically secure random or pseudorandom shared secret (it is RECOMMNEDED to use 32 bytes)
+- Cryptographically secure random or pseudorandom shared secret (it is RECOMMENDED to use 32 bytes)
 
 To avoid storing a 32 byte secret for each connection, a server MAY deterministically generate the shared secret for each connection from a single server secret and a nonce appended to the ILP Address given to a particular client, for example by using an HMAC.
 
