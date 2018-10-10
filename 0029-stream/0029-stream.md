@@ -1,6 +1,6 @@
 ---
 title: STREAM - A Multiplexed Money and Data Transport for ILP
-draft: 3
+draft: 4
 ---
 
 # STREAM: A Multiplexed Money and Data Transport for ILP
@@ -169,6 +169,10 @@ Either endpoint MAY change their ILP address at any point during a connection by
 
 Implementations SHOULD wait for a valid response (encrypted with the same shared secret) from the new address to validate the new path. STREAM uses the authenticated request/response packets in lieu of [QUIC's explicit Path Validation](https://quicwg.github.io/base-drafts/draft-ietf-quic-transport.html#rfc.section.6.7). Implementations SHOULD refrain from sending large numbers of packets or large amounts of data to a new ILP address before validating the path to avoid being tricked into participating in a Denial of Service (DoS) attack on a third-party endpoint.
 
+#### 4.3.1. Connection Asset Details
+
+Each endpoint MAY expose their asset details by sending a `ConnectionAssetDetails` frame.
+
 ### 4.4. Streams
 
 Once a connection is established, either endpoint can create streams to send money or data.
@@ -287,6 +291,7 @@ The frame types are as follows and each is described in greater detail below:
 | `0x04` | Connection Data Blocked |
 | `0x05` | Connection Max Stream ID |
 | `0x06` | Connection Stream ID Blocked |
+| `0x07` | Connection Asset Details |
 | `0x10` | Stream Close |
 | `0x11` | Stream Money |
 | `0x12` | Stream Money Max |
@@ -400,6 +405,13 @@ Packets may be received out of order so the `Offset` is used to indicate the cor
 |---|---|---|
 | Stream ID | VarUInt | Identifier of the stream this frame refers to. |
 | Max Offset | VarUInt | The total number of bytes the endpoint wants to send on this stream. |
+
+#### 5.3.14. `ConnectionAssetDetails` Frame
+
+| Field | Type | Description |
+|---|---|---|
+| Source Asset Code | Utf8String | Asset code of endpoint that sent the frame. |
+| Source Asset Scale | UInt8 | Asset scale of endpoint that sent the frame. |
 
 ### 5.4. Error Codes
 
