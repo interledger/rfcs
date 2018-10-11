@@ -1,6 +1,6 @@
 ---
 title: ILP Addresses
-draft: 4
+draft: 6
 ---
 # ILP Addresses - v2.0.0
 
@@ -12,23 +12,26 @@ Connectors maintain a _routing table_, mapping all of their peer connectors to o
 
 When a connector receives a prepare packet that is not addressed to itself, it finds the [longest prefix match](https://en.wikipedia.org/wiki/Longest_prefix_match) in its routing table for the destination address. 
 
-The connector determines the appropriate amount, and expiry, to put in the forwarded prepare packet and forwards the packet, with these new values, to the peer that it matched from the routing table. 
+The connector determines the appropriate information to put in the _prepare_ packet it forwards to the peer that it matched from the routing table. Later on, the connector expects to get a _fulfill_ or _reject_ packet from its peer. The connector MUST be able to match the prepare packet with this response.
 
-Later the connector MUST be able to match the fulfill or reject packet, returned by the peer, to the original prepare.
+This process continues at the next peer until either some peer accepts the packet and returns a _fulfill_ packet, or a peer rejects the packet by sending a _reject_ packet. If a connector cannot find a more specific match in its routing table, it replies with a _reject_ packet. (There are also other reasons to reject a payment.)
+
+For more detail on the lifecycle and contents of the packets, see the [Interledger Protocol v4 spec](../0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 
 ## Address Requirements
 
 ILP Addresses must meet the following requirements:
 
-1. The address MUST begin with a prefix indicating the allocation scheme. See [Allocation Schemes](#allocation-schemes) for more information.
-2. Each "segment" of the address MUST contain one or more of the following characters:
+1. ILP Addresses are made up of one or more segments.
+2. Each segment MUST be separated from other segments by a period character (`.`).
+3. The first segment MUST indicate the allocation scheme. See [Allocation Schemes](#allocation-schemes) for more information.
+4. Each segment MUST contain one or more of the following characters:
     - Alphanumeric characters, upper or lower case. (Addresses are **case-sensitive** so that they can contain data encoded in formats such as base64url.)
     - Underscore (`_`)
     - Tilde (`~`)
     - Hyphen (`-`)
-3. Each segment MUST be separated from other segments by a period character (`.`).
-5. Addresses MUST NOT end in a period (`.`) character, and MUST contain at least one segment after the allocation scheme prefix.
-6. The total length of an ILP Address must be no more than **1023 characters** including the allocation scheme prefix, separators, and all segments.
+5. Addresses MUST NOT end in a period (`.`) character, and MUST contain at least one segment after the allocation scheme.
+6. The total length of an ILP Address must be no more than **1023 characters** including the allocation scheme, separators, and all segments.
 
 The following ABNF specification defines the format for the contents of all ILP addresses and address prefixes. (You must also enforce the overal length requirement of 1023 characters or less.)
 
@@ -82,7 +85,7 @@ Not all addresses contain all this information, and some addresses may use multi
 
 _Neighborhoods_ are leading segments with no specific meaning, whose purpose is to help route to the right area. At this time, there is no official list of neighborhoods, but the following list of examples should illustrate what might constitute a neighborhood:
 
-- `crypto.` for ledgers related to decentralized crypto-currencies such as Bitcoin, Etherium, or XRP.
+- `crypto.` for ledgers related to decentralized crypto-currencies such as Bitcoin, Ethereum, or XRP.
 - `sepa.` for ledgers in the [Single Euro Payments Area](https://en.wikipedia.org/wiki/Single_Euro_Payments_Area).
 - `dev.` for Interledger Protocol development and early adopters
 
