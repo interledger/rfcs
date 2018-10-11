@@ -4,23 +4,23 @@ draft: 1
 ---
 # Interledger Node - Requirements Specification
 
-This document defines the basic functions of an ILP node. 
+This document defines the basic functions of an ILP Connector. 
 
-An ILP node is a system that performs the necessary functions to route ILP packets between peers on the open Interledger network.
+An ILP Connector is a node on the Interledger network that performs the necessary functions to route ILP packets between peers.
 
-The document is specific to the requirements of a "core" node that only operates at the ILP layer and does not concern itself with functionality in the higher protocol layers (e.g. STREAM, PSK2, etc). In other words, this document describes the functions of a node that is neither a sender or receiver of ILP packets but rather a "middlebox", to borrow some Internet terminology.
+The document is specific to the requirements of a node that only operates at the ILP layer and does not concern itself with functionality in the higher protocol layers (e.g. STREAM, PSK2, etc). In other words, this document describes the functions of a node that is neither a sender or receiver of ILP packets but rather a "middlebox", to borrow some Internet terminology.
 
 Such a node is often referred to as a **connector** as it provides connectivity between different networks.
 
 # Overview
 
-An ILP node is very similar to a network router on an IP network. It has multiple incoming and outgoing links on which it sends and receives packets of data. Its primary function is to route incoming packets, on any links, to the appropriate outgoing link.
+An ILP connector is very similar to a network router on an IP network. It has multiple incoming and outgoing links on which it sends and receives packets of data. Its primary function is to route incoming packets, on any links, to the appropriate outgoing link.
 
-Where an ILP node differs from an IP router is that it MUST be stateful. ILP packets come in request/response pairs so a node that receives a request on one link, and then routes it out on another, MUST ensure it is able to match any response it gets back on the outgoing link to the original request sent on that link. It MUST also route the response back along the same incoming link on which it received the original incoming request.
+Where an ILP connector differs from an IP router is that it MUST be stateful. ILP packets come in request/reply pairs so a node that receives a request on one link, and then routes it out on another, MUST ensure it is able to match any reply it gets back on the outgoing link to the original request sent on that link. It MUST also route the reply back along the same incoming link on which it received the original incoming request.
 
-The business logic of an ILP node is also more sophisticated than an IP router, in that the node operator is paid, per packet, by the sender of incoming packets to perform this function. It follows therefore, that the operator must also pay the next node for every packet it sends to it.
+The business logic of an ILP connector is also more sophisticated than an IP router, in that the connector operator is paid, per packet, by the sender of incoming packets to perform this function. It follows therefore, that the operator must also pay the next node for every packet it sends to it.
 
-However, payment for forwarding a packet is only due if a **valid** response to a request is received **within a predefined expiry** therefor the node must also track the payments owed and due for accepting and forwarding packets, must reconcile the amounts owed to, and due from, peers and respond to (or initiate) external settlement events on those accounts.
+However, payment for forwarding a packet is only due if a **valid** response to a request is received **within a predefined expiry**. This implies that the connector must track the amounts owed by it and due to it for accepting and forwarding packets respectively. It must also reconcile the amounts owed to, and due from, peers and respond to (or initiate) external settlement events on those accounts.
 
 # Key Concepts
 
@@ -28,13 +28,13 @@ However, payment for forwarding a packet is only due if a **valid** response to 
 
 ILP packets are not unlike IP packets, in that they are a well-defined octet-based encoding for a payload of data, encapsulated in an envelope with a set of well-known headers. 
 
-However, as ILP is a request/response protocol there are 3 packet types, not 1 as in IP. They are: 
+However, as ILP is a request/reply protocol there are 3 packet types (1 for requests and 2 types for replies), not 1 as in IP. The packet types are: 
 
 - ILP Prepare (request)
-- ILP Fulfill (success response), and
-- ILP Reject (error response)
+- ILP Fulfill (response), and
+- ILP Reject (error)
 
-Packets use OER (Octet Encoding Rules) encoding and have the following headers:
+Packets use Canonical OER (Octet Encoding Rules) encoding and have the following headers:
 
 ### ILP Prepare
 | Header             | Type        | Description                                                                                                   |
@@ -60,11 +60,11 @@ All packets have a `data` payload which is a variable length octet string up to 
 
 Like IP packets, the most important header is the **destination.** This is the ILP Address of the node that should receive the packet. However, unlike IP packets, the address of the sender is NOT recorded in the headers. This is because a response packet (ILP Fulfill or ILP Reject) MUST be routed back along exactly the same route as the original request (ILP Prepare) so a receiver has no need for the sender's address as they can simply provide responses in the payload of the response packet.
 
-To correctly route responses, an ILP node must ensure it persists the state of an ILP Prepare packet, at least as long as specified in the **expiresAt** header. When a response to the ILP Prepare is received (either an ILP Fulfill or ILP Reject) from the outgoing link it MUST be routed down the same link on which the ILP Prepare was received. 
+To correctly route responses, an ILP connector must ensure it persists the state of an ILP Prepare packet, at least as long as specified in the **expiresAt** header. When a reply to the ILP Prepare is received (either an ILP Fulfill or ILP Reject) from the outgoing link it MUST be routed down the same link on which the ILP Prepare was received. 
 
-If the packet expires before a response is received from the outgoing link then the connecter MUST send an ILP Reject packet as the response on the incoming link. Response packets that are received after the request has expired can be discarded.
+If the packet expires before a response is received from the outgoing link then the connecter MUST send an ILP Reject packet as the reply on the incoming link. Reply packets that are received after the request has expired can be discarded.
 
-The link protocol used to communicate with peers MUST allow the node to match requests and responses such that when a response (ILP Fulfill or ILP Reject) is received from an outgoing link it can be matched to the original.
+The link protocol used to communicate with peers MUST allow the node to match requests and replies such that when a reply (ILP Fulfill or ILP Reject) is received from an outgoing link it can be matched to the original.
 
 ## ILP Addresses
 
@@ -80,19 +80,21 @@ Amounts in ILP are simple and are represented as 64-bit unsigned integers. As su
 
 For example a link between two peers on the network may be settled in US dollars and the peers may decide they wish to allow precision up to 100ths of a cent. In this case the link will be configured by both peers to use the currency USD and the scale of 4. An ILP packet with an amount of 12345 is $1.23,45 or one dollar and twenty-three point four five cents.
 
+For more details on how payments, clearing and settlement are done in ILP see [IL-RFC 32 Peering, Clearing and Settlement](../0032-peering-clearing-settlement)
+
 # Requirements
 
 ## Links
 
 A node must have one or more links to peer nodes with whom it will exchange ILP packets. These links can use any protocol to exchange the packets as long as both peers are able to **correctly correlate which packets are responses to a specific previous request**.
 
-When two peers establish a link they must **agree on the settlement currency and scale for packets exchanged over that link**. The amount in an ILP packet is an unsigned 64-bit number, therefor when a node receives a packet it must infer the currency and scale of the amount from the link on which it was received.
+When two peers establish a link they must **agree on the settlement currency and scale for packets exchanged over that link**. The amount in an ILP packet is an unsigned 64-bit number, therefore when a node receives a packet it must infer the currency and scale of the amount from the link on which it was received.
 
-An example of a protocol that can be used between nodes is the [Bilateral Transfer Protocol (BTP)](https://interledger.org/rfcs/0023-bilateral-transfer-protocol/).
+An example of a protocol that can be used between nodes is the [Bilateral Transfer Protocol (BTP)](../0023-bilateral-transfer-protocol/).
 
 ## Link Relations
 
-Each link will have one of three relation types which reflect how the node is related to the peer on the other side of the link, these are **peer**, **parent** or **child**. The network graph is organized in a tiered hierarchy, similar to the Internet, reflecting these relationships. Large, high volume nodes are peered with one another to form the backbone of the network. Smaller nodes will have links to these "tier 1" nodes and the link will be of type child from the perspective of the tier 1 node and of type parent from the perspective of the smaller node.
+Each link will have one of three relation types which reflect how the node is related to the peer on the other side of the link, these are **peer**, **parent** or **child**. The network graph is organized in a tiered hierarchy, similar to the Internet, reflecting these relationships. Large, high volume connectors are peered with one another to form the backbone of the network. Smaller nodes will have links to these "tier 1" nodes and the link will be of type child from the perspective of the tier 1 node and of type parent from the perspective of the smaller node.
 
 A node MUST only have one link of type parent or, if it has multiple, only one configured to use the IL-DCP protocol upon establishing the link, to request an address from the parent.
 
@@ -116,23 +118,21 @@ Routing data updates, IL-DCP and other peer-to-peer protocols use ILP packets wh
 
 **`test.*`, `test1.*`, `test2.*`, and `test3.*`**
 
-A node MUST run either in a test network or on the live network but never on both. If a node is running on the test network it MUST reject all packets in the global address-space, `g.*`. Likewise, if node is running on the live netw    ork it MUST reject any packets with addresses in the `test.*`, `test1.*`, `test2.*`, or `test3.*` address-spaces.
+A node MUST run either in a test network or on the live network but never on both. If a node is running on the test network it MUST reject all packets in the global address-space, `g.*`. Likewise, if a node is running on the live network it MUST reject any packets with addresses in the `test.*`, `test1.*`, `test2.*`, or `test3.*` address-spaces.
 
 ## Settlement
 
 When a node routes a packet it is accepting an offer, from the requesting peer, to pay for proof-of-delivery of that packet. When it returns a valid response to the requesting peer (an ILP Fulfill packet with the correct fulfillment) before the expiry of the request, this creates an obligation between the peers. The requesting peer now owes the forwarding peer the amount specified in the request packet.
 
-According to an agreed schedule the two peers will reconcile and settle the obligations created between them as a result of successfully forwarding ILP packets. It is important to note that this process is a bi-lateral concern and does not impact the settlement of obligations between other nodes involved in forwarding that packet.
+According to an agreed schedule the two peers will reconcile and settle the obligations created between them as a result of successfully forwarding ILP packets. It is important to note that this process is a bilateral concern and does not impact the settlement of obligations between other nodes involved in forwarding that packet.
 
-The specific schedule and mechansim for doing this will be specific to the settlement system used by the peers (e.g. payment channels on a distributed ledger, traditional wire transfers via the banking system, etc.), therefor the functionality required to do this is not included in the core node but rather in settlement-system-specific plugins or adaptors.
+The specific schedule and mechanism for doing this will be specific to the settlement system used by the peers (e.g. payment channels on a distributed ledger, traditional wire transfers via the banking system, etc.), therefore the functionality required to do this is not included in the core node but rather in settlement-system-specific plugins or adaptors.
 
-It is necessary for the node to have a view of the current outstanding obligations with the peer (the peer's account balance) in order to apply appropriate risk management measures when processing packets from the peer.
+It is necessary for the connector to have a view of the current outstanding obligations with the peer (the peer's account balance) in order to apply appropriate risk management measures when processing packets from the peer.
 
-The logic that determines when to perform a settlement is currently implemented within the node (as opposed to in the plugin) and as such the node must instruct the plugin when to perform a settlement. This reduces the outstanding obligations with the peer to a limit that the node considers safe such that it can forward further packets for the peer.
+The logic that determines when to perform a settlement is currently implemented within the connector in the reference implementation (as opposed to in the plugin) and as such the connector must instruct the plugin when to perform a settlement. This reduces the outstanding obligations with the peer to a limit that the connector considers safe such that it can forward further packets for the peer.
 
-Where the plugin is managing the balance of the peer it may be possible to simplify the interface between the node and the plugin to simply be the exchange of ILP packets however it is likely that the node will still need to have a view of the peer's unsettled balance to allow it to apply risk management measures of its own.
-
-More details are provided in (Balance Management)[#balance-management].
+Where the plugin is managing the balance of the peer it may be possible to simplify the interface between the connector and the plugin to simply be the exchange of ILP packets however it is likely that the node will still need to have a view of the peer's unsettled balance to allow it to apply risk management measures of its own.
 
 ### Plugin Interface
 
@@ -144,7 +144,3 @@ The interface between these plugins and the node exposes the following functions
  - Request to perform settlement
  
  A concrete implementation of this interface is defined for the reference Javascript node implementation in the [Ledger Plugin Interface v2](../0024-ledger-plugin-interface-2/0024-ledger-plugin-interface-2.md).
- 
- ## Balance Management
- 
- TODO
