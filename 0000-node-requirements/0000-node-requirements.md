@@ -8,7 +8,7 @@ This document defines the basic functions of an ILP Connector.
 
 An ILP Connector is a node on the Interledger network that performs the necessary functions to route ILP packets between peers.
 
-The document is specific to the requirements of a node that only operates at the ILP layer and does not concern itself with functionality in the higher protocol layers (e.g. STREAM, PSK2, etc). In other words, this document describes the functions of a node that is neither a sender or receiver of ILP packets but rather a "middlebox", to borrow some Internet terminology.
+The document is specific to the requirements of a node that only operates at the ILP layer and does not concern itself with functionality in the higher protocol layers (e.g. STREAM, PSK2, etc). In other words, this document describes the functions of a node that is neither a sender nor receiver of ILP packets but rather a "middlebox", to borrow some Internet terminology.
 
 Such a node is often referred to as a **connector** as it provides connectivity between different networks.
 
