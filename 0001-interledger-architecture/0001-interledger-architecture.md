@@ -75,9 +75,9 @@ The implementation of a Link protocol may be incorporated into a ledger plugin, 
 
 #### Interledger Protocol
 
-The Interledger Protocol version 4 (ILPv4) is the core protocol of the entire Interledger Protocol suite. This protocol's packets are exchanged between direct peers: sender to connector, connector to connector, and connector to receiver. This protocol is compatible with any variety of currencies and underlying ledger systems.
+The Interledger Protocol version 4 (ILPv4) is the core protocol of the entire Interledger Protocol suite. This protocol's packets pass through all participants in the chain: from the sender, through one or more connectors, to the receiver. This protocol is compatible with any variety of currencies and underlying ledger systems.
 
-This level is concerned with currency amounts, routing, and whether each step in a payment arrives in time or expires. This protocol finds a path to connect a sender and receiver using any number of intermediaries, with a cryptographic _condition_ tied to the path. If everything goes well and the receiver wants the funds, the receiver provides a _fulfillment_ to the condition, which triggers the funds to move at each account in the path. In this way, the fulfillment proves that the money was delivered to the intended recipient.
+This level is concerned with currency amounts, routing, and whether each step in a payment arrives in time or expires. This protocol finds a path to connect a sender and receiver using any number of intermediaries. The packets that are relayed across this path contain a cryptographic _condition_ whose _fulfillment_ is only known to the recipient (and possibly the sender). If everything goes well and the receiver wants the funds, the receiver provides the fulfillment, which triggers the funds to move at each account in the path. In this way, the fulfillment proves that the money was delivered to the intended recipient.
 
 This layer abstracts the layers above and below it from one another, so there can be only one protocol at this layer. Other protocols, including older versions of the Interledger Protocol, are incompatible. The current protocol is defined by [IL-RFC-27: Interledger Protocol version 4](../0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 
@@ -163,7 +163,7 @@ If two parties in the Interledger have a "parent/child" connection rather than a
 
 Because each party is isolated from risks beyond their immediate peers, longer paths are not inherently more risky than shorter paths. This enables longer paths to compete with shorter paths to convey money from any given sender to any given receiver, while reducing the risk to the sender.
 
-The original Interledger whitepaper presented an _atomic mode_ with a stronger guarantee of atomicity, but implementing atomic mode requires extra agreements that cannot be generalized to an open network. The specifications in the Interledger protocol suite are concerned primarily with what the whitepaper calls _universal mode_.
+The original Interledger whitepaper presented an _atomic mode_ with a stronger guarantee of atomicity, but implementing atomic mode requires extra agreements that cannot be generalized to an open network. The specifications in the Interledger protocol suite are concerned with what the whitepaper calls _universal mode_.
 
 ### Conditions and Fulfillments
 
