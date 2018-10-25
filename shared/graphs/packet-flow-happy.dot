@@ -1,0 +1,22 @@
+digraph G {
+  node [shape = box,height=.1,fontname = "helvetica"];
+  newrank=true;
+
+  s [shape=box style=filled color=lightgrey label="Sender" width=1.5];
+  r [shape=box style=filled color=lightgrey label="Receiver" width=1.5];
+
+  c1 [shape=box style=filled color=lightgrey label="Connector" width=1.5];
+  c2 [shape=box style=filled color=lightgrey label="Connector" width=1.5];
+
+  s:n -> c1:n [style=dotted label="Prepare"];
+  c1:n -> c2:n [style=dotted label="Prepare"];
+  c2:n -> r:n [style=dotted label="Prepare"];
+
+  r:s -> c2:s [label="Fulfill"];
+  c2:s -> c1:s [label="Fulfill"];
+  c1:s -> s:s [label="Fulfill"];
+
+
+  { rank=same; s c1 c2 r }
+
+}

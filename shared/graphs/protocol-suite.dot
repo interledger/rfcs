@@ -5,67 +5,47 @@ graph G {
   app [label="Application\l" shape="plaintext" width=1.5]
   transport [label="Transport\l" shape="plaintext" width=1.5]
   interledger [label="Interledger\l" shape="plaintext" width=1.5]
+  link [label="Link\l" shape="plaintext" width=1.5]
   ledger [label="Ledger\l" shape="plaintext" width=1.5]
 
   subgraph cluster_0 {
     style=filled;
     color=lightgrey;
     node [style=filled,color=white];
+
     app1 [label=SPSP];
-    tr1 [label=PSK];
-    im1 [label="ILP"];
-    lli1 [label="L1 Plugin"];
-    app1 -- tr1 -- im1 -- lli1;
-    label = "Sender";
+    app2 [label="..."]
+    tr1 [label=STREAM];
+    tr2 [label="..."];
+    im1 [label="ILPv4"];
+    link1 [label="BTP"];
+    link2 [label="..."];
+    app1 -- tr1;
+    app2 -- tr1;
+    tr1 -- im1;
+    tr2 -- im1;
+    im1 -- link1;
+    im1 -- link2;
+
     fontname = "helvetica";
   }
 
   subgraph cluster_1 {
     style=filled;
-    color=lightgrey;
-    node [style=filled,color=white];
-    im2 [label="ILP"];
-    lli2[label="L1 Plugin"];
-    lli3 [label="L2 Plugin"];
-    im2:sw -- lli2:n;
-    im2:se -- lli3:n;
-    label = "Connector";
+    color=white;
+
+    ledger1 [label="..."]
+    ledger3 [label="..."]
+
     fontname = "helvetica";
   }
+  link1 -- ledger1;
+  link2 -- ledger3;
 
-  subgraph cluster_2 {
-    style=dotted;
-    color=black;
-    penwidth=1.5;
-    node [style=dotted,color=black];
-    im3 [label="ILP"];
-    lli4[label="L2 Plugin"];
-    lli5 [label="LN Plugin"];
-    im3:sw -- lli4:n [style=dotted];
-    im3:se -- lli5:n [style=dotted];
-    label = "Connector (N-1 Instances)";
-    fontname = "helvetica";
-  }
-
-  subgraph cluster_3 {
-    style=filled;
-    color=lightgrey;
-    node [style=filled,color=white];
-    app2 [label=SPSP];
-    tr2 [label=PSK];
-    im4 [label="ILP"];
-    lli6 [label="LN Plugin"];
-    app2 -- tr2 -- im4 -- lli6;
-    label = "Receiver";
-    fontname = "helvetica";
-  }
-
-  lli1 -- lli2;
-  lli3 -- lli4 [style=dotted];
-  lli5 -- lli6 [style=dotted];
 
   { rank=same; app app1 app2 }
   { rank=same; transport tr1 tr2 }
-  { rank=same; interledger im1 im2 im3 im4 }
-  { rank=same; ledger lli1 lli2 lli3 lli4 lli5 lli6}
+  { rank=same; interledger im1 }
+  { rank=same; link link1 link2 }
+  { rank=same; ledger ledger1 ledger3 }
 }
