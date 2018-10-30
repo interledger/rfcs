@@ -1,8 +1,8 @@
 ---
-title: Interledger Node - Requirements Specification
+title: Interledger Connector - Requirements Specification
 draft: 1
 ---
-# Interledger Node - Requirements Specification
+# Interledger Connector - Requirements Specification
 
 This document defines the basic functions of an ILP Connector. 
 
