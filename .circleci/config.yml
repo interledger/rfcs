@@ -1,0 +1,63 @@
+version: 2
+defaults: &defaults
+  working_directory: ~/repo
+  docker:
+    - image: circleci/node:8.11.3
+
+jobs:
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: 'Install'
+          command: npm install
+      - run:
+          name: 'Check the ASN.1 syntax'
+          command: ./scripts/check-asn.sh
+      - run:
+          name: 'Generate graphs for specs'
+          command: node scripts/generate_graphs.js
+      - run:
+          name: 'Generate specs for website'
+          command: node scripts/generate_web.js
+      - persist_to_workspace:
+          root: ~/repo
+          paths: .
+
+  deployment:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: 'Set git identity'
+          command: |
+            git config --global user.email "info@circleci.com"
+            git config --global user.name "CircleCI"
+            git config --global push.default simple
+      - run:
+          name: Add Github.com Keys to known_hosts
+          command: |
+            mkdir -p ~/.ssh
+            ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+      - run:
+          name: 'Publish spec'
+          command: node scripts/publish_web.js
+
+workflows:
+  version: 2
+  test-deploy:
+    jobs:
+      - test:
+          filters:
+            branches:
+              ignore:
+                - gh-pages
+      - deployment:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - master
