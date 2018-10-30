@@ -38,7 +38,9 @@ jobs:
             git config --global push.default simple
       - run:
           name: Add Github.com Keys to known_hosts
-          command: ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+          command: |
+            mkdir -p ~/.ssh
+            ssh-keyscan -H github.com >> ~/.ssh/known_hosts
       - run:
           name: 'Publish spec'
           command: node scripts/publish_web.js
