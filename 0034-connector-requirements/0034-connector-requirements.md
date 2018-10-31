@@ -64,7 +64,7 @@ To correctly route responses, an ILP node must ensure it persists the state of a
 
 If the packet expires before a response is received from the outgoing link then the connecter MUST send an ILP Reject packet as the response on the incoming link. Response packets that are received after the request has expired can be discarded.
 
-The link protocol used to communicate with peers MUST allow the node to match requests and responses such that when a response (ILP Fulfill or ILP Reject) is received from an outgoing link it can be matched to the original.
+The link protocol (e.g. [BTP](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md)) used to communicate with peers MUST allow the node to match requests and responses such that when a response (ILP Fulfill or ILP Reject) is received from an outgoing link it can be matched to the original.
 
 ## ILP Addresses
 
