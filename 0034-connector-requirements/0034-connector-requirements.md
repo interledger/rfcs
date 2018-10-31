@@ -118,6 +118,7 @@ Routing data updates, IL-DCP and other peer-to-peer protocols use ILP packets wh
 
 A node MUST run either in a test network or on the live network but never on both. If a node is running on the test network it MUST reject all packets in the global address-space, `g.*`. Likewise, if node is running on the live netw    ork it MUST reject any packets with addresses in the `test.*`, `test1.*`, `test2.*`, or `test3.*` address-spaces.
 
+There are some more special addresses, refer to [ILP Addresses - v2.0.0](https://github.com/interledger/rfcs/blob/master/0015-ilp-addresses/0015-ilp-addresses.md).
 ## Settlement
 
 When a node routes a packet it is accepting an offer, from the requesting peer, to pay for proof-of-delivery of that packet. When it returns a valid response to the requesting peer (an ILP Fulfill packet with the correct fulfillment) before the expiry of the request, this creates an obligation between the peers. The requesting peer now owes the forwarding peer the amount specified in the request packet.
