@@ -4,7 +4,7 @@ Contributions to the Interledger RFC repo follow the following document publishi
 
 ## Background
 
-The work of the Interledger community is being done under the framework of a W3C Community Group and is therefor guided by the [processes](https://www.w3.org/community/about/agreements/) laid out by the W3C for these groups.
+The work of the Interledger community is being done under the framework of a W3C Community Group and is therefore guided by the [processes](https://www.w3.org/community/about/agreements/) laid out by the W3C for these groups.
 
 Also influencing this process is the well-established and popular IETF RFC process. 
 
