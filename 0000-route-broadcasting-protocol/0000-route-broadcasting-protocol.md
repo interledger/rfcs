@@ -104,7 +104,7 @@ In this case, the parent node already knows the address of the child node, so th
 
 On the other hand, in a `Peer` to `Peer` relation, the two nodes have different addresses respectively, and the further connected addresses are unclear. So in this case, it is generally helpful to configure to exchange routing information each other.
 
-Conclusively, the following is the general configuration of nodes depending on the relations.
+Conclusively, the following is the default configuration of nodes depending on the relations.
 - `Peer` to `Peer`
   - Configured to exchange routing information.
   - Does send route control requests and route update requests that are explained later in the [Requests](#requests) section.
@@ -114,7 +114,7 @@ Conclusively, the following is the general configuration of nodes depending on t
   - That said, the nodes MAY be configured to exchange routing information for some specific situations.
 
 ### Node Finite State Machine (FSM)
-A node is kind of an FSM that has a status of either:
+Each node consists of state machines which track states for each routing counterpart node:
 
 - IDLE
   - Does **NOT** send routing information to the counterpart node.
