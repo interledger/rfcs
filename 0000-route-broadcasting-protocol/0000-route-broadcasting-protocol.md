@@ -189,7 +189,7 @@ Route control is done in the following procedure:
   - The `code` of the ILP packet is arbitrary, depending on the situation
   - The `message` of the ILP packet is arbitrary, depending on the situation
   - The `triggeredBy` of the ILP packet is the ILP address of the node where the error occuered
-  - The `data` of the ILP packet is empty (size: 0)
+  - The `data` of the ILP packet is empty (size: 0), if included, it MAY be ignored
 
 ### Route Update
 #### Procedure
@@ -217,7 +217,7 @@ Route Update is done in the following procedure:
   - The `code` of the ILP packet is arbitrary, depending on the situation
   - The `message` of the ILP packet is arbitrary, depending on the situation
   - The `triggeredBy` of the ILP packet is the ILP address of the node where the error occuered
-  - The `data` of the ILP packet is empty (size: 0)
+  - The `data` of the ILP packet is empty (size: 0), if included, it MAY be ignored
 
 ### ASN.1 Definition
 The ASN.1 definition of ILP packets is described in [InterledgerProtocol.asn](../asn1/InterledgerProtocol.asn) and Route Broadcasting Protocol data is in [RouteBroadcastingProtocol.asn](./RouteBroadcastingProtocol.asn).
