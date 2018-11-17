@@ -1,136 +1,180 @@
 ---
 title: Interledger Architecture
-draft: 4
+draft: 5
 ---
 # Interledger Architecture
 
 Interledger provides for secure payments across multiple assets on different ledgers. The architecture consists of a conceptual model for interledger payments, a mechanism for securing payments, and a suite of protocols that implement this design.
 
-The [Interledger Protocol (ILP)](#interledger-layer) is the core of the Interledger protocol suite.
+The [Interledger Protocol (ILP)](#interledger-layer) is the core of the Interledger protocol suite. Colloquially, the whole Interledger stack is sometimes referred to as "ILP". Technically, however, the Interledger Protocol is only one layer in the stack.
 
-Colloquially, the whole Interledger stack is sometimes referred to as "ILP". Technically, however, the Interledger Protocol is only one layer in the stack.
+Interledger is not a blockchain, a token, nor a central service. Interledger is a standard way of bridging financial systems. The Interledger architecture is heavily inspired by the Internet architecture described in [RFC 1122](https://tools.ietf.org/html/rfc1122), [RFC 1123](https://tools.ietf.org/html/rfc1123) and [RFC 1009](https://tools.ietf.org/html/rfc1009).
 
-The Interledger architecture is heavily inspired by the Internet architecture described in [RFC 1122](https://tools.ietf.org/html/rfc1122), [RFC 1123](https://tools.ietf.org/html/rfc1123) and [RFC 1009](https://tools.ietf.org/html/rfc1009).
-
-## Interledger Model
-
-![Interledger Model: Sender, Connectors, Receiver](../shared/graphs/interledger-model.svg)
-
-### Connectors
-
-A *connector* is a system that provides the service of forwarding Interledger packets towards the destination provided in the packet. Packets are forwarded across connections (called *accounts*) between senders, connectors and receivers.
-
-Interledger packets describe amounts of money, which may be settled individually or in aggregate through various kinds of external payment systems collectively referred to as *ledgers*. Ledgers can include blockchains, but also banks, peer-to-peer payment schemes, automated clearing house (ACH), mobile money institutions and even central-bank operated real-time gross settlement (RTGS) systems among many other types. Some ledgers support very efficient settlement, while others support only slower forms. In general, the faster and cheaper the ledger, the more often an account is settled. See [IL-RFC 22](../0022-hashed-timelock-agreements/0022-hashed-timelock-agreements.md) for more information on different ledger types and settlement strategies. Settlement does not occur between the sender and receiver directly. Each connector settles only with its direct neighbors.
-
-Connectors may generate revenue from Interledger payments by reducing the amount on each packet slightly before forwarding. Connectors may also convert an incoming packet denominated in one currency or asset type to an outgoing packet denominated in another currency or asset type.
-
-Connectors accept some risk, which they must consider when deciding their business model. See [IL-RFC 18](../0018-connector-risk-mitigations/0018-connector-risk-mitigations.md) for more details on the risks and their mitigations.
-
-A single Interledger packet may traverse any number of connectors on its way to the destination. For efficiency reasons, each connector seeks to forward the packet on the shortest known path to the destination. See [IL-RFC 10](../0010-connector-to-connector-protocol/0010-connector-to-connector-protocol.md) for more information on routing in Interledger.
-
-### Senders
-
-A *sender* is a system which sends Interledger packets in order to:
-
-1. Transfer value from itself to a receiver or
-2. Exchange value from one type to another.
-
-When transferring value, the sender will first request payment details from the receiver, including the receiver's ILP address. Once it has those details, it will start sending Interledger packets using this ILP address as the destination. A large payment may be split into many smaller pieces and reassembled by the receiver. For more information on the overall payment process, see the section [Interledger Protocol Suite](#interledger-protocol-suite).
-
-A sender may also exchange assets by acting as both sender and receiver. In this case, it would send one asset and receive another, effectively exchanging one for the other.
-
-Senders typically choose a connector and send all their traffic through this connector. If they are at any point dissatisfied with their connector, they may switch to a different one. Sophisticated senders may operate a connector of their own and maintain relationships with multiple connectors to minimize costs and maximize availability.
-
-### Receivers
-
-A *receiver* is a system which accepts incoming Interledger packets and provides a cryptographic receipt for each packet which is returned to the sender along the same path. For more information on the cryptographic exchange, see [Payment Flow](#payment-flow).
-
-**Interledger ensures that senders' funds are safe throughout a multi-hop payment and cannot be stolen by faulty or malicious intermediaries (see [Interledger Security](#interledger-security)).**
+## Core Concepts
 
 ### The Interledger
 
-The "Interledger protocol suite" can be used among any network of peered connectors, be it public or private. There is no single network that all parties must connect to to use these protocols.
+The "Interledger protocol suite" can be used among any network of participants, public or private. There is no single network that all parties must connect to to use these protocols.
 
-"The Interledger" is the name of a public instance of the Interledger protocol suite which seeks to provide a coherent global financial infrastructure. Ideally, anyone connected to the Interledger should be able to transact with anyone else, each using their currency and connector of choice.
+"The Interledger" is the name of a public instance of the Interledger protocol suite which seeks to provide a coherent global financial infrastructure. Ideally, anyone connected to the Interledger should be able to transact with anyone else, each using the underlying systems and currencies of their choice.
+
+### Sender, Receiver, Connectors
+
+When two parties want to do business online, the one who sends money is the _sender_ and the one who gets money is the _receiver_. If the sender and the receiver don't have some monetary system in common, they need one or more parties to connect them. In the Interledger architecture, _connectors_ forward money through the network until it reaches the receiver.
+
+![Diagram showing Sender linked to two Connectors and a Receiver in a line](../shared/graphs/interledger-model.svg)
+
+Within these specifications, we use _node_ as a general term for any participant in the Interledger. A node may be a sender, a receiver, or a connector. The node may represent a person or business, or perhaps a single device or software program. In the case where a node represents a device or software program, the node is usually connected to another node that represents the device's owner or the person running the software.
+
+You can envision the Interledger as a graph where the points are individual nodes and the edges are _accounts_ between two parties. Parties with only one account can send or receive through the party on the other side of that account. Parties with two or more accounts are _connectors_, who can facilitate payments to or from anyone they're connected to.
+
+Connectors provide a service of forwarding packets and relaying money, and they take on some risk when they do so. In exchange, connectors can charge fees and derive a profit from these services. In the open network of the Interledger, connectors are expected to compete among one another to offer the best balance of speed, reliability, coverage, and cost.
+
+### Protocol Layers
+
+![Diagram of protocol suite: Application layer protocols like SPSP provide messaging, on top of Transport protocols like STREAM, which are on top of the Interledger Protocol ILPv4; the Link layer establishes secure communications between peers; below that, the Settlement layer is dependent on a variety of different ledgers and their native protocols.](../shared/graphs/protocol-suite.svg)
+
+Like the Internet protocol stack that inspired it, the Interledger protocol suite is divided into layers of protocols with different responsibilities. Lower-level protocols provide basic functionality that higher-level protocols depend on to provide more complex functionality.
+
+> **Aside:** Not pictured in the diagram are configuration protocols including [IL-RFC-31: Interledger Dynamic Configuration Protocol](../0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md) and **Route Broadcasting Protocol**. These protocols are built on top of the Interledger Protocol layer and support it, but are not considered to be transport or application-layer protocols.
+
+<!-- TODO: Add a link to [RBP](https://github.com/interledger/rfcs/pull/455)'s final location. -->
+
+The following sections describe the general functions of each layer in the protocol suite. For an alternate explanation with detailed depictions of the protocols' data formats, see [IL-RFC-33: Relationship Between Protocols](../0033-relationship-between-protocols/0033-relationship-between-protocols.md).
+
+#### Ledger Protocols
+
+The Interledger protocol suite sits atop a level which we call "ledger protocols". This level represents the existing money systems that Interledger connects. Even though they are not strictly part of the Interledger protocol suite, they are an indispensable part of the Interledger model.
+
+As payments flow between two nodes using the Interledger protocol, their obligations increase and occasionally offset one another. Before the outstanding balance reaches the limit of what the nodes are willing to sustain, they need to _settle_ those balances in some money system they have in common.
+
+For purposes of Interledger, we call all settlement systems _ledgers_. These can include banks, blockchains, peer-to-peer payment schemes, automated clearing house (ACH), mobile money institutions, central-bank operated real-time gross settlement (RTGS) systems, and even more.
+
+Thus, before doing business using Interledger, each pair of participants must choose a way to settle their obligations, and establish limits for how much money they are willing to be owed for how much time before settling. The details of this agreement do not matter to the rest of Interledger as long they hold to one rule:
+
+**Settlement for one account MUST NOT depend on the status of any other accounts.**
+
+If settlement of one account in the Interledger is contingent on the status of another account or relationship, this could create the threat of cascading risks and failures, similar to problems that occurred during the 2008 global financial crisis. Nodes can protect themselves from such risks by choosing to use settlement technologies such as collateralized payment channels where available. These types of arrangements can provide high-speed settlement without a risk that the other side may not pay. For more information on different ledger types and settlement strategies, see [IL-RFC-22: Hashed Timelock Agreements](../0022-hashed-timelock-agreements/0022-hashed-timelock-agreements.md).
+
+Nodes can also choose never to settle their obligations. This configuration may be useful when several nodes representing different pieces of software or devices are all owned by the same person or business, and all their traffic with the outside world goes through a single "home router" connector. This is the model of [moneyd](https://github.com/interledgerjs/moneyd), one of the current implementations of Interledger.
+
+Most implementations of Interledger use a plugin architecture to settle obligations automatically while abstracting the differences between different ledger layer protocols. For an example of this, see [IL-RFC-24: JavaScript Ledger Plugin Interface version 2](../0024-ledger-plugin-interface-2/0024-ledger-plugin-interface-2.md).
+
+
+#### Link Protocols
+
+Peers in the Interledger Protocol require a way to communicate securely with one another. Since most existing ledgers do not implement two-way authenticated communication between account holders, we need Link protocols to provide this functionality. Link protocols generally convey two types of information:
+
+- Packets of Interledger Protocol data.
+- Information on the settling of outstanding balances.
+
+[IL-RFC-23: Bilateral Transfer Protocol](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md) defines a link-layer protocol that communicates this information over [WebSocket](https://tools.ietf.org/html/rfc6455) and is compatible with a wide range of underlying ledgers.
+
+The implementation of a Link protocol may be incorporated into a ledger plugin, since the Link protocol has to communicate settlements that occur in the underlying ledger.
+
+
+#### Interledger Protocol
+
+The Interledger Protocol version 4 (ILPv4) is the core protocol of the entire Interledger Protocol suite. This protocol's packets pass through all participants in the chain: from the sender, through one or more connectors, to the receiver. This protocol is compatible with any variety of currencies and underlying ledger systems.
+
+This level is concerned with currency amounts, routing, and whether each step in a payment arrives in time or expires. This protocol finds a path to connect a sender and receiver using any number of intermediaries. The packets that are relayed across this path contain a cryptographic _condition_ whose _fulfillment_ is only known to the recipient (and possibly the sender). If everything goes well and the receiver wants the funds, the receiver provides the fulfillment, which triggers the funds to move at each account in the path. In this way, the fulfillment proves that the money was delivered to the intended recipient.
+
+This layer abstracts the layers above and below it from one another, so there can be only one protocol at this layer. Other protocols, including older versions of the Interledger Protocol, are incompatible. The current protocol is defined by [IL-RFC-27: Interledger Protocol version 4](../0027-interledger-protocol-4/0027-interledger-protocol-4.md).
+
+
+#### Transport Protocols
+
+Transport layer protocols are used for **end-to-end communication** between sender and receiver; connectors are not expected to be involved. This layer is responsible for:
+
+- Defining the condition and fulfillment that are used on the Interledger Protocol layer
+- Grouping and retrying packets to achieve a desired outcome
+- Determining the effective exchange rate of a payment
+- Adapting to the speed at which packets can be sent, for what amounts
+- Encrypting and decrypting data
+
+For an example, see the STREAM protocol, defined by [IL-RFC-29: STREAM](../0029-stream/0029-stream.md). STREAM creates a bidirectional connection between a sender and receiver that consists of many individual Interledger packets.
+
+
+#### Application Protocols
+
+Protocols at the application level communicate details outside of the minimum information that is technically necessary to complete a payment. For example, application protocols may check that participants are interested in conducting a transaction and are legally allowed to do so.
+
+Protocols on this layer are responsible for:
+
+1. Destination account discovery ("Where should the money be sent, exactly?")
+2. Destination amount negotiation ("Is it OK if this much arrives after fees and exchange rates?")
+3. Transport protocol selection and communication of associated details ("Are we using STREAM? What shared secret should we use?")
+4. Optionally, any other information that should be communicated in ILP packet data. ("Use this invoice identifier to credit the payment to your video subscription.")
+
+An example of an application layer protocol is the [Simple Payment Setup Protocol (SPSP)](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md), which communicates the destination ILP address and related details over HTTPS, and uses STREAM as the transport layer protocol.
+
+Many different messaging protocols can be defined on and above the Application level of the Interledger clearing system.
+
+
+#### Comparison to Traditional Financial Infrastructure
+
+The layers of Interledger are similar to the different layers of traditional inter-bank systems:
+
+- Interledger's _Application_ layer serves a similar purpose as _messaging_ in banking terms.
+- Interledger's _Transport_ and _Interledger_ layers combined are similar to a _clearing_ system in banking, though there are some differences. (For more details, see [IL-RFC-32: Peering, Clearing, and Settling](../0032-peering-clearing-settlement/0032-peering-clearing-settlement.md).)
+- Interledger's _Link protocols_ don't have a direct banking equivalent, but they provide authenticated messaging to enable the Interledger Protocol layer, and they also associate settlement events in the underlying ledgers to balances in the Interledger Protocol layer.
+- The underlying _Ledger_ systems are equivalent of _settlement_ in banking terms.
+
+
+### Interledger Protocol Flow
+
+Interledger moves money by relaying _packets_. In the Interledger Protocol, a "prepare" packet represents a possible movement of some money and comes with a condition for releasing it. As the packet moves forward through the chain of connectors, the sender and connectors prepare balance changes for the accounts between them. The connectors also adjust the amount for any currency conversions and fees subtracted.
+
+When the prepare packet arrives at the receiver, if the amount of money to be received is acceptable, the receiver fulfills the condition with a "fulfill" packet that confirms the balance change in the account between the last connector and the receiver. Connectors pass the "fulfill" packet back up the chain, confirming the planned balance changes along the way, until the sender's money has been paid to the first connector.
+
+![Diagram: a prepare packet flows forward from Sender to Connector, to another Connector, to Receiver. A fulfill packet flows backward from Receiver to the second Connector, to the first Connector, to the Sender.](../shared/graphs/packet-flow-happy.svg)
+
+At any step along the way, a connector or the receiver can reject the payment, sending a "reject" packet back up the chain. This can happen if the receiver doesn't want the money, or a connector can't forward it. A prepared payment can also expire without the condition being fulfilled. In all these cases, no balances change.
+
+![Diagram: a prepare packet flows forward from Sender to Connector, to another Connector, who rejects it. A reject packet flows backward from the second Connector to the first Connector, then to the Sender.](../shared/graphs/packet-flow-reject.svg)
+
+The flow is specified in detail in [IL-RFC-27: Interledger Protocol version 4](../0027-interledger-protocol-4/0027-interledger-protocol-4.md).
+
+#### Packetized Money
+
+A packet does not have to represent the full amount of a real-world payment. _Transport protocols_ built on top of the Interledger Protocol can combine many small-value packets into a single large-value payment, rejecting and retrying individual packets as necessary to achieve the desired outcome. Using small packets (in terms of the amount of money represented, not the data size) in this way has several benefits for the network:
+
+- Small packets reduce the "free option problem" where senders can lock up connectors' funds, then either take the promised deal or not depending on whether exchange rates move in their favor.
+- Small packets involve small connectors (those with less funds available) in more transactions, and lower the barrier to entry for operating a connector, since moving less than the full amount of a payment can still be useful.
+- Small packets let participants settle their balances more often, so that the outstanding balance between two participants can remain low even when sending large payments.
+
+The Interledger Protocol does not have a specific definition of "small", nor a size limit on packets. Each connector can choose minimum and maximum packet sizes they are willing to relay; as a result, any path's maximum packet size is the smallest maximum packet size among the connectors in that path. To be compatible with as much of the network as possible, one should choose packet sizes that fit between the minimum and maximum values of as many connectors as possible.
+
+
+### Addresses
+
+_Interledger addresses_ (also called _ILP addresses_) provide a universal way to address senders, receivers and connectors. These addresses are used in several different protocol layers, but their most important feature is to enable routing on the Interleder Protocol layer. Interledger addresses are hierarchical, dot-separated strings where the left-most segment is most significant. An example address might look like:
+`g.us.acmebank.acmecorp.sales.199` or `g.crypto.bitcoin.1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2`.
+
+For more information on the format of ILP addresses and how they apply to routing, see [IL-RFC-15: ILP Addresses](../0015-ilp-addresses/0015-ilp-addresses.md).
+
+If two parties in the Interledger have a "parent/child" connection rather than a peer-to-peer connection, the child can request an Interledger address that is under the parent's address in the hierarchy. For more information, see [IL-RFC-31: Interledger Dynamic Configuration Protocol (ILDCP)](0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md).
 
 ## Interledger Security
 
 **Interledger uses *conditional transfers* to secure payments across multiple hops and even through untrusted connectors.** Everyone only needs to trust their direct peers, no matter how many connectors are involved in forwarding a given packet. Connectors take some risk, but this risk can be managed and is primarily based upon the connector's chosen peers.
 
-<span class="show alert alert-info">**Hint:** Conditional transfers or *authorization holds* are the financial equivalent of a [two-phase commit](http://foldoc.org/two-phase%20commit).</span>
+> **Hint:** Conditional transfers or *authorization holds* are the financial equivalent of a [two-phase commit](http://foldoc.org/two-phase%20commit).
 
-### Interledger Protocol Flow
+Because each party is isolated from risks beyond their immediate peers, longer paths are not inherently more risky than shorter paths. This enables longer paths to compete with shorter paths to convey money from any given sender to any given receiver, while reducing the risk to the sender.
 
-The sender first sends an Interledger `prepare` packet. Each connector may either forward the `prepare` packet, or, in the case of an error, return a `reject` packet. If the `prepare` packet reaches the receiver, they may respond with either a `fulfill` or `reject` packet, depending on whether they wish to accept the Interledger payment. In either case, the resulting packet is passed along the same path back to the sender.
+The original Interledger whitepaper presented an _atomic mode_ with a stronger guarantee of atomicity, but implementing atomic mode requires extra agreements that cannot be generalized to an open network. The specifications in the Interledger protocol suite are concerned with what the whitepaper calls _universal mode_.
 
- Each `prepare` packet contains a *cryptographic condition* and *timeout*. If a connector receives and forwards the `fulfill` packet before the timeout, the `prepare` packet is considered fulfilled, creating an obligation for the peer that sent the packet to settle with the connector. If the timeout is reached before the `fulfill` packet is received, the connector will consider the `prepare` packet expired and no obligation is created.
+### Conditions and Fulfillments
 
-Inspired by the [Lightning Network](http://lightning.network), Interledger uses the digest of the [SHA-256](https://en.wikipedia.org/wiki/SHA-2) hash function as the condition for `prepare` packets. The `fulfill` packet contains a valid 32-byte preimage for the hash specified in the `prepare` packet. Connectors are responsible for validating fulfillments. [Transport Layer](#transport-layer) protocols are used by the sender and receiver to generate the condition for a particular packet.
+Interledger uses the digest of the [SHA-256](https://en.wikipedia.org/wiki/SHA-2) hash function as the condition for prepare packets. (This choice was inspired by the design of the [Lightning Network](http://lightning.network).) The fulfill packet contains a valid 32-byte preimage for the hash specified in the prepare packet. Connectors are responsible for validating fulfillments in the Interledger Protocol layer.
 
-Settlement may either be based solely on trust between the connector and its peers, or be supported with functionality on the settlement ledger.
-
-As the `prepare` packet makes its way to the receiver, connectors only reserve the appropriate amount of funds, they do not settle it yet. No obligation is agreed yet between the peers, so none can be lost if a connector fails or attempts to redirect the packet.
-
-When the *receiver* receives the `prepare` packet, they return the `fulfill` packet to claim their funds. Each connector uses the same `fulfill` packet to claim their funds respectively from the party (sender or connector) that sent them the `prepare` packet.
-
-When forwarding a `prepare` packet from the sender-side account to the receiver-side account, each connector will reduce the timeout by a fixed amount. This provides a fixed time window to pass back the `fulfill` packet from the receiver-side account to the sender-side account later. A connector must have a fair chance to pass the `fulfill` packet back before the timeout on the sender-side account is reached, even if the `prepare` packet was received on the receiver-side account at the last possible moment. Otherwise, it would be obligated to pay out on the receiver-side account with no obligation on their counterparty on the sender-side account to pay them back.
-
-For more details on the flow, see the [ILPv4 specification](../0027-interledger-protocol-4/0027-interledger-protocol-4.md).
-
-<span class="show alert alert-info">**Note:** Interledger only supports Universal mode as described in the whitepaper. Atomic mode can be used by adjacent subsets of participants in an Interledger payment if desired, but this is not part of the standard.</span>
+The sender and receiver for a payment define the condition and fulfillment for each packet using a [Transport Layer](#transport-layer) protocol.
 
 ### Connector Risk and Mitigation
 
 Interledger connectors accept some risk in exchange for the revenue they generate from facilitating payments. In the Interledger payment flow, connectors incur outgoing obligations on the receiver-side account, before they become entitled to incoming obligations on the sender-side account. After each connector receives a `fulfill` packet, they have a window of time to deliver the `fulfill` packet to their counterparty on the sender-side account. Connectors that fail to deliver the `fulfill` packet in time may lose money.
 
-If some connectors in the path of an Interledger packet receive the `fulfill` packet in time and others don't, the receiver will know the packet was received but the sender will not know. Usually, a single Interledger packet is part of a larger transaction or payment stream, so the sender may find out what happened when they receive the response for the next packet. Senders MAY also retry packets that expire. The exact behavior of senders and receivers with respect to retries is defined by the transport layer. For an example, see [IL-RFC 29](../0029-stream/0029-stream.md) for a description of the STREAM transport layer protocol.
+If some connectors in the path of an Interledger packet receive the `fulfill` packet in time and others don't, the receiver will know the packet was received but the sender will not know. Usually, a single Interledger packet is part of a larger transaction or payment stream, so the sender may find out what happened when they receive the response for the next packet. Senders MAY also retry packets that expire. The exact behavior of senders and receivers with respect to retries is defined by the transport layer. For an example, see [IL-RFC-29: STREAM](../0029-stream/0029-stream.md) for a description of the STREAM transport layer protocol.
 
-Failing to deliver the `fulfill` packet in time is the main risk connectors face and there are a number of additional strategies connectors should employ to mitigate and manage this risk. For more details, see [IL-RFC 18](../0018-connector-risk-mitigations/0018-connector-risk-mitigations.md).
-
-
-## Interledger Protocol Suite
-
-The Interledger stack is separated into four layers:
-
-![Interledger Protocol Suite](../shared/graphs/protocol-suite.svg)
-
-### Application Layer
-
-The application layer is the top layer of the Interledger protocol suite. Protocols on this layer are responsible for:
-
-1. Destination account discovery
-2. Destination amount negotiation
-3. Transport protocol selection and communication of associated details, such as the shared secret or condition
-4. Additional details to be communicated in ILP packet data
-
-An example of an application layer protocol is the [Simple Payment Setup Protocol (SPSP)](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md).
-SPSP uses Webfinger ([RFC 7033](https://tools.ietf.org/html/rfc7033)), an HTTPS-based protocol for communicating the destination ILP address and related details, and uses STREAM as the transport layer protocol.
-
-### Transport Layer
-
-Transport layer protocols are end-to-end protocols used by the senders and receivers of Interledger payments to determine the payment condition and other details. The guarantees afforded to the sender vary depending on the type of transport protocol used.
-
-There is currently one transport layer protocol:
-
-* [STREAM](../0029-stream/0029-stream.md) 
-
-    In the STREAM protocol, the sender and receiver use a shared secret to generate the payment condition, authenticate the ILP packet, and encrypt the application data. Using STREAM, the sender is guaranteed that fulfillment of their transfer indicates the receiver got the payment, provided that no one aside from the sender and receiver have the secret and the sender did not submit the fulfillment. In addition, STREAM is a multiplexed ILP transport protocol that provides a full-duplex communication channel for money and data between endpoints. It also automatically determines how much money and data can be sent in each ILP packet. 
-
-### Interledger Layer
-
-The Interledger layer is responsible for forwarding Interledger packets between the sender and receiver. There is only one protocol on this layer: the Interledger Protocol v4 (ILPv4).
-
-The [Interledger Protocol v4 (ILPv4)](../0027-interledger-protocol-4/0027-interledger-protocol-4.md) is the core of the Interledger stack and defines standard address and packet formats that instruct connectors where to forward a packet. It also defines the [protocol flow](#interledger-protocol-flow) described above.
-
-[Interledger Addresses](../0015-ilp-addresses/0015-ilp-addresses.md) provide a universal way to address senders, receivers and connectors. Interledger addresses are hierarchical, dot-separated strings where the left-most segment is most significant. An example address might look like:
-`g.us.acmebank.acmecorp.sales.199` or `g.crypto.bitcoin.1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2`.
-
-When initiating an Interledger payment, the sender sends an ILP `prepare` packet to the connector. The packet is a binary message that includes the destination account, amount, condition, timeout, and transport-layer data for the receiver. The packet is relayed by connectors.
-
-### Ledger Layer
-
-In order to move packets from one party (sender, receiver or connector) to another, the parties need a facility for data transmission and, optionally, money transmission for settlement. These facilities may be provided by different protocols belonging to the so-called ledger layer. Which protocol is used between two parties is up to those parties to choose.
-
-See [IL-RFC 17](../0017-ledger-requirements/0017-ledger-requirements.md) for a full description of the ledger layer requirements.
-
-Most implementations of Interledger use a plugin architecture to abstract the differences between different ledger layer protocols. For an example of this, see [IL-RFC 24](../0024-ledger-plugin-interface-2/0024-ledger-plugin-interface-2.md), which defines the interface for the Javascript implementation.
+Failing to deliver the `fulfill` packet in time is the main risk connectors face and there are a number of additional strategies connectors should employ to mitigate and manage this risk. For more details, see [IL-RFC-18: Connector Risk Mitigations](../0018-connector-risk-mitigations/0018-connector-risk-mitigations.md).

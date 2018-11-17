@@ -1,6 +1,6 @@
 ---
 title: Bilateral Transfer Protocol 2.0 (BTP/2.0)
-draft: 7
+draft: 8
 ---
 # Bilateral Transfer Protocol 2.0 (BTP/2.0)
 
@@ -70,7 +70,8 @@ state, the other party must trust them not to tamper with it.
 ## Overview
 
 BTP is broken up into one different RPC requests, which can get two different
-responses. Every BTP packet follows a common structure:
+responses. The following is a common BTP packet structure, though some types
+don't have `Packet Specific Data` section:
 
 ```
   +---------------+
@@ -115,7 +116,7 @@ be taken so that duplicate IDs are never in-flight at the same time.
 combined length of the packet-specific data and protocol data sections.
 
 4. **Packet-Specific Data:** Fields specific to the type of BTP packet. Variable
-length.
+length. Some types don't have this section. See [ASN.1 definitions](../asn1/BilateralTransferProtocol.asn) for details.
 
 5. **Sub-Protocol Count:** Variable-length integer containing the number of
 sub-protocols carried by this packet.

@@ -2,11 +2,13 @@
 
 Contributions to the Interledger RFC repo follow the following document publishing process.
 
+Contributions are subject to the [CC-BY-SA 4.0 license](LICENSE).
+
 ## Background
 
-The work of the Interledger community is being done under the framework of a W3C Community Group and is therefor guided by the [processes](https://www.w3.org/community/about/agreements/) laid out by the W3C for these groups.
+The work of the Interledger community is being done under the framework of a W3C Community Group and is therefore guided by the [processes](https://www.w3.org/community/about/agreements/) laid out by the W3C for these groups.
 
-Also influencing this process is the well-established and popular IETF RFC process. 
+Also influencing this process is the well-established and popular IETF RFC process.
 
 ## Process
 
@@ -31,7 +33,7 @@ Lorum Ipsum etc
 
 2. One of the project maintainers will review the submission and assign an RFC number to the document, making a follow up commit to the PR which renames the file and folder as appropriate.
 
-3. Subsequent updates to the document will trigger a publishing workflow that creates an HTML rendered version of the document that contains a permalink to the draft. Each revision must increment the `draft` number in the front-matter or the publishing will fail. 
+3. Subsequent updates to the document will trigger a publishing workflow that creates an HTML rendered version of the document that contains a permalink to the draft. Each revision must increment the `draft` number in the front-matter or the publishing will fail.
 
 4. These Interledger RFCs are living documents that start as Working Drafts and are iterated on until they are considered stable.
 

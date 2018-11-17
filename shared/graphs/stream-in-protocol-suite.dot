@@ -5,30 +5,47 @@ graph G {
   app [label="Application\l" shape="plaintext" width=1.5]
   transport [label="Transport\l" shape="plaintext" width=1.5]
   interledger [label="Interledger\l" shape="plaintext" width=1.5]
+  link [label="Link\l" shape="plaintext" width=1.5]
   ledger [label="Ledger\l" shape="plaintext" width=1.5]
 
   subgraph cluster_0 {
     style=filled;
     color=lightgrey;
     node [style=filled,color=white];
+
     app1 [label=SPSP];
+    app2 [label="..."]
     tr1 [label=STREAM, color=lightblue];
-    tr2 [label=PSK2];
-    tr3 [label=IPR];
+    tr2 [label="..."];
     im1 [label="ILPv4"];
-    lli1 [label="BTP"];
-    lli2 [label="..."];
+    link1 [label="BTP"];
+    link2 [label="..."];
     app1 -- tr1;
-    tr2 -- im1;
+    app2 -- tr1;
     tr1 -- im1;
-    tr3 -- im1;
-    im1 -- lli1;
-    im1 -- lli2;
+    tr2 -- im1;
+    im1 -- link1;
+    im1 -- link2;
+
     fontname = "helvetica";
   }
 
-  { rank=same; app app1 }
-  { rank=same; transport tr1 tr2 tr3 }
+  subgraph cluster_1 {
+    style=filled;
+    color=white;
+
+    ledger1 [label="..."]
+    ledger3 [label="..."]
+
+    fontname = "helvetica";
+  }
+  link1 -- ledger1;
+  link2 -- ledger3;
+
+
+  { rank=same; app app1 app2 }
+  { rank=same; transport tr1 tr2 }
   { rank=same; interledger im1 }
-  { rank=same; ledger lli1 lli2 }
+  { rank=same; link link1 link2 }
+  { rank=same; ledger ledger1 ledger3 }
 }

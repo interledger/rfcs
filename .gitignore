@@ -7,3 +7,7 @@
 # Ignore ASNLab IDE files
 /.project
 /.buildpath
+
+# Ignore macOS file
+.DS_Store
+
