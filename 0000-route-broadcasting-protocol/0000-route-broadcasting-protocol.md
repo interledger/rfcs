@@ -180,16 +180,19 @@ Route control is done in the following procedure:
   - The `executionCondition` of the ILP packet is `Zmh6rfhivXdsj8GLjp+OIAiXFIVu4jOzkCpZHQ1fKSU=` in Base64 format
   - The `destination` address of the ILP packet is `peer.route.control`
   - The `data` of the ILP packet is described at `RouteControlRequestData` in [ASN.1 definition](#asn1-definition)
+    - If any extra data is included, it SHOULD be ignored for compatibility
 - Response
   - The `type` of the ILP packet is `ILP Fulfill` (type id: 13)
   - The `fulfillment` of the ILP packet is 32byte octet string all filled with zeros
   - The `data` of the ILP packet is empty (size: 0)
+    - If included, it SHOULD be ignored for compatibility
 - Error
   - The `type` of the ILP packet is `ILP Reject` (type id: 14)
   - The `code` of the ILP packet is arbitrary, depending on the situation
   - The `message` of the ILP packet is arbitrary, depending on the situation
   - The `triggeredBy` of the ILP packet is the ILP address of the node where the error occuered
-  - The `data` of the ILP packet is empty (size: 0), if included, it MAY be ignored
+  - The `data` of the ILP packet is empty (size: 0)
+    - If included, it SHOULD be ignored for compatibility
 
 ### Route Update
 #### Procedure
@@ -208,16 +211,19 @@ Route Update is done in the following procedure:
   - The `executionCondition` of the ILP packet is `Zmh6rfhivXdsj8GLjp+OIAiXFIVu4jOzkCpZHQ1fKSU=` in Base64 format
   - The `destination` address of the ILP packet is `peer.route.update`
   - The `data` of the ILP packet is described at `RouteUpdateRequestData` in [ASN.1 definition](#asn1-definition)
+    - If any extra data is included, it SHOULD be ignored for compatibility
 - Response
   - The `type` of the ILP packet is `ILP Fulfill` (type id: 13)
   - The `fulfillment` of the ILP packet is 32byte octet string all filled with zeros
   - The `data` of the ILP packet is empty (size: 0)
+    - If included, it SHOULD be ignored for compatibility
 - Error
   - The `type` of the ILP packet is `ILP Reject` (type id: 14)
   - The `code` of the ILP packet is arbitrary, depending on the situation
   - The `message` of the ILP packet is arbitrary, depending on the situation
   - The `triggeredBy` of the ILP packet is the ILP address of the node where the error occuered
-  - The `data` of the ILP packet is empty (size: 0), if included, it MAY be ignored
+  - The `data` of the ILP packet is empty (size: 0)
+    - If included, it SHOULD be ignored for compatibility
 
 ### ASN.1 Definition
 The ASN.1 definition of ILP packets is described in [InterledgerProtocol.asn](../asn1/InterledgerProtocol.asn) and Route Broadcasting Protocol data is in [RouteBroadcastingProtocol.asn](./RouteBroadcastingProtocol.asn).
