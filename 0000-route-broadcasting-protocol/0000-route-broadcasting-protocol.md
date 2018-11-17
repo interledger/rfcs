@@ -78,7 +78,7 @@ A routing table has its identifier, that is called **routing table ID**. A routi
 ### Epoch
 Every time the routing table is modified, the update is logged and the revision number of the table is increased. The revision number of the table is called an **epoch**.
 
-A node maintains the epoch that is already known to the counter node, and considers it when requesting route updates so that the node can send only the difference (a stack of adding or withdrawing routes) from the last update with the last known epoch as the starting point. So the node doesn't need to send the whole routing table.
+A node maintains the epoch that is already known to the counterpart node, and considers it when requesting route updates so that the node can send only the difference (a stack of adding or withdrawing routes) from the last update with the last known epoch as the starting point. So the node doesn't need to send the whole routing table.
 
 Because the logs of difference could be a large number in some cases, the node may send updates separately multiple times. In that case, "from" and "to" epoch will be specified to express the range of the logs.
 
@@ -86,7 +86,7 @@ Because the logs of difference could be a large number in some cases, the node m
 
 The left image shows how epochs are stored. The right image shows an example of a route update request, how "from" and "to" epoch index are given, and how epochs are extracted from the logs.
 
-If the routing table ID that an epoch is based on is changed, the epoch MUST be reset to `0`, so that the counter node can track all the updates from the node.
+If the routing table ID that an epoch is based on is changed, the epoch MUST be reset to `0`, so that the counterpart node can track all the updates from the node.
 
 ### Link Relations and Routing
 There are two types of link relations:
