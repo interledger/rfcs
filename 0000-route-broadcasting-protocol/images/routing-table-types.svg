@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="149.5 -36.5 910.7196 311.5" width="910.7196" height="311.5">
+  <defs>
+    <font-face font-family="Courier" font-size="12" units-per-em="1000" underline-position="-178.22266" underline-thickness="57.61719" slope="0" x-height="456.54297" cap-height="586.91406" ascent="753.90625" descent="-246.09375" font-weight="400">
+      <font-face-src>
+        <font-face-name name="Courier"/>
+      </font-face-src>
+    </font-face>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-9 -4 10 8" markerWidth="10" markerHeight="8" color="black">
+      <g>
+        <path d="M -8 0 L 0 3 L 0 -3 Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker_2" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="black">
+      <g>
+        <path d="M 8 0 L 0 -3 L 0 3 Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+  </defs>
+  <metadata> Produced by OmniGraffle 7.8.2 
+    <dc:date>2018-11-18 19:31:32 +0000</dc:date>
+  </metadata>
+  <g id="Route_Broadcasting_Protocol" fill-opacity="1" stroke-dasharray="none" stroke="none" stroke-opacity="1" fill="none">
+    <title>Route Broadcasting Protocol</title>
+    <g id="Route_Broadcasting_Protocol: Node FSM">
+      <title>Node FSM</title>
+      <g id="Graphic_13">
+        <rect x="360" y="-16" width="499" height="270.5" fill="white"/>
+        <rect x="360" y="-16" width="499" height="270.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(365 -9)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="194.0918" y="11">Routing Module</tspan>
+        </text>
+      </g>
+      <g id="Graphic_18">
+        <rect x="610" y="14" width="240" height="70" fill="white"/>
+        <rect x="610" y="14" width="240" height="70" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(615 21)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="93.39648" y="11">Peer A</tspan>
+        </text>
+      </g>
+      <g id="Graphic_14">
+        <rect x="370" y="44" width="200" height="30" fill="white"/>
+        <rect x="370" y="44" width="200" height="30" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(375 52)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="26.588867" y="11">Local Routing Table</tspan>
+        </text>
+      </g>
+      <g id="Graphic_15">
+        <rect x="370" y="104.25" width="200" height="30" fill="white"/>
+        <rect x="370" y="104.25" width="200" height="30" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(375 112.25)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="8.585938" y="11">Forwarding Routing Table</tspan>
+        </text>
+      </g>
+      <g id="Graphic_16">
+        <rect x="630" y="44" width="200" height="30" fill="white"/>
+        <rect x="630" y="44" width="200" height="30" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(635 52)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="15.78711" y="11">Incoming Routing Table</tspan>
+        </text>
+      </g>
+      <g id="Graphic_20">
+        <rect x="610" y="94" width="240" height="70" fill="white"/>
+        <rect x="610" y="94" width="240" height="70" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(615 101)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="93.39648" y="11">Peer B</tspan>
+        </text>
+      </g>
+      <g id="Graphic_19">
+        <rect x="630" y="124" width="200" height="30" fill="white"/>
+        <rect x="630" y="124" width="200" height="30" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(635 132)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="15.78711" y="11">Incoming Routing Table</tspan>
+        </text>
+      </g>
+      <g id="Graphic_22">
+        <rect x="610" y="174" width="240" height="70" fill="white"/>
+        <rect x="610" y="174" width="240" height="70" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(615 181)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="93.39648" y="11">Peer C</tspan>
+        </text>
+      </g>
+      <g id="Graphic_21">
+        <rect x="630" y="204" width="200" height="30" fill="white"/>
+        <rect x="630" y="204" width="200" height="30" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(635 212)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="15.78711" y="11">Incoming Routing Table</tspan>
+        </text>
+      </g>
+      <g id="Line_23">
+        <line x1="579.9" y1="59" x2="630" y2="59" marker-start="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_25">
+        <path d="M 579.9 59 L 597.55 59 L 597.55 139 L 630 139" marker-start="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_26">
+        <path d="M 579.9 59 L 597.55 59 L 597.55 219 L 630 219" marker-start="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_28">
+        <rect x="869.7196" y="44" width="170" height="30" fill="white"/>
+        <rect x="869.7196" y="44" width="170" height="30" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(874.7196 52)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="7.988281" y="11">Route Update Request</tspan>
+        </text>
+      </g>
+      <g id="Line_29">
+        <line x1="869.7196" y1="59" x2="839.9" y2="59" marker-end="url(#FilledArrow_Marker_2)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_30">
+        <rect x="869.7196" y="124" width="170" height="30" fill="white"/>
+        <rect x="869.7196" y="124" width="170" height="30" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(874.7196 132)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="7.988281" y="11">Route Update Request</tspan>
+        </text>
+      </g>
+      <g id="Graphic_31">
+        <rect x="869.7196" y="204" width="170" height="30" fill="white"/>
+        <rect x="869.7196" y="204" width="170" height="30" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(874.7196 212)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="7.988281" y="11">Route Update Request</tspan>
+        </text>
+      </g>
+      <g id="Line_32">
+        <line x1="869.7196" y1="139" x2="839.9" y2="139" marker-end="url(#FilledArrow_Marker_2)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_33">
+        <line x1="869.7196" y1="219" x2="839.9" y2="219" marker-end="url(#FilledArrow_Marker_2)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_34">
+        <line x1="470" y1="74" x2="470" y2="94.35" marker-end="url(#FilledArrow_Marker_2)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_35">
+        <rect x="170" y="104.25" width="170" height="30" fill="white"/>
+        <rect x="170" y="104.25" width="170" height="30" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(175 112.25)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="7.988281" y="11">Route Update Request</tspan>
+        </text>
+      </g>
+      <g id="Line_36">
+        <line x1="370" y1="119.25" x2="349.9" y2="119.25" marker-end="url(#FilledArrow_Marker_2)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+    </g>
+  </g>
+</svg>

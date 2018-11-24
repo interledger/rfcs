@@ -123,6 +123,33 @@ Each node consists of state machines which track states for each routing counter
 
 The status can be changed by a **route control request** that is described below. The routing information is provided by a **route update request** that is described below as well.
 
+### Types of Routing Table
+
+An ILP node has 3 types of routing tables, although it depends on the concrete implementation. It means that these are not requirements, but a typical implementation.
+
+1. `Incoming Routing Table`
+1. `Local Routing Table`
+1. `Forwarding Routing Table`
+
+The relationship between the types are described as the below.
+
+![Routing Table Types](images/routing-table-types.svg)
+
+#### Incoming Routing Table
+
+An ILP node has multiple Incoming Routing Tables for each counterpart node because Routing Table IDs are specified by the nodes and the IDs have different lifecycles for each one. Thus these Incoming Routing Tables manage Route Update Requests from the counterpart nodes respectively. The table is updated by Route Update Requests, and it MAY be filtered before added to the table. Also, it MAY be tagged so that it can be filtered when a routing module refers the routing information.
+
+#### Local Routing Table
+
+A Local Routing Table aggregates the routing information of the Incoming Routing Tables and maintains the routing table that is referred when the node decides which peer the node should pass an ILP packet to. The table is updated when Route Update Requests are received, and it MAY be filtered before added to the table.
+
+#### Forwarding Routing Table
+
+From the Local Routing Table, a Forward Routing Table is generated. The characteristics of a Forward Routing Table is the following.
+
+- A Forward Routing Table has a special field: `auth`
+- The node, itself, is added to the table
+
 ## Protocol Detail
 ### Operation Model
 The entire operation model is shown below.
