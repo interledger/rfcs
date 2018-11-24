@@ -47,7 +47,7 @@ Property ::= SEQUENCE {
 
 NewRoute ::= SEQUENCE {
   addedRoutePrefix Address, -- the prefix of the added route
-  path SEQUENCE OF Address, -- the hops destinated to the prefix node
+  path SEQUENCE OF Address, -- the hops destinated to the prefix node; the near, the left
   auth Auth, -- reserved for the future, currently not used
   props SEQUENCE OF Property -- reserved for the future, currently not used
 }
