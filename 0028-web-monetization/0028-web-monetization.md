@@ -1,6 +1,6 @@
 ---
 title: Web Monetization
-draft: 4
+draft: 5
 ---
 
 # Web Monetization
@@ -32,269 +32,107 @@ The reason this is not using the W3C Web Payments API is that Web Monetization i
 
 With advertisements, the browser decides whether to display the ads and the user decides whether to engage with the ads. With Web Monetization, the browser decides whether to pay the site and, if so, how much to pay.
 
-Web Monetization makes use of [ILP/STREAM](../0029-stream/0029-stream.md) provide a high-level way to send money and data, while still providing tremendous flexibility.
+Web Monetization makes use of [SPSP](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) on top of [ILP/STREAM](../0029-stream/0029-stream.md) to provide a high-level way to send money and data, while still providing tremendous flexibility.
 
 ## Flow
 
-Web Monetization works in two stages: first, the user registers their provider with their browser. After the registration has been completed, the user can go to websites and use Web Monetization.
-
-### Registration
-
-- The user visits their provider's webpage.
-- The provider's webpage calls `window.WebMonetization.register`.
-- The browser will display a native pop-up box asking the user whether they want to set the handler proposed by the page.
-  - If the user confirms, `handlerUrl` is stored in the browser's state and `window.WebMonetization.register` resolves to true.
-  - If the user cancels the registration, `window.WebMonetization.register` will resolve to false.
-
-### Monetization
+This flow refers to the user's browser, but in implementation this may actually be done by an extension or a Web Monetization polyfill.
 
 - The user visits a webpage.
-- When the page wants to open an ILP/STREAM connection, it calls `window.WebMonetization.monetize()` with a `destinationAccount` and `sharedSecret`.
-  - The browser creates an iframe to the handler URL, reading from the state that was stored during [registration](#registration).
-  - An ILP/STREAM connection object is returned from the function for the site to use.
-- When the page wants to use the ILP/STREAM connection, they use the javascript STREAM API to send money and/or data. The browser sends outgoing ILP packets to the handler iframe using `postMessage`. The handler iframe forwards incoming packets by calling `window.parent.postMessage`.
+- The user's browser looks for the Web Monetization `<meta>` tag ([specified below](#meta-tag)). The `<meta>` tag MUST be present once `document.readyState` is `interactive`. Implementations MUST NOT look process the tag earlier than this, but MAY wait longer before processing.
+  - The `<meta>` tag MUST be in the `<head>` of the document.
+  - If the Web Monetization `<meta>` tag is malformed, the browser will stop here. The browser SHOULD report a warning via the console.
+  - If the Web Monetization `<meta>` tag is well-formed, the browser should extract the Payment Pointer and Correlation ID.
+  - If no Correlation ID is present on the `<meta>` tag, the browser will generate a fresh UUID (version 4) and use this as the Correlation ID from this point forward.
+- The user's browser dispatches a [`CustomEvent`](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent) on `window`, indicating that the Web Monetization tag has been recognized and payment will be made.
+  - The `CustomEvent`'s type is `webmonetizationload`. The `CustomEvent`'s `detail` is an object containing the Payment Pointer and the Correlation ID ([specified below](#webmonetizationload))
+- The user's browser resolves the payment pointer and begins to pay. The payment process MAY be carried out from a different machine acting as the user's agent. Cookies and browser headers MAY not be carried with any requests made to resolve the Payment Pointer.
+  - On the SPSP query to resolve the Payment Pointer, a `Web-Monetization-Id` header is sent, containing the Correlation ID. The server may use this to associate future requests by the user with their payments.
+  - With the details fetched from the SPSP query, a STREAM connection is established. A single STREAM is opened on this connection, and a positive SendMax is set.
+  - The browser SHOULD set their SendMax high enough that it is never reached, and make payment adjustments by limiting throughput.
+- Once the STREAM connection has fulfilled an ILP packet with a non-zero amount, the user's browser dispatches a `CustomEvent` on `window`. Payment SHOULD continue.
+  - The `CustomEvent`'s type is `webmonetizationstart`. The `CustomEvent`'s `detail` is an object containing the Payment Pointer and the Correlation ID ([specified below](#webmonetizationstart)).
+- Payment continues until the user closes/leaves the page.
+  - The browser MAY decide to stop/start payment, e.g. if the user is idle, backgrounds the page, or instructs the browser to do so.
+  - If the browser's STREAM connection is severed, it will redo the SPSP query to the same Payment Pointer as before with the same Correlation ID. The browser MUST NOT re-process the `<meta>` tag.
 
 ## Specification
 
-### Browser API / Polyfill API
+### Meta Tag
 
-#### Register
+This `<meta>` tag MUST be in the document's `<head>`. The `<meta>` tag allows the browser to pay a site via Web Monetization by specifying a [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md). It may also specify a Correlation ID which will be included during SPSP queries under the `Web-Monetization-Id` header.
 
-```ts
-window.WebMonetization.register({
-  name: string,
-  handlerUri: string
-}): Promise<Boolean>
+The `name` of the meta tag MUST be `webmonetization`.
+
+The `content` of the meta tag is a query string. It MUST NOT exceed 1000 characters. The possible entries are listed below:
+
+| Name | Required? | Format | Description |
+|:--|:--|:--|:--|
+| `paymentPointer` | Yes | [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md) | The Payment Pointer that the browser will pay. |
+| `correlationId` | No | [base64url](https://tools.ietf.org/html/rfc4648#section-5) | An ID to associate payment with the browser. |
+
+#### Examples
+
+##### Without Correlation ID
+
+```html
+<meta
+  name="webmonetization"
+  content="paymentPointer=$twitter.xrptipbot.com/Interledger" />
 ```
 
-##### Parameters
+##### With Correlation ID
 
-| Name | Type | Description |
-|:---|:---|:---|
-| opts | `Object` | The options for registering a handler. |
-| opts.name | `String` | Name of the provider (for display). |
-| opts.handlerUri | `String` | URL to handler. |
-
-##### Returns
-
-- `Promise<Boolean>` - Whether the handler was set successfully.
-
-#### Monetize
-
-```ts
-window.WebMonetization.monetize({
-  destinationAccount: string,
-  sharedSecret: string
-}): Promise<IlpConnection>
+```html
+<meta
+  name="webmonetization"
+  content="paymentPointer=$twitter.xrptipbot.com/Interledger&correlationId=dcd479ad-7d8d-4210-956a-13c14b8c67eb"
+/>
 ```
 
-##### Parameters
+### Browser Events
 
-| Name | Type | Description |
-|:---|:---|:---|
-| opts | `Object` | The options for creating a connection. |
-| opts.destinationAccount | `String` | ILP address for STREAM server. |
-| opts.sharedSecret | `String` | Base64 representation of STREAM shared secret. |
+These events are dispatched on `window`. All Web Monetization events are [`CustomEvent`](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent)s.
 
-##### Returns
+#### `webmonetizationload`
 
-- `Promise<IlpConnection>` - An [ILP/STREAM connection](#ilp-connection-class) that can be used to send money and data.
-- Rejects with `Error` if the connection could not be established.
-- Rejects with `NoHandlerRegisteredError` if the browser is not enabled for Web Monetization and/or has no handler registered.
-
-### ILP Connection Class
-
-#### Events
-
-| Name | Fields | Emitted |
-|:---|:---|:---|
-| `stream` | [`Event.stream: IlpStream`](#ilp-stream-class) | When the other side of the connection opens a stream. |
-| `close` | | When the connection closes. |
-| `error` | `Event.error: Error` | When an error occurs on this ILP connection. |
-
-#### Fields (Read-only)
-
-| Name | Type | Description |
-|:---|:---|:---|
-| `connectionTag` | `String` | A unique tag on this connection set at establishment. |
-| `lastPacketExchangeRate` | `Number` | Exchange rate observed on the most recent packet over this connection. |
-| `minimumAcceptableExchangeRate` | `Number` | The least favorable connection allowed on this exchange rate. |
-| `totalDelivered` | `String` | The amount of money sent to the destination (in destination units). |
-| `totalSent` | `String` | The amount of money sent to the destination (in our units). |
-| `totalReceived` | `String` | The amount of money received (in our units). |
-| `sourceAssetCode` | `String` | The three-letter asset code of the source account's units. |
-| `sourceAssetScale` | `Number` | The scale of the source account's units (i.e. if the units were cents, the scale would be `2` and the code would be `USD`) |
-| `destinationAssetCode` | `String | undefined` | The three-letter asset code of the destination account's units. This may not be present, depending on the destination's STREAM version. |
-| `destinationAssetScale` | `String | undefined` | The scale of the destination account's units. This may not be present, depending on the destination's STREAM version. |
-
-#### Create Stream
-
-```ts
-connection.createStream(): IlpStream
-```
-
-##### Returns
-
-- `IlpStream` - An [ILP Stream](#ilp-stream-class) object.
-
-#### End Connection
-
-```ts
-connection.close(): void
-```
-
-### ILP Stream Class
-
-#### Events
-
-| Name | Fields | Emitted |
-|:---|:---|:---|
-| `data` | `Event.data: Uint8Array` | When data is received over the stream. |
-| `money` | `Event.amount: String` | When money is received over the stream. |
-| `outgoing_money` | `Event.amount: String` | When money is sent over the stream. |
-| `close` | | When the stream is closed. |
-| `error` | `Event.error: Error` | When the stream encounters an error. |
-
-#### Fields (Read-only)
-
-| Name | Type | Value |
-|:---|:---|:---|
-| `id` | `String` | The id of this stream, unique to this connection. |
-| `receiveMax` | `String` | The maximum amount you permit this stream to receive. Change with `setReceiveMax()` |
-| `sendMax` | `String` | The amount you will try to send on this stream. Change with `setSendMax()` |
-| `totalReceived` | `String` | The total amount received so far on this stream. |
-| `totalSent` | `String` | The total amount sent so far on this stream. |
-
-#### Check if Stream is Open
-
-```ts
-stream.isOpen(): Boolean
-```
-
-##### Returns
-
-- `Boolean`, whether the stream is open.
-
-#### Allow Money to be Received
-
-```ts
-stream.setReceiveMax(amount: String): void
-```
-
-Sets the maximum that can be received. Must be called with
-increasing values.
-
-##### Parameters
-
-- `amount: String` - The amount to receive (in our units).
-
-#### Wait for Money to be Received
-
-```ts
-stream.receiveTotal(amount: String, timeout?: Number): Promise<void>
-```
-
-Sets the maximum that can be received and waits until that amount has been
-reached. Must be called with increasing `amount`s.
-
-##### Parameters
-
-- `amount: String` - The amount to receive (in our units).
-- `timeout: Number` - How long (in ms) to wait for this function to complete.
-
-#### Try to Send Money
-
-```ts
-stream.setSendMax(amount: String): Promise<void>
-```
-
-Sets the maximum that can be sent. The stream will send as much as the receiver
-is willing to receive, up to this maximum.The stream will send as much as the
-receiver is willing to receive, up to this maximum. Must be called with
-increasing values.
-
-##### Parameters
-
-- `amount: String` - The amount to send (in our units).
-
-#### Wait for Money to be Sent
-
-```ts
-stream.sendTotal(amount: String, timeout?: Number): Promise<void>
-```
-
-Sets the maximum that can be sent and waits until that amount has been
-sent. Must be called with increasing `amount`s.
-
-##### Parameters
-
-- `amount: String` - The amount to send (in our units).
-- `timeout: Number` - How long (in ms) to wait for this function to complete.
-
-#### Send Data on the Stream
-
-```ts
-stream.send(msg: Uint8Array | String): Promise<void>
-```
-
-Sends data over the stream, which will be emitted as `data` events on the other
-side. The data may be broken into chunks or buffered; one `send` call doesn't
-necessarily correspond to a single `data` event.
-
-##### Parameters
-
-- `msg: Uint8Array | String` - The data to send over the stream.
-
-#### Close the Stream
-
-```ts
-stream.close(): void
-```
-
-### Web Monetization Handler API
-
-The `handlerURL` that is registered is embedded as an iframe. Messages are passed to it with `iframe.contentWindow.postMessage`, and messages are sent from the iframe to the browser via `window.parent.postMessage`.
-
-#### Request
+Dispatched when web monetization has successfully processed the [Web
+Monetization `<meta>` tag](#meta-tag). MUST NOT be dispatched after `webmonetizationstart`.
 
 ```ts
 {
-  id: string,
-  request: string
+  detail: {
+    paymentPointer: String,
+    correlationId: String
+  }
 }
 ```
 
-| Name | Type | Description |
-|:---|:---|:---|
-| id | `String` | Unique ID to associate request with response. |
-| request | `String` | Base64 encoded ILP prepare packet. |
+The `paymentPointer` matches the one in the `<meta>` tag. The correlationId matches the one in the `<meta>` tag if specified, and is otherwise generated as a random UUID (see [Flow](#flow)).
 
-#### Response (Success)
+#### `webmonetizationstart`
+
+Dispatched once the first ILP packet with a non-zero amount has been fulfilled by the page's SPSP receiver. MUST be dispatched after `webmonetizationload`. MUST be dispatched at least once.
 
 ```ts
 {
-  id: string,
-  response: string
+  detail: {
+    paymentPointer: String,
+    correlationId: String
+  }
 }
 ```
 
-| Name | Type | Description |
-|:---|:---|:---|
-| id | `String` | Unique ID to associate request with response. |
-| response | `String` | Base64 encoded ILP fulfill/reject packet. |
+The `paymentPointer` and `correlationId` are both the same as when `webmonetizationload` was dispatched.
 
-#### Response (Error)
+### HTTP Headers
 
-```ts
-{
-  id: string,
-  error: string,
-  errorName?: string
-}
+#### `Web-Monetization-Id`
+
+Contains the `correlationId` that the browser got from the `<meta>` tag or generated itself. This header MUST always be sent on SPSP queries for Web Monetization.
+
+The value is restricted to the [base64url](https://tools.ietf.org/html/rfc4648#section-5) set of characters. It MUST NOT exceed 1000 characters.
+
+```http
+Web-Monetization-Id: dcd479ad-7d8d-4210-956a-13c14b8c67eb
 ```
-
-| Name | Type | Description |
-|:---|:---|:---|
-| id | `String` | Unique ID to associate request with response. |
-| error | `String` | Error message. |
-| errorName | `String` | _(Optional)_ Error name. |
