@@ -62,6 +62,8 @@ This flow refers to the user's browser, but in implementation this may actually 
 
 This `<meta>` tags MUST be in the document's `<head>`. The `<meta>` tags allows the browser to pay a site via Web Monetization by specifying a [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md).
 
+If the `<meta>` tag exists inside of an iframe, the iframe MUST have `data-allowwebmonetization` as an attribute.
+
 The `name` of the `<meta>` tags all start with `webmonetization:`. The table below lists the different `name`s and the formats of their `content`. Currently there is only one tag, but this may be expanded in the future.
 
 | Name | Required? | Format | Description |
@@ -70,10 +72,22 @@ The `name` of the `<meta>` tags all start with `webmonetization:`. The table bel
 
 #### Examples
 
+##### Web Monetization Meta Tag
+
 ```html
 <meta
   name="webmonetization:paymentpointer"
   content="$twitter.xrptipbot.com/Interledger" />
+```
+
+##### Iframe to Web-Monetized Page
+
+```html
+<iframe
+  src="https://webmonetizedsite.example"
+  title="web monetized side"
+  data-allowwebmonetization >
+</iframe>
 ```
 
 ### Browser Events
