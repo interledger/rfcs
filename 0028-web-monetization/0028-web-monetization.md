@@ -39,7 +39,7 @@ Web Monetization makes use of [SPSP](../0009-simple-payment-setup-protocol/0009-
 This flow refers to the user's browser, but in implementation this may actually be done by an extension or a Web Monetization polyfill.
 
 - The user visits a webpage.
-- The user's browser looks for the Web Monetization `<meta>` tag ([specified below](#meta-tag)). The `<meta>` tag MUST be present once `document.readyState` is `interactive`. Implementations MUST NOT look process the tag earlier than this, but MAY wait longer before processing.
+- The user's browser looks for the Web Monetization `<meta>` tag ([specified below](#meta-tag)). The `<meta>` tag MUST be present once `document.readyState` is `interactive`. Implementations MUST NOT process the tag earlier than this, but MAY wait longer before processing.
   - The `<meta>` tag MUST be in the `<head>` of the document.
   - If the Web Monetization `<meta>` tag is malformed, the browser will stop here. The browser SHOULD report a warning via the console.
   - If the Web Monetization `<meta>` tag is well-formed, the browser should extract the Payment Pointer and Correlation ID.
@@ -108,7 +108,7 @@ Monetization `<meta>` tag](#meta-tag). MUST NOT be dispatched after `webmonetiza
 }
 ```
 
-The `paymentPointer` matches the one in the `<meta>` tag. The correlationId matches the one in the `<meta>` tag if specified, and is otherwise generated as a random UUID (see [Flow](#flow)).
+The `paymentPointer` matches the one in the `<meta>` tag. The `correlationId` matches the one in the `<meta>` tag if specified, and is otherwise generated as a random UUID (see [Flow](#flow)).
 
 #### `webmonetizationstart`
 
