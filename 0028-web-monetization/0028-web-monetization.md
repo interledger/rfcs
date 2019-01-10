@@ -64,13 +64,13 @@ This flow refers to the user's agent: in implementation this may be done by an e
 
 This `<meta>` tags MUST be in the document's `<head>`. The `<meta>` tags allows the user's agent to pay a site via Web Monetization by specifying a [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md).
 
-If the `<meta>` tag exists inside of an iframe, the iframe MUST have `data-allowwebmonetization` as an attribute.
+If the `<meta>` tag exists inside of an iframe, the iframe MUST have `data-allowmonetization` as an attribute.
 
-The `name` of the `<meta>` tags all start with `webmonetization:`. The table below lists the different `name`s and the formats of their `content`. Currently there is only one tag, but this may be expanded in the future.
+The `name` of the `<meta>` tags all start with `monetization:`. The table below lists the different `name`s and the formats of their `content`. Currently there is only one tag, but this may be expanded in the future.
 
 | Name | Required? | Format | Description |
 |:--|:--|:--|:--|
-| `webmonetization:paymentpointer` | Yes | [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md) | The Payment Pointer that the user's agent will pay. |
+| `monetization:paymentpointer` | Yes | [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md) | The Payment Pointer that the user's agent will pay. |
 
 #### Examples
 
@@ -78,7 +78,7 @@ The `name` of the `<meta>` tags all start with `webmonetization:`. The table bel
 
 ```html
 <meta
-  name="webmonetization:paymentpointer"
+  name="monetization:paymentpointer"
   content="$twitter.xrptipbot.com/Interledger" />
 ```
 
@@ -88,7 +88,7 @@ The `name` of the `<meta>` tags all start with `webmonetization:`. The table bel
 <iframe
   src="https://webmonetizedsite.example"
   title="web monetized side"
-  data-allowwebmonetization >
+  data-allowmonetization >
 </iframe>
 ```
 
