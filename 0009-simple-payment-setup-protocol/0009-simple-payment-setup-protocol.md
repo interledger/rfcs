@@ -128,7 +128,7 @@ Content-Type: application/spsp4+json
 }
 ```
 
-In case of a pull payment server, it is possible to request the payment token via
+In case of a pull payment server, it is possible to request information about a particular payment that can be pulled from this server using the corresponding token, i.e.
 
 ``` http
 GET /f8095a44-c77f-4414-a19d-7aeca03f17c7 HTTP/1.1
