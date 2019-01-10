@@ -144,7 +144,7 @@ Content-Type: application/spsp4+json
 
 {
   "destination_account": "example.ilpdemo.red~f8095a44-c77f-4414-a19d-7aeca03f17c7",
-  "sharedSecret": "b88NPGVk5nubgM6zpnI/tVjRdgpUh+JvMueRFEMvPcY=",
+  "shared_secret": "b88NPGVk5nubgM6zpnI/tVjRdgpUh+JvMueRFEMvPcY=",
   "pull_balance": {
     "maximum_amount": "10000",
     "current_amount": "400",
