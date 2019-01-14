@@ -17,7 +17,6 @@ Web Monetization is a proposed user's agent API that uses ILP micropayments to m
 
 ### Design Goals
 
-- Should work on mobile and desktop without requiring an extension or special browser.
 - Should be extremely simple for webmasters to use in their site.
 - Backend infrastructure should be optional; should be usable on a static site.
 - Should not require any interaction with the user.
@@ -40,14 +39,14 @@ This flow refers to the user's agent: in implementation this may be done by an e
 
 - The user visits a webpage.
 - The user's agent sets `document.monetizationState` to `pending`.
-- The user's agent looks for the Web Monetization `<meta>` tags ([specified below](#meta-tags)). The `<meta>` tags MUST be present once `document.readyState` is `interactive`. Implementations MUST NOT process the tags earlier than this, but MAY wait longer before processing.
+- The user's agent looks for the Web Monetization `<meta>` tags ([specified below](#meta-tags)). The `<meta>` tags MUST NOT be inserted dynamically on the client-side.
   - The `<meta>` tags MUST be in the `<head>` of the document.
   - If the Web Monetization `<meta>` tags are malformed, the user's agent will stop here. The user's agent SHOULD report a warning via the console.
   - If the Web Monetization `<meta>` tags are well-formed, the user's agent should extract the Payment Pointer.
   - The user's agent will generate a fresh UUID (version 4) and use this as the Correlation ID from this point forward. **This Correlation ID MUST be unique per page load**, not per browser, session nor site.
 - The user's agent resolves the payment pointer and begins to pay. The payment process MAY be carried out from a different machine acting as the user's agent. Cookies and session information MUST not be carried with any requests made to resolve the Payment Pointer, with the exception of the Correlation ID.
   - On the SPSP query to resolve the Payment Pointer, a `Web-Monetization-Id` header is sent, containing the Correlation ID. The server may use this to associate future requests by the user with their payments.
-  - With the `destinationAccount` and `sharedSecret` fetched from the SPSP query, a STREAM connection is established. A single STREAM is opened on this connection, and a positive SendMax is set.
+  - With the `destination_account` and `shared_secret` fetched from the SPSP query, a STREAM connection is established. A single STREAM is opened on this connection, and a positive SendMax is set.
   - The user's agent SHOULD set their SendMax high enough that it is never reached, and make payment adjustments by limiting throughput.
 - Once the STREAM connection has fulfilled an ILP packet with a non-zero amount, the user's agent dispatches a `CustomEvent` on `document`. Payment SHOULD continue.
   - The user's agent sets `document.monetizationState` to `started`. This MUST occur before the `monetizationstart` event is fired.
@@ -64,13 +63,13 @@ This flow refers to the user's agent: in implementation this may be done by an e
 
 This `<meta>` tags MUST be in the document's `<head>`. The `<meta>` tags allows the user's agent to pay a site via Web Monetization by specifying a [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md).
 
-If the `<meta>` tag exists inside of an iframe, the iframe MUST have `data-allowmonetization` as an attribute.
+If the `<meta>` tag exists inside of an iframe, the iframe MUST contain `monetization` as one of the items in its `allow` attribute, e.g. `allow="monetization"`.
 
 The `name` of the `<meta>` tags all start with `monetization:`. The table below lists the different `name`s and the formats of their `content`. Currently there is only one tag, but this may be expanded in the future.
 
 | Name | Required? | Format | Description |
 |:--|:--|:--|:--|
-| `monetization:paymentpointer` | Yes | [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md) | The Payment Pointer that the user's agent will pay. |
+| `monetization` | Yes | [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md) | The Payment Pointer that the user's agent will pay. |
 
 #### Examples
 
@@ -78,7 +77,7 @@ The `name` of the `<meta>` tags all start with `monetization:`. The table below 
 
 ```html
 <meta
-  name="monetization:paymentpointer"
+  name="monetization"
   content="$twitter.xrptipbot.com/Interledger" />
 ```
 
@@ -88,7 +87,7 @@ The `name` of the `<meta>` tags all start with `monetization:`. The table below 
 <iframe
   src="https://webmonetizedsite.example"
   title="web monetized side"
-  data-allowmonetization >
+  allow="monetization" >
 </iframe>
 ```
 
