@@ -197,15 +197,15 @@ The response body is a JSON object that includes basic account details necessary
 | `asset_info.code` | String | Asset code to identify the server's currency. Currencies that have [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) codes should use those. Sender UIs SHOULD be able to render non-standard codes |
 | `asset_info.scale` | Integer | The scale of the amounts on the server's account (e.g. an amount of `"1000"` with a scale of `2` translates to `10.00` units of the server's asset/currency) |
 | `pull_balance` | Object |	_(OPTIONAL)_ Monetary details of a pull payment token. Used only for pull payments. |
-| `pull_balance.available` |	Integer String |	Amount, denoted in the minimum divisible units of the server's account, that can currently be pulled from the account. |
-| `pull_balance.refill_maximum` |	Integer String |	Amount, denoted in the minimum divisible units of the server's account, that `balance.available` will be filled up to at `pull_info.refill_time`. |
+| `pull_balance.available` |	Integer String |	Amount, denoted in the minimum divisible units of this pull payment agreement, that can currently be pulled from the account. |
+| `pull_balance.refill_maximum` |	Integer String |	Amount, denoted in the minimum divisible units of this pull payment agreement, that `balance.available` will be filled up to at `pull_info.refill_time`. |
 | `pull_info`	|	Object | _(OPTIONAL)_ Non-monetary details of a pull payment token. Used only for pull payments. |
-| `pull_info.start_time` | String |	[ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) UTC timestamp, e.g. "2019-01-10T01:01:13Z", representing the time at which `pull_balance.available` will be filled up to the amount of `pull_balance.refill_maximum` for the first time. |
-| `pull_info.expiry_time` |	String | _(OPTIONAL)_ [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) UTC timestamp, e.g. "2019-07-10T01:01:12Z", representing the time after `which pull_balance.available` will not be filled up anymore. |
-| `pull_info.refill_time` |	String | [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) UTC timestamp, e.g. "2019-02-10T01:01:13Z", representing the next time at which `pull_balance.available` will be filled up to the amount of `pull_balance.refill_maximum`.
+| `pull_info.refill_time` |	String | [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) UTC timestamp, e.g. "2019-02-10T01:01:13Z", representing the next time at which `pull_balance.available` will be filled up to the amount of `pull_balance.refill_maximum`. |
+| `pull_info.expiry_time` |	String | _(OPTIONAL)_ [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) UTC timestamp, e.g. "2019-07-10T01:01:12Z", representing the time after which `pull_balance.available` will not be filled up anymore. |
 | `pull_info.frequency`	| String | Frequency at which `pull_info.refill_time` is incremented. Possible values are `DAY`, `WEEK`, `MONTH`, `YEAR`. |
 | `pull_info.frequency_interval` | Integer | Interval associated with `pull_info.frequency`. For example, if `pull_info.frequency` is `WEEK` and `pull_info.frequency_interval` is `2`, `pull_balance.available` is refilled every 2 weeks. 
 | `pull_info.asset_code` | String	| Asset code to identify the currency agreed upon for this pull payment. Currencies that have [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) codes should use those. |
+| `pull_info.asset_scale` | Integer | The scale of the amounts in `pull_balance` (e.g. an amount of `"1000"` with a scale of `2` translates to `10.00` units of the pull payment's agreed upon asset/currency) |
 
 **Note:** Currency amounts are denominated as integer strings instead of native JSON numbers to avoid losing precision during JSON parsing. Applications MUST represent these numbers in a data type that has precision equal or greater than an unsigned 64-bit integer.
 
