@@ -5,15 +5,15 @@ draft: 5
 
 # Web Monetization
 
-Web Monetization is a proposed user's agent API that uses ILP micropayments to monetize a site. It can be provided through a polyfill or an extension, but the goal is to eventually implement it directly into the user's agent.
+Web Monetization is a proposed browser API that uses ILP micropayments to monetize a site. It can be provided through a polyfill or an extension, but the goal is to eventually implement it directly into the user's agent.
 
 ## Overview
 
 ### Terminology
 
-- The **webmaster** is the party who is running a site.
-- The **user** is the party who is accessing the site.
+- The **user** is the party who is accessing the web-monetized site.
 - The **provider** is the party providing Interledger access to the user.
+- The **browser** is the web browser used by the user, which may include extensions that implement Web Monetization.
 
 ### Design Goals
 
@@ -29,33 +29,34 @@ Web Monetization is a proposed user's agent API that uses ILP micropayments to m
 
 The reason this is not using the W3C Web Payments API is that Web Monetization is intended for continuous payments rather than discrete payments. It is also not designed to have any user interaction. The idea is to provide a direct alternative to advertisements, rather than an alternative to existing checkout methods.
 
-With advertisements, the user's agent decides whether to display the ads and the user decides whether to engage with the ads. With Web Monetization, the user's agent decides whether to pay the site and, if so, how much to pay.
+With advertisements, the user's browser decides whether to display the ads and the user decides whether to engage with the ads. With Web Monetization, the user's provider decides whether to pay the site and, if so, how much to pay.
 
 Web Monetization makes use of [SPSP](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) on top of [ILP/STREAM](../0029-stream/0029-stream.md) to provide a high-level way to send money and data, while still providing tremendous flexibility.
 
 ## Flow
 
-This flow refers to the user's agent: in implementation this may be done by an extension a Web Monetization polyfill, or a browser.
+This flow refers to the user's **browser** and the user's **provider**, [defined above](#terminology).
 
-- The user visits a webpage.
-- The user's agent sets `document.monetizationState` to `pending`.
-- The user's agent looks for the Web Monetization `<meta>` tags ([specified below](#meta-tags)). The `<meta>` tags MUST NOT be inserted dynamically on the client-side.
+- The user navigates their browser to a webpage.
+- The browser sets `document.monetizationState` to `pending`.
+- The browser looks for the Web Monetization `<meta>` tags ([specified below](#meta-tags)). The `<meta>` tags MUST NOT be inserted dynamically using client-side Javascript.
   - The `<meta>` tags MUST be in the `<head>` of the document.
-  - If the Web Monetization `<meta>` tags are malformed, the user's agent will stop here. The user's agent SHOULD report a warning via the console.
-  - If the Web Monetization `<meta>` tags are well-formed, the user's agent should extract the Payment Pointer.
-  - The user's agent will generate a fresh UUID (version 4) and use this as the Correlation ID from this point forward. **This Correlation ID MUST be unique per page load**, not per browser, session nor site.
-- The user's agent resolves the payment pointer and begins to pay. The payment process MAY be carried out from a different machine acting as the user's agent. Cookies and session information MUST not be carried with any requests made to resolve the Payment Pointer, with the exception of the Correlation ID.
-  - On the SPSP query to resolve the Payment Pointer, a `Web-Monetization-Id` header is sent, containing the Correlation ID. The server may use this to associate future requests by the user with their payments.
+  - If the Web Monetization `<meta>` tags are malformed, the browser will stop here. The browser SHOULD report a warning via the console.
+  - If the Web Monetization `<meta>` tags are well-formed, the browser should extract the Payment Pointer.
+  - The browser will generate a fresh UUID (version 4) and use this as the Correlation ID from this point forward. **This Correlation ID MUST be unique per page load**, not per browser, session nor site.
+- The browser passes these payment details to the user's provider.
+- The provider resolves the payment pointer and begins to pay. The provider MAY be acting from a different machine from the user. Cookies and session information MUST not be carried with any requests made to resolve the Payment Pointer, with the exception of the Correlation ID.
+  - On the SPSP query to resolve the Payment Pointer, a `Web-Monetization-Id` header is sent, containing the Correlation ID. The server running the web-monetized site may use this to associate future requests by the user with their payments.
   - With the `destination_account` and `shared_secret` fetched from the SPSP query, a STREAM connection is established. A single STREAM is opened on this connection, and a positive SendMax is set.
-  - The user's agent SHOULD set their SendMax high enough that it is never reached, and make payment adjustments by limiting throughput.
-- Once the STREAM connection has fulfilled an ILP packet with a non-zero amount, the user's agent dispatches a `CustomEvent` on `document`. Payment SHOULD continue.
+  - The provider SHOULD set their SendMax high enough that it is never reached, and make payment adjustments by limiting throughput.
+- Once the STREAM connection has fulfilled an ILP packet with a non-zero amount, the provider notified the browser, and the browser dispatches a `CustomEvent` on `document`. Payment SHOULD continue.
   - The user's agent sets `document.monetizationState` to `started`. This MUST occur before the `monetizationstart` event is fired.
   - The `CustomEvent`'s type is `monetizationstart`. The `CustomEvent`'s `detail` is an object containing the Payment Pointer and the Correlation ID ([specified below](#monetizationstart)).
   - The user's agent also emits a `monetizationprogress` ([specified below](#monetizationprogress)), corresponding to this first packet. If there are no listeners the event MAY NOT be emitted.
 - Payment continues until the user closes/leaves the page.
-  - The user's agent MAY decide to stop/start payment, e.g. if the user is idle, backgrounds the page, or instructs the browser to do so.
-  - If the STREAM connection is severed, it will redo the SPSP query to the same Payment Pointer as before with the same Correlation ID. The user's agent MUST NOT re-process the `<meta>` tags.
-  - Each time a packet with a nonzero amount is fulfilled, the user's agent emits a `CustomEvent` on `document`. The `CustomEvent`'s type is `monetizationprogress`. The `CustomEvent`'s `detail` is an object containing the details of the packet ([specified below](#monetizationprogress)). If there are no listeners the event MAY NOT be emitted.
+  - The provider MAY decide to stop/start payment at any time, e.g. if the user is idle, backgrounds the page, or instructs the browser to do so.
+  - If the STREAM connection is severed, the provider will redo the SPSP query to the same Payment Pointer as before with the same Correlation ID. The browser MUST NOT re-process the `<meta>` tags.
+  - Each time a packet with a nonzero amount is fulfilled, the provider notifies the browser, and the browser emits a `CustomEvent` on `document`. The `CustomEvent`'s type is `monetizationprogress`. The `CustomEvent`'s `detail` is an object containing the details of the packet ([specified below](#monetizationprogress)). If there are no listeners the event MAY NOT be emitted.
 
 ## Specification
 
@@ -119,7 +120,7 @@ Dispatched once the first ILP packet with a non-zero amount has been fulfilled b
 }
 ```
 
-The `paymentPointer` matches the one in the `<meta>` tags. The `correlationId` matches the UUID generated by the user's agent (see [Flow](#flow)). This `correlationId` MUST be unique per page load.
+The `paymentPointer` matches the one in the `<meta>` tags. The `correlationId` matches the UUID generated by the browser (see [Flow](#flow)). This `correlationId` MUST be unique per page load.
 
 #### `monetizationprogress`
 
@@ -143,7 +144,7 @@ Dispatched every time an ILP packet with a non-zero amount has been fulfilled by
 
 #### `Web-Monetization-Id`
 
-Contains the `correlationId` that the user's agent generated. This header MUST always be sent on SPSP queries for Web Monetization. This value MUST be a UUID version 4.
+Contains the `correlationId` that the browser generated. This header MUST always be sent on SPSP queries for Web Monetization. This value MUST be a UUID version 4.
 
 ```http
 Web-Monetization-Id: dcd479ad-7d8d-4210-956a-13c14b8c67eb
