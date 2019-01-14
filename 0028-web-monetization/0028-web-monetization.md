@@ -66,7 +66,7 @@ This `<meta>` tags MUST be in the document's `<head>`. The `<meta>` tags allows 
 
 If the `<meta>` tag exists inside of an iframe, the iframe MUST contain `monetization` as one of the items in its `allow` attribute, e.g. `allow="monetization"`.
 
-The `name` of the `<meta>` tags all start with `monetization:`. The table below lists the different `name`s and the formats of their `content`. Currently there is only one tag, but this may be expanded in the future.
+The `name` of the `<meta>` tags all start with `monetization`. The table below lists the different `name`s and the formats of their `content`. Currently there is only one tag, but this may be expanded in the future.
 
 | Name | Required? | Format | Description |
 |:--|:--|:--|:--|
