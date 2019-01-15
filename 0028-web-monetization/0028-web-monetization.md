@@ -27,7 +27,11 @@ Web Monetization is a proposed browser API that uses ILP micropayments to moneti
 
 ### Relation to Other Protocols
 
-The reason this is not using the W3C Web Payments API is that Web Monetization is intended for continuous payments rather than discrete payments. It is also not designed to have any user interaction. The idea is to provide a direct alternative to advertisements, rather than an alternative to existing checkout methods.
+The W3C have published two payments related APIs for browsers, the Payment Request API and the Payment Handler API.
+
+The reason this API is not using the Payment Request API directly is that Web Monetization is intended for continuous payments rather than discrete payments. It is also not designed to have any user interaction. It is intended to provide a direct alternative to advertisements, rather than an alternative to existing checkout methods.
+
+Some changes will be required to Payment Request and Payment Handler to fully support Web Monetization in future, however this API brings the necessary features to the browser in a way that allows for tighter integration in the future.
 
 With advertisements, the user's browser decides whether to display the ads and the user decides whether to engage with the ads. With Web Monetization, the user's provider decides whether to pay the site and, if so, how much to pay.
 
@@ -38,7 +42,8 @@ Web Monetization makes use of [SPSP](../0009-simple-payment-setup-protocol/0009-
 This flow refers to the user's **browser** and the user's **provider**, [defined above](#terminology).
 
 - The user navigates their browser to a webpage.
-- The browser sets `document.monetizationState` to `pending`.
+- The browser sets `document.monetization` to an Object.
+- The browser sets `document.monetization.state` to `pending`.
 - The browser looks for the Web Monetization `<meta>` tags ([specified below](#meta-tags)). The `<meta>` tags MUST NOT be inserted dynamically using client-side Javascript.
   - The `<meta>` tags MUST be in the `<head>` of the document.
   - If the Web Monetization `<meta>` tags are malformed, the browser will stop here. The browser SHOULD report a warning via the console.
@@ -50,7 +55,7 @@ This flow refers to the user's **browser** and the user's **provider**, [defined
   - With the `destination_account` and `shared_secret` fetched from the SPSP query, a STREAM connection is established. A single STREAM is opened on this connection, and a positive SendMax is set.
   - The provider SHOULD set their SendMax high enough that it is never reached, and make payment adjustments by limiting throughput.
 - Once the STREAM connection has fulfilled an ILP packet with a non-zero amount, the provider notified the browser, and the browser dispatches a `CustomEvent` on `document`. Payment SHOULD continue.
-  - The user's agent sets `document.monetizationState` to `started`. This MUST occur before the `monetizationstart` event is fired.
+  - The user's agent sets `document.monetization.state` to `started`. This MUST occur before the `monetizationstart` event is fired.
   - The `CustomEvent`'s type is `monetizationstart`. The `CustomEvent`'s `detail` is an object containing the Payment Pointer and the Correlation ID ([specified below](#monetizationstart)).
   - The user's agent also emits a `monetizationprogress` ([specified below](#monetizationprogress)), corresponding to this first packet. If there are no listeners the event MAY NOT be emitted.
 - Payment continues until the user closes/leaves the page.
@@ -60,7 +65,7 @@ This flow refers to the user's **browser** and the user's **provider**, [defined
 
 ### Payment Handler Flow
 
-When the browser uses an extension to implement Web Monetization, Payment Handlers MAY NOT be used. Otherwise communication to the user's Web Monetization provider SHOULD be implemented with this flow.
+A provider can be implemented as a Payment Handler supporting the 'webmonetization' payment method (The payment method specification for this payment method is still under development.). Communication between the browser and the provider would use this flow.
 
 - After parsing the `<meta>` tags, the browser creates a new [PaymentRequest](https://www.w3.org/TR/payment-request/#paymentrequest-interface) object with the following [PaymentMethodData](https://www.w3.org/TR/payment-request/#dom-paymentmethoddata) argument.
 
@@ -114,10 +119,11 @@ The `name` of the `<meta>` tags all start with `monetization`. The table below l
 ### Javascript API
 
 ```ts
-document.monetizationState: String
+document.monetization: Object
+document.monetization.state: String
 ```
 
-This can be one of two values.
+`document.monetization.state` can be one of two values.
 
 - `pending` - Indicates that monetization has not yet started. This is set even if there are no Web Monetization `<meta>` tags on the page.
 - `started` - Indicates that monetization has started (i.e. the `monetizationstart` event has been fired).
