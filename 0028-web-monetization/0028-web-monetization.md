@@ -44,7 +44,7 @@ This flow refers to the user's **browser** and the user's **provider**, [defined
   - If the Web Monetization `<meta>` tags are malformed, the browser will stop here. The browser SHOULD report a warning via the console.
   - If the Web Monetization `<meta>` tags are well-formed, the browser should extract the Payment Pointer.
   - The browser will generate a fresh UUID (version 4) and use this as the Correlation ID from this point forward. **This Correlation ID MUST be unique per page load**, not per browser, session nor site.
-- The browser passes these payment details to the user's provider.
+- The browser passes these payment details to the user's provider (see [Payment Handler Flow](#payment-handler-flow)).
 - The provider resolves the payment pointer and begins to pay. The provider MAY be acting from a different machine from the user. Cookies and session information MUST not be carried with any requests made to resolve the Payment Pointer, with the exception of the Correlation ID.
   - On the SPSP query to resolve the Payment Pointer, a `Web-Monetization-Id` header is sent, containing the Correlation ID. The server running the web-monetized site may use this to associate future requests by the user with their payments.
   - With the `destination_account` and `shared_secret` fetched from the SPSP query, a STREAM connection is established. A single STREAM is opened on this connection, and a positive SendMax is set.
@@ -57,6 +57,25 @@ This flow refers to the user's **browser** and the user's **provider**, [defined
   - The provider MAY decide to stop/start payment at any time, e.g. if the user is idle, backgrounds the page, or instructs the browser to do so.
   - If the STREAM connection is severed, the provider will redo the SPSP query to the same Payment Pointer as before with the same Correlation ID. The browser MUST NOT re-process the `<meta>` tags.
   - Each time a packet with a nonzero amount is fulfilled, the provider notifies the browser, and the browser emits a `CustomEvent` on `document`. The `CustomEvent`'s type is `monetizationprogress`. The `CustomEvent`'s `detail` is an object containing the details of the packet ([specified below](#monetizationprogress)). If there are no listeners the event MAY NOT be emitted.
+
+### Payment Handler Flow
+
+When the browser uses an extension to implement Web Monetization, Payment Handlers MAY NOT be used. Otherwise communication to the user's Web Monetization provider SHOULD be implemented with this flow.
+
+- After parsing the `<meta>` tags, the browser creates a new [PaymentRequest](https://www.w3.org/TR/payment-request/#paymentrequest-interface) object with the following [PaymentMethodData](https://www.w3.org/TR/payment-request/#dom-paymentmethoddata) argument.
+
+```json
+{
+  "supportedMethods": "webmonetization",
+  "data": {
+    "paymentPointer": "{{ payment pointer parsed from meta tag }}"
+  }
+}
+```
+
+- The browser calls `.show()` on this PaymentRequest, triggering the [PaymentHandler](https://www.w3.org/TR/payment-handler/) for `webmonetization`. This PaymentHandler is how the browser communicates to the provider.
+  - The return value of `.show()` MUST return a Promise, and must also implement the [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget) interface. The provider will emit [MonetizationStart](#monetizationstart) and [MonetizationProgress](#monetizationprogress) events from this Promise to communicate to the browser when payment occurs. The Promise MUST NOT resolve, because Web Monetization continues for the entire lifetime of the page. The Promise MAY reject if there is an error preventing the provider from paying and no retries will occur.
+  - This PaymentHandler MUST NOT require any UI or confirmation to proceed with payment.
 
 ## Specification
 
