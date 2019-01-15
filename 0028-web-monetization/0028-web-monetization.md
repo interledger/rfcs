@@ -42,7 +42,7 @@ Web Monetization makes use of [SPSP](../0009-simple-payment-setup-protocol/0009-
 This flow refers to the user's **browser** and the user's **provider**, [defined above](#terminology).
 
 - The user navigates their browser to a webpage.
-- The browser sets `document.monetization` to an Object.
+- The browser sets `document.monetization` to an Object which implements [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget).
 - The browser sets `document.monetization.state` to `pending`.
 - The browser looks for the Web Monetization `<meta>` tags ([specified below](#meta-tags)). The `<meta>` tags MUST NOT be inserted dynamically using client-side Javascript.
   - The `<meta>` tags MUST be in the `<head>` of the document.
@@ -54,14 +54,14 @@ This flow refers to the user's **browser** and the user's **provider**, [defined
   - On the SPSP query to resolve the Payment Pointer, a `Web-Monetization-Id` header is sent, containing the Correlation ID. The server running the web-monetized site may use this to associate future requests by the user with their payments.
   - With the `destination_account` and `shared_secret` fetched from the SPSP query, a STREAM connection is established. A single STREAM is opened on this connection, and a positive SendMax is set.
   - The provider SHOULD set their SendMax high enough that it is never reached, and make payment adjustments by limiting throughput.
-- Once the STREAM connection has fulfilled an ILP packet with a non-zero amount, the provider notified the browser, and the browser dispatches a `CustomEvent` on `document`. Payment SHOULD continue.
+- Once the STREAM connection has fulfilled an ILP packet with a non-zero amount, the provider notified the browser, and the browser dispatches a `CustomEvent` on `document.monetization`. Payment SHOULD continue.
   - The user's agent sets `document.monetization.state` to `started`. This MUST occur before the `monetizationstart` event is fired.
   - The `CustomEvent`'s type is `monetizationstart`. The `CustomEvent`'s `detail` is an object containing the Payment Pointer and the Correlation ID ([specified below](#monetizationstart)).
-  - The user's agent also emits a `monetizationprogress` ([specified below](#monetizationprogress)), corresponding to this first packet. If there are no listeners the event MAY NOT be emitted.
+  - The user's agent also emits a `monetizationprogress` ([specified below](#monetizationprogress)) event from `document.monetization`, corresponding to this first packet. If there are no listeners the event MAY NOT be emitted.
 - Payment continues until the user closes/leaves the page.
   - The provider MAY decide to stop/start payment at any time, e.g. if the user is idle, backgrounds the page, or instructs the browser to do so.
   - If the STREAM connection is severed, the provider will redo the SPSP query to the same Payment Pointer as before with the same Correlation ID. The browser MUST NOT re-process the `<meta>` tags.
-  - Each time a packet with a nonzero amount is fulfilled, the provider notifies the browser, and the browser emits a `CustomEvent` on `document`. The `CustomEvent`'s type is `monetizationprogress`. The `CustomEvent`'s `detail` is an object containing the details of the packet ([specified below](#monetizationprogress)). If there are no listeners the event MAY NOT be emitted.
+  - Each time a packet with a nonzero amount is fulfilled, the provider notifies the browser, and the browser emits a `CustomEvent` on `document.monetization`. The `CustomEvent`'s type is `monetizationprogress`. The `CustomEvent`'s `detail` is an object containing the details of the packet ([specified below](#monetizationprogress)). If there are no listeners the event MAY NOT be emitted.
 
 ### Payment Handler Flow
 
@@ -119,7 +119,7 @@ The `name` of the `<meta>` tags all start with `monetization`. The table below l
 ### Javascript API
 
 ```ts
-document.monetization: Object
+document.monetization: EventTarget
 document.monetization.state: String
 ```
 
@@ -130,7 +130,7 @@ document.monetization.state: String
 
 ### Browser Events
 
-These events are dispatched on `document`. All Web Monetization events are [`CustomEvent`](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent)s.
+These events are dispatched on `document.monetization`. All Web Monetization events are [`.monetizationCustomEvent`](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent)s.
 
 #### `monetizationstart`
 
@@ -149,7 +149,7 @@ The `paymentPointer` matches the one in the `<meta>` tags. The `correlationId` m
 
 #### `monetizationprogress`
 
-Dispatched every time an ILP packet with a non-zero amount has been fulfilled by the page's SPSP receiver (including the first time, when `monetizationstart` is also dispatched). This event MAY NOT be emitted if there are no listeners for it on `document`.
+Dispatched every time an ILP packet with a non-zero amount has been fulfilled by the page's SPSP receiver (including the first time, when `monetizationstart` is also dispatched). This event MAY NOT be emitted if there are no listeners for it on `document.monetization`.
 
 ```ts
 {
