@@ -1,6 +1,6 @@
 ---
 title: STREAM - A Multiplexed Money and Data Transport for ILP
-draft: 4
+draft: 5
 ---
 
 # STREAM: A Multiplexed Money and Data Transport for ILP
@@ -256,6 +256,15 @@ var { ciphertext, auth_tag } = aes_256_gcm(encryption_key, iv, data);
 #### 5.1.3. Maximum Number of Packets Per Connection
 
 Implementations MUST close the connection once either endpoint has sent 2^31 packets. According to [NIST](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf), it is unsafe to use AES-GCM for more than 2^32 packets using the same encryption key. (STREAM uses the limit of 2^31 because both endpoints encrypt packets with the same key.)
+
+#### 5.1.4. Maximum VarUInt Size
+
+Implementations MAY NOT support `VarUInt`s larger than `MaxUInt64` (for performance reasons).
+
+If an implementation does not support larger `VarUInt`s, it MUST:
+
+  * When decoding a `StreamMaxMoney` frame, if the `receiveMax` is too large to fit in a `UInt64`, decode `receiveMax` as `MaxUInt64`.
+  * When decoding a `StreamMoneyBlockedFrame` frame, if the `sendMax` is too large to fit in a `UInt64`, decode `sendMax` as `MaxUInt64`.
 
 ### 5.2. STREAM Packet
 
