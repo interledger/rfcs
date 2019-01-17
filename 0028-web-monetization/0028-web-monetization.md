@@ -1,23 +1,22 @@
 ---
 title: Web Monetization
-draft: 4
+draft: 5
 ---
 
 # Web Monetization
 
-Web Monetization is a proposed browser API that uses ILP micropayments to monetize a site. It can be provided through a polyfill or an extension, but the goal is to eventually implement it directly into the browser.
+Web Monetization is a proposed browser API that uses ILP micropayments to monetize a site. It can be provided through a polyfill or an extension, but the goal is to eventually implement it directly into the user's agent.
 
 ## Overview
 
 ### Terminology
 
-- The **webmaster** is the party who is running a site.
-- The **user** is the party who is accessing the site.
+- The **user** is the party who is accessing the web-monetized site.
 - The **provider** is the party providing Interledger access to the user.
+- The **browser** is the web browser used by the user, which may include extensions that implement Web Monetization.
 
 ### Design Goals
 
-- Should work on mobile and desktop without requiring an extension or special browser.
 - Should be extremely simple for webmasters to use in their site.
 - Backend infrastructure should be optional; should be usable on a static site.
 - Should not require any interaction with the user.
@@ -28,273 +27,150 @@ Web Monetization is a proposed browser API that uses ILP micropayments to moneti
 
 ### Relation to Other Protocols
 
-The reason this is not using the W3C Web Payments API is that Web Monetization is intended for continuous payments rather than discrete payments. It is also not designed to have any user interaction. The idea is to provide a direct alternative to advertisements, rather than an alternative to existing checkout methods.
+The W3C have published two payments related APIs for browsers, the Payment Request API and the Payment Handler API.
 
-With advertisements, the browser decides whether to display the ads and the user decides whether to engage with the ads. With Web Monetization, the browser decides whether to pay the site and, if so, how much to pay.
+The reason this API is not using the Payment Request API directly is that Web Monetization is intended for continuous payments rather than discrete payments. It is also not designed to have any user interaction. It is intended to provide a direct alternative to advertisements, rather than an alternative to existing checkout methods.
 
-Web Monetization makes use of [ILP/STREAM](../0029-stream/0029-stream.md) provide a high-level way to send money and data, while still providing tremendous flexibility.
+Some changes will be required to Payment Request and Payment Handler to fully support Web Monetization in future, however this API brings the necessary features to the browser in a way that allows for tighter integration in the future.
+
+With advertisements, the user's browser decides whether to display the ads and the user decides whether to engage with the ads. With Web Monetization, the user's provider decides whether to pay the site and, if so, how much to pay.
+
+Web Monetization makes use of [SPSP](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) on top of [ILP/STREAM](../0029-stream/0029-stream.md) to provide a high-level way to send money and data, while still providing tremendous flexibility.
 
 ## Flow
 
-Web Monetization works in two stages: first, the user registers their provider with their browser. After the registration has been completed, the user can go to websites and use Web Monetization.
+This flow refers to the user's **browser** and the user's **provider**, [defined above](#terminology).
 
-### Registration
+- The user navigates their browser to a webpage.
+- The browser sets `document.monetization` to an Object which implements [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget).
+- The browser sets `document.monetization.state` to `pending`.
+- The browser looks for the Web Monetization `<meta>` tags ([specified below](#meta-tags)). The `<meta>` tags MUST NOT be inserted dynamically using client-side Javascript.
+  - The `<meta>` tags MUST be in the `<head>` of the document.
+  - If the Web Monetization `<meta>` tags are malformed, the browser will stop here. The browser SHOULD report a warning via the console.
+  - If the Web Monetization `<meta>` tags are well-formed, the browser should extract the Payment Pointer.
+  - The browser will generate a fresh UUID (version 4) and use this as the Request ID from this point forward. **This Request ID MUST be unique per page load**, not per browser, session nor site.
+- The browser passes these payment details to the user's provider (see [Payment Handler Flow](#payment-handler-flow)).
+- The provider resolves the payment pointer and begins to pay. The provider MAY be acting from a different machine from the user. Cookies and session information MUST not be carried with any requests made to resolve the Payment Pointer, with the exception of the Request ID.
+  - On the SPSP query to resolve the Payment Pointer, a `Web-Monetization-Id` header is sent, containing the Request ID. The server running the web-monetized site may use this to associate future requests by the user with their payments.
+  - With the `destination_account` and `shared_secret` fetched from the SPSP query, a STREAM connection is established. A single STREAM is opened on this connection, and a positive SendMax is set.
+  - The provider SHOULD set their SendMax high enough that it is never reached, and make payment adjustments by limiting throughput.
+- Once the STREAM connection has fulfilled an ILP packet with a non-zero amount, the provider notified the browser, and the browser dispatches an event on `document.monetization`. Payment SHOULD continue.
+  - The user's agent sets `document.monetization.state` to `started`. This MUST occur before the `monetizationstart` event is fired.
+  - The event's type is `monetizationstart`. The event has a `detail` field with an object containing the Payment Pointer and the Request ID ([specified below](#monetizationstart)).
+  - The user's agent also emits a `monetizationprogress` ([specified below](#monetizationprogress)) event from `document.monetization`, corresponding to this first packet. If there are no listeners the event MAY NOT be emitted.
+- Payment continues until the user closes/leaves the page.
+  - The provider MAY decide to stop/start payment at any time, e.g. if the user is idle, backgrounds the page, or instructs the browser to do so.
+  - If the STREAM connection is severed, the provider will redo the SPSP query to the same Payment Pointer as before with the same Request ID. The browser MUST NOT re-process the `<meta>` tags.
+  - Each time a packet with a nonzero amount is fulfilled, the provider notifies the browser, and the browser emits an event on `document.monetization`. The event's type is `monetizationprogress`. The event has a `detail` field containing the details of the packet ([specified below](#monetizationprogress)). If there are no listeners the event MAY NOT be emitted.
 
-- The user visits their provider's webpage.
-- The provider's webpage calls `window.WebMonetization.register`.
-- The browser will display a native pop-up box asking the user whether they want to set the handler proposed by the page.
-  - If the user confirms, `handlerUrl` is stored in the browser's state and `window.WebMonetization.register` resolves to true.
-  - If the user cancels the registration, `window.WebMonetization.register` will resolve to false.
+### Payment Handler Flow
 
-### Monetization
+A provider can be implemented as a Payment Handler supporting the 'webmonetization' payment method (The payment method specification for this payment method is still under development.). Communication between the browser and the provider would use this flow.
 
-- The user visits a webpage.
-- When the page wants to open an ILP/STREAM connection, it calls `window.WebMonetization.monetize()` with a `destinationAccount` and `sharedSecret`.
-  - The browser creates an iframe to the handler URL, reading from the state that was stored during [registration](#registration).
-  - An ILP/STREAM connection object is returned from the function for the site to use.
-- When the page wants to use the ILP/STREAM connection, they use the javascript STREAM API to send money and/or data. The browser sends outgoing ILP packets to the handler iframe using `postMessage`. The handler iframe forwards incoming packets by calling `window.parent.postMessage`.
+- After parsing the `<meta>` tags, the browser creates a new [PaymentRequest](https://www.w3.org/TR/payment-request/#paymentrequest-interface) object with the following [PaymentMethodData](https://www.w3.org/TR/payment-request/#dom-paymentmethoddata) argument.
+
+```json
+{
+  "supportedMethods": "webmonetization",
+  "data": {
+    "paymentPointer": "{{ payment pointer parsed from meta tag }}"
+  }
+}
+```
+
+- The browser calls `.show()` on this PaymentRequest, triggering the [PaymentHandler](https://www.w3.org/TR/payment-handler/) for `webmonetization`. This PaymentHandler is how the browser communicates to the provider.
+  - The return value of `.show()` MUST return a Promise, and must also implement the [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget) interface. The provider will emit [MonetizationStart](#monetizationstart) and [MonetizationProgress](#monetizationprogress) events from this Promise to communicate to the browser when payment occurs. The Promise MUST NOT resolve, because Web Monetization continues for the entire lifetime of the page. The Promise MAY reject if there is an error preventing the provider from paying and no retries will occur.
+  - This PaymentHandler MUST NOT require any UI or confirmation to proceed with payment.
 
 ## Specification
 
-### Browser API / Polyfill API
+### Meta Tags
 
-#### Register
+This `<meta>` tags MUST be in the document's `<head>`. The `<meta>` tags allows the user's agent to pay a site via Web Monetization by specifying a [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md).
 
-```ts
-window.WebMonetization.register({
-  name: string,
-  handlerUri: string
-}): Promise<Boolean>
+If the `<meta>` tag exists inside of an iframe, the iframe MUST contain `monetization` as one of the items in its `allow` attribute, e.g. `allow="monetization"`.
+
+The `name` of the `<meta>` tags all start with `monetization`. The table below lists the different `name`s and the formats of their `content`. Currently there is only one tag, but this may be expanded in the future.
+
+| Name | Required? | Format | Description |
+|:--|:--|:--|:--|
+| `monetization` | Yes | [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md) | The Payment Pointer that the user's agent will pay. |
+
+#### Examples
+
+##### Web Monetization Meta Tag
+
+```html
+<meta
+  name="monetization"
+  content="$twitter.xrptipbot.com/Interledger" />
+]```
+
+##### Iframe to Web-Monetized Page
+
+```html
+<iframe
+  src="https://webmonetizedsite.example"
+  title="web monetized side"
+  allow="monetization" >
+</iframe>
 ```
 
-##### Parameters
-
-| Name | Type | Description |
-|:---|:---|:---|
-| opts | `Object` | The options for registering a handler. |
-| opts.name | `String` | Name of the provider (for display). |
-| opts.handlerUri | `String` | URL to handler. |
-
-##### Returns
-
-- `Promise<Boolean>` - Whether the handler was set successfully.
-
-#### Monetize
+### Javascript API
 
 ```ts
-window.WebMonetization.monetize({
-  destinationAccount: string,
-  sharedSecret: string
-}): Promise<IlpConnection>
+document.monetization: EventTarget
+document.monetization.state: String
 ```
 
-##### Parameters
+`document.monetization.state` can be one of two values.
 
-| Name | Type | Description |
-|:---|:---|:---|
-| opts | `Object` | The options for creating a connection. |
-| opts.destinationAccount | `String` | ILP address for STREAM server. |
-| opts.sharedSecret | `String` | Base64 representation of STREAM shared secret. |
+- `pending` - Indicates that monetization has not yet started. This is set even if there are no Web Monetization `<meta>` tags on the page.
+- `started` - Indicates that monetization has started (i.e. the `monetizationstart` event has been fired).
 
-##### Returns
+### Browser Events
 
-- `Promise<IlpConnection>` - An [ILP/STREAM connection](#ilp-connection-class) that can be used to send money and data.
-- Rejects with `Error` if the connection could not be established.
-- Rejects with `NoHandlerRegisteredError` if the browser is not enabled for Web Monetization and/or has no handler registered.
+These events are dispatched on `document.monetization`. Web Monetization events MAY be implemented as [`CustomEvent`](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent)s, or as their own Event class.
 
-### ILP Connection Class
+#### `monetizationstart`
 
-#### Events
-
-| Name | Fields | Emitted |
-|:---|:---|:---|
-| `stream` | [`Event.stream: IlpStream`](#ilp-stream-class) | When the other side of the connection opens a stream. |
-| `close` | | When the connection closes. |
-| `error` | `Event.error: Error` | When an error occurs on this ILP connection. |
-
-#### Fields (Read-only)
-
-| Name | Type | Description |
-|:---|:---|:---|
-| `connectionTag` | `String` | A unique tag on this connection set at establishment. |
-| `lastPacketExchangeRate` | `Number` | Exchange rate observed on the most recent packet over this connection. |
-| `minimumAcceptableExchangeRate` | `Number` | The least favorable connection allowed on this exchange rate. |
-| `totalDelivered` | `String` | The amount of money sent to the destination (in destination units). |
-| `totalSent` | `String` | The amount of money sent to the destination (in our units). |
-| `totalReceived` | `String` | The amount of money received (in our units). |
-| `sourceAssetCode` | `String` | The three-letter asset code of the source account's units. |
-| `sourceAssetScale` | `Number` | The scale of the source account's units (i.e. if the units were cents, the scale would be `2` and the code would be `USD`) |
-| `destinationAssetCode` | `String | undefined` | The three-letter asset code of the destination account's units. This may not be present, depending on the destination's STREAM version. |
-| `destinationAssetScale` | `String | undefined` | The scale of the destination account's units. This may not be present, depending on the destination's STREAM version. |
-
-#### Create Stream
-
-```ts
-connection.createStream(): IlpStream
-```
-
-##### Returns
-
-- `IlpStream` - An [ILP Stream](#ilp-stream-class) object.
-
-#### End Connection
-
-```ts
-connection.close(): void
-```
-
-### ILP Stream Class
-
-#### Events
-
-| Name | Fields | Emitted |
-|:---|:---|:---|
-| `data` | `Event.data: Uint8Array` | When data is received over the stream. |
-| `money` | `Event.amount: String` | When money is received over the stream. |
-| `outgoing_money` | `Event.amount: String` | When money is sent over the stream. |
-| `close` | | When the stream is closed. |
-| `error` | `Event.error: Error` | When the stream encounters an error. |
-
-#### Fields (Read-only)
-
-| Name | Type | Value |
-|:---|:---|:---|
-| `id` | `String` | The id of this stream, unique to this connection. |
-| `receiveMax` | `String` | The maximum amount you permit this stream to receive. Change with `setReceiveMax()` |
-| `sendMax` | `String` | The amount you will try to send on this stream. Change with `setSendMax()` |
-| `totalReceived` | `String` | The total amount received so far on this stream. |
-| `totalSent` | `String` | The total amount sent so far on this stream. |
-
-#### Check if Stream is Open
-
-```ts
-stream.isOpen(): Boolean
-```
-
-##### Returns
-
-- `Boolean`, whether the stream is open.
-
-#### Allow Money to be Received
-
-```ts
-stream.setReceiveMax(amount: String): void
-```
-
-Sets the maximum that can be received. Must be called with
-increasing values.
-
-##### Parameters
-
-- `amount: String` - The amount to receive (in our units).
-
-#### Wait for Money to be Received
-
-```ts
-stream.receiveTotal(amount: String, timeout?: Number): Promise<void>
-```
-
-Sets the maximum that can be received and waits until that amount has been
-reached. Must be called with increasing `amount`s.
-
-##### Parameters
-
-- `amount: String` - The amount to receive (in our units).
-- `timeout: Number` - How long (in ms) to wait for this function to complete.
-
-#### Try to Send Money
-
-```ts
-stream.setSendMax(amount: String): Promise<void>
-```
-
-Sets the maximum that can be sent. The stream will send as much as the receiver
-is willing to receive, up to this maximum.The stream will send as much as the
-receiver is willing to receive, up to this maximum. Must be called with
-increasing values.
-
-##### Parameters
-
-- `amount: String` - The amount to send (in our units).
-
-#### Wait for Money to be Sent
-
-```ts
-stream.sendTotal(amount: String, timeout?: Number): Promise<void>
-```
-
-Sets the maximum that can be sent and waits until that amount has been
-sent. Must be called with increasing `amount`s.
-
-##### Parameters
-
-- `amount: String` - The amount to send (in our units).
-- `timeout: Number` - How long (in ms) to wait for this function to complete.
-
-#### Send Data on the Stream
-
-```ts
-stream.send(msg: Uint8Array | String): Promise<void>
-```
-
-Sends data over the stream, which will be emitted as `data` events on the other
-side. The data may be broken into chunks or buffered; one `send` call doesn't
-necessarily correspond to a single `data` event.
-
-##### Parameters
-
-- `msg: Uint8Array | String` - The data to send over the stream.
-
-#### Close the Stream
-
-```ts
-stream.close(): void
-```
-
-### Web Monetization Handler API
-
-The `handlerURL` that is registered is embedded as an iframe. Messages are passed to it with `iframe.contentWindow.postMessage`, and messages are sent from the iframe to the browser via `window.parent.postMessage`.
-
-#### Request
+Dispatched once the first ILP packet with a non-zero amount has been fulfilled by the page's SPSP receiver. MUST be dispatched at least once if payment occurs.
 
 ```ts
 {
-  id: string,
-  request: string
+  detail: {
+    paymentPointer: String,
+    requestId: String
+  }
 }
 ```
 
-| Name | Type | Description |
-|:---|:---|:---|
-| id | `String` | Unique ID to associate request with response. |
-| request | `String` | Base64 encoded ILP prepare packet. |
+The `paymentPointer` matches the one in the `<meta>` tags. The `requestId` matches the UUID generated by the browser (see [Flow](#flow)). This `requestId` MUST be unique per page load.
 
-#### Response (Success)
+#### `monetizationprogress`
+
+Dispatched every time an ILP packet with a non-zero amount has been fulfilled by the page's SPSP receiver (including the first time, when `monetizationstart` is also dispatched). This event MAY NOT be emitted if there are no listeners for it on `document.monetization`.
 
 ```ts
 {
-  id: string,
-  response: string
+  detail: {
+    amount: String,
+    assetCode: String,
+    assetScale: Number
+  }
 }
 ```
 
-| Name | Type | Description |
-|:---|:---|:---|
-| id | `String` | Unique ID to associate request with response. |
-| response | `String` | Base64 encoded ILP fulfill/reject packet. |
+- `amount` is a String containing the amount contained in the ILP packet.
+- `assetCode` contains the three letter asset code describing the amount's units.
+- `assetScale` contains a number representing the scale of the amount. For example, cents would have an assetScale of `2`.
 
-#### Response (Error)
+### HTTP Headers
 
-```ts
-{
-  id: string,
-  error: string,
-  errorName?: string
-}
+#### `Web-Monetization-Id`
+
+Contains the `requestId` that the browser generated. This header MUST always be sent on SPSP queries for Web Monetization. This value MUST be a UUID version 4.
+
+```http
+Web-Monetization-Id: dcd479ad-7d8d-4210-956a-13c14b8c67eb
 ```
-
-| Name | Type | Description |
-|:---|:---|:---|
-| id | `String` | Unique ID to associate request with response. |
-| error | `String` | Error message. |
-| errorName | `String` | _(Optional)_ Error name. |
