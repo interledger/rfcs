@@ -202,7 +202,7 @@ We assume that the client knows the server's SPSP endpoint (see [Payment Pointer
 
 1. The user's SPSP client queries the server's SPSP Endpoint.
 
-2. The SPSP endpoint responds with the server info, including the servers's ILP address (`destination_account`) and the shared secret (`shared_secret`) to be used in STREAM. 
+2. The SPSP endpoint responds with the server info, including the server's ILP address (`destination_account`) and the shared secret (`shared_secret`) to be used in STREAM. 
     * The `destination_account` SHOULD be used as the STREAM destinationAccount.
     * The `shared_secret` SHOULD be decoded from base64 and used as the STREAM sharedSecret.
   
