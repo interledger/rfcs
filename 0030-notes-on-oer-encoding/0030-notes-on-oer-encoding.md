@@ -209,9 +209,75 @@ A variable length signed integer consists of a length determinant, followed by a
 
 A variable length string consists of a length determinant, followed by that many bytes. UTF-8 MUST be used as the character encoding unless otherwise specified.
 
-### Timestamp
+### Fixed-length Timestamps
 
-> Used in: ILP, BTP
+> Used in: ILP
+
+ILP Timestamps are encoded using ASN.1 PrintableString with a fixed length of 17, using a shortened and slightly restricted variant of ISO-8601 encoding.
+
+#### Encoding
+
+When encoding an ISO-8601 ILP timestamp, the hyphens, colons, `T` character, decimal period, and any `Z` timezone indicator MUST be removed. The date MUST denote UTC time, as local timezones are not allowed. Years MUST be given as four digits and MUST NOT be left out. Months, day, hours, minutes and seconds MUST be given 
+as two digits and MUST NOT be left out. Milliseconds MUST be given as three digits, and MUST NOT be left out. Midnight MUST be encoded as `000000000` on the following day. 
+Leap seconds MUST be smeared across the entirety of a day according to [UTC-SLS](https://www.cl.cam.ac.uk/~mgk25/time/utc-sls/) (note that many programming languages support this functionality by default, including Java and Javascript. See [IL-RFC-481](https://github.com/interledger/rfcs/issues/481) for more details).
+
+Here is how to encode certain dates:
+
+* `2017-12-24T16:14:32.279112Z` ->  `20171224161432279` (rounded)
+* `2017-12-24T16:14:32.279Z` ->     `20171224161432279`
+* `2016-12-31T23.59.60.852Z` ->     `20161231235960852` (leap second)
+* `2017-12-24T16:14:32.200Z` ->     `20171224161432200`
+* `2017-12-24T16:14:32.000Z` ->     `20171224161432000`
+* `2017-12-24T16:14:30.000Z` ->     `20171224161430000`
+* `2017-12-24T16:14:00.000Z` ->     `20171224161400000`
+* `2017-12-24T16:10:00.000Z` ->     `20171224161000000`
+* `2017-12-24T16:00:00.000Z` ->     `20171224160000000`
+* `2017-12-24T10:00:00.000Z` ->     `20171224100000000`
+* `2017-12-24T00:00:00.000Z` ->     `20171224000000000`
+* `2017-12-24T24:00:00.000Z` ->     `20171225000000000` (use correct midnight format)
+* `2017-12-24T16:14:32,182Z` ->     `20171224161432182`
+* `2017-12-24T18:14:32.000+0200` -> `20171224161432000` (converted to UTC)
+
+#### Decoding
+
+All required fields MUST be present. Extra elements MUST NOT be present. Midnight MUST be represented as `000000`. Leap seconds MUST be smeared across the entirety of a day according to [UTC-SLS](https://www.cl.cam.ac.uk/~mgk25/time/utc-sls/) (note that many programming languages support this functionality by default, including Java and Javascript. See [IL-RFC-481](https://github.com/interledger/rfcs/issues/481) for more details).  
+
+The following examples are invalid and parsers MUST reject them:
+
+* `20171224235312.431+0200` -> INVALID; not UTC, invalid characters
+* `201712242153124318` -> INVALID; too much precision, invalid characters
+* `20171324161432200` -> INVALID, month out of range
+* `20171224230000000.` -> INVALID, spurious decimal point
+* `20171224240000000` -> INVALID, wrong representation of midnight
+* `20171224215300` -> INVALID, missing milliseconds
+* `2017122421531` -> INVALID, missing digit in seconds and milliseconds
+* `201712242153` -> INVALID, missing seconds and milliseconds
+* `2017122421` -> INVALID, missing seconds, minutes, and milliseconds
+* `20161231235960852` -> INVALID, unsmeared leap-second.
+
+The following examples are valid and parsers MUST correct deserialize them:
+
+* `20171224161432279` -> `2017-12-24T16:14:32.279Z`
+* `20171224161432270` -> `2017-12-24T16:14:32.270Z`
+* `20171224161432200` -> `2017-12-24T16:14:32.200Z`
+* `20171224161432000` -> `2017-12-24T16:14:32.000Z`
+* `20161231235959852` -> `2016-12-31T23:59:60.852Z` (nearly a leap second)
+* `20171225000000000` -> `2017-12-25T00:00:00.000Z` (correct representation of midnight)
+* `99991224161432279` -> `9999-12-24T16:14:32.279Z` (year 9999 is valid)
+
+#### Examples
+
+When encoded in binary, the shortened date string is encoded as a [fixed-length string](#fixed-length-string).
+
+| Encoding | Decoded value |
+| :--- | :--- |
+| `32303137 31323234 31363134 33323237 39` | `20171224161432279` |
+| `32303137 31323234 31363134 33323230 30` | `20171224161432200` |
+| `32303137 31323235 30303030 30303030 30` | `20171225000000000` |
+
+### Variable-length Timestamps
+
+> Used in: BTP
 
 Timestamps are encoded using ASN.1 GeneralizedTime. This is a shortened and slightly restricted variant of ISO 8601 encoding. Once the date string is derived it is encoded as a variable-length string.
 
