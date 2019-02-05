@@ -66,9 +66,13 @@ Accept: application/spsp4+json, application/spsp+json
 ``` http
 HTTP/1.1 200 OK
 Content-Type: application/spsp4+json
-STREAM-Destination-Account: example.ilpdemo.red.bob
-STREAM-Shared-Secret: 6jR5iNIVRvqeasJeCty6C+YB5X9FhSOUPCL/5nha5Vs=
+
+{
+  "destination_account": "example.ilpdemo.red.bob",
+  "shared_secret": "6jR5iNIVRvqeasJeCty6C+YB5X9FhSOUPCL/5nha5Vs="
+}
 ```
+More information about the parameters can be found in section [Response Body](#response-body).
 
 ##### Response Headers
 
@@ -78,8 +82,6 @@ The response MUST contain at least the following headers:
 |:----------------|:-----------------------------------------------------------|
 | `Content-Type`  | MUST be `application/spsp4+json` to indicates the response is encoded as [JSON](http://www.json.org/) and that the ILP payment should be sent via STREAM. |
 | `Cache-Control` | Indicates how long the SPSP Client should cache the response. See supported cache-control directives below. |
-| `STREAM-Destination-Account` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) of the server.|
-| `STREAM-Shared-Secret` | The shared secret (32 bytes, [base64 encoded](https://en.wikipedia.org/wiki/Base64) including padding) to be used by this specific HTTP client in the [STREAM](../0029-stream/0029-stream.md). Should be shared only by the server and this specific HTTP client, and should therefore be different in each query response. |
 
 To handle as many transactions per second as possible, the SPSP client caches results from the SPSP server. The information returned by the SPSP server is not expected to change rapidly, so repeated requests for the same information are usually redundant. The server communicates how long to cache results for using the HTTP-standard [`Cache-Control` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) in the responses to RESTful API calls.
 
@@ -89,6 +91,15 @@ The SPSP client understands the following Cache-Control directives:
 |:--------------|:-------------------------------------------------------------|
 | `max-age=<i>` | The client should cache this response for `<i>` seconds. `<i>` MUST be a positive integer |
 | `no-cache`    | The client must not cache this response |
+
+##### Response Body
+
+The response body is a JSON object that includes basic account details necessary for setting up payments.
+
+| Field | Type | Description |
+|---|---|---|
+| `destination_account` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) | ILP Address of the server. In case of push payments, this is the receiver, in case of pull payments, this is the sender. |
+| `shared_secret` | 32 bytes, [base64 encoded](https://en.wikipedia.org/wiki/Base64) (including padding) | The shared secret to be used by this specific HTTP client in the [STREAM](../0029-stream/0029-stream.md). Should be shared only by the server and this specific HTTP client, and should therefore be different in each query response. |
 
 ##### Errors
 
@@ -110,11 +121,11 @@ We assume that the client knows the server's SPSP endpoint (see [Payment Pointer
 
 1. The user's SPSP client queries the server's SPSP Endpoint.
 
-2. The SPSP endpoint responds with the server info in the header, namely the server's ILP address (`STREAM-Destination-Account`) and the shared secret (`STREAM-Shared-Secret`) to be used in STREAM. 
-    * The `STREAM-Destination-Account` SHOULD be used as the STREAM destinationAccount.
-    * The `STREAM-Shared-Secret` SHOULD be decoded from base64 and used as the STREAM sharedSecret.
+2. The SPSP endpoint responds with the server info, namely the server's ILP address (`destination_account`) and the shared secret (`shared_secret`) to be used in STREAM. 
+    * The `destination_account` SHOULD be used as the STREAM destinationAccount.
+    * The `shared_secret` SHOULD be decoded from base64 and used as the STREAM sharedSecret.
   
-    It MAY respond with additional information in the body if it is an invoice server or a pull payment server. For more information, see [SPSP Push Payments](../0035-spsp-push-payments/0035-spsp-push-payments.md) and [SPSP Pull Payments](../0036-spsp-pull-payments/0036-spsp-pull-payments.md).
+    It MAY respond with additional information if it is an invoice server or a pull payment server. For more information, see [SPSP Push Payments](../0035-spsp-push-payments/0035-spsp-push-payments.md) and [SPSP Pull Payments](../0036-spsp-pull-payments/0036-spsp-pull-payments.md).
 
 3. The SPSP client establishes a STREAM connection to the server using the server's ILP address and shared secret.
 
