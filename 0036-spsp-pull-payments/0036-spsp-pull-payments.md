@@ -113,7 +113,9 @@ Content-Type: application/spsp4+json
 
 ### Creating a token
 
-A pull payment token is created by the server administrator via a POST request:
+**This subsection is not normative but serves as a guideline for how a pull payment token could be created.**
+
+A pull payment token SHOULD be created by the server administrator via a POST request:
 
 #### Request
 
@@ -181,9 +183,9 @@ We assume that the client knows the server's SPSP endpoint (see [Payment Pointer
 
 4. The SPSP server begins sending ILP packets to fulfill the payment.
     1. The server will adjust their `sendMax` to reflect the amount they're willing to send.
-        * If present, `balance.current` SHOULD be used as the STREAM `sendMax`.
+        * If present, `balance.current`, converted to the server's uplink currency and padded by a slippage amount, SHOULD be used as the STREAM `sendMax`.
     2. The client will adjust their `receiveMax` to reflect the amount they're willing to receive.
-        * If present, `balance.current` SHOULD be used as the STREAM `receiveMax`.
+        * If present, `balance.current`, converted to the client's uplink currency, SHOULD be used as the STREAM `receiveMax`.
     3. The client's and server's STREAM modules will move as much value as possible while staying inside these bounds.
     4. If the server reaches their `sendMax`, they end the stream and the connection. If the client reaches their `receiveMax`, they will end the stream and the connection.
 
