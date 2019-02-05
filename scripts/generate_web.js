@@ -39,6 +39,7 @@ renderer.link = function (href, title, text) {
 };
 
 let cwd = path.resolve(__dirname, '..')
+const commitMessage = exec('git log -1 --pretty=%B', { cwd }).toString('utf8')
 exec('rm -rf web', { cwd })
 exec('git clone git@github.com:interledger/rfcs.git --branch gh-pages --single-branch web', { cwd })
 exec('cp -r ????-* web', { cwd })
@@ -46,6 +47,9 @@ exec('cp -r shared web', { cwd })
 
 const template = ejs.compile(fs.readFileSync('tmpl/rfc.ejs.html', 'utf8'))
 const files = glob.sync('????-*/????-*.md')
+if(commitMessage.includes("Skip Version Check")) {
+  console.log('Skipping version checks. Will overwrite index.html for all specs.')
+}
 let buildPass = true
 
 files.forEach((file) => {
@@ -133,15 +137,17 @@ files.forEach((file) => {
   const renderedHtml = template({ title, content, toc, rfcNumber, draftNumber, deprecated })
 
   //Versioning
-  if (fs.existsSync(draftFile)) {
-    const existingHtml = fs.readFileSync(draftFile, 'utf8')
-    if (existingHtml != renderedHtml) {
-      console.error('Draft number must be incremented if content is changed for ' + file)
-      buildPass = false
+  if(!commitMessage.includes("Skip Version Check")) {
+    if (fs.existsSync(draftFile)) {
+      const existingHtml = fs.readFileSync(draftFile, 'utf8')
+      if (existingHtml != renderedHtml) {
+        console.error('Draft number must be incremented if content is changed for ' + file)
+        buildPass = false
+        return
+      }
+      console.log('No changes in ' + file)
       return
-    }
-    console.log('No changes in ' + file)
-    return
+    }  
   }
 
   console.log('Writing ' + draftFile)
