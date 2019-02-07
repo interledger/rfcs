@@ -31,7 +31,7 @@ The client queries the SPSP endpoint to get information about the server:
 #### Request
 
 ``` http
-GET /pullagreement456 HTTP/1.1
+GET /0f09dc92-84ad-401b-a7c9-441bc6173f4e HTTP/1.1
 Host: alice.com
 Accept: application/spsp4+json, application/spsp+json
 ```
@@ -43,7 +43,7 @@ HTTP/1.1 200 OK
 Content-Type: application/spsp4+json
 
 {
-  "destination_account": "alice.ilpdemo.red~pullagreement456",
+  "destination_account": "alice.ilpdemo.red~0f09dc92-84ad-401b-a7c9-441bc6173f4e",
   "shared_secret": "k5nubgM6zpb88NPGVnI/tVjRdgpUh+JvMueRFEMvPcY=",
   "balance": {
     "current": "100",
@@ -132,7 +132,6 @@ Authorization: Bearer test
     "cycles": "5",
     "assetCode": "USD",
     "assetScale": "2",
-    "secret": "6jR5iNIVRvqeasJeCty6C+YB5X9FhSOUPCL/5nha5Vs="
 }
 ```
 
@@ -147,7 +146,7 @@ Date: Mon, 04 Feb 2019 23:42:14 GMT
 Server: nginx/1.10.1
 
 {
-    "token": "$alice.com/pullagreement456"
+    "token": "$alice.com/0f09dc92-84ad-401b-a7c9-441bc6173f4e"
 }
 ``` 
 This token is passed to the client that can use it to conduct the pull payment. The parameters are defined as follows:
@@ -161,7 +160,6 @@ This token is passed to the client that can use it to conduct the pull payment. 
 | `cycles` | Integer String | Is used to calculate `timeline_info.expiry_time`, which SHOULD equal `timeline_info.refill_time` + `cycles` * `frequency_info.interval \|\| frequency_info.type`, e.g. `"2019-07-10T01:01:12Z"` = `"2019-02-10T01:01:13Z"` + `5` * `1 MONTH` |
 | `assetCode`| String | `asset_info.code` SHOULD be set to this value. |
 | `assetScale` | Integer String | `asset_info.scale` SHOULD be set to this value. |
-| `secret` | 32 bytes, [base64 encoded](https://en.wikipedia.org/wiki/Base64) (including padding) | Secret that MUST be provided by the client in order to make the pull payment. |
 
 Prior to the creation of the token, the client and server applications MAY negotiate the above defined parameters. This negotiation process is part of the end-user application. 
 
