@@ -11,3 +11,4 @@
 # Ignore macOS file
 .DS_Store
 
+/.idea
