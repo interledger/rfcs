@@ -1,6 +1,6 @@
 ---
 title: Notes on OER Encoding
-draft: 1
+draft: 2
 ---
 
 # Introduction
