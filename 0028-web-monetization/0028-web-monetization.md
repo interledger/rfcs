@@ -104,7 +104,8 @@ The `name` of the `<meta>` tags all start with `monetization`. The table below l
 <meta
   name="monetization"
   content="$twitter.xrptipbot.com/Interledger" />
-]```
+]
+```
 
 ##### Iframe to Web-Monetized Page
 
