@@ -125,22 +125,7 @@ The status can be changed by a **route control request** that is described below
 
 ### Security of Routing Information
 
-Since routing information is important for the ILP network to send ILP packets appropriately, a node has to know whether the routing information which is sent from the other nodes is reliable. Currently, a shared-secret-based authentication is used.
-
-The entire security model is described below.
-
-- `Node A` and `Node B` agree upon a shared secret
-- `Node A` sends routing informationn with an authentication code which is generated with the shared secret
-- `Node B` verifies the authentication code with the shared secret
-  - If `Node B` cannot verify the authentication code, the routing information should not be adopted since the routing information is suspected to be malicious.
-
-In the default implementation, `HMAC` is used to generate authentication codes. The following is a pseudo code.
-
-```
-var hmac = createHmac('sha256', shared-secret);
-hmac.update(routing-information, 'utf8');
-var authentication-code = hmac.digest();
-```
+(to be written)
 
 ### Types of Routing Table
 
