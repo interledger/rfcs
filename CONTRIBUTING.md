@@ -1,8 +1,16 @@
 # CONTRIBUTING
 
-Contributions to the Interledger RFC repo follow the following document publishing process.
+Contributions to the Interledger RFC repo are subject to the following copyright and licensing terms and follow the following document publishing process.
 
-Contributions are subject to the [CC-BY-SA 4.0 license](LICENSE).
+## Summary
+
+Copyright on all content is subject to the terms of the [CC-BY-SA 4.0 license](LICENSE).
+IP is subject to the terms of the [W3C Contributor License Agreement](https://www.w3.org/community/about/agreements/cla/).
+
+All contributors grant everyone:
+
+Copyright – a royalty-free license to use the copyrights for their contributions.
+Patent – a commitment to license on a royalty-free basis their essential patent claims reading on their contributions.
 
 ## Background
 
