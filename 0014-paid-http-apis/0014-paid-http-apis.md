@@ -1,8 +1,8 @@
 ---
-title: HTTP-ILP
-draft: 4
+title: Paid HTTP APIs
+draft: 5
 ---
-# HTTP-ILP
+# Paid HTTP APIs
 
 > A standard for paid HTTP requests.
 
