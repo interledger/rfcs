@@ -12,15 +12,43 @@ This document describes how to conduct pull payments via [STREAM](../0029-stream
 
 ### Motivation
 
-The Simple Payment Setup Protocol (SPSP) only descirbes how the details required for a STREAM connection are exchanged. However, it lacks a detailed explaination of how a pull payment is conducted using this connection. 
+The Simple Payment Setup Protocol (SPSP) only descirbes how the details required for a STREAM connection are exchanged and how a simple push payment is made. However, it lacks a detailed explaination of how a pull payment is conducted using this connection. 
 
 ### Scope
 
-This document specifies basic server details needed by the client to set up a STREAM pull payment. It is intended for use by end-user applications.
+This document specifies how to conduct a pull payment once a STREAM connection has been set up. It is intended for use by end-user applications.
 
-### Operation
+### Operation Overview
 
-Any SPSP server will expose an HTTPS endpoint called the SPSP Endpoint. The client can query this endpoint to get information about about the server's connection details, namely ILP address and a shared secret, as well as additional information about the type and form of payment that can be made to this server. The client can set up and pull multiple ILP payments using the details provided by the server. 
+Any SPSP server will expose an HTTPS endpoint called the SPSP Endpoint. The client can query this endpoint to get information about about the server's connection details, namely ILP address and a shared secret. The endpoint MAY also contain additional information for displaying purposes. The client can set up a STREAM connection and pull multiple ILP payments using the details provided by the server. 
+
+## Model of Operation
+
+### Creating a token
+
+A pull payment token SHOULD be be opaque. For the purpose of offline generation, it MAY include negotiated pull payment agreement parameters that SHOULD become obsolete once the SPSP endpoint corresponding to that token has been created. The SPSP server SHOULD store the negotiated pull payment agreement parameters.
+
+The pull payment agreement parameters that SHOULD be negotiated are those defined in the `agreement` object within the [Response Body](#Response-Body). 
+
+### Conducting the pull payment
+
+We assume that the client knows the server's SPSP endpoint (see [Payment Pointers](../0026-payment-pointers/0026-payment-pointers.md)).
+
+1. The user's SPSP client queries the server's SPSP Endpoint.
+
+2. The SPSP endpoint responds with the server info, including the server's ILP address (`destination_account`) and the shared secret (`shared_secret`) to be used in STREAM. 
+    * The `destination_account` SHOULD be used as the STREAM destinationAccount.
+    * The `shared_secret` SHOULD be decoded from base64 and used as the STREAM sharedSecret.
+
+3. The SPSP client establishes a STREAM connection to the server using the server's ILP address and shared secret and constructs a stream to the client on the ILP/STREAM connection.
+
+4. The SPSP server begins sending ILP packets to fulfill the payment.
+    1. The server will adjust their `sendMax` to reflect the amount they're willing to send.
+        * `sendMax` SHOULD be derived from the pull payment agreement parameters.
+    2. The client will adjust their `receiveMax` to reflect the amount they're willing to receive.
+        * `receiveMax` MAY be `Infinity`.
+    3. The client's and server's STREAM modules will move as much value as possible while staying inside these bounds.
+    4. If the server reaches their `sendMax`, they end the stream and the connection. If the client reaches their `receiveMax`, they will end the stream and the connection.
 
 ## Specification
 
@@ -46,145 +74,60 @@ Content-Type: application/spsp4+json
   "destination_account": "alice.ilpdemo.red~0f09dc92-84ad-401b-a7c9-441bc6173f4e",
   "shared_secret": "k5nubgM6zpb88NPGVnI/tVjRdgpUh+JvMueRFEMvPcY=",
   "balance": {
-    "current": "100",
-    "maximum": "500"
+    "total": "5000",
+    "interval": "1000",
+    "available": "1000"
   },
-  "asset_info": {
-    "code": "USD",
-    "scale": 2
-  },
-  "frequency_info": { 
-    "type": "MONTH",
-    "interval": 1
-  },
-  "timeline_info": {
-    "refill_time": "2019-02-10T01:01:13Z",
-    "expiry_time": "2019-07-10T01:01:12Z"
-  },
-  "receiver_info": {
-    "name": "XYZ Store",
-    "image_url": "https://red.ilpdemo.org/logo.jpg"
+  "cycle": 3,
+  "agreement": {
+    "amount": "2000",
+    "start": "2019-01-01T08:00Z",
+    "interval": "P0Y1M0DT0H0M0S",
+    "cycles": 12,
+    "cap": false,
+    "asset": {
+      "code": "USD",
+      "scale": 2
+    }
   }
 }
 ``` 
-More information about the parameters can be found in section [Response Body](#response-body).
 
 ##### Response Body
 
-The response body is a JSON object that includes basic account details necessary for setting up payments.
+The response body is a JSON object that includes basic account details necessary for setting up a STREAM connection as well as optional parameters for displaying purposes.
 
 | Field | Type | Description |
 |---|---|---|
 | `destination_account` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) | ILP Address of the server. In case of push payments, this is the receiver, in case of pull payments, this is the sender. |
 | `shared_secret` | 32 bytes, [base64 encoded](https://en.wikipedia.org/wiki/Base64) (including padding) | The shared secret to be used by this specific HTTP client in the [STREAM](../0029-stream/0029-stream.md). Should be shared only by the server and this specific HTTP client, and should therefore be different in each query response. |
-| `balance`  | Object | _(OPTIONAL)_ Details of this server account's balance. Used for invoices and and pull payment agreements. |
-| `balance.maximum` | Integer String | Maximum amount, denoted in `asset_info.code`, which the client can pull within one frequency interval (see `frequency_info`). It represents the highest sum that outgoing chunks are allowed to reach, not the highest size of an individual chunk (which is determined by path MTU). |
-| `balance.current` | Integer String | Amount, denoted in `asset_info.code`, which remains pullable within the current frequency interval (see `frequency_info`). Once `balance.current` equals `0`, the, the client can not pull any more until `balance.current` is refilled on `timeline_info.refill_time`. |
-| `asset_info` | Object | _(OPTIONAL)_ Details about the agreement's asset. For pull payment agreements, this is the currency the pull can be made in. |
-| `asset_info.code` | String | Asset code to identify the agreement's currency. Currencies that have [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) codes should use those. |
-| `asset_info.scale` | Integer | The scale of the amounts `balance.maximum` and `balance.current` are stated in (e.g. an amount of `"1000"` with a scale of `2` translates to `10.00` units of the server's asset/currency) |
-| `frequency_info` | Object | Parameters defining the recurrence of pull payments. |
-| `frequency_info.type`	| String | Frequency at which `timeline_info.refill_time` is incremented. Possible values are `DAY`, `WEEK`, `MONTH`, `YEAR`. |
-| `frequency_info.interval` | Integer | Interval associated with `frequency_info.type`. For example, if `frequency_info.type` is `WEEK` and `frequency_info.interval` is `2`, `balance.current` is refilled every 2 weeks. |
-| `timeline_info`	|	Object | Times defining the recurrence of pull payments. |
-| `timeline_info.refill_time` |	String | [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) UTC timestamp, e.g. `"2019-02-10T01:01:13Z"`, representing the next time at which `balance.current` will be filled up to the amount of `balance.maximum`. |
-| `timeline_info.expiry_time` |	String | _(OPTIONAL)_ [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) UTC timestamp, e.g. `"2019-07-10T01:01:12Z"`, representing the time after which `balance.current` will not be filled up anymore, i.e., when the pull payment agreement expires. |
-| `receiver_info` | Object | _(OPTIONAL)_ Arbitrary additional information about the receiver. This field has no schema and the receiver may include any fields they choose. The field names listed below are recommended merely for interoperability purposes. |
-| `receiver_info.name` | String | _(OPTIONAL)_ Full name of the individual, company or organization the receiver represents |
-| `receiver_info.image_url` | HTTPS URL | _(OPTIONAL)_ URL where the sender can get a picture representation of the receiver |
+| `balance`  | Object | _(OPTIONAL)_ Details of this server account's balance. |
+| `balance.total` | Integer String | _(OPTIONAL)_ Total amount, denoted in `agreement.asset.code`, which has been pulled by the client since `start` to date. It is the sum of all outgoing chunks. |
+| `balance.interval` | Integer String | _(OPTIONAL)_ Amount, denoted in `agreement.asset.code`, which has been pulled by the client since the start of the current `cycle`. It is the sum of all outgoing chunks. |
+| `balance.available` | Integer String | _(OPTIONAL)_ Amount, denoted in `agreement.asset.code`, which is still available to be pulled by the client until the end of the current `cycle`. |
+| `cycle` | Integer | _(OPTIONAL)_ Current interval cycle out of a total of `agreement.cycles`. |
+| `agreement` | Object | _(OPTIONAL)_ Details about the pull payment agreement. |
+| `agreement.amount` | Integer String | _(OPTIONAL)_ Amount, denoted in `agreement.asset.code`, which can pulled by the client each `agreement.interval`. |
+| `agreement.start` |	String | _(OPTIONAL)_ [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) UTC timestamp, e.g. `"2019-02-10T01:01:13Z"`, representing the start of the pull payment agreement. |
+| `agreement.interval` | String | _(OPTIONAL)_ [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) duration, e.g. `"P0Y1M0DT0H0M0S"` = 1 month, which describes how often `agreement.amount` can be pulled. |
+| `agreement.cycles` | Integer | _(OPTIONAL)_ Number of times that `agreement.interval` is applied, starting at `agreement.start`. If `agreement.interval` is 1 month and `agreement.cycles` is 12, then `agreement.amount` can be pulled 12 times within the year starting at `agreement.start`. |
+| `agreement.cap` | Boolean | _(OPTONAL)_ Defines whether any balance not pulled before the start of the next interval cycle is accumulated or expires. If `agreement.cap = true`, the maximum pullable amount per `agreement.interval` is `agreement.amount`. If `agreement.cap = false`, the maximum pullable amount per `agreement.interval` is `agreement.amount` plus any remaining funds accumulated but not pulled over the last interval cycles.|
+| `agreement.asset` | Object | _(OPTIONAL)_ Details about the agreement's asset. |
+| `agreement.asset.code` | String |  _(OPTIONAL)_ Asset code to identify the agreement's currency. Currencies that have [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) codes should use those. |
+| `agreement.asset.scale` | Integer |  _(OPTIONAL)_ The scale of the amounts `balance.maximum` and `balance.current` are stated in (e.g. an amount of `"1000"` with a scale of `2` translates to `10.00` units of the server's asset/currency) |
 
 **Note:** Currency amounts are denominated as integer strings instead of native JSON numbers to avoid losing precision during JSON parsing. Applications MUST represent these numbers in a data type that has precision equal or greater than an unsigned 64-bit integer.
 
 ##### Errors
 
-###### receiver Does Not Exist
+###### Token Does Not Exist
 
 ``` http
 HTTP/1.1 404 Not Found
 Content-Type: application/spsp4+json
 
 {
-  "id": "InvalidReceiverError",
-  "message": "Invalid receiver ID"
+  "id": "InvalidPointerError",
+  "message": "Token does not exist."
 }
 ```
-
-## Model of Operation
-
-### Creating a token
-
-**This subsection is not normative but serves as a guideline for how a pull payment token could be created.**
-
-A pull payment token SHOULD be created by the server administrator via a POST request:
-
-#### Request
-
-``` http
-POST / HTTP/1.1
-Host: alice.com
-Accept: application/json
-Authorization: Bearer test
-
-{
-    "amount": "10000",
-    "frequency": "MONTH",
-    "interval": "1",
-    "cycles": "5",
-    "assetCode": "USD",
-    "assetScale": "2",
-}
-```
-
-#### Response
-
-``` http
-HTTP/1.1 200 OK
-Connection: keep-alive
-Content-Length: 36
-Content-Type: application/json; charset=utf-8
-Date: Mon, 04 Feb 2019 23:42:14 GMT
-Server: nginx/1.10.1
-
-{
-    "token": "$alice.com/0f09dc92-84ad-401b-a7c9-441bc6173f4e"
-}
-``` 
-This token is passed to the client that can use it to conduct the pull payment. The parameters are defined as follows:
-
-| Parameter | Type | Description |
-|---|---|---|
-| `amount` | Integer String | `balance.maximum` SHOULD be set to this amount. |
-| `start` | String | _(OPTIONAL)_ `timeline_info.refill_time` SHOULD be set to this time, unless `start` is in the past, in which case `timeline_info.refill_time` SHOULD be set to `now`. This also holds if `start` is not provided. | |
-| `frequency` | String | `frequency_info.type` SHOULD be set to this value.|
-| `interval` | Integer String | `frequency_info.interval` SHOULD be set to this value.|
-| `cycles` | Integer String | Is used to calculate `timeline_info.expiry_time`, which SHOULD equal `timeline_info.refill_time` + `cycles` * `frequency_info.interval \|\| frequency_info.type`, e.g. `"2019-07-10T01:01:12Z"` = `"2019-02-10T01:01:13Z"` + `5` * `1 MONTH` |
-| `assetCode`| String | `asset_info.code` SHOULD be set to this value. |
-| `assetScale` | Integer String | `asset_info.scale` SHOULD be set to this value. |
-
-Prior to the creation of the token, the client and server applications MAY negotiate the above defined parameters. This negotiation process is part of the end-user application. 
-
-All requests MUST be exchanged over HTTPS.
-
-### Conducting the pull payment
-
-We assume that the client knows the server's SPSP endpoint (see [Payment Pointers](../0026-payment-pointers/0026-payment-pointers.md)).
-
-1. The user's SPSP client queries the server's SPSP Endpoint.
-
-2. The SPSP endpoint responds with the server info, including the server's ILP address (`destination_account`) and the shared secret (`shared_secret`) to be used in STREAM. 
-    * The `destination_account` SHOULD be used as the STREAM destinationAccount.
-    * The `shared_secret` SHOULD be decoded from base64 and used as the STREAM sharedSecret.
-  
-    It MAY respond with additional information if it is an invoice server (see [SPSP Push Payments](../0035-spsp-push-payments/0035-spsp-push-payments.md)) or a pull payment server. If the amounts within `balance` are negative, the client can push to this endpoint. 
-
-3. The SPSP client establishes a STREAM connection to the server using the server's ILP address and shared secret and constructs a stream to the client on the ILP/STREAM connection.
-
-4. The SPSP server begins sending ILP packets to fulfill the payment.
-    1. The server will adjust their `sendMax` to reflect the amount they're willing to send.
-        * If present, `balance.current`, converted to the server's uplink currency and padded by a slippage amount, SHOULD be used as the STREAM `sendMax`.
-    2. The client will adjust their `receiveMax` to reflect the amount they're willing to receive.
-        * If present, `balance.current`, converted to the client's uplink currency, SHOULD be used as the STREAM `receiveMax`.
-    3. The client's and server's STREAM modules will move as much value as possible while staying inside these bounds.
-    4. If the server reaches their `sendMax`, they end the stream and the connection. If the client reaches their `receiveMax`, they will end the stream and the connection.
-
-Note that the client and server can send as many STREAM payments as they want using the same query response. The client SHOULD query the server again once the time indicated in the [`Cache-Control` header](#response-headers) has passed.
