@@ -117,6 +117,8 @@ Content-Type: application/spsp4+json
 
 ## Model of Operation
 
+### Establishing a connection
+
 We assume that the client knows the server's SPSP endpoint (see [Payment Pointers](../0026-payment-pointers/0026-payment-pointers.md)).
 
 1. The user's SPSP client queries the server's SPSP Endpoint.
@@ -125,8 +127,22 @@ We assume that the client knows the server's SPSP endpoint (see [Payment Pointer
     * The `destination_account` SHOULD be used as the STREAM destinationAccount.
     * The `shared_secret` SHOULD be decoded from base64 and used as the STREAM sharedSecret.
   
-    It MAY respond with additional information if it is an invoice server or a pull payment server. For more information, see [SPSP Push Payments](../0035-spsp-push-payments/0035-spsp-push-payments.md) and [SPSP Pull Payments](../0036-spsp-pull-payments/0036-spsp-pull-payments.md).
+    It MAY respond with additional information if it is an invoice server or a pull payment server. For more information, see [SPSP Invoices](../0035-spsp-invoices/0035-spsp-invoices.md) and [SPSP Pull Payments](../0036-spsp-pull-payments/0036-spsp-pull-payments.md).
 
 3. The SPSP client establishes a STREAM connection to the server using the server's ILP address and shared secret.
 
-Note that the client and server can send as many STREAM payments as they want using the same query response. The client SHOULD query the server again once the time indicated in the [`Cache-Control` header](#response-headers) has passed.
+### Simple push payment
+
+4. The SPSP client begins sending ILP packets of value to fulfill the payment.
+    1. The client will adjust their STREAM `sendMax` to reflect the amount they're willing to send.
+    2. The server will adjust their STREAM `receiveMax` to reflect the amount they're willing to receive.
+    3. The client's and server's STREAM modules will move as much value as possible while staying inside these bounds.
+    4. If the client reaches their `sendMax`, they end the stream and the connection. If the server reaches their `receiveMax`, they will end the stream and the connection.
+
+### Simple data transmission
+
+4. Either the SPSP client or the server begins sending ILP packets of data.
+
+    This data MUST be [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded. The size of the data SHOULD be defined in STREAM. Each protocol built on STREAM that is using the principle of data transmission MAY define more restrictive requirements. 
+
+Note that the client and server can send as many STREAM payments and data as they want using the same query response. The client SHOULD query the server again once the time indicated in the [`Cache-Control` header](#response-headers) has passed.
