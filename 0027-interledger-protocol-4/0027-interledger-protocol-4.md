@@ -1,6 +1,6 @@
 ---
 title: Interledger Protocol V4 (ILPv4)
-draft: 5
+draft: 6
 ---
 
 # Interledger Protocol V4
@@ -166,6 +166,7 @@ Final errors indicate that the payment is invalid and should not be retried unle
 | **F06** | **Unexpected Payment** | The receiver was not expecting a payment like this (the data and destination address don't make sense in that combination, for example if the receiver does not understand the transport protocol used) | (empty) |
 | **F07** | **Cannot Receive** | The receiver (beneficiary) is unable to accept this payment due to a constraint. For example, the payment would put the receiver above its maximum account balance. | (empty) |
 | **F08** | **Amount Too Large** | The packet amount is higher than the maximum a connector is willing to forward. Senders MAY send another packet with a lower amount. Connectors that produce this error SHOULD encode the amount they received and their maximum in the `data` to help senders determine how much lower the packet amount should be. | See [ASN.1](../asn1/InterledgerErrorData.asn) |
+| **F09** | **Invalid Peer Response** | The next peer responded with an invalid response, such as a fulfillment that does not match the original condition. | (empty) |
 | **F99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. | Determined by Application |
 
 #### T__ - Temporary Error
