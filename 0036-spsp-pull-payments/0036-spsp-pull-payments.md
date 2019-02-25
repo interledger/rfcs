@@ -12,7 +12,7 @@ This document describes how to conduct pull payments via [STREAM](../0029-stream
 
 ### Motivation
 
-The Simple Payment Setup Protocol (SPSP) only descirbes how the details required for a STREAM connection are exchanged and how a simple push payment is made. However, it lacks a detailed explaination of how a pull payment is conducted using this connection. 
+The Simple Payment Setup Protocol (SPSP) only describes how the details required for a STREAM connection are exchanged and how a simple push payment is made. However, it lacks a detailed explaination of how a pull payment is conducted using this connection. 
 
 ### Scope
 
@@ -82,6 +82,7 @@ Content-Type: application/spsp4+json
   "agreement": {
     "amount": "2000",
     "start": "2019-01-01T08:00Z",
+    "expiry": "2021-01-02T00:00Z", 
     "interval": "P0Y1M0DT0H0M0S",
     "cycles": 12,
     "cap": false,
@@ -108,7 +109,8 @@ The response body is a JSON object that includes basic account details necessary
 | `cycle` | Integer | _(OPTIONAL)_ Current interval cycle out of a total of `agreement.cycles`. |
 | `agreement` | Object | _(OPTIONAL)_ Details about the pull payment agreement. |
 | `agreement.amount` | Integer String | _(OPTIONAL)_ Amount, denoted in `agreement.asset.code`, which can pulled by the client each `agreement.interval`. |
-| `agreement.start` |	String | _(OPTIONAL)_ [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) UTC timestamp, e.g. `"2019-02-10T01:01:13Z"`, representing the start of the pull payment agreement. |
+| `agreement.start` |	String | _(OPTIONAL)_ [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) UTC timestamp, e.g. `"2019-01-01T08:00Z"`, representing the start of the pull payment agreement. |
+| `agreement.expiry` |	String | _(OPTIONAL)_ [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) UTC timestamp, e.g. `"2021-01-02T00:00Z"`, representing the expiry of the pull payment agreement. It is the time when the SPSP endpoint is destroyed, i.e. remaining funds cannot be pulled after that point in time. |
 | `agreement.interval` | String | _(OPTIONAL)_ [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) duration, e.g. `"P0Y1M0DT0H0M0S"` = 1 month, which describes how often `agreement.amount` can be pulled. |
 | `agreement.cycles` | Integer | _(OPTIONAL)_ Number of times that `agreement.interval` is applied, starting at `agreement.start`. If `agreement.interval` is 1 month and `agreement.cycles` is 12, then `agreement.amount` can be pulled 12 times within the year starting at `agreement.start`. |
 | `agreement.cap` | Boolean | _(OPTONAL)_ Defines whether any balance not pulled before the start of the next interval cycle is accumulated or expires. If `agreement.cap = true`, the maximum pullable amount per `agreement.interval` is `agreement.amount`. If `agreement.cap = false`, the maximum pullable amount per `agreement.interval` is `agreement.amount` plus any remaining funds accumulated but not pulled over the last interval cycles.|
