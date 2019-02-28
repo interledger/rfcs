@@ -1,6 +1,6 @@
 ---
 title: Web Monetization
-draft: 6
+draft: 7
 ---
 
 # Web Monetization
@@ -103,8 +103,7 @@ The `name` of the `<meta>` tags all start with `monetization`. The table below l
 ```html
 <meta
   name="monetization"
-  content="$twitter.xrptipbot.com/Interledger" />
-]
+  content="$twitter.xrptipbot.com/Interledger">
 ```
 
 ##### Iframe to Web-Monetized Page
