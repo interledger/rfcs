@@ -1,7 +1,6 @@
 # Interledger Ping Protocol
 
 ## Introduction
-
 In order to monitor the health of an internetworked system, it is often useful to be able to send probe messages. In the Internet system, ICMP [echo](https://en.wikipedia.org/wiki/Ping_(networking_utility)#Echo_request) request and response packets are used together to verify connectivity (colloquially known as a "pinging" a host).  
 
 This RFC specifies a similar mechanism for Interledger nodes to test `uptime` and fulfill/reject `response-time` for a particular payment path, from the perspective of a payment sender.
@@ -23,25 +22,21 @@ All Interledger implementations _SHOULD_ respond to ping protocol requests, unle
 * The **Recipient** is the Interledger node responding to the ping request.
 * **Source amount** is the amount debited from the sender of an ILP payment.
 * **Destination amount** is the amount credited to the recipient of an ILP payment.
-* The **Known Preimage** is the [ASCII](https://tools.ietf.org/html/rfc20) string `pingpingpingpingpingpingpingping`, which in Base64 is `cGluZ3BpbmdwaW5ncGluZ3BpbmdwaW5ncGluZ3Bpbmc`. 
-* The **Known Condition** is the SHA256 hash of the Known Preimage, which when encoded using Base64 is `jAC8DGFPZPfh4AtZpXuvXFe2oRmpDVSvSJg2oT+bx34=`*[]: 
+* The **Known Preimage** is the [ASCII](https://tools.ietf.org/html/rfc20) string `pingpingpingpingpingpingpingping`, which in Base64 is `cGluZ3BpbmdwaW5ncGluZ3BpbmdwaW5ncGluZ3Bpbmc=`. 
+* The **Known Condition** is the SHA256 hash of the Known Preimage, which when encoded using Base64 is `jAC8DGFPZPfh4AtZpXuvXFe2oRmpDVSvSJg2oT+bx34=` 
 
 ## Protocol
 1. Sender sends a Prepare packet using the following details:
    - Amount: Any amount chosen by the sender.
    - Condition: The Known Condition, as defined above.
    - Destination ILP address: Recipient's Interledger address.
-   - Packet Data: Unspecified.
   
-2. Upon receiving the Prepare packet, the Recipient _SHOULD fulfill the payment using the following information:
+2. Upon receiving the Prepare packet, the Recipient MUST fulfill the payment using the following information:
    - Fulfillment: The Known Fulfillment, as defined above.
-   - Packet Data: Unspecified.
 
 Note that a recipient _MAY_ reject the payment if appropriate, for example due to an insufficient amount, invalid expiry, or for other factors.
-
  
 ## Recommended Uses
-
 * Interledger participants may use this mechanism to test their own connectivity by sending pings to one or more destinations that are known to support the protocol described in this document.
 
 * A monitoring service that is testing the availability of different ILP addresses may also send pings to these destinations from various sources. Interledger nodes that wish to be listed in such a monitoring service must support the protocol described in this document.
