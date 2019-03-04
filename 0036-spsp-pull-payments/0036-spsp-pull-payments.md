@@ -6,63 +6,70 @@ draft: 1
 
 ## Preface
 
-This document describes how to conduct pull payments via [STREAM](../0029-stream/0029-stream.md) once the payment details have been exchanged via the [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) (SPSP).
+This document describes how to conduct Pull Payments via [STREAM](../0029-stream/0029-stream.md) once the payment details have been exchanged via the [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) (SPSP).
 
 ## Introduction
 
+### Pull Payments
+In contrast to a push payment, where the Payer (sender) actively sends (pushes) units of value to the Payee (receiver), Pull Payments shift the active part from the Payer to the Payee. With the Payer's consent, the Payee can pull units of value directly from the Payer's account to their own account. The only active engagement of the Payer is required during the negotiation phase of the Pull Payment Agreement. 
+
 ### Motivation
 
-The Simple Payment Setup Protocol (SPSP) only describes how the details required for a STREAM connection are exchanged and how a simple push payment is made. However, it lacks a detailed explaination of how a pull payment is conducted using this connection. 
+The [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) (SPSP) only describes how the details required for a STREAM connection are exchanged and how a simple push payment is made. However, it lacks a detailed explaination of how a Pull Payment is conducted using this connection. 
 
 ### Scope
 
-This document specifies how to conduct a pull payment once a STREAM connection has been set up. It is intended for use by end-user applications.
+This document specifies how to conduct a Pull Payment once a STREAM connection has been set up. It is intended for use by end-user applications.
+
+### Definitions
+* **Payer** - The entity that units of value are pulled from by the Payee. It is running the [SPSP Server](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md#Definitions).
+* **Payee** - The entity that is pulling units of value from the Payer. It is running the [SPSP Client](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md#Definitions).
+* **Pull Payment** - The process of pulling units of value from one account into another account.
+* **Pull Payment Agreement** - An agreement between the Payer and the Payee that specifies how much value can be pulled how often and for how long. 
+* **Token** - An opaque string that represents an identifier for the Pull Payment Agreement. It is part of the [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md) the SPSP Client needs to connect to the SPSP Server. 
 
 ### Operation Overview
 
-Any SPSP server will expose an HTTPS endpoint called the SPSP Endpoint. The client can query this endpoint to get information about about the server's connection details, namely ILP address and a shared secret. The endpoint MAY also contain additional information for displaying purposes. The client can set up a STREAM connection and pull multiple ILP payments using the details provided by the server. 
+The Payee's SPSP Client will set up a [STREAM](../0029-stream/0029-stream.md) connection to the Payer's SPSP Server using the Token, as described by the [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md). On connection, the SPSP Client tries to pull as much value from the SPSP server as possible given the Pull Payment Agreement.
 
 ## Model of Operation
 
-### Creating a token
+### Negotiating the Pull Payment Agreement
 
-A pull payment token SHOULD be be opaque. For the purpose of offline generation, it MAY include negotiated pull payment agreement parameters that SHOULD become obsolete once the SPSP endpoint corresponding to that token has been created. The SPSP server SHOULD store the negotiated pull payment agreement parameters.
+Prior to a Pull Payment, the Payer and the Payee have to negotiate a Pull Payment Agreement. This agreement SHOULD be comprised of the parameters defined in the `agreement`-object within the [Response Body](#Response-Body). The Payer's SPSP Server SHOULD store the negotiated Pull Payment Agreement parameters.
 
-The pull payment agreement parameters that SHOULD be negotiated are those defined in the `agreement` object within the [Response Body](#Response-Body). 
+The result of the negotiation is a Token representing the Pull Payment Agreement. The Token is required by the Payee's SPSP Client to connect to the Payer's SPSP server. It MUST be part of the [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md) and MUST therefore take any form that does not invalidate it.
 
-### Conducting the pull payment
+Implementations MAY try to parse the Token, however, it MUST support totally opaque tokens. 
 
-We assume that the client knows the server's SPSP endpoint (see [Payment Pointers](../0026-payment-pointers/0026-payment-pointers.md)).
+### Conducting the Pull Payment
 
-1. The user's SPSP client queries the server's SPSP Endpoint.
+The Payee's SPSP Client opens a [STREAM](../0029-stream/0029-stream.md) connection to the Payer's SPSP Server as described in the [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md). Once this connection is established, the process continues as follows: 
 
-2. The SPSP endpoint responds with the server info, including the server's ILP address (`destination_account`) and the shared secret (`shared_secret`) to be used in STREAM. 
-    * The `destination_account` SHOULD be used as the STREAM destinationAccount.
-    * The `shared_secret` SHOULD be decoded from base64 and used as the STREAM sharedSecret.
+The SPSP Server begins sending ILP packets to complete the Pull Payment.
+  1. The SPSP Server will adjust their `sendMax` to reflect the amount they're willing to send.
+      * `sendMax` SHOULD be derived from the Pull Payment Agreement parameters.
+  2. The SPSP Client will adjust their `receiveMax` to reflect the amount they're willing to receive.
+      * `receiveMax` MAY be `Infinity`.
+  3. The SPSP Client's and Server's [STREAM Modules](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md#Definitions) will move as much value as possible while staying inside these bounds.
+  4. If the SPSP Server reaches their `sendMax`, they end the stream and the connection. If the SPSP Client reaches their `receiveMax`, they will end the stream and the connection.
 
-3. The SPSP client establishes a STREAM connection to the server using the server's ILP address and shared secret and constructs a stream to the client on the ILP/STREAM connection.
-
-4. The SPSP server begins sending ILP packets to fulfill the payment.
-    1. The server will adjust their `sendMax` to reflect the amount they're willing to send.
-        * `sendMax` SHOULD be derived from the pull payment agreement parameters.
-    2. The client will adjust their `receiveMax` to reflect the amount they're willing to receive.
-        * `receiveMax` MAY be `Infinity`.
-    3. The client's and server's STREAM modules will move as much value as possible while staying inside these bounds.
-    4. If the server reaches their `sendMax`, they end the stream and the connection. If the client reaches their `receiveMax`, they will end the stream and the connection.
+The STREAM parameters - `sendMax` and `receiveMax` - are defined in [STREAM's frame encoding](../0029-stream/0029-stream.md#53-frames).
 
 ## Specification
 
 ### Query (`GET <SPSP Endpoint>`)
 
-The client queries the SPSP endpoint to get information about the server:
+The SPSP Client queries the SPSP Endpoint to get information about the SPSP Server:
 
 #### Request
 
 ``` http
 GET /0f09dc92-84ad-401b-a7c9-441bc6173f4e HTTP/1.1
 Host: alice.com
-Accept: application/spsp4+json, application/spsp+json
+Accept: application/spsp4+json
 ```
+Note that `0f09dc92-84ad-401b-a7c9-441bc6173f4e` is the Pull Payment Token.
 
 #### Response
 
@@ -96,21 +103,19 @@ Content-Type: application/spsp4+json
 
 ##### Response Body
 
-The response body is a JSON object that includes basic account details necessary for setting up a STREAM connection as well as optional parameters for displaying purposes.
+The response body is a JSON object that includes basic account details necessary for setting up a STREAM connection (see [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md#Response-Body)) as well as optional parameters for displaying purposes. The optional parameters are defined in the following: 
 
 | Field | Type | Description |
 |---|---|---|
-| `destination_account` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) | ILP Address of the server. In case of push payments, this is the receiver, in case of pull payments, this is the sender. |
-| `shared_secret` | 32 bytes, [base64 encoded](https://en.wikipedia.org/wiki/Base64) (including padding) | The shared secret to be used by this specific HTTP client in the [STREAM](../0029-stream/0029-stream.md). Should be shared only by the server and this specific HTTP client, and should therefore be different in each query response. |
 | `balance`  | Object | _(OPTIONAL)_ Details of this server account's balance. |
 | `balance.total` | Integer String | _(OPTIONAL)_ Total amount, denoted in `agreement.asset.code`, which has been pulled by the client since `start` to date. It is the sum of all outgoing chunks. |
 | `balance.interval` | Integer String | _(OPTIONAL)_ Amount, denoted in `agreement.asset.code`, which has been pulled by the client since the start of the current `cycle`. It is the sum of all outgoing chunks. |
 | `balance.available` | Integer String | _(OPTIONAL)_ Amount, denoted in `agreement.asset.code`, which is still available to be pulled by the client until the end of the current `cycle`. |
 | `cycle` | Integer | _(OPTIONAL)_ Current interval cycle out of a total of `agreement.cycles`. |
-| `agreement` | Object | _(OPTIONAL)_ Details about the pull payment agreement. |
+| `agreement` | Object | _(OPTIONAL)_ Details about the Pull Payment Agreement. |
 | `agreement.amount` | Integer String | _(OPTIONAL)_ Amount, denoted in `agreement.asset.code`, which can pulled by the client each `agreement.interval`. |
-| `agreement.start` |	String | _(OPTIONAL)_ [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) UTC timestamp, e.g. `"2019-01-01T08:00Z"`, representing the start of the pull payment agreement. |
-| `agreement.expiry` |	String | _(OPTIONAL)_ [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) UTC timestamp, e.g. `"2021-01-02T00:00Z"`, representing the expiry of the pull payment agreement. It is the time when the SPSP endpoint is destroyed, i.e. remaining funds cannot be pulled after that point in time. |
+| `agreement.start` |	String | _(OPTIONAL)_ [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) UTC timestamp, e.g. `"2019-01-01T08:00Z"`, representing the start of the Pull Payment Agreement. |
+| `agreement.expiry` |	String | _(OPTIONAL)_ [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) UTC timestamp, e.g. `"2021-01-02T00:00Z"`, representing the expiry of the Pull Payment Agreement. It is the time when the SPSP endpoint is destroyed, i.e. remaining funds cannot be pulled after that point in time. |
 | `agreement.interval` | String | _(OPTIONAL)_ [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) duration, e.g. `"P0Y1M0DT0H0M0S"` = 1 month, which describes how often `agreement.amount` can be pulled. |
 | `agreement.cycles` | Integer | _(OPTIONAL)_ Number of times that `agreement.interval` is applied, starting at `agreement.start`. If `agreement.interval` is 1 month and `agreement.cycles` is 12, then `agreement.amount` can be pulled 12 times within the year starting at `agreement.start`. |
 | `agreement.cap` | Boolean | _(OPTONAL)_ Defines whether any balance not pulled before the start of the next interval cycle is accumulated or expires. If `agreement.cap = true`, the maximum pullable amount per `agreement.interval` is `agreement.amount`. If `agreement.cap = false`, the maximum pullable amount per `agreement.interval` is `agreement.amount` plus any remaining funds accumulated but not pulled over the last interval cycles.|
