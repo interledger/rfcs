@@ -18,39 +18,39 @@ STREAM does not specify how payment details, such as the ILP address or shared s
 
 SPSP provides for exchanging basic server details needed by a client to set up a STREAM connection. It is intended for use by end-user applications.
 
+### Definitions
+
+* **SPSP Client** - The application that uses SPSP to interact with the SPSP Server.
+* **SPSP Server** - The application that handles incoming SPSP requests from the SPSP Client.
+* **SPSP Endpoint** - The specific HTTPS endpoint on the SPSP Server used for setting up a payment.
+* **STREAM Module** - Software included in the SPSP Client and Server that implements the [STREAM](../0029-stream/0029-stream.md) protocol.
+
 ### Interfaces
 
-SPSP may be used by end-user applications, such as a digital wallet with a user interface to initiate payments. SPSP clients and servers use ILP modules to send and receive Interledger payments. SPSP [payment-pointers](../0026-payment-pointers/0026-payment-pointers.md) can be used as a persistent identifier on Interledger. SPSP payment-pointers can also be used as a unique identifier for an invoice to be paid or for a pull payment agreement. 
+SPSP may be used by end-user applications, such as a digital wallet with a user interface to initiate payments. SPSP Clients and Servers use the STREAM Module to send and receive Interledger payments. [Payment pointers](../0026-payment-pointers/0026-payment-pointers.md) can be used as a persistent identifier on Interledger. Payment pointers can also be used as a unique identifier for an invoice to be paid or for a pull payment agreement. 
 
 SPSP messages MUST be exchanged over HTTPS.
 
 ### Operation
 
-Any SPSP server will expose an HTTPS endpoint called the SPSP Endpoint. The client can query this endpoint to get information about the server's connection details, namely ILP address and a shared secret. The client can use this information to establish a STREAM connection.
-
-### Definitions
-
-* **SPSP Client** - The entity initiating a STREAM connection to the SPSP server
-* **SPSP Server** - The entity handling the incoming STREAM connection from the SPSP client
-* **SPSP Endpoint** - The specific HTTPS endpoint on the SPSP Server used for setting up a payment
-* **STREAM Module** - Software included in the SPSP client and server that implements the [STREAM](../0029-stream/0029-stream.md) protocol.
+Any SPSP Server will expose an HTTPS endpoint called the SPSP Endpoint. The SPSP Client can query this endpoint to get information about the SPSP Server's connection details, namely the ILP address and a shared secret. The SPSP Client can apply this information to establish a STREAM connection using the STREAM Module.
 
 ### Relation to Other Protocols
 
-SPSP is used for exchanging payment information before an ILP payment is initiated. The client and server use the [STREAM](../0029-stream/0029-stream.md) transport protocol to generate the ILP packets. The server generates the shared secret and ILP address to be used in STREAM and communicates it to the client over HTTPS.
+SPSP is used for exchanging connection information before an ILP payment or data transfer is initiated. The SPSP Client and Server use the [STREAM](../0029-stream/0029-stream.md) transport protocol to generate the ILP packets. The SPSP Server generates the shared secret and ILP address to be used in STREAM and communicates it to the client over HTTPS.
 
 ## Specification
 
-The SPSP endpoint is a URL the SPSP payment pointer resolves to, used by the client to query information about the server and set up payments. Clients MUST NOT send query string parameters in requests to the SPSP endpoint URL. Servers that receive query string parameters in an SPSP request MUST reject the request with a 400 Bad Request HTTP response code. Clients SHOULD treat the URL as opaque and not depend on any information they derive from the URL.
+The SPSP Endpoint is a URL the payment pointer resolves to, used by the SPSP Client to query information about the SPSP Server and set up payments. SPSP Clients MUST NOT send query string parameters in requests to the SPSP Endpoint URL. SPSP Servers that receive query string parameters in an SPSP request MUST reject the request with a 400 Bad Request HTTP response code. SPSP Clients SHOULD treat the URL as opaque and not depend on any information they derive from the URL.
 
-- [Payment-pointer](../0026-payment-pointers/0026-payment-pointers.md) (Recommended) `$alice.example.com` or `$example.com/bob`. This SHOULD be the only kind of SPSP identifier exposed to users.
-- Raw endpoint URL (Not recommended) `https://example.com/spsp/alice`. This SHOULD NOT be exposed to users, but SHOULD be supported by SPSP clients.
+- [Payment pointer](../0026-payment-pointers/0026-payment-pointers.md) (Recommended) `$alice.example.com` or `$example.com/bob`. This SHOULD be the only kind of SPSP identifier exposed to users.
+- Raw endpoint URL (Not recommended) `https://example.com/spsp/alice`. This SHOULD NOT be exposed to users, but SHOULD be supported by SPSP Clients.
 
-The SPSP endpoint MUST respond to HTTPS `GET` requests in the following manner:
+The SPSP Endpoint MUST respond to HTTPS `GET` requests in the following manner:
 
 ### Query (`GET <SPSP Endpoint>`)
 
-The client queries the SPSP endpoint to get information about the server:
+The client queries the SPSP Endpoint to get information about the server:
 
 #### Request
 
@@ -83,14 +83,14 @@ The response MUST contain at least the following headers:
 | `Content-Type`  | MUST be `application/spsp4+json` to indicates the response is encoded as [JSON](http://www.json.org/) and that the ILP payment should be sent via STREAM. |
 | `Cache-Control` | Indicates how long the SPSP Client should cache the response. See supported cache-control directives below. |
 
-To handle as many transactions per second as possible, the SPSP client caches results from the SPSP server. The information returned by the SPSP server is not expected to change rapidly, so repeated requests for the same information are usually redundant. The server communicates how long to cache results for using the HTTP-standard [`Cache-Control` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) in the responses to RESTful API calls.
+To handle as many transactions per second as possible, the SPSP Client caches results from the SPSP Server. The information returned by the SPSP Server is not expected to change rapidly, so repeated requests for the same information are usually redundant. The SPSP Server communicates how long to cache results for using the HTTP-standard [`Cache-Control` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) in the responses to RESTful API calls.
 
-The SPSP client understands the following Cache-Control directives:
+The SPSP Client understands the following Cache-Control directives:
 
 | Directive     | Description                                                  |
 |:--------------|:-------------------------------------------------------------|
-| `max-age=<i>` | The client should cache this response for `<i>` seconds. `<i>` MUST be a positive integer |
-| `no-cache`    | The client must not cache this response |
+| `max-age=<i>` | The SPSP Client should cache this response for `<i>` seconds. `<i>` MUST be a positive integer. |
+| `no-cache`    | The SPSP Client must not cache this response. |
 
 ##### Response Body
 
@@ -98,7 +98,7 @@ The response body is a JSON object that includes basic account details necessary
 
 | Field | Type | Description |
 |---|---|---|
-| `destination_account` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) | ILP Address of the server. In case of push payments, this is the receiver, in case of pull payments, this is the sender. |
+| `destination_account` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) | ILP Address of the SPSP Server. In case of push payments, this is the receiver, in case of pull payments, this is the sender. |
 | `shared_secret` | 32 bytes, [base64 encoded](https://en.wikipedia.org/wiki/Base64) (including padding) | The shared secret to be used by this specific HTTP client in the [STREAM](../0029-stream/0029-stream.md). Should be shared only by the server and this specific HTTP client, and should therefore be different in each query response. |
 
 ##### Errors
@@ -119,30 +119,32 @@ Content-Type: application/spsp4+json
 
 ### Establishing a connection
 
-We assume that the client knows the server's SPSP endpoint (see [Payment Pointers](../0026-payment-pointers/0026-payment-pointers.md)).
+We assume that the SPSP Client knows the SPSP Server's SPSP Endpoint (see [Payment pointers](../0026-payment-pointers/0026-payment-pointers.md)).
 
-1. The user's SPSP client queries the server's SPSP Endpoint.
+1. The user's SPSP Client queries the SPSP Server's SPSP Endpoint.
 
-2. The SPSP endpoint responds with the server info, namely the server's ILP address (`destination_account`) and the shared secret (`shared_secret`) to be used in STREAM. 
-    * The `destination_account` SHOULD be used as the STREAM destinationAccount.
-    * The `shared_secret` SHOULD be decoded from base64 and used as the STREAM sharedSecret.
+2. The SPSP Endpoint responds with the SPSP Server's info, namely the ILP address (`destination_account`) and the shared secret (`shared_secret`) to be used in STREAM. 
+    * The `destination_account` MUST be used as the STREAM `destinationAccount`.
+    * The `shared_secret` MUST be decoded from base64 and used as the STREAM `sharedSecret`.
   
     It MAY respond with additional information if it is an invoice server or a pull payment server. For more information, see [SPSP Invoices](../0035-spsp-invoices/0035-spsp-invoices.md) and [SPSP Pull Payments](../0036-spsp-pull-payments/0036-spsp-pull-payments.md).
 
-3. The SPSP client establishes a STREAM connection to the server using the server's ILP address and shared secret.
+3. The SPSP Client establishes a STREAM connection to the SPSP Server using the SPSP Server's ILP address and shared secret.
 
 ### Simple push payment
 
-4. The SPSP client begins sending ILP packets of value to fulfill the payment.
-    1. The client will adjust their STREAM `sendMax` to reflect the amount they're willing to send.
-    2. The server will adjust their STREAM `receiveMax` to reflect the amount they're willing to receive.
-    3. The client's and server's STREAM modules will move as much value as possible while staying inside these bounds.
-    4. If the client reaches their `sendMax`, they end the stream and the connection. If the server reaches their `receiveMax`, they will end the stream and the connection.
+4. The SPSP Client begins sending ILP packets of value.
+    1. The SPSP Client will adjust their STREAM `sendMax` to reflect the amount they're willing to send.
+    2. The SPSP Server will adjust their STREAM `receiveMax` to reflect the amount they're willing to receive.
+    3. The SPSP Client's and server's STREAM Modules will move as much value as possible while staying inside these bounds.
+    4. If the SPSP Client reaches their `sendMax`, they end the stream and the connection. If the SPSP Server reaches their `receiveMax`, they will end the stream and the connection.
 
 ### Simple data transmission
 
-4. Either the SPSP client or the server begins sending ILP packets of data.
+4. Either the SPSP Client or the Server begins sending ILP packets of data.
 
-    This data MUST be [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded. The size of the data SHOULD be defined in STREAM. Each protocol built on STREAM that is using the principle of data transmission MAY define more restrictive requirements. 
+    This data MUST be [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded. The size of the data SHOULD be defined setting STREAM `maxOffset`. Each application built on STREAM and using the principle of data transmission MAY define more restrictive requirements. 
 
-Note that the client and server can send as many STREAM payments and data as they want using the same query response. The client SHOULD query the server again once the time indicated in the [`Cache-Control` header](#response-headers) has passed.
+All STREAM parameters - `destinationAccount`, `sendMax`, `receiveMax`, `maxOffset` - are defined in [STREAM's frame encoding](../0029-stream/0029-stream.md#53-frames).
+
+Note that the SPSP Client and Server can send as many STREAM payments and data as they want using the same query response. The SPSP Client SHOULD query the Server again once the time indicated in the [`Cache-Control` header](#response-headers) has passed.
