@@ -1,6 +1,6 @@
 ---
 title: ILP Over HTTP
-draft: 1
+draft: 2
 ---
 
 # ILP Over HTTP
@@ -28,10 +28,10 @@ Peers MAY use any standard HTTP authentication mechanism to authenticate incomin
 
 ```http
 POST /ilp HTTP/x.x
+Host: example.com
 Accept: application/octet-stream
 Content-Type: application/octet-stream
 Authorization: Bearer zxcljvoizuu09wqqpowipoalksdflksjdgxclvkjl0s909asdf
-Host: connector.example
 
 < Body: Binary OER-Encoded ILP Prepare Packet >
 ```
@@ -39,6 +39,8 @@ Host: connector.example
 **Field Details:**
 
 - **Path** - A connector MAY specify any HTTP path for their peer to send ILP packets to.
+- **Host Header** - The standard [HTTP Host Header](https://tools.ietf.org/html/rfc2616#section-14.23) indicating the domain of the HTTP server the Request is sent to.
+- **Content-Type / Accept Headers** - MUST be set to `application/octet-stream`.
 - **Body** - ILP Packet encoded using OER, as specified in [RFC 27: Interledger Protocol V4](./0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 
 ### Response
