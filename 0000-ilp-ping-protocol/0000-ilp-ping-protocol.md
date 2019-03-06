@@ -8,7 +8,7 @@ This RFC specifies a similar mechanism for Interledger nodes to test `uptime` an
 ## Scope
 It is already possible to test unidirectional, end-to-end connectivity in Interledger by sending a small payment using existing mechanisms. However, doing so requires higher-level protocols, such as [SPSP](https://github.com/interledger/rfcs/blob/master/0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) and [STREAM](https://github.com/interledger/rfcs/blob/master/0029-stream/0029-stream.md).
 
-Instead, this protocol uses only [Interledger-layer](https://github.com/interledger/rfcs/blob/master/0001-interledger-architecture/0001-interledger-architecture.md#interledger-protocol) technologies, plug a a known condition/fulfillment pair, thus allowing a sender to control the expected response type while at the same time preventing a sender from utilizing bandwidth without paying for it
+Instead, this protocol uses only [Interledger-layer](https://github.com/interledger/rfcs/blob/master/0001-interledger-architecture/0001-interledger-architecture.md#interledger-protocol) technologies, plus a known condition/fulfillment pair, thus allowing a sender to control the expected response type while at the same time preventing a sender from utilizing bandwidth without paying for it
 
 The ping protocol is not designed to debug routing issues and does not provide additional diagnostic information about the state of routing. That use case would be better served by a separate `traceroute` mechanism.
 
