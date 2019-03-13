@@ -41,7 +41,7 @@ SPSP is used for exchanging connection information before an ILP payment or data
 
 ## Specification
 
-The SPSP Endpoint is a URL the payment pointer resolves to, used by the SPSP Client to query information about the SPSP Server and set up payments. SPSP Clients MUST NOT send query string parameters in requests to the SPSP Endpoint URL. SPSP Servers that receive query string parameters in an SPSP request MUST reject the request with a 400 Bad Request HTTP response code. SPSP Clients SHOULD treat the URL as opaque and not depend on any information they derive from the URL.
+The SPSP Endpoint is a URL the payment pointer resolves to, used by the SPSP Client to query information about the SPSP Server and set up payments. SPSP Clients MUST NOT send query string parameters in requests to the SPSP Endpoint URL. SPSP Servers that receive query string parameters in an SPSP request MUST reject the request with a 400 Bad Request HTTP response code. SPSP Clients SHOULD treat the URL as opaque and not depend on any information they derive from the URL. There are several supported ways to refer to an SPSP Endpoint:
 
 - [Payment pointer](../0026-payment-pointers/0026-payment-pointers.md) (Recommended) `$alice.example.com` or `$example.com/bob`. This SHOULD be the only kind of SPSP identifier exposed to users.
 - Raw endpoint URL (Not recommended) `https://example.com/spsp/alice`. This SHOULD NOT be exposed to users, but SHOULD be supported by SPSP Clients.
@@ -98,7 +98,7 @@ The response body is a JSON object that includes basic account details necessary
 
 | Field | Type | Description |
 |---|---|---|
-| `destination_account` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) | ILP Address of the SPSP Server. In case of push payments, this is the receiver, in case of pull payments, this is the sender. |
+| `destination_account` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) | ILP Address of the SPSP Server. In case of push payments, this is the receiver. In case of pull payments, this is the sender. |
 | `shared_secret` | 32 bytes, [base64 encoded](https://en.wikipedia.org/wiki/Base64) (including padding) | The shared secret to be used by this specific HTTP client in the [STREAM](../0029-stream/0029-stream.md). Should be shared only by the server and this specific HTTP client, and should therefore be different in each query response. |
 
 ##### Errors
@@ -136,7 +136,7 @@ We assume that the SPSP Client knows the SPSP Server's SPSP Endpoint (see [Payme
 4. The SPSP Client begins sending ILP packets of value.
     1. The SPSP Client will adjust their STREAM `sendMax` to reflect the amount they're willing to send.
     2. The SPSP Server will adjust their STREAM `receiveMax` to reflect the amount they're willing to receive.
-    3. The SPSP Client's and server's STREAM Modules will move as much value as possible while staying inside these bounds.
+    3. The SPSP Client's and Server's STREAM Modules will move as much value as possible while staying inside these bounds.
     4. If the SPSP Client reaches their `sendMax`, they end the stream and the connection. If the SPSP Server reaches their `receiveMax`, they will end the stream and the connection.
 
 ### Simple data transmission
