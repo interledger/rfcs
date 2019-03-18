@@ -16,7 +16,7 @@ An Invoice Payment is a push payment to an Invoice SPSP Endpoint that allows the
 
 ### Motivation
 
-The [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) (SPSP) only descirbes how the details required for a STREAM connection are exchanged and how simple push payments are made. Invoices require the SPSP server to keep track of incoming payments, i.e. act as an accounting server. 
+The [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) (SPSP) only describes how the details required for a STREAM connection are exchanged and how simple push payments are made. Invoices require the SPSP server to keep track of incoming payments, i.e. act as an accounting server. 
 
 ### Scope
 
@@ -37,7 +37,7 @@ The Payer's SPSP Client will set up a [STREAM](../0029-stream/0029-stream.md) co
 
 ### Creating an Invoice SPSP Endpoint
 
-Prior to the Invoice Payment, the Payee has to create the Invoice SPSP Endpoint on the SPSP Server, which is represented by a [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md). This Payment Pointer MUST contain an ID representing the Invoice. The Payee's SPSP Server SHOULD store the Invoice details, which are defined in the `invoice`-object within the [Response Body](#Response-Body), within the Invoice SPSP Endpoint in order to account for balance changes.
+Prior to the Invoice Payment, the Payee has to create the Invoice SPSP Endpoint on the SPSP Server, which is represented by a [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md). This Payment Pointer MUST be unique to the Invoice. The Payee's SPSP Server SHOULD store the Invoice details, which are defined in the `invoice`-object within the [Response Body](#Response-Body), within the Invoice SPSP Endpoint in order to account for balance changes.
 
 ### Conducting an Invoice Payment
 
