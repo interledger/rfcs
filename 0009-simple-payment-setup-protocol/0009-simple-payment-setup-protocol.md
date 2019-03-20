@@ -6,7 +6,7 @@ draft: 7
 
 ## Preface
 
-This document describes the Simple Payment Setup Protocol (SPSP), a basic protocol for exchanging payment information between counterparties to facilitate payment over Interledger. SPSP uses the [STREAM](../0029-stream/0029-stream.md) transport protocol for condition generation and data encoding.
+This document describes the Simple Payment Setup Protocol (SPSP), a basic protocol for exchanging payment information between payee and payer to facilitate payment over Interledger. SPSP uses the [STREAM](../0029-stream/0029-stream.md) transport protocol for condition generation and data encoding.
 
 ## Introduction
 
@@ -94,7 +94,7 @@ The SPSP Client understands the following Cache-Control directives:
 
 ##### Response Body
 
-The response body is a JSON object that includes basic account details necessary for setting up payments.
+The response body is a JSON object that includes basic account details necessary for setting up payments. More fields can be added but implementations MUST ignore fields they do not understand. 
 
 | Field | Type | Description |
 |---|---|---|
@@ -133,17 +133,17 @@ We assume that the SPSP Client knows the SPSP Server's SPSP Endpoint (see [Payme
 
 ### Simple push payment
 
-4. The SPSP Client begins sending ILP packets of value.
-    1. The SPSP Client will adjust their STREAM `sendMax` to reflect the amount they're willing to send.
-    2. The SPSP Server will adjust their STREAM `receiveMax` to reflect the amount they're willing to receive.
-    3. The SPSP Client's and Server's STREAM Modules will move as much value as possible while staying inside these bounds.
-    4. If the SPSP Client reaches their `sendMax`, they end the stream and the connection. If the SPSP Server reaches their `receiveMax`, they will end the stream and the connection.
+Given the open STREAM connection, the SPSP Client begins sending ILP packets of value.
+  1. The SPSP Client will adjust their STREAM `sendMax` to reflect the amount they're willing to send.
+  2. The SPSP Server will adjust their STREAM `receiveMax` to reflect the amount they're willing to receive.
+  3. The SPSP Client's and Server's STREAM Modules will move as much value as possible while staying inside these bounds.
+  4. If the SPSP Client reaches their `sendMax`, they end the stream and the connection. If the SPSP Server reaches their `receiveMax`, they will end the stream and the connection.
 
 ### Simple data transmission
 
-4. Either the SPSP Client or the Server begins sending ILP packets of data.
+Given the open STREAM connection, either the SPSP Client or the Server begins sending ILP packets of data.
 
-    This data MUST be [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded. The size of the data SHOULD be defined setting STREAM `maxOffset`. Each application built on STREAM and using the principle of data transmission MAY define more restrictive requirements. 
+This data MUST be [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded. The size of the data SHOULD be defined setting STREAM `maxOffset`. Each application built on STREAM and using the principle of data transmission MAY define more restrictive requirements. 
 
 All STREAM parameters - `destinationAccount`, `sendMax`, `receiveMax`, `maxOffset` - are defined in [STREAM's frame encoding](../0029-stream/0029-stream.md#53-frames).
 
