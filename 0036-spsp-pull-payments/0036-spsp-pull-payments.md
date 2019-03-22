@@ -131,7 +131,7 @@ The response body is a JSON object that includes basic account details necessary
 
 ##### Errors
 
-###### pointer Does Not Exist
+###### Pointer Does Not Exist
 
 ``` http
 HTTP/1.1 404 Not Found
