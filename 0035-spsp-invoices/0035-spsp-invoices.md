@@ -37,13 +37,13 @@ The Payer's SPSP Client will set up a [STREAM](../0029-stream/0029-stream.md) co
 
 ### Creating an Invoice Payment Pointer
 
-Prior to the Invoice Payment, the Payee has to create the Invoice Payment Pointer representing the Invoice. This Invoice Payment Pointer MUST be unique to the Invoice. The Payee's SPSP Server SHOULD store the Invoice details, which are defined in the `invoice`-object within the [Response Body](#Response-Body), within the Invoice SPSP Endpoint in order to account for balance changes.
+Prior to the Invoice Payment, the Payee has to create the Invoice Payment Pointer representing the Invoice. This Invoice Payment Pointer MUST be unique to the Invoice. The Payee's SPSP Server SHOULD store the Invoice details associated to the Invoice Payment Pointer, which are defined in the `invoice`-object within the [Response Body](#Response-Body), in order to account for balance changes.
 
 ### Conducting an Invoice Payment
 
 The Payer's SPSP Client opens a [STREAM](../0029-stream/0029-stream.md) connection to the Payee's SPSP Server as described in the [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md). Once this connection is established, the process continues as follows: 
 
-The SPSP Client begins sending ILP packets to complete the Invoice.
+The SPSP Client begins sending ILP packets using the STREAM protocol to complete the Invoice.
   1. The SPSP Client will adjust their `sendMax` to reflect the amount they're willing to send.
       * `sendMax` SHOULD be derived from the Invoice.
   2. The SPSP Server will adjust their `receiveMax` to reflect the amount they're willing to receive.
@@ -91,9 +91,9 @@ Content-Type: application/spsp4+json
       "asset": {
         "code": "USD",
         "scale": 2
+      }
     }
   }
-  
 }
 ```
 
