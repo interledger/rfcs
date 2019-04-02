@@ -44,7 +44,9 @@ Implementations MAY try to parse the Pull Payment Pointer, however, it MUST supp
 
 ### Conducting the Pull Payment
 
-The Payee's SPSP Client opens a [STREAM](../0029-stream/0029-stream.md) connection to the Payer's SPSP Server as described in the [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md). Once this connection is established, the process continues as follows: 
+The Payee's SPSP Client opens a [STREAM](../0029-stream/0029-stream.md) connection to the Payer's SPSP Server as described in the [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md). Note that if there is already an existing open STREAM connection to the `destination_account` the Pull Payment Pointer is resolving to, the connection SHOULD be closed. 
+
+Once this connection is established, the process continues as follows: 
 
 The SPSP Server begins sending ILP packets to complete the Pull Payment.
   1. The SPSP Server will adjust their `sendMax` to reflect the amount they're willing to send.
