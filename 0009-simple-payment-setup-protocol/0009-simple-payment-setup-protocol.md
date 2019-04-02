@@ -99,7 +99,7 @@ The response body is a JSON object that includes basic account details necessary
 | Field | Type | Description |
 |---|---|---|
 | `destination_account` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) | ILP Address of the SPSP Server. In case of push payments, this is the receiver. In case of pull payments, this is the sender. |
-| `shared_secret` | 32 bytes, [base64 encoded](https://en.wikipedia.org/wiki/Base64) (including padding) | The shared secret to be used by this specific HTTP client in the [STREAM](../0029-stream/0029-stream.md). Should be shared only by the server and this specific HTTP client, and should therefore be different in each query response. |
+| `shared_secret` | 32 bytes, [base64 (base64url) encoded](https://en.wikipedia.org/wiki/Base64) (including padding) | The shared secret to be used by this specific HTTP client in the [STREAM](../0029-stream/0029-stream.md). Should be shared only by the server and this specific HTTP client, and should therefore be different in each query response. Even though clients SHOULD accept base64url encoded secrets, base64 encoded secrets are recommended. |
 
 ##### Errors
 
@@ -131,7 +131,9 @@ We assume that the SPSP Client knows the SPSP Server's SPSP Endpoint (see [Payme
 
 3. The SPSP Client establishes a STREAM connection to the SPSP Server using the SPSP Server's ILP address and shared secret.
 
-### Simple push payment
+### Examples
+
+#### Simple push payment
 
 Given the open STREAM connection, the SPSP Client begins sending ILP packets of value.
   1. The SPSP Client will adjust their STREAM `sendMax` to reflect the amount they're willing to send.
@@ -139,12 +141,14 @@ Given the open STREAM connection, the SPSP Client begins sending ILP packets of 
   3. The SPSP Client's and Server's STREAM Modules will move as much value as possible while staying inside these bounds.
   4. If the SPSP Client reaches their `sendMax`, they end the stream and the connection. If the SPSP Server reaches their `receiveMax`, they will end the stream and the connection.
 
-### Simple data transmission
+#### Simple data transmission
 
 Given the open STREAM connection, either the SPSP Client or the Server begins sending ILP packets of data.
 
-This data MUST be [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded. The size of the data SHOULD be defined setting STREAM `maxOffset`. Each application built on STREAM and using the principle of data transmission MAY define more restrictive requirements. 
+The size of the data SHOULD be defined setting STREAM `maxOffset`. Each application built on STREAM and using the principle of data transmission MAY define more restrictive requirements. 
 
-All STREAM parameters - `destinationAccount`, `sendMax`, `receiveMax`, `maxOffset` - are defined in [STREAM's frame encoding](../0029-stream/0029-stream.md#53-frames).
+---
+
+All STREAM parameters - `destinationAccount`, `sharedSecret`, `sendMax`, `receiveMax`, `maxOffset` - are defined in [STREAM's frame encoding](../0029-stream/0029-stream.md#53-frames).
 
 Note that the SPSP Client and Server can send as many STREAM payments and data as they want using the same query response. The SPSP Client SHOULD query the Server again once the time indicated in the [`Cache-Control` header](#response-headers) has passed.
