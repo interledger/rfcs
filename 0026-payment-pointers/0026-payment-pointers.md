@@ -1,6 +1,6 @@
 ---
 title: Payment Pointers
-draft: 1
+draft: 2
 ---
 # Payment Pointers and Payment Setup Protocols
 
@@ -24,7 +24,7 @@ It should be easy for someone to exchange their payment pointer with a potential
 
 ### Flexible
 
-The payment pointer should not be tightly couple to a specific payment setup protocol or protocol version. It should be possible for any new payment setup protocol to leverage payment pointers.
+The payment pointer should not be tightly coupled to a specific payment setup protocol or protocol version. It should be possible for any new payment setup protocol to leverage payment pointers.
 
 ### Widely Usable
 
