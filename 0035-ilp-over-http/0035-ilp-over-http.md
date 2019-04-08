@@ -1,6 +1,6 @@
 ---
 title: ILP Over HTTP
-draft: 2
+draft: 3
 ---
 
 # ILP Over HTTP
@@ -32,6 +32,7 @@ Host: example.com
 Accept: application/octet-stream
 Content-Type: application/octet-stream
 Authorization: Bearer zxcljvoizuu09wqqpowipoalksdflksjdgxclvkjl0s909asdf
+ILP-Account-Name: alice
 
 < Body: Binary OER-Encoded ILP Prepare Packet >
 ```
@@ -40,7 +41,8 @@ Authorization: Bearer zxcljvoizuu09wqqpowipoalksdflksjdgxclvkjl0s909asdf
 
 - **Path** - A connector MAY specify any HTTP path for their peer to send ILP packets to.
 - **Host Header** - The standard [HTTP Host Header](https://tools.ietf.org/html/rfc2616#section-14.23) indicating the domain of the HTTP server the Request is sent to.
-- **Content-Type / Accept Headers** - MUST be set to `application/octet-stream`.
+- **Content-Type / Accept Headers** - MUST be set to `application/octet-stream`.\
+- **ILP-Account-Name** - An optional header used to identify the account for which the request is being made.
 - **Body** - ILP Packet encoded using OER, as specified in [RFC 27: Interledger Protocol V4](./0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 
 ### Response
