@@ -151,4 +151,4 @@ The size of the data SHOULD be defined setting STREAM `maxOffset`. Each applicat
 
 All STREAM parameters - `destinationAccount`, `sharedSecret`, `sendMax`, `receiveMax`, `maxOffset` - are defined in [STREAM's frame encoding](../0029-stream/0029-stream.md#53-frames).
 
-Note that the SPSP Client and Server can send as many STREAM payments and data as they want using the same query response. The SPSP Client SHOULD query the Server again once the time indicated in the [`Cache-Control` header](#response-headers) has passed.
+Note that the SPSP Client and Server can send as many STREAM payments and data as they want using the same query response. If the STREAM connection is closed the Client SHOULD attempt to reconnect with the same parameters or it SHOULD query the Server again for new connection parameters once the time indicated in the [`Cache-Control` header](#response-headers) has passed.
