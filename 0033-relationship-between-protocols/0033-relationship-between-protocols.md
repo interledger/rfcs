@@ -1,6 +1,6 @@
 ---
 title: Relationship between Protocols
-draft: 1
+draft: 2
 ---
 
 # Relationship between Protocols
@@ -12,7 +12,7 @@ This document assumes the reader is familiar with the following document:
 
 ## Terminology
 - A **node** is a participant in an Interledger network. It may be a [connector](../0001-interledger-architecture/0001-interledger-architecture.md#connectors), a sender or a receiver.
-- A **payment** is sending value from one to another but it doesn't mean settled necessarily that is explained below. In the Interledger network, a payment could mean a **node-to-node** payment or an **end-to-end** payment.
+- A **payment** is sending value from one to another but it doesn't necessarily mean settled, as is explained below. In the Interledger network, a payment could mean a **node-to-node** payment or an **end-to-end** payment.
   - A **node-to-node** payment means the intention of transferring value of a node (a connector, an endpoint sender, or an endpoint receiver) to another node which is directly connected to the sender node.
   - An **end-to-end** payment means the intention of transferring value of an endpoint sender to an endpoint receiver.
 - A **settlement** is ensuring that one has the paid value. For instance, executing a transaction on a certain ledger that the payee has an account on.
@@ -50,7 +50,7 @@ This is an enlarged diagram of the above diagram, that shows mainly `Node A`, `N
 - (B) Ledger specific connection
   - **Node** to **Ledger** connection
   - A node needs the means to settle its payments. Therefore the node has a connection to a ledger. The type of connection varies depending on the ledger.
-  - In the cases where blockchains are used for settlements, nodes MAY utilize payment channels because it is quick and inexpensive than issuing transactions every time the nodes want to settle.
+  - In the cases where blockchains are used for settlements, nodes MAY utilize payment channels because it is quicker and less expensive than issuing transactions every time the nodes want to settle.
 - (C) SPSP over HTTPS
   - **Application** to **SPSP Server** connection
   - To determine end-to-end payment information such as a shared secret, a destination address and so forth, an application connects to SPSP server over HTTPS.
@@ -104,7 +104,7 @@ The functions shown below are just concepts, so their exact form may differ betw
   - An account module manages connections to both a counterpart node and a ledger.
 - (12) Bilateral Ledger
   - [Bilateral Transfer Protocol 2.0 (BTP/2.0)](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md#terminology)
-  - A bilateral ledger tracks the balance of two nodes connected each other, including unsettled node-to-node payments.
+  - A bilateral ledger tracks the balance of two nodes connected to each other, including unsettled node-to-node payments.
 - (13) Routing Table Module
   - A routing table module aggregates incoming routing information and builds the best routes for prefixes.
 - (14) Configuration Module
