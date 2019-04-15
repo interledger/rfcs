@@ -41,7 +41,7 @@ SPSP is used for exchanging connection information before an ILP payment or data
 
 ## Specification
 
-The SPSP Endpoint is a URL the payment pointer resolves to, used by the SPSP Client to query information about the SPSP Server and set up payments. SPSP Clients MUST NOT send query string parameters in requests to the SPSP Endpoint URL. SPSP Servers that receive query string parameters in an SPSP request MUST reject the request with a 400 Bad Request HTTP response code. SPSP Clients SHOULD treat the URL as opaque and not depend on any information they derive from the URL. There are several supported ways to refer to an SPSP Endpoint:
+The SPSP Endpoint is a URL the payment pointer resolves to, used by the SPSP Client to query information about the SPSP Server and set up payments. SPSP Clients SHOULD treat the URL as opaque and not depend on any information they derive from the URL. There are several supported ways to refer to an SPSP Endpoint:
 
 - [Payment pointer](../0026-payment-pointers/0026-payment-pointers.md) (Recommended) `$alice.example.com` or `$example.com/bob`. This SHOULD be the only kind of SPSP identifier exposed to users.
 - Raw endpoint URL (Not recommended) `https://example.com/spsp/alice`. This SHOULD NOT be exposed to users, but SHOULD be supported by SPSP Clients.
