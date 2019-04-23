@@ -1,6 +1,6 @@
 ---
 title: Glossary
-draft: 2
+draft: 3
 ---
 # Glossary
 
