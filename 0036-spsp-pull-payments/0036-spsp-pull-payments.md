@@ -58,7 +58,7 @@ The SPSP Server begins sending ILP packets to complete the Pull Payment.
 
 The STREAM parameters - `sendMax` and `receiveMax` - are defined in [STREAM's frame encoding](../0029-stream/0029-stream.md#53-frames).
 
-Note that if there are multiple open STREAM connections to the `destination_account` the Pull Payment Pointer is resolving to, the SPSP Server MUST only set one `sendMax` at a time.
+Note that if there are multiple open streams (via one or more STREAM connections) to the `destination_account` the Pull Payment Pointer is resolving to, the SPSP Server MUST only set one `sendMax` at a time.
 
 ## Specification
 
