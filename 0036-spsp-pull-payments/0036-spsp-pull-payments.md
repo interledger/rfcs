@@ -44,7 +44,7 @@ Implementations MAY try to parse the Pull Payment Pointer, however, it MUST supp
 
 ### Conducting the Pull Payment
 
-The Payee's SPSP Client opens a [STREAM](../0029-stream/0029-stream.md) connection to the Payer's SPSP Server as described in the [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md). Note that if there is already an existing open STREAM connection to the `destination_account` the Pull Payment Pointer is resolving to, the connection SHOULD be closed. The server SHOULD only allow for one stream at a time.
+The Payee's SPSP Client opens a [STREAM](../0029-stream/0029-stream.md) connection to the Payer's SPSP Server as described in the [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md). 
 
 Once this connection is established, the process continues as follows: 
 
@@ -57,6 +57,8 @@ The SPSP Server begins sending ILP packets to complete the Pull Payment.
   4. If the SPSP Server reaches their `sendMax`, they end the stream and the connection. If the SPSP Client reaches their `receiveMax`, they will end the stream and the connection.
 
 The STREAM parameters - `sendMax` and `receiveMax` - are defined in [STREAM's frame encoding](../0029-stream/0029-stream.md#53-frames).
+
+Note that if there are multiple open STREAM connections to the `destination_account` the Pull Payment Pointer is resolving to, the SPSP Server MUST only set one `sendMax` at a time.
 
 ## Specification
 
