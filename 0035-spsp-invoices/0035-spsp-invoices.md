@@ -24,7 +24,7 @@ This document specifies Invoice specific endpoints on SPSP and payments to these
 
 ### Definitions
 * **Invoice** - A set of parameters describing the nature of the value transfer as well as its terms and status.
-* **Invoice Payment** - The process of completing an Invoice by transfering value to its corresponding Invoice SPSP Endpoint.
+* **Invoice Payment** - The process of completing an Invoice by transferring value to its corresponding Invoice SPSP Endpoint.
 * **Payer** - The entity that is sending units of value to an Invoice SPSP Endpoint on the Payee's [SPSP Server](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md#Definitions). It is running the [SPSP Client](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md#Definitions).
 * **Payee** - The entity that is creating an Invoice SPSP Endpoint and receives units of value from the Payer using this Invoice SPSP Endpoint. It is running the [SPSP Server](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md#Definitions).
 * **Invoice Payment Pointer** - A [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md) that includes a unique and opaque string and represents an Invoice. The SPSP Client uses it to query the [SPSP Endpoint](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md#Definitions) on the SPSP Server, which MAY expose the details of the Invoice. It is the means by which the Payee keeps track of incoming payments. 
@@ -45,11 +45,11 @@ The Payer's SPSP Client opens a [STREAM](../0029-stream/0029-stream.md) connecti
 
 The SPSP Client begins sending ILP packets using the STREAM protocol to complete the Invoice.
   1. The SPSP Client will adjust their `sendMax` to reflect the amount they're willing to send.
-      * `sendMax` SHOULD be derived from the Invoice.
+      * `sendMax` SHOULD be derived from the Invoice, i.e., `sendMax` SHOULD be equal to `push.invoice.amount - push.balance`, converted to the SPSP Client's operating asset, taking exchange rate fluctuations into account.
   2. The SPSP Server will adjust their `receiveMax` to reflect the amount they're willing to receive.
-      * `receiveMax` SHOULD be derived from the Invoice.
+      * `receiveMax` SHOULD be derived from the Invoice, i.e., `sendMax` SHOULD be equal to `push.invoice.amount - push.balance`, converted to the SPSP Server's operating asset, taking exchange rate fluctuations into account.
   3. The SPSP Client's and Server's [STREAM Modules](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md#Definitions) will move as much value as possible while staying inside these bounds.
-  4. If the SPSP Client reaches their `sendMax`, they end the stream and the connection. If the SPSP Server reaches their `receiveMax`, they will end the stream and the connection.
+  4. If the SPSP Client reaches their `sendMax`, they end the stream and the connection. If the SPSP Server reaches their `receiveMax`, they will end the stream and the connection. Furthermore, when the SPSP Server has received enough value to fully pay the invoice, it ends the stream and the connection.
 
 The STREAM parameters - `sendMax` and `receiveMax` - are defined in [STREAM's frame encoding](../0029-stream/0029-stream.md#53-frames).
 
@@ -80,17 +80,14 @@ Content-Type: application/spsp4+json
   "push": {
     "balance": "5360",
     "invoice": {
-      "totalPaymentDue": {
-        "price": 199.99,
-        "priceCurrency": "USD"
-      },
-      "paymentDueDate": "2019-01-30T00:00Z",
-      "paymentStatus": "http://schema.org/PaymentDue",
-      "description": "Chair model 'Rustic'",
-      "provider": "The Red Furniture Store",
+      "amount": "19999",
       "asset": {
         "code": "USD",
         "scale": 2
+      },
+      "additional_fields": {
+        "description": "Chair model 'Rustic'",
+        "receiver": "The Red Furniture Store"
       }
     }
   }
@@ -105,12 +102,14 @@ The response body is a JSON object that includes basic account details necessary
 |---|---|---|
 | `destination_account` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) | (see [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md#Response-Body)) |
 | `shared_secret` | 32 bytes, [base64 encoded](https://en.wikipedia.org/wiki/Base64) (including padding) | (see [Simple Payment Setup Protocol](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md#Response-Body)) |
-| `push`  | Object | _(OPTIONAL)_ Details of this specific push payment pointer. |
-| `push.balance`  | String Integer | _(OPTIONAL)_ Amount, denoted in `push.invoice.asset.code`, which completes the invoice payment. |
-| `push.invoice` | Object | _(OPTIONAL)_ Invoice details. It SHOULD follow the invoice schema proposed by [schema.org](https://schema.org/Invoice). Additionally, it SHOULD include the followin parameters:|
-| `push.invoice.asset` | Object | _(OPTIONAL)_ Details about the Invoice's asset. |
-| `push.invoice.asset.code` | String |  _(OPTIONAL)_ Asset code to identify the Invoice's currency. Currencies that have [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) codes should use those. |
-| `push.invoice.asset.scale` | Integer |  _(OPTIONAL)_ The scale of the amounts denoted in `push.invoice.asset.code` (e.g. an amount of `"1000"` with a scale of `2` translates to `10.00` units of the SPSP server's asset/currency). |
+| `push`  | Object |  Details of this specific push payment pointer. |
+| `push.balance`  | String Integer | Amount, denoted in `push.invoice.asset.code`, which completes the invoice payment. |
+| `push.invoice` | Object | Invoice details. |
+| `push.invoice.amount` | String Integer | Amount, denoted in `push.invoice.asset.code`, which needs to be received in order for the invoice to be considered as paid.
+| `push.invoice.asset` | Object | Details about the Invoice's asset. |
+| `push.invoice.asset.code` | String |  Asset code to identify the Invoice's currency. Currencies that have [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) codes should use those. |
+| `push.invoice.asset.scale` | Integer | The scale of the amounts denoted in `push.invoice.asset.code` (e.g. an amount of `"1000"` with a scale of `2` translates to `10.00` units of the SPSP server's asset/currency). |
+| `push.invoice.asset` | Object | _(OPTIONAL)_ Any additional information the Payee wants to include. |
 
 **Note:** Currency amounts are denominated as integer strings instead of native JSON numbers to avoid losing precision during JSON parsing. Applications MUST represent these numbers in a data type that has precision equal or greater than an unsigned 64-bit integer.
 
