@@ -1,6 +1,6 @@
 ---
 title: Peering, Clearing and Settling
-draft: 2
+draft: 3
 ---
 
 # Peering, Clearing and Settling
@@ -70,7 +70,7 @@ Notably, clearing is not part of the Interledger standard, as the means by which
 
 Current implementations of ILP do not have a standardized clearing process, as most peers settle very frequently using networks on which this is possible such as distributed ledgers which support payment channels, reducing the risk of discrepencies developing in their account balances.
 
-However, there is an edge case where the peer's balances may be out of sync demonstrated in this example.
+However, there is an edge case where the peer's balances may be out of sync, as demonstrated in this example:
 
 > **Example : Alice and Bob reconcile**
 
@@ -115,7 +115,7 @@ This is only likely to occur if:
 
 In the former case the peer may choose to perform a settlement, even though it has not reached its settlement threshold so that the balance on the Interledger account at the peer is reduced below the maximum. 
 
-In the latter case, the sending peer may need to throttle back on the packets it sends to the upstream peer or they will need to make an alternatiuve settlement arrangement that can accomodate the volume.
+In the latter case, the sending peer may need to throttle back on the packets it sends to the upstream peer or they will need to make an alternative settlement arrangement that can accomodate the volume.
 
 ### Settlement Threshold
 
@@ -153,13 +153,13 @@ In a correctly configured peering the additive inverse (negation) of the settlem
 
 It should be clear at this point that the successful exchange of ILP packets between peers creates obligations between them that must be settled.
 
-What may not be obvious is that these obligations may also be "pre-settled". The most common model in use today is for a peer to send a packet, wait for it to be successfully routed, and then settle the Interledger account immediatley or some time after. This is the "post-paid" model and is also the most common model for payments, clearing and settlement in other networks.
+What may not be obvious is that these obligations may also be "pre-settled". The most common model in use today is for a peer to send a packet, wait for it to be successfully routed, and then settle the Interledger account immediately or some time after. This is the "post-paid" model and is also the most common model for payments, clearing and settlement in other networks.
 
 However, nothing prevents two peers from creating a pre-paid settlement arrangement where the settlement must precede the ILP packet. This will most likely take place in an environment where the trust between peers is not shared equally (especially if a fast and cheap settlement mechanism is not available).
 
 Rather than take on any settlement risk, one peer may insist that the other always maintain a positive Interledger account balance. In this case the [Maximum Balance](#maximum-balance) is configured by that peer to be 0.
 
-It is important to note that this has no impact on the settlement models used by others that have peered with these two nodes. An ILP packet can traveres a number of peer links, all of which have different settlement models and configurations.
+It is important to note that this has no impact on the settlement models used by others that have peered with these two nodes. An ILP packet can traverse a number of peer links, all of which have different settlement models and configurations.
 
 ### Settlement vs Settlement
 

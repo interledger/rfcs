@@ -1,6 +1,6 @@
 ---
 title: Web Monetization
-draft: 5
+draft: 7
 ---
 
 # Web Monetization
@@ -50,7 +50,7 @@ This flow refers to the user's **browser** and the user's **provider**, [defined
   - If the Web Monetization `<meta>` tags are well-formed, the browser should extract the Payment Pointer.
   - The browser will generate a fresh UUID (version 4) and use this as the Request ID from this point forward. **This Request ID MUST be unique per page load**, not per browser, session nor site.
 - The browser passes these payment details to the user's provider (see [Payment Handler Flow](#payment-handler-flow)).
-- The provider resolves the payment pointer and begins to pay. The provider MAY be acting from a different machine from the user. Cookies and session information MUST not be carried with any requests made to resolve the Payment Pointer, with the exception of the Request ID.
+- The provider resolves the payment pointer and begins to pay. The provider MAY be acting from a different machine from the user. Cookies and session information MUST NOT be carried with any requests made to resolve the Payment Pointer, with the exception of the Request ID.
   - On the SPSP query to resolve the Payment Pointer, a `Web-Monetization-Id` header is sent, containing the Request ID. The server running the web-monetized site may use this to associate future requests by the user with their payments.
   - With the `destination_account` and `shared_secret` fetched from the SPSP query, a STREAM connection is established. A single STREAM is opened on this connection, and a positive SendMax is set.
   - The provider SHOULD set their SendMax high enough that it is never reached, and make payment adjustments by limiting throughput.
@@ -103,8 +103,8 @@ The `name` of the `<meta>` tags all start with `monetization`. The table below l
 ```html
 <meta
   name="monetization"
-  content="$twitter.xrptipbot.com/Interledger" />
-]```
+  content="$twitter.xrptipbot.com/Interledger">
+```
 
 ##### Iframe to Web-Monetized Page
 

@@ -1,11 +1,11 @@
 ---
 title: Interledger Protocol V4 (ILPv4)
-draft: 5
+draft: 6
 ---
 
 # Interledger Protocol V4
 
-Interledger is a protocol for sending packets of money across different payment networks or ledgers. ILPv4 is a simplification of previous versions of the protocol that is optimized for routing large volumes of low-value packets, also known as "penny switching". ILPv4 can be integrated with any type of ledger, including those not built for interoperability, and it is designed be used with a variety of higher-level protocols that implement features ranging from quoting to sending larger amounts of value with chunked payments.
+Interledger is a protocol for sending packets of money across different payment networks or ledgers. ILPv4 is a simplification of previous versions of the protocol that is optimized for routing large volumes of low-value packets, also known as "penny switching". ILPv4 can be integrated with any type of ledger, including those not built for interoperability, and it is designed to be used with a variety of higher-level protocols that implement features ranging from quoting to sending larger amounts of value with chunked payments.
 
 ## Overview
 
@@ -188,7 +188,7 @@ Relative errors indicate that the payment did not have enough of a margin in ter
 
 | Code | Name | Description | Data Fields |
 |---|---|---|---|
-| **R00** | **Transfer Timed Out** | The transfer timed out, meaning the next party in the chain did not respond. This could be because you set your timeout too low or because something look longer than it should. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. | (empty) |
+| **R00** | **Transfer Timed Out** | The transfer timed out, meaning the next party in the chain did not respond. This could be because you set your timeout too low or because something took longer than it should. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. | (empty) |
 | **R01** | **Insufficient Source Amount** | The amount received by a connector in the path was too little to forward (zero or less). Either the sender did not send enough money or the exchange rate changed. The sender MAY try again with a higher amount, but they SHOULD NOT do this indefinitely or a malicious connector could steal money from them. | (empty) |
 | **R02** | **Insufficient Timeout** | The connector could not forward the payment, because the timeout was too low to subtract its safety margin. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. | (empty) |
 | **R99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. | Determined by Application |
