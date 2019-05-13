@@ -94,7 +94,7 @@ In the case of post-funded accounts, senders transfer value to their connector a
 
 ### Packet Format
 
-ILPv4 packets MUST be encoded using the ASN.1 Canonical Octet Encoding Rules when sent but implementations MAY choose to accept packets encoded in a non-canonical form.
+ILPv4 packets MUST be encoded using the ASN.1 Canonical Octet Encoding Rules. Implementations MAY accept packets encoded in a non-canonical form.
 
 #### Type-Length Wrapper
 
