@@ -1,6 +1,6 @@
 ---
 title: Glossary
-draft: 2
+draft: 3
 ---
 # Glossary
 
@@ -36,7 +36,6 @@ A large payment which is split into smaller chunks that are then sent sequential
 ## Conditional Transfer
 Each local transfer is first *prepared* and then either *executed* or *rejected*. When a transfer is prepared, the ledger puts the funds of the source account on hold with a *cryptographic condition* and *timeout*. If the condition is fulfilled before the timeout, the transfer is executed and the funds are transferred. If the timeout is reached, the transfer expires and the ledger returns the funds to the source account automatically.
 Inspired by the [Lightning Network](http://lightning.network), Interledger uses the digest of the [SHA-256](https://en.wikipedia.org/wiki/SHA-2) hash function as the condition for transfers. The fulfillment is a valid 32-byte preimage for the hash specified when the transfer was prepared. Ledgers are responsible for validating fulfillments. [Transport Layer](#transport-layer) protocols are used by the sender and receiver to generate the condition for a particular payment.
-To be fully Interledger-compatible, ledgers MUST support conditional transfers, though it is possible to send Interledger payments over a ledger that does not natively support the recommended features. See [IL-RFC 17](../0017-ledger-requirements/0017-ledger-requirements.md) for the full description and tiers of ledger requirements.
 
 ## Connector
 A party who chains one transfer to the next in an interledger payment.
