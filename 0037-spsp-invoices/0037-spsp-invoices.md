@@ -1,6 +1,6 @@
 ---
 title: SPSP Invoices
-draft: 1
+draft: 2
 ---
 # SPSP Invoices
 
@@ -109,7 +109,7 @@ The response body is a JSON object that includes basic account details necessary
 | `push.invoice.asset` | Object | Details about the Invoice's asset. |
 | `push.invoice.asset.code` | String |  Asset code to identify the Invoice's currency. Currencies that have [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) codes should use those. |
 | `push.invoice.asset.scale` | Integer | The scale of the amounts denoted in `push.invoice.asset.code` (e.g. an amount of `"1000"` with a scale of `2` translates to `10.00` units of the SPSP server's asset/currency). |
-| `push.invoice.asset` | Object | _(OPTIONAL)_ Any additional information the Payee wants to include. |
+| `push.invoice.additional_fields` | Object | _(OPTIONAL)_ Any additional information the Payee wants to include. |
 
 **Note:** Currency amounts are denominated as integer strings instead of native JSON numbers to avoid losing precision during JSON parsing. Applications MUST represent these numbers in a data type that has precision equal or greater than an unsigned 64-bit integer.
 
