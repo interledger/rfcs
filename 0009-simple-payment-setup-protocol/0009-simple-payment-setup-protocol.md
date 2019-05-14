@@ -127,7 +127,7 @@ We assume that the SPSP Client knows the SPSP Server's SPSP Endpoint (see [Payme
     * The `destination_account` MUST be used as the STREAM `destinationAccount`.
     * The `shared_secret` MUST be decoded from base64 and used as the STREAM `sharedSecret`.
   
-    It MAY respond with additional information if it is an invoice server or a pull payment server. For more information, see [SPSP Invoices](../0035-spsp-invoices/0035-spsp-invoices.md) and [SPSP Pull Payments](../0036-spsp-pull-payments/0036-spsp-pull-payments.md).
+    It MAY respond with additional information if it is an invoice server or a pull payment server. For more information, see [SPSP Invoices](../0037-spsp-invoices/0037-spsp-invoices.md) and [SPSP Pull Payments](../0036-spsp-pull-payments/0036-spsp-pull-payments.md).
 
 3. The SPSP Client establishes a STREAM connection to the SPSP Server using the SPSP Server's ILP address and shared secret.
 
