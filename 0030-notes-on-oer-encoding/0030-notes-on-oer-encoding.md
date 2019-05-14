@@ -1,6 +1,6 @@
 ---
 title: Notes on OER Encoding
-draft: 2
+draft: 3
 ---
 
 # Introduction
@@ -125,15 +125,27 @@ All fixed-length signed integers are encoded in big-endian, least-significant bi
 | :--- | :--- | :--- |
 | Int8 | `00` | `0` |
 | Int8 | `7F` | `127` |
-| Int8 | `80` | `-1` |
-| Int8 | `FF` | `-128` |
+| Int8 | `FF` | `-1` |
+| Int8 | `80` | `-128` |
+| Int16 | `0000` | `0` |
 | Int16 | `7FFF` | `32767` |
+| Int16 | `FFFF` | `-1` |
+| Int16 | `8000` | `-32768` |
 | Int16 | `FC00` | `-1024` |
 | Int16 | `CFC7` | `-12345` |
+| Int32 | `00000000` | `0` |
+| Int32 | `7FFFFFFF` | `2147483647` |
+| Int32 | `FFFFFFFF` | `-1` |
+| Int32 | `80000000` | `-2147483648` |
 | Int32 | `0C00F5C9` | `201389513` |
 | Int32 | `F204BA10` | `-234571248` |
+| Int64 | `00000000 00000000` | `0` |
 | Int64 | `7FFFFFFF FFFFFFFF` | `9223372036854775807` |
-| Int64 | `EF68FE12 0BC51AD7` | `-8027945689248242392` |
+| Int64 | `FFFFFFFF FFFFFFFF` | `-1` |
+| Int64 | `80000000 00000000` | `-9223372036854775808` |
+| Int64 | `0C1B3391 3EFE4F1F` | `872347651746451231` | 
+| Int64 | `EF68FE12 0BC51AD7` | `-1195426347606533417` |
+| Int64 | `909701ED F43AE528` | `-8027945689248242392` |
 
 ### Fixed-length floating point numbers
 
