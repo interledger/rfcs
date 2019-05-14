@@ -1,6 +1,6 @@
 ---
 title: SPSP Invoices
-draft: 1
+draft: 2
 ---
 # SPSP Invoices
 
