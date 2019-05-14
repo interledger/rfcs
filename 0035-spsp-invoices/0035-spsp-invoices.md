@@ -45,13 +45,13 @@ The Payer's SPSP Client opens a [STREAM](../0029-stream/0029-stream.md) connecti
 
 The SPSP Client begins sending ILP packets using the STREAM protocol to complete the Invoice.
   1. The SPSP Client will adjust their `sendMax` to reflect the amount they're willing to send.
-      * `sendMax` SHOULD be derived from the Invoice, i.e., `sendMax` SHOULD be equal to `push.invoice.amount - push.balance`, converted to the SPSP Client's operating asset, taking exchange rate fluctuations into account.
+      * `sendMax` SHOULD be derived from the Invoice, i.e., `sendMax` SHOULD be equal to `push.invoice.amount - push.balance`, converted to the SPSP Client's operating asset, plus a buffer to take exchange rate fluctuations and connector fees into account.
   2. The SPSP Server will adjust their `receiveMax` to reflect the amount they're willing to receive.
-      * `receiveMax` SHOULD be derived from the Invoice, i.e., `sendMax` SHOULD be equal to `push.invoice.amount - push.balance`, converted to the SPSP Server's operating asset, taking exchange rate fluctuations into account.
+      * `receiveMax` SHOULD be derived from the Invoice, i.e., `sendMax` SHOULD be equal to `push.invoice.amount - push.balance`, converted to the SPSP Server's operating asset, plus a buffer to take exchange rate fluctuations into account.
   3. The SPSP Client's and Server's [STREAM Modules](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md#Definitions) will move as much value as possible while staying inside these bounds.
-  4. If the SPSP Client reaches their `sendMax`, they end the stream and the connection. If the SPSP Server reaches their `receiveMax`, they will end the stream and the connection. Furthermore, when the SPSP Server has received enough value to fully pay the invoice, it ends the stream and the connection.
+  4. If the SPSP Client reaches their `sendMax`, they end the stream and the connection. If the SPSP Server reaches their `receiveMax`, they will end the stream and the connection. Furthermore, when the SPSP Server has received enough value to fully pay the invoice, it ends the stream and the connection. In both cases, the connection is closed with a `NoError` code in the `ConnectionClose` frame.
 
-The STREAM parameters - `sendMax` and `receiveMax` - are defined in [STREAM's frame encoding](../0029-stream/0029-stream.md#53-frames).
+The STREAM parameters--`sendMax` and `receiveMax`--as well as the `ConnectionClose` frame are defined in [STREAM's frame encoding](../0029-stream/0029-stream.md#53-frames).
 
 
 ## Specification
