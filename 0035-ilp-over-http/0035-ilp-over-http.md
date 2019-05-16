@@ -95,12 +95,12 @@ Implementations MAY support this profile, but SHOULD consider it for development
   * Requires out-of-band communication for both peers to agree upon the shared secret.
 
 #### `JWT_HS_256` Authentication Profile
-This profile allows two ILP nodes to utilize a previously agreed-upon shared-secret, but then derive an [RFC-7519](https://tools.ietf.org/html/rfc7519) compliant JWT tokens in order to perform actual authentication.
+This profile allows two ILP nodes to utilize a previously agreed-upon shared-secret, but then derive an [RFC-7519](https://tools.ietf.org/html/rfc7519) compliant JWT token in order to perform actual authentication.
 
 ##### JWT Claims
 In order to be considered a valid JWT for this profile, the signed JWT MUST contain a `sub` (subject) claim containing the identifier of the "principal" that the token authenticates. Depending on the implementation, the value of this claim SHOULD represent an `ILP Account Id`, but future implementations MAY make this represent an `ILP Peer Id` or some other value.
 
-Optionally, a JWT token MAY also include an `exp` (expiry) claim that indicates a date/time after which the token should be considered invalid. Note that tokens without this claim never expire.
+Optionally, a JWT token SHOULD also include an `exp` (expiry) claim that indicates a date/time after which the token should be considered invalid. Note that tokens without this claim never expire.
 
 ##### Example Usage
 In this profile, the Base64-encoded JWT is passed as an `Authorization` header in each HTTP request, using the [Bearer token](https://tools.ietf.org/html/rfc6750) scheme. 
@@ -122,7 +122,7 @@ Using the JWT specification, this token can be verified using the shared-secret 
   * Same usability as the `SIMPLE` profile -- just a shared-secret with _at least_ 32 bytes and a `sub` claim.
   * Allows both identity and authentication claims to be contained in single Bearer token, which eliminates the need for a second `Auth-Principal` header. This should simplify token validation and ease account-lookup (no need to create an HMAC or encrypted data-store index because the principal can be trivially decoded from the token).
   * Requires only enough processing to perform an HMAC-SHA256 signing operation, which is very fast.
-  * Supports token expirty, which allows tokens to be generally short-lived so that peers can narrow the potential window of unauthorized usage in the event of token compromise.
+  * Supports token expiry, which allows tokens to be generally short-lived so that peers can narrow the potential window of unauthorized usage in the event of token compromise.
   * The actual shared-secret is _never_ transmitted "on the wire" during any request. Instead, authentication tokens are always _derived_ from the shared-secret, which eliminates the risk of an _actual_ shared-secret being intercepted  in transit.
 
 * **Cons**
@@ -130,7 +130,7 @@ Using the JWT specification, this token can be verified using the shared-secret 
   * Requires out-of-band communication for both peers to agree upon the shared secret.
 
 ## Appendix1: Security Best Practices
-This section describes and clarifies some token-security best practices for Interledger Nodes using this protocol. Recommendations in this section are _Non-Normative_, but highly RECOMMENDED.
+This section outlines and clarifies some best practices for authentication-token security when using this protocol. Recommendations in this section are _Non-Normative_, but highly RECOMMENDED.
 
 ### Follow Standardized Security Recommendations
 It is advisable to follow any all all applicable best practices when using a Bearer-token scheme for authentication. [Section 5.1 of RFC-6570](https://tools.ietf.org/html/rfc6750#section-5) contains a number of very good practices that should be considered on a per-deployment basis. 
@@ -139,12 +139,12 @@ It is advisable to follow any all all applicable best practices when using a Bea
 The `SIMPLE` authentication profile provides only marginal benefits when compared to the `JWT_HS_256` profile, but introduces significant drawbacks as outlined in the "Trade-off Summary" sections of this RFC. As such, the `SIMPLE` profile MAY be used for development or testing purposes, but SHOULD NOT be used in production scenarios. Instead, prefer `JWT_HS_256` for production deployments.
 
 ### Use Reasonable Token Expiries
-Tokens generators should choose a reasonable token expiry. Considerations in this choice include the ability to cache and re-use authentication tokens for a limited time very fast authentication decisions. However, this should be balanced with a desire for shorter token lifteims in order to limit the attack surface caused by a compromised token. 
+Tokens generators should choose a reasonable token expiry. Considerations in this choice include the ability to cache and re-use authentication tokens for a limited time in order to enable very fast authentication decisions. However, this should be balanced against a desire for shorter token lifetimes, which will limit the attack surface caused by a compromised token. 
 
 As a best practice, implementations SHOULD use tokens that expire. For example, consider generating tokens with a lifetime that doesn't exceed 5 minutes.
 
 ### Secrets At Rest
-In most ILP Connector implementations, secrets are stored on a per-account basis in some sort of data-store. Implementations SHOULD protect secret-values that can be used to generate authentication tokens by encrypting them prior to storage. This will help prevent actual shared secrets from being captured by unauthorized parties so that only the Connector runtime can generate tokens by decrypting any shared-secrets.
+In most ILP Connector implementations, secrets are stored on a per-account basis in some sort of data-store. Implementations SHOULD protect secret-values that can be used to generate authentication tokens by encrypting them prior to storage. This will help prevent actual shared secrets from being captured by unauthorized parties, increasing the chances that only the Connector runtime will be able to generate tokens using underlying shared-secrets.
 
 One option is to encrypt any secrets at-rest using an Authenticated Encryption algorithm, such as AES-GCM-256. This [article](https://proandroiddev.com/security-best-practices-symmetric-encryption-with-aes-in-java-7616beaaade9) provides a nice overview using Java, along with various configuration options to consider.
   
@@ -152,7 +152,11 @@ One option is to encrypt any secrets at-rest using an Authenticated Encryption a
 Implementations SHOULD minimize the amount of time that an actual secret-value exists in-memory in unencrypted form. This includes narrowing the availability of secrets to only code that actually requires them; minimizing the time any secret might exist in memory; and zeroing out memory after a secret is no longer used, if possible. 
   
 ### High Security Deployments
-For deployments requiring very high security, it is recommended to utilize a secret-store deployed outside of the Connector runtime, such as [Vault](https://www.vaultproject.io/) or an [HSM](https://safenet.gemalto.com/data-encryption/hardware-security-modules-hsms/) or both. This will provide an extra layer of protection in case a Connector runtime is compromised, and will also make it significantly harder for an attacker to compromise actual shared-secret values (especially if employing an HSM). However, before employing such a system, Connector operators SHOULD perform extensive performance testing to ensure proper levels of service.
+For deployments requiring very high security, it is recommended to utilize a secret-store deployed outside of the Connector runtime, such as [Vault](https://www.vaultproject.io/) or an [HSM](https://safenet.gemalto.com/data-encryption/hardware-security-modules-hsms/) or both. 
+
+This will provide an extra layer of protection in case a Connector runtime is compromised, and will also make it significantly harder for an attacker to compromise actual shared-secret values (especially if employing an HSM). 
+
+However, before employing such a system, Connector operators SHOULD perform extensive performance testing to ensure proper levels of service.
  
 ## Appendix2: Normative References
 For more details on the algorithms and standards referenced in this RFC, see the following:
