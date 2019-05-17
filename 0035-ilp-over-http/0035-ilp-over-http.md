@@ -98,7 +98,9 @@ This profile allows two ILP nodes to utilize a previously agreed-upon shared-sec
 ##### JWT Claims
 In order to be considered a valid JWT for this profile, the signed JWT MUST contain a `sub` (subject) claim containing the identifier of the "principal" that the token authenticates. Depending on the implementation, the value of this claim SHOULD represent an `ILP Account Id`, but future implementations MAY make this represent an `ILP Peer Id` or some other value.
 
-Optionally, a JWT token SHOULD also include an `exp` (expiry) claim that indicates a date/time after which the token should be considered invalid. Note that tokens without this claim never expire.
+A JWT token SHOULD also include an `exp` (expiry) claim that indicates a date/time after which the token should be considered invalid. Implementations SHOULD reject any tokens with a missing or invalid expiry claim. 
+
+Note that tokens without this claim never expire, and only become invalid if the shared-secret used to sign the JWT changes or is otherwise invalidated.
 
 ##### Example Usage
 In this profile, the Base64-encoded JWT is passed as an `Authorization` header in each HTTP request, using the [Bearer token](https://tools.ietf.org/html/rfc6750) scheme. 
