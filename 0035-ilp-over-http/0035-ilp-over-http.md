@@ -70,8 +70,6 @@ Because tokens in this profile do not inherently contain information about the i
  
 This extra header allows for the identity of the authentication request to be separated from authentication token itself, which reduces computational overhead as well as data-management complexity (e.g., implementations do not need to create data-store indexes using derivations of tokens for lookup purposes).
 
-Depending on the implementation, the value of this header SHOULD represent an `ILP Account Id`, but future implementations MAY make this represent an `ILP Peer Id` or some other value.
-
 ##### Example Usage
 An example shared-secret in this profile is `HEiMCp0FoAC903QHueY89gAWJHo/izaBnJU8/58rlSI=`. This shared secret is passed as an `Authorization` header in each HTTP request, using the Bearer token scheme, along with an `Auth-Principal` header like this: 
 
@@ -96,7 +94,7 @@ Implementations MAY support this profile, but SHOULD consider it for development
 This profile allows two ILP nodes to utilize a previously agreed-upon shared-secret, but then derive an [RFC-7519](https://tools.ietf.org/html/rfc7519) compliant JWT token in order to perform actual authentication.
 
 ##### JWT Claims
-In order to be considered a valid JWT for this profile, the signed JWT MUST contain a `sub` (subject) claim containing the identifier of the "principal" that the token authenticates. Depending on the implementation, the value of this claim SHOULD represent an `ILP Account Id`, but future implementations MAY make this represent an `ILP Peer Id` or some other value.
+In order to be considered a valid JWT for this profile, the signed JWT MUST contain a `sub` (subject) claim containing the identifier of the "principal" that the token authenticates.
 
 A JWT token SHOULD also include an `exp` (expiry) claim that indicates a date/time after which the token should be considered invalid. Implementations SHOULD reject any tokens with a missing or invalid expiry claim. 
 
