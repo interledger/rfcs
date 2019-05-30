@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xl="http://www.w3.org/1999/xlink" viewBox="-88.5 116 1031 91" width="1031" height="91">
+  <defs>
+    <font-face font-family="Courier" font-size="12" units-per-em="1000" underline-position="-178.22266" underline-thickness="57.61719" slope="0" x-height="456.54297" cap-height="586.91406" ascent="753.90625" descent="-246.09375" font-weight="400">
+      <font-face-src>
+        <font-face-name name="Courier"/>
+      </font-face-src>
+    </font-face>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="black">
+      <g>
+        <path d="M 8 0 L 0 -3 L 0 3 Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+  </defs>
+  <metadata> Produced by OmniGraffle 7.10.2 
+    <dc:date>2019-05-30 06:03:23 +0000</dc:date>
+  </metadata>
+  <g id="Ping" stroke-dasharray="none" stroke="none" fill-opacity="1" stroke-opacity="1" fill="none">
+    <title>Ping</title>
+    <g id="Ping: レイヤー 1">
+      <title>レイヤー 1</title>
+      <g id="Graphic_7">
+        <rect x="-68" y="136.5" width="150" height="50" fill="white"/>
+        <rect x="-68" y="136.5" width="150" height="50" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(-63 154.5)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="37.594727" y="11">Initiator</tspan>
+        </text>
+      </g>
+      <g id="Graphic_6">
+        <rect x="772" y="136.5" width="150" height="50" fill="white"/>
+        <rect x="772" y="136.5" width="150" height="50" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(777 154.5)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="37.594727" y="11">Recipient</tspan>
+        </text>
+      </g>
+      <g id="Graphic_8">
+        <rect x="212" y="136.5" width="150" height="50" fill="white"/>
+        <rect x="212" y="136.5" width="150" height="50" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(217 154.5)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="55.597656" y="11">Node</tspan>
+        </text>
+      </g>
+      <g id="Graphic_9">
+        <rect x="492" y="136.5" width="150" height="50" fill="white"/>
+        <rect x="492" y="136.5" width="150" height="50" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(497 154.5)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="55.597656" y="11">Node</tspan>
+        </text>
+      </g>
+      <g id="Line_11">
+        <line x1="82" y1="149" x2="202.1" y2="149" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_12">
+        <line x1="362" y1="149" x2="482.1" y2="149" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_13">
+        <line x1="642" y1="149" x2="762.1" y2="149" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_14">
+        <line x1="772" y1="174" x2="651.9" y2="174" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_15">
+        <line x1="492" y1="174" x2="371.9" y2="174" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_16">
+        <line x1="212" y1="174" x2="91.9" y2="174" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_17">
+        <rect x="114.71029" y="137" width="60.4082" height="24" fill="white"/>
+        <text transform="translate(119.71029 142)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="0" y="11">Prepare</tspan>
+        </text>
+      </g>
+      <g id="Graphic_18">
+        <rect x="681.26805" y="162" width="60.4082" height="24" fill="white"/>
+        <text transform="translate(686.26805 167)" fill="black">
+          <tspan font-family="Courier" font-size="12" font-weight="400" fill="black" x="0" y="11">Fulfill</tspan>
+        </text>
+      </g>
+    </g>
+  </g>
+</svg>
