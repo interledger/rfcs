@@ -57,7 +57,7 @@ Note that a Recipient _MAY_ reject the payment if appropriate, for example due t
    - **Expiry**: An appropriate expiry that is long enough to allow for two round trips.
    - **Condition**: The condition `C`.
    - **Data**: A concatenated series of bytes with the following information:
-      - the bytes of the ASCII string `ECHOECHOECHOECHO`. In binary this value is `0x4543484F4543484F4543484F4543484F`.
+      - the bytes of the ASCII string `ECHOECHOECHOECHO`. In hexadecimal this value is `0x4543484F4543484F4543484F4543484F`.
       - the byte `0x00`
       - The ILP address of the Initiator (i.e., the return address) as an OER-encoded, variable length IA5 string.
 4. Upon receiving the Prepare packet, the Recipient identifies that it is a bidirectional Ping request by confirming the following:
