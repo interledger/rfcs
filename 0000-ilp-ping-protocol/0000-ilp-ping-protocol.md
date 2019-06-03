@@ -33,6 +33,8 @@ The primary difference between the two modes is that unidirectional mode allows 
 
 ## Unidirectional Mode
 
+![unidirectional-flow](images/unidirectional-flow.svg)
+
 1. Initiator sends a ILP Prepare packet using the following details:
    - **Destination**: Recipient's Interledger address.
    - **Amount**: Any amount chosen by the Initiator.
@@ -46,8 +48,10 @@ Note that a Recipient _MAY_ reject the payment if appropriate, for example due t
 
 ## Bidirectional Mode
 
+![bidirectional-flow](images/bidirectional-flow.svg)
+
 1. Initiator generates a new random 32-byte value to use as a Fulfilment (`F`) and generates the corresponding condition (`C`).
-2. Initiator sends an ILP Prepare packet to the Recipient with the following details:
+2. Initiator sends an ILP Prepare packet to the Recipient with the following details (1):
    - **Destination**: The Recipient's Interledger address.
    - **Amount**: Any amount chosen by the Initiator.
    - **Expiry**: An appropriate expiry that is long enough to allow for two round trips.
@@ -59,7 +63,7 @@ Note that a Recipient _MAY_ reject the payment if appropriate, for example due t
 4. Upon receiving the Prepare packet, the Recipient identifies that it is a bidirectional Ping request by confirming the following:
   1. The packet is addressed directly to itself (i.e. it has no tx or child suffix).
   1. The packet has a payload conforming to the specification above (e.g., the byte following the `ECHOECHOECHOECHO` prefix in the payload is `0x00`).
-5. The Recipient DOES NOT immediately send an ILP Fulfill response. Instead the Recipient sends a new ILP `Prepare` packet addressed to the address parsed from the original original packet's payload. This new packet has following details:original 
+5. The Recipient DOES NOT immediately send an ILP Fulfill response. Instead the Recipient sends a new ILP `Prepare` packet addressed to the address parsed from the original original packet's payload (2). This new packet has following details: 
     - *Destination*: The Interledger address found in the original packet's data payload.
     - *Amount*: Any amount chosen by the Initiator.
     - *Expiry*: An expiry that is marginally smaller than the expiry on the original ILP Prepare.
@@ -68,11 +72,12 @@ Note that a Recipient _MAY_ reject the payment if appropriate, for example due t
       - the bytes of the ASCII string `ECHOECHOECHOECHO` (i.e., `0x4543484F4543484F4543484F4543484F`).
       - the byte `0x01`
 7. Upon receiving this packet, the Initiator identifies that it is a Pong by the fact that it is addressed to the address used in the original Ping request.
-8. The Initiator fulfills this second packet using the fulfilment `F`.
+8. The Initiator fulfills this second packet using the fulfilment `F` (3).
 9. Upon receiving the ILP `Fulfill` packet from the Initiator, the Recipient then fulfills the original Ping request using the same fulfillment `F`.
+10. The initiator finally receives the `Fulfill` packet (4).
 
 ## Implementation Recommendations
 
 1. The Initiator SHOULD choose a unique address that is only used for a single particular pinging session.
 1. Ping packet amounts SHOULD use amounts that are as small as possible such that any agregate losses due to ping traffic would not affect the operation of a Connector.
-1. Because a Bidirectional Initiator controls the destination of all packets in the flows defined by this RFC, the Recipient must SHOULD be careful to apply proper exchange-rate logic to all packets.
+1. Because a Bidirectional Initiator controls the destination of all packets in the flows defined by this RFC, the Recipient SHOULD be careful to apply proper exchange-rate logic to all packets.
