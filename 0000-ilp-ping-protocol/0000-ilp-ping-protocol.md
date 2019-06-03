@@ -29,7 +29,7 @@ The primary difference between the two modes is that unidirectional mode allows 
 * **Source amount** is the amount debited from the sender of an ILP payment.
 * **Destination amount** is the amount credited to the Recipient of an ILP payment.
 * The **Ping Protocol Fulfillment** is the [ASCII](https://tools.ietf.org/html/rfc20) string `pingpingpingpingpingpingpingping`, which is `0x70696E6770696E6770696E6770696E6770696E6770696E6770696E6770696E67` in hexadecimal encoding. This value is used in Unidirectional mode only. 
-* The **Known Condition** is the SHA256 hash of the Known Preimage, which when encoded using Base64 is `jAC8DGFPZPfh4AtZpXuvXFe2oRmpDVSvSJg2oT+bx34=`. This value is used in Unidirectional mode only.
+* The **Ping Protocol Condition** is the SHA256 hash of the Ping Protocol Fulfillment, which is `0x8c00bc0c614f64f7e1e00b59a57baf5c57b6a119a90d54af489836a13f9bc77e` in hexadecimal encoding. This value is used in Unidirectional mode only.
 
 ## Unidirectional Mode
 
