@@ -28,7 +28,7 @@ The primary difference between the two modes is that unidirectional mode allows 
 * The **Recipient** is the Interledger node responding to the Initiator's request.
 * **Source amount** is the amount debited from the sender of an ILP payment.
 * **Destination amount** is the amount credited to the Recipient of an ILP payment.
-* The **Known Preimage** is the [ASCII](https://tools.ietf.org/html/rfc20) string `pingpingpingpingpingpingpingping`, which in binary is `70696E6770696E6770696E6770696E6770696E6770696E6770696E6770696E67`. This value is used in Unidirectional mode only. 
+* The **Ping Protocol Fulfillment** is the [ASCII](https://tools.ietf.org/html/rfc20) string `pingpingpingpingpingpingpingping`, which is `0x70696E6770696E6770696E6770696E6770696E6770696E6770696E6770696E67` in hexadecimal encoding. This value is used in Unidirectional mode only. 
 * The **Known Condition** is the SHA256 hash of the Known Preimage, which when encoded using Base64 is `jAC8DGFPZPfh4AtZpXuvXFe2oRmpDVSvSJg2oT+bx34=`. This value is used in Unidirectional mode only.
 
 ## Unidirectional Mode
