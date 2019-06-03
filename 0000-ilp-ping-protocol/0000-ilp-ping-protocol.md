@@ -50,7 +50,7 @@ Note that a Recipient _MAY_ reject the payment if appropriate, for example due t
 
 ![bidirectional-flow](images/bidirectional-flow.svg)
 
-1. Initiator generates a new random 32-byte value to use as a Fulfilment (`F`) and generates the corresponding condition (`C`).
+1. Initiator generates a new random 32-byte value to use as a fulfilment (`F`) and generates the corresponding condition (`C`).
 2. Initiator sends an ILP Prepare packet to the Recipient with the following details (1):
    - **Destination**: The Recipient's Interledger address.
    - **Amount**: Any amount chosen by the Initiator.
