@@ -1,6 +1,6 @@
 ---
 title: Interledger Architecture
-draft: 5
+draft: 6
 ---
 # Interledger Architecture
 
