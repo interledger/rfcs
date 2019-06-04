@@ -1,6 +1,6 @@
 ---
 title: Interledger Architecture
-draft: 5
+draft: 6
 ---
 # Interledger Architecture
 
@@ -153,7 +153,7 @@ _Interledger addresses_ (also called _ILP addresses_) provide a universal way to
 
 For more information on the format of ILP addresses and how they apply to routing, see [IL-RFC-15: ILP Addresses](../0015-ilp-addresses/0015-ilp-addresses.md).
 
-If two parties in the Interledger have a "parent/child" connection rather than a peer-to-peer connection, the child can request an Interledger address that is under the parent's address in the hierarchy. For more information, see [IL-RFC-31: Interledger Dynamic Configuration Protocol (ILDCP)](0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md).
+If two parties in the Interledger have a "parent/child" connection rather than a peer-to-peer connection, the child can request an Interledger address that is under the parent's address in the hierarchy. For more information, see [IL-RFC-31: Interledger Dynamic Configuration Protocol (ILDCP)](../0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md).
 
 ## Interledger Security
 
