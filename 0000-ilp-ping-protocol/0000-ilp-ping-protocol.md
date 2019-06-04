@@ -58,6 +58,8 @@ Note that a Recipient _MAY_ reject the payment if appropriate, for example due t
    - **Condition**: The condition `C`.
    - **Data**: A concatenated series of bytes with the following information:
       - the bytes of the ASCII string `ECHOECHOECHOECHO`. In hexadecimal this value is `0x4543484F4543484F4543484F4543484F`.
+        - Every packet which has the `ECHOECHOECHOECHO` prefix is handled as an echo packet.
+        - If the following bytes after the prefix are not parsable, it will cause a final error.
       - the byte `0x00`
       - The ILP address of the Initiator (i.e., the return address) as an OER-encoded, variable length IA5 string.
 4. Upon receiving the Prepare packet, the Recipient identifies that it is a bidirectional Ping request by confirming the following:
