@@ -84,12 +84,15 @@ This mode enables an initiator to test connectivity from itself to a receiver, a
 1. The initiator finally receives the `Fulfill` packet (4).
 
 ## Implementation Considerations
-1. Ping packets SHOULD use amounts that are as small as possible such that any aggregate losses due to ping traffic will not affect the operation or liquidity position of a Connector.
+1. Initiators SHOULD construct ping packets with amounts that are as small as possible in order to minimize any aggregate costs due to ping traffic.
 
-1. Information obtained from this protocol (e.g., response times, route costing, node uptime, etc) is generally NOT authenticated, and SHOULD be used with caution, taking into account the route a particular ping packet traverses, if possible. For example, it's possible that an intermediary node could detect a ping flow and forge a legitimate looking fulfill or reject response. This type of activity might make it appear that response times are better than normal, or that a ping destination is fulfilling or rejecting when the opposite might be true.
+1. Information obtained from this protocol (e.g., response times, route costing, node uptime, etc) is generally NOT authenticated, and SHOULD be used with caution, taking into account the route a particular ping packet traverses, if possible. 
 
-1. When assembling a return address in a "ping" packet, a bidirectional-mode Initiator SHOULD append a unique suffix to their own address so that each particular pinging session will use a unique return address. This will significantly decrease the odds of fraudulent "pong" requests in this mode.
+    For example, it's possible that an intermediary node could detect a ping protocol flow and forge a seemingly valid fulfill or reject response. This type of activity might, for example, make it appear that response times are better than normal, or that a ping destination is fulfilling or rejecting when the opposite might be true.
+
+### Bidirectional Mode Considerations
+1. When assembling a return address in a "ping" packet, Bidirectional-mode Initiators SHOULD append a unique suffix to their own address so that each particular pinging session will use a unique return address. This will significantly decrease the odds of fraudulent "pong" requests in this mode.
 
 1. Bidirectional-mode Initiators control the destination of all "pong" packets, so the Recipient of any "ping" packets in this mode SHOULD be careful to guard against accidental denial-of-service (DOS) attacks whereby an attacker utilizes the ping Recipient to send large volumes of pong traffic to a target ILP address of the Initiator's choosing.
 
-1. When constructing a bidirectional "pong" response, it is important that implementations do not hard-code the amount or the outgoing link. Instead, implementations SHOULD process the response packet through the typical pipeline logic of the Connector. This will simplify protocol implementations, and also guard against subtle exchange rate attacks that might be attempted by an Initiator.
+1. When constructing a bidirectional "pong" response, it is important that implementations do not hard-code the amount or the outgoing link. Instead, implementations SHOULD process the response packet through the typical pipeline logic of the Connector. This will simplify implementations and also guard against subtle exchange rate attacks that might be attempted by an Initiator.
