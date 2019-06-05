@@ -3,7 +3,7 @@
 ## Introduction
 In order to monitor the health of an internetworked system, it is often useful to be able to send probe messages. In the Internet system, ICMP [echo](https://en.wikipedia.org/wiki/Ping_(networking_utility)#Echo_request) request and response packets are used together to verify connectivity (colloquially known as a "pinging" a host).  
 
-This RFC specifies a similar mechanism for Interledger nodes to test `uptime`, `response-time` and approximate `path cost` for a particular sender/Receiver pair.
+This RFC specifies a similar mechanism for Interledger nodes to test `uptime`, `response-time` and approximate `path cost` for a particular Initiator/Recipient pair.
 
 ## Scope
 It is already possible to test end-to-end connectivity in Interledger by sending a small payment using existing mechanisms. However, doing so requires higher-level protocols, such as [SPSP](https://github.com/interledger/rfcs/blob/master/0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) and [STREAM](https://github.com/interledger/rfcs/blob/master/0029-stream/0029-stream.md).
