@@ -52,15 +52,10 @@ This flow refers to the user's **browser** and the user's **provider**, [defined
 - Below is repeated for every semantically (consider `meta.content = meta.content`) new  `<meta name="monetization">` tag seen for the life of the page:
   - If any of the Web Monetization `<meta>` tags are malformed, the browser will stop here. The user's agent SHOULD report a warning via the console.
   - If the Web Monetization `<meta name="monetization">` tag is well-formed, the browser should extract the Payment Setup Endpoint ([Payment Pointer](../0026-payment-pointers) or [SPSP](../0009-simple-payment-setup-protocol) Url).
-
-  (TODO: This would imply that when dynamically injecting multiple meta tags (in the sense of others than `<meta name="monetization">`, it would require careful ordering so as to be operating on the information defined by the set of tags as a whole, removal with document.head.querySelectorAll('meta[name^="monetization"]'), then adding the name="monetization" tag last)
-  
-  )
-
   - The user's agent generates a fresh **random** UUID (version 4) and uses this as a Monetization ID. This MUST be regenerated upon dynamic changes to the meta tags and MUST be unique per page load in order to avoid user tracking.
   - The user's agent passes these payment details to the user's provider (see [Payment Handler Flow](#payment-handler-flow)).
   - The provider resolves the Payment Setup Endpoint and begins to pay. The provider MAY be acting from a different machine from the user. Cookies and session information MUST NOT be carried with any requests made to resolve the Payment Setup Endpoint, with the exception of the Monetization ID.
-    - On the SPSP query to resolve the Payment Setup Endpoint, a `Web-Monetization-Id` header is sent, containing the Monetization ID. The server running the web-monetized site may use this to associate future requests by the user with their payments. (TODO: spell out the privacy concerns inherent in this design)
+    - On the SPSP query to resolve the Payment Setup Endpoint, a `Web-Monetization-Id` header is sent, containing the Monetization ID. The server running the web-monetized site may use this to associate future requests by the user with their payments.
     - With the `destination_account` and `shared_secret` fetched from the SPSP query, a STREAM connection is established. A single STREAM is opened on this connection, and a positive SendMax is set.
     - The provider SHOULD set their SendMax high enough that it is never reached, and make payment adjustments by limiting throughput.
   - Once the STREAM connection has fulfilled an ILP packet with a non-zero amount, the provider notified the browser, and the browser dispatches an event on `document.monetization`. Payment SHOULD continue.
@@ -87,8 +82,6 @@ A provider can be implemented as a Payment Handler supporting the 'webmonetizati
   }
 }
 ```
-
-(TODO: paymentPointer could be simply an SPSP url)
 
 - The user's agent calls `.show()` on this PaymentRequest, triggering the [PaymentHandler](https://www.w3.org/TR/payment-handler/) for `webmonetization`. This PaymentHandler is how the browser communicates to the provider.
   - The return value of `.show()` MUST return a Promise, and must also implement the [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget) interface. The provider will emit [MonetizationStart](#monetizationstart) and [MonetizationProgress](#monetizationprogress) events from this Promise to communicate to the browser when payment occurs. The Promise MUST NOT resolve, because Web Monetization continues for the entire lifetime of a given meta tag. The Promise MAY reject if there is an error preventing the provider from paying and no retries will occur.
@@ -163,10 +156,6 @@ Dispatched every time an ILP packet with a non-zero amount has been fulfilled by
   }
 }
 ```
-
-(TODO: 
-    It's isn't SUPER clear whether this is sent or received amounts, and it may be interesting to show both
-)
 
 - `amount` is a String containing the amount contained in the ILP packet.
 - `assetCode` contains the three letter asset code describing the amount's units.
