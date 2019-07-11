@@ -1,6 +1,6 @@
 ---
 title: Web Monetization
-draft: 7
+draft: 8
 ---
 
 # Web Monetization
