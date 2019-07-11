@@ -41,16 +41,16 @@ Web Monetization makes use of [SPSP](../0009-simple-payment-setup-protocol/0009-
 
 This flow refers to the user's **browser** and the user's **provider**, [defined above](#terminology).
 
-- The user's agent navigates a webpage.
+- The user's agent navigates to a webpage.
 - The user's agent sets `document.monetization` to an Object which implements [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget).
 - The user's agent sets `document.monetization.state` to `pending`.
-- The user's agent observes the `<head>` and looks for a Web Monetization `<meta name="monetization">` tag ([specified below](#meta-tags)).
+- The user's agent observes the `<head>` and looks for a Web Monetization `<meta name="monetization">` tag ([specified below](#meta-tags-set)).
   - There MUST be only one `<meta name="monetization">` tag at any given time
-  - The `<meta>` tags MUST be in the `<head>` of the document.
-  - The `<meta>` tags MUST be in the top level window (i.e. not inside an iframe)  
+  - The `<meta>` Tags Set MUST be in the `<head>` of the document.
+  - The `<meta>` Tags Set MUST be in the top level window (i.e. not inside an iframe)
 
 - Below is repeated for every semantically (consider `meta.content = meta.content`) new  `<meta name="monetization">` tag seen for the life of the page:
-  - If any of the Web Monetization `<meta>` tags are malformed, the browser will stop here. The user's agent SHOULD report a warning via the console.
+  - If any of the Web Monetization `<meta>` Tags Set are malformed, the browser will stop here. The user's agent SHOULD report a warning via the console.
   - If the Web Monetization `<meta name="monetization">` tag is well-formed, the browser should extract the Payment Setup Endpoint ([Payment Pointer](../0026-payment-pointers) or [SPSP](../0009-simple-payment-setup-protocol) Url).
   - The user's agent generates a fresh **random** UUID (version 4) and uses this as a Monetization ID. This MUST be regenerated upon dynamic changes to the meta tags and MUST be unique per page load in order to avoid user tracking.
   - The user's agent passes these payment details to the user's provider (see [Payment Handler Flow](#payment-handler-flow)).
@@ -58,13 +58,14 @@ This flow refers to the user's **browser** and the user's **provider**, [defined
     - On the SPSP query to resolve the Payment Setup Endpoint, a `Web-Monetization-Id` header is sent, containing the Monetization ID. The server running the web-monetized site may use this to associate future requests by the user with their payments.
     - With the `destination_account` and `shared_secret` fetched from the SPSP query, a STREAM connection is established. A single STREAM is opened on this connection, and a positive SendMax is set.
     - The provider SHOULD set their SendMax high enough that it is never reached, and make payment adjustments by limiting throughput.
-  - Once the STREAM connection has fulfilled an ILP packet with a non-zero amount, the provider notified the browser, and the browser dispatches an event on `document.monetization`. Payment SHOULD continue.
-    - The user's agent sets `document.monetization.state` to `started`. This MUST occur before the `monetizationstart` event is fired.
-    - The event's type is `monetizationstart`. The event has a `detail` field with an object containing the Payment Setup Endpoint and the Monetization ID ([specified below](#monetizationstart)).
+  - Once the STREAM connection has fulfilled an ILP packet with a non-zero amount, the provider notifies the browser:
+    - The user's agent sets `document.monetization.state` to `started`.
+    - This MUST occur before the `monetizationstart` event is fired.
+    - This event has a `detail` field with an object containing the Payment Setup Endpoint and the Monetization ID ([specified below](#monetizationstart)).
     - The user's agent also emits a `monetizationprogress` ([specified below](#monetizationprogress)) event from `document.monetization`, corresponding to this first packet. If there are no listeners the event MAY NOT be emitted.
   - Payment continues for the lifetime of a given meta tag (or semantically equivalent)
     - The provider MAY decide to stop/start payment at any time, e.g. if the user is idle, backgrounds the page, or instructs the browser to do so.
-    - If the STREAM connection is severed, the provider will redo the SPSP query to the same Payment Setup Endpoint as before with the same Monetization ID. The user's agent MUST NOT re-process the `<meta>` tags.
+    - If the STREAM connection is severed, the provider will redo the SPSP query to the same Payment Setup Endpoint as before with the same Monetization ID. The user's agent MUST NOT re-process the `<meta>` Tags Set.
     - Each time a packet with a nonzero amount is fulfilled, the provider notifies the browser, and the browser emits an event on `document.monetization`. The event's type is `monetizationprogress`. The event has a `detail` field containing the details of the packet ([specified below](#monetizationprogress)). If there are no listeners the event MAY NOT be emitted.
     - When a stream is closed the `document.monetization.state` MUST be set back to 'pending'
 
@@ -72,7 +73,7 @@ This flow refers to the user's **browser** and the user's **provider**, [defined
 
 A provider can be implemented as a Payment Handler supporting the 'webmonetization' payment method (The payment method specification for this payment method is still under development.). Communication between the browser and the provider would use this flow.
 
-- After parsing the `<meta>` tags, the browser creates a new [PaymentRequest](https://www.w3.org/TR/payment-request/#paymentrequest-interface) object with the following [PaymentMethodData](https://www.w3.org/TR/payment-request/#dom-paymentmethoddata) argument.
+- After parsing the `<meta>` Tags Set, the browser creates a new [PaymentRequest](https://www.w3.org/TR/payment-request/#paymentrequest-interface) object with the following [PaymentMethodData](https://www.w3.org/TR/payment-request/#dom-paymentmethoddata) argument.
 
 ```json
 {
@@ -89,11 +90,12 @@ A provider can be implemented as a Payment Handler supporting the 'webmonetizati
 
 ## Specification
 
-### Meta Tags
+### Meta Tags Set
 
-This `<meta>` tags MUST be in the document's `<head>`. The `<meta>` tags allows the user's agent to pay a site via Web Monetization by specifying a [Payment Setup Endpoint](../0026-payment-pointers/0026-payment-pointers.md) or SPSP url.
+The `<meta>` Tags Set MUST be in the document's `<head>`. The `<meta>` Tags Set allows the user's agent to pay a site via Web Monetization by specifying a [Payment Pointer](../0026-payment-pointers/0026-payment-pointers.md) or [SPSP](../0009-simple-payment-setup-protocol) url.
 
-The `name` of the `<meta>` tags all start with `monetization`. The table below lists the different `name`s and the formats of their `content`. Currently there is only one tag, but this may be expanded in the future.
+The `name` of the `<meta>` tags all start with `monetization`. The table below lists the different `name`s and the formats of their `content`. Currently there is only one tag, but this may be expanded in the future so care MUST be given to altering a Tags Set such that `<meta name="monetization">` is the last one modified.   
+
 
 | Name | Required? | Format | Description |
 |:--|:--|:--|:--|
@@ -113,7 +115,7 @@ The `name` of the `<meta>` tags all start with `monetization`. The table below l
 
 ```ts
 document.monetization: EventTarget
-document.monetization.state: String
+document.monetization.state: string
 ```
 
 `document.monetization.state` can be one of two values.
@@ -133,14 +135,14 @@ Dispatched once the first ILP packet with a non-zero amount has been fulfilled b
 {
   detail: {
     // Payment Setup Endpoint
-    paymentPointer: String,
-    // Monetization ID
-    requestId: String
+    paymentPointer: string,
+    // Monetization ID / Web-Monetization-ID header
+    requestId: string
   }
 }
 ```
 
-The `paymentPointer` matches the one in the `<meta>` tags. The `requestId` matches the UUID generated by the browser (see [Flow](#flow)).
+The `paymentPointer` matches the one in the `<meta name="monetization">` tag. The `requestId` matches the Monetization ID (UUID V4) generated by the browser (see [Flow](#flow)).
 
 #### `monetizationprogress`
 
@@ -150,14 +152,14 @@ Dispatched every time an ILP packet with a non-zero amount has been fulfilled by
 {
   detail: {
     // Received amount
-    amount: String,
-    assetCode: String,
-    assetScale: Number
+    amount: string,
+    assetCode: string,
+    assetScale: number
   }
 }
 ```
 
-- `amount` is a String containing the amount contained in the ILP packet.
+- `amount` is a String containing the destination amount **received** as specified in the ILP packet.
 - `assetCode` contains the three letter asset code describing the amount's units.
 - `assetScale` contains a number representing the scale of the amount. For example, cents would have an assetScale of `2`.
 
@@ -165,7 +167,7 @@ Dispatched every time an ILP packet with a non-zero amount has been fulfilled by
 
 #### `Web-Monetization-Id`
 
-Contains the `Monetization ID` that the browser generated. This header MUST always be sent on SPSP queries for Web Monetization. This value MUST be a UUID version 4.
+Contains the `Monetization ID` (currently referred to as `requestId` in the events) that the browser generated. This header MUST always be sent on SPSP queries for Web Monetization. This value MUST be a UUID version 4.
 
 ```http
 Web-Monetization-Id: dcd479ad-7d8d-4210-956a-13c14b8c67eb
