@@ -1,6 +1,6 @@
 ---
 title: Web Monetization
-draft: 8
+draft: 9
 ---
 
 # Web Monetization
@@ -136,7 +136,7 @@ Dispatched once the first ILP packet with a non-zero amount has been fulfilled b
   detail: {
     // Payment Setup Endpoint
     paymentPointer: string,
-    // Monetization ID / Web-Monetization-ID header
+    // Monetization ID / Web-Monetization-Id header
     requestId: string
   }
 }
