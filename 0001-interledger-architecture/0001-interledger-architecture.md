@@ -2,6 +2,7 @@
 title: Interledger Architecture
 draft: 6
 ---
+
 # Interledger Architecture
 
 Interledger provides for secure payments across multiple assets on different ledgers. The architecture consists of a conceptual model for interledger payments, a mechanism for securing payments, and a suite of protocols that implement this design.
@@ -58,8 +59,7 @@ If settlement of one account in the Interledger is contingent on the status of a
 
 Nodes can also choose never to settle their obligations. This configuration may be useful when several nodes representing different pieces of software or devices are all owned by the same person or business, and all their traffic with the outside world goes through a single "home router" connector. This is the model of [moneyd](https://github.com/interledgerjs/moneyd), one of the current implementations of Interledger.
 
-Most implementations of Interledger use a plugin architecture to settle obligations automatically while abstracting the differences between different ledger layer protocols. For an example of this, see [IL-RFC-24: JavaScript Ledger Plugin Interface version 2](../0024-ledger-plugin-interface-2/0024-ledger-plugin-interface-2.md).
-
+Most implementations of Interledger use [settlement engines](../0000-settlement-engine/0000-settlement-engine.md) to settle obligations automatically while abstracting the differences between different ledger layer protocols.
 
 #### Link Protocols
 
@@ -72,7 +72,6 @@ Peers in the Interledger Protocol require a way to communicate securely with one
 
 The implementation of a Link protocol may be incorporated into a ledger plugin, since the Link protocol has to communicate settlements that occur in the underlying ledger.
 
-
 #### Interledger Protocol
 
 The Interledger Protocol version 4 (ILPv4) is the core protocol of the entire Interledger Protocol suite. This protocol's packets pass through all participants in the chain: from the sender, through one or more connectors, to the receiver. This protocol is compatible with any variety of currencies and underlying ledger systems.
@@ -80,7 +79,6 @@ The Interledger Protocol version 4 (ILPv4) is the core protocol of the entire In
 This level is concerned with currency amounts, routing, and whether each step in a payment arrives in time or expires. This protocol finds a path to connect a sender and receiver using any number of intermediaries. The packets that are relayed across this path contain a cryptographic _condition_ whose _fulfillment_ is only known to the recipient (and possibly the sender). If everything goes well and the receiver wants the funds, the receiver provides the fulfillment, which triggers the funds to move at each account in the path. In this way, the fulfillment proves that the money was delivered to the intended recipient.
 
 This layer abstracts the layers above and below it from one another, so there can be only one protocol at this layer. Other protocols, including older versions of the Interledger Protocol, are incompatible. The current protocol is defined by [IL-RFC-27: Interledger Protocol version 4](../0027-interledger-protocol-4/0027-interledger-protocol-4.md).
-
 
 #### Transport Protocols
 
@@ -93,7 +91,6 @@ Transport layer protocols are used for **end-to-end communication** between send
 - Encrypting and decrypting data
 
 For an example, see the STREAM protocol, defined by [IL-RFC-29: STREAM](../0029-stream/0029-stream.md). STREAM creates a bidirectional connection between a sender and receiver that consists of many individual Interledger packets.
-
 
 #### Application Protocols
 
@@ -110,7 +107,6 @@ An example of an application layer protocol is the [Simple Payment Setup Protoco
 
 Many different messaging protocols can be defined on and above the Application level of the Interledger clearing system.
 
-
 #### Comparison to Traditional Financial Infrastructure
 
 The layers of Interledger are similar to the different layers of traditional inter-bank systems:
@@ -119,7 +115,6 @@ The layers of Interledger are similar to the different layers of traditional int
 - Interledger's _Transport_ and _Interledger_ layers combined are similar to a _clearing_ system in banking, though there are some differences. (For more details, see [IL-RFC-32: Peering, Clearing, and Settling](../0032-peering-clearing-settlement/0032-peering-clearing-settlement.md).)
 - Interledger's _Link protocols_ don't have a direct banking equivalent, but they provide authenticated messaging to enable the Interledger Protocol layer, and they also associate settlement events in the underlying ledgers to balances in the Interledger Protocol layer.
 - The underlying _Ledger_ systems are equivalent of _settlement_ in banking terms.
-
 
 ### Interledger Protocol Flow
 
@@ -145,7 +140,6 @@ A packet does not have to represent the full amount of a real-world payment. _Tr
 
 The Interledger Protocol does not have a specific definition of "small", nor a size limit on packets. Each connector can choose minimum and maximum packet sizes they are willing to relay; as a result, any path's maximum packet size is the smallest maximum packet size among the connectors in that path. To be compatible with as much of the network as possible, one should choose packet sizes that fit between the minimum and maximum values of as many connectors as possible.
 
-
 ### Addresses
 
 _Interledger addresses_ (also called _ILP addresses_) provide a universal way to address senders, receivers and connectors. These addresses are used in several different protocol layers, but their most important feature is to enable routing on the Interleder Protocol layer. Interledger addresses are hierarchical, dot-separated strings where the left-most segment is most significant. An example address might look like:
@@ -157,9 +151,9 @@ If two parties in the Interledger have a "parent/child" connection rather than a
 
 ## Interledger Security
 
-**Interledger uses *conditional transfers* to secure payments across multiple hops and even through untrusted connectors.** Everyone only needs to trust their direct peers, no matter how many connectors are involved in forwarding a given packet. Connectors take some risk, but this risk can be managed and is primarily based upon the connector's chosen peers.
+**Interledger uses _conditional transfers_ to secure payments across multiple hops and even through untrusted connectors.** Everyone only needs to trust their direct peers, no matter how many connectors are involved in forwarding a given packet. Connectors take some risk, but this risk can be managed and is primarily based upon the connector's chosen peers.
 
-> **Hint:** Conditional transfers or *authorization holds* are the financial equivalent of a [two-phase commit](http://foldoc.org/two-phase%20commit).
+> **Hint:** Conditional transfers or _authorization holds_ are the financial equivalent of a [two-phase commit](http://foldoc.org/two-phase%20commit).
 
 Because each party is isolated from risks beyond their immediate peers, longer paths are not inherently more risky than shorter paths. This enables longer paths to compete with shorter paths to convey money from any given sender to any given receiver, while reducing the risk to the sender.
 
