@@ -181,11 +181,13 @@ The settlement engine MUST be responsible for correlating an account identifier 
 
 An amount of a given asset or currency may be represented using different denominations or units of the asset. For example, one U.S. dollar may be represented as \$1 or 100 cents, and one Bitcoin may be represented as 1 BTC or 100000000 satoshis.
 
-A **monetary unit** is the standard unit of value of a particular currency or asset, such as \$1 in the case of U.S. dollars, or 1 BTC in the case of Bitcoin.
+A **standard unit** is the typical unit of value for a particular asset, such as \$1 in the case of U.S. dollars, or 1 BTC in the case of Bitcoin.
 
-A **fractional monetary unit** is some unit smaller than the standard monetary unit with greater precision. Examples of fractional monetary units include one cent (\$0.01) in the case of USD, or 1 satoshi (0.00000001 BTC) in the case of Bitcoin.
+A **fractional unit** represents some unit smaller than the standard unit, but with greater precision. Examples of fractional monetary units include one cent (\$0.01 USD), or 1 satoshi (0.00000001 BTC).
 
-An **asset scale** for some fractional monetary unit is the difference in orders of magnitude between that unit and the standard monetary unit. More formally, a non-negative integer (0, 1, 2, …) such that one monetary unit equals `10^(-scale)` of the given fractional monetary unit, or 0 if the unit is the standard monetary unit. For example, one cent represents an asset scale of 2 in the case of USD, whereas 1 satoshi represents an asset scale of 8 in the case of Bitcoin.
+An **asset scale** is the difference in orders of magnitude between a **standard unit** and a corresponding **fractional unit**. More formally, the asset scale is a non-negative integer (0, 1, 2, …) such that one **standard unit** equals `10^(-scale)` of a corresponding **fractional unit**. If the fractional unit equals the standard unit, then the asset scale is 0.
+
+For example, one cent represents an asset scale of 2 in the case of USD, whereas 1 satoshi represents an asset scale of 8 in the case of Bitcoin.
 
 #### `Quantity` JSON type
 
