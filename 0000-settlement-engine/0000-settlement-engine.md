@@ -67,7 +67,7 @@ Settlement systems include, but are not limited to:
 - Money transfer services
 - Cash or physical delivery of assets
 
-TODO Explain that settlement is triggered by the accounting system
+TODO Explain that settlement is triggered by the accounting system?
 
 TODO Should the expected netting behavior be included?
 
@@ -186,15 +186,21 @@ The settlement engine MUST be responsible for correlating an account identifier 
 
 ### Units and quantities
 
-Asset amounts may be represented using different denominations. For example, one U.S. dollar may be represented as \$1 or 100 cents, each of which is an equivalent unit of value. Likewise, one Bitcoin may be represented as 1 BTC or 100,000,000 satoshis.
+Asset amounts may be represented using different denominations. For example, one U.S. dollar may be represented as \$1 or 100 cents, each of which is equivalent in value. Likewise, one Bitcoin may be represented as 1 BTC or 100,000,000 satoshis.
 
 A **standard unit** is the typical unit of value for a particular asset, such as \$1 in the case of U.S. dollars, or 1 BTC in the case of Bitcoin.
 
 A **fractional unit** represents some unit smaller than the standard unit, but with greater precision. Examples of fractional monetary units include one cent (\$0.01 USD), or 1 satoshi (0.00000001 BTC).
 
-An **asset scale** is the difference in orders of magnitude between a **standard unit** and a corresponding **fractional unit**. More formally, the asset scale is a non-negative integer (0, 1, 2, …) such that one **standard unit** equals `10^(-scale)` of a corresponding **fractional unit**. If the fractional unit equals the standard unit, then the asset scale is 0.
+An **asset scale** is the difference in orders of magnitude between a standard unit and a corresponding fractional unit. More formally, the asset scale is a non-negative integer (0, 1, 2, …) such that one standard unit equals `10^(-scale)` of a corresponding fractional unit. If the fractional unit equals the standard unit, then the asset scale is 0.
 
 For example, one cent represents an asset scale of 2 in the case of USD, whereas 1 satoshi represents an asset scale of 8 in the case of Bitcoin.
+
+#### Selecting scales
+
+Settlement engines MUST use the denomination of its settlements, which is typically the smallest denomination of the asset on the settlement system, as the scale to perform or fulfill requests.
+
+Accounting systems and settlement engines are RECOMMENDED to use the same denomination or scale to minimize conversion inconsistencies, but MAY use different denominations. For example, micropayments may require more precision than can actually be settled, or database limitations of the accounting system may require less precision than the settlement system is capable of.
 
 #### `Quantity` JSON type
 
@@ -226,12 +232,6 @@ If the accounting system or settlement engine receives a request with a **[`Quan
 The response to the request MUST include the converted, rounded **[`Quantity`](#quantity-json-type)** used to fulfill the request, which MUST be less than or equal to the amount sent in the original request. (If the amount rounds down to 0, this this amount MAY be 0.)
 
 Then, the system with the additional precision initiating the request MUST track the leftover sum so it may accumulate and be retried in subsequent requests.
-
-#### Choosing scales
-
-All quantities the settlement engine includes in its responses or callback requests MUST use the same unit its settlements are denominated in, which is typically the smallest denomination of the asset on the settlement system.
-
-The accounting system is RECOMMENDED to use the same unit or scale as the settlement engine to minimize conversion inconsistencies.
 
 ### Settlement Engine HTTP API
 
