@@ -37,16 +37,16 @@ Settlement engines provide a standardized mechanism for Interledger connectors t
 
 ### Accounting
 
-An **account** represents a record of transactions between counterparties, denominated in some fungible asset. Each account may be comprised of multiple account balances, which each represent the net difference between amounts received (credits) and amounts owed (debits) for some subset of their transactions.
+An **account** represents a record of transactions between counterparties, denominated in a single, fungible asset. Each account may be comprised of multiple account balances, which each represent the net difference between amounts received (credits) and amounts owed (debits) for some subset of their transactions.
 
 Interledger connectors are RECOMMENDED to operate an **accounting system** which keeps a record of two balances for each account:
 
 - **Accounts payable**, the amount owed by the connector to its peer for packets its peer has fulfilled.
   - Positive amount indicates the connector is indebted to its peer (a _liability_ for the connector).
-  - Negative amount indicates the connector has prefunded.
+  - Negative amount indicates the connector has sent a pre-payment to its peer.
 - **Accounts receivable**, the amount owed to the connector by its peer for packets the connector has fulfilled.
   - Positive amount indicates its peer is indebted to the connector (an _asset_ to the connector).
-  - Negative amount indicates its peer has prefunded.
+  - Negative amount indicates its peer has sent a pre-payment to the connector.
 
 (Note: in context of "accounts payable" or "accounts receivable," "accounts" actually refers to a single account balance, not multiple accounts.)
 
@@ -95,7 +95,7 @@ After the settlement engine requests the accounting system to credit an incoming
 
 If the request fails after retrying per the [idempotency rules](#idempotency), the settlement engine MUST track the uncredited amount to retry later.
 
-When a subsequent settlement is received, the settlement engine MUST request the accounting system to credit a new incoming settlement for the total amount yet to be credited, including the leftover amount.
+When a subsequent settlement is received, the settlement engine MUST request the accounting system to credit a new incoming settlement for the total amount yet to be credited, including the leftover amount(s).
 
 #### Accounting system guarantees
 
@@ -134,7 +134,7 @@ To support multiple interoperable settlement engine implementations for a partic
 
 #### Usage with [ILP-over-HTTP](../0035-ilp-over-http/0035-ilp-over-http.md)
 
-Interledger connectors use a transport, such as HTTP or WebSockets, to send and receive data with peers. Settlement engine implementations SHOULD proxy all messages its Interledger connector's existing transport like so:
+Interledger connectors use a transport, such as HTTP or WebSockets, to send and receive data with peers. Settlement engine implementations SHOULD proxy all messages through its Interledger connector's existing transport like so:
 
 1. Origin settlement engine sends a callback request to its connector with the settlement-related message to forward.
 2. Origin connector forwards the message to the peer's connector using its existing transport.
