@@ -1,6 +1,6 @@
 ---
 title: Interledger Architecture
-draft: 6
+draft: 7
 ---
 
 # Interledger Architecture
@@ -39,8 +39,6 @@ Like the Internet protocol stack that inspired it, the Interledger protocol suit
 
 > **Aside:** Not pictured in the diagram are configuration protocols including [IL-RFC-31: Interledger Dynamic Configuration Protocol](../0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md) and **Route Broadcasting Protocol**. These protocols are built on top of the Interledger Protocol layer and support it, but are not considered to be transport or application-layer protocols.
 
-<!-- TODO: Add a link to [RBP](https://github.com/interledger/rfcs/pull/455)'s final location. -->
-
 The following sections describe the general functions of each layer in the protocol suite. For an alternate explanation with detailed depictions of the protocols' data formats, see [IL-RFC-33: Relationship Between Protocols](../0033-relationship-between-protocols/0033-relationship-between-protocols.md).
 
 #### Ledger Protocols
@@ -59,7 +57,7 @@ If settlement of one account in the Interledger is contingent on the status of a
 
 Nodes can also choose never to settle their obligations. This configuration may be useful when several nodes representing different pieces of software or devices are all owned by the same person or business, and all their traffic with the outside world goes through a single "home router" connector. This is the model of [moneyd](https://github.com/interledgerjs/moneyd), one of the current implementations of Interledger.
 
-Most implementations of Interledger use [settlement engines](../0000-settlement-engine/0000-settlement-engine.md) to settle obligations automatically while abstracting the differences between different ledger layer protocols.
+Implementations of Interledger are recommended to use settlement engines as defined in [IL-RFC-00: Settlement Engine](../0000-settlement-engine/0000-settlement-engine.md) to settle obligations automatically while abstracting the differences between different settlement systems and ledgers.
 
 #### Link Protocols
 
