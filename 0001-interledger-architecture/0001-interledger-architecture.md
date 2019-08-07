@@ -57,7 +57,7 @@ If settlement of one account in the Interledger is contingent on the status of a
 
 Nodes can also choose never to settle their obligations. This configuration may be useful when several nodes representing different pieces of software or devices are all owned by the same person or business, and all their traffic with the outside world goes through a single "home router" connector. This is the model of [moneyd](https://github.com/interledgerjs/moneyd), one of the current implementations of Interledger.
 
-Implementations of Interledger are recommended to use settlement engines as defined in [IL-RFC-00: Settlement Engine](../0000-settlement-engine/0000-settlement-engine.md) to settle obligations automatically while abstracting the differences between different settlement systems and ledgers.
+Implementations of Interledger are recommended to use settlement engines as defined in [IL-RFC-00: Settlement Engines](../0000-settlement-engines/0000-settlement-engines.md) to settle obligations automatically while abstracting the differences between different settlement systems and ledgers.
 
 #### Link Protocols
 
