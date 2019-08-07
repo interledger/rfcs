@@ -432,22 +432,24 @@ Content-Type: application/octet-stream
 
 > _&lt;raw bytes of response&gt;_
 
-### Idempotency
+### Idempotence
 
-TODO Good reference: https://stripe.com/blog/idempotency, "fault-tolerant"
-
-Implementations MUST support [idempotency](https://en.wikipedia.org/wiki/Idempotence) for safely retrying requests without accidentally performing the same operation multiple times. This is useful when an API call is disrupted in transit and you do not receive a response. For example, if a request to send a settlement does not respond due to a network connection error, you can retry the request with the same idempotency key to guarantee that no more than one settlement is performed.
+Idempotent requests ensure each side effect, such as performing a settlement, only happens once, even though the same request may be called multiple times. For example, if a request to send a settlement fails due to a network connection error, [idempotence](https://en.wikipedia.org/wiki/Idempotence) prevents a client from accidentally triggering multiple settlements when it retries the request.
 
 #### Performing idempotent requests
 
-All `POST` requests MUST supply idempotency keys by providing an additional `Idempotency-Key: <key>` header with the request.
-
-For each unique request, such as an individual settlement, a unique key should be generated. The key MUST generated with a cryptographically secure pseudorandom number generator to avoid collisions. Implementations are RECOMMENDED to use a v4 UUID.
-
-(TODO Is tx hash fine instead?)
+Each distinct operation, such as each request to settle, must have an idempotency key, or globally unique string. This key MUST be derived from a cryptographically secure source of randomness to avoid collisions, such as a v4 UUID. Clients MUST provide this key within an `Idempotency-Key: <key>` header in all POST requests.
 
 #### Recommended retry behavior
+
+If the client receives no response, it MUST retry the request with the same idempotency key.
+
+To prevent overwhelming the server, the client SHOULD exponentially backoff each retry attempt and add random "jitter" to vary the retry interval. After several failed attempts, the client MUST rollback any side effects it performed, such as [refunding balances](#double-entry-bookkeeping).
 
 #### Handling idempotent requests
 
 All `POST` endpoints MUST support idempotency keys.
+
+Before an endpoint responds to a `POST` request with a new idempotency key (one it hasn't seen before), it should persist the idempotency key and the state of its response. If a subsequent request is sent with the same idempotency key, the server should use the state from the initial request to return the same response.
+
+Servers MUST persist idempotency keys and response state for at least 24 hours after the initial request was performed.
