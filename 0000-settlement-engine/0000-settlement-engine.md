@@ -27,7 +27,7 @@ Counterparties may operate compatible settlement engines to settle their liabili
 
 ### Interledger packet flow
 
-In the [Interledger protocol](../0001-interledger-architecture/0001-interledger-architecture.md), a **peer** is a connector who is a counterparty to another connector. Connectors clear and fulfill ILP packets with their peers, which represent conditional IOUs that affect their mutual accounting relationships.
+In the [Interledger protocol](../0001-interledger-architecture/0001-interledger-architecture.md), a **peer** is a connector who is a counterparty to another connector. An **account** is the connector's relationship with the counterparty, representing their arrangement to extend credit and transact with one another. Connectors clear and fulfill ILP packets with their peers, which represent conditional IOUs that affect these accounts.
 
 A connector may extend a given peer a limited line of credit, or none at all, depending upon their trustworthiness. As the connector receives incoming ILP PREPARE packets from a peer, forwards them, and returns corresponding ILP FULFILL packets, that peer's liabilities to the connector accrue. If the peer's liabilities exceed the credit limit assigned to it, the connector may reject and decline to forward additional packets.
 
@@ -37,9 +37,11 @@ Settlement engines provide a standardized mechanism for Interledger connectors t
 
 ### Accounting
 
-An **account** represents a record of transactions between counterparties, denominated in a single, fungible asset. Each account may be comprised of multiple account balances, which each represent the net difference between amounts received (credits) and amounts owed (debits) for some subset of their transactions.
+Peers MUST record their transactions and/or the effects of their transactions through the process of accounting.
 
-Interledger connectors are RECOMMENDED to operate an **accounting system** which keeps a record of two balances for each account:
+In this accounting context, an **account** represents amounts received (credits) and amounts owed (debits) for a set of transactions between counterparties. The **balance** of an account is the net difference between these credits and debits. All the balances and transactions of an account are denominated in a single, fungible asset.
+
+Interledger connectors are RECOMMENDED to operate an **accounting system** which keeps a record of two accounts for each peer:
 
 - **Accounts payable**, the amount owed by the connector to its peer for packets its peer has fulfilled.
   - Positive amount indicates the connector is indebted to its peer (a _liability_ for the connector).
@@ -48,7 +50,7 @@ Interledger connectors are RECOMMENDED to operate an **accounting system** which
   - Positive amount indicates its peer is indebted to the connector (an _asset_ to the connector).
   - Negative amount indicates its peer has sent a pre-payment to the connector.
 
-(Note: in context of "accounts payable" or "accounts receivable," "accounts" actually refers to a single account balance, not multiple accounts.)
+(Note that "accounts payable" and "accounts receivable" refer to accounts as _records_, distinct from accounts referring to the _arrangement_ between counterparties.)
 
 Thus, the connector's accounts payable with its peer should mirror its peer's accounts receivable with the connector, and respectively, the connector's accounts receivable should equal its peer's accounts payable.
 
@@ -56,7 +58,9 @@ Thus, the connector's accounts payable with its peer should mirror its peer's ac
 
 A **settlement** is the irrevocable discharge of a liability by providing something of value to the party to whom the liability is owed.
 
-Settlements may be performed by using a **settlement system**, or medium for exchanging value. Some settlements may transfer funds on a **ledger**, or registry of account balances and/or transactions, which is a type of settlement system. (Although not all settlement systems are ledgers, here, the terms are sometimes used interchangeably.)
+The accounting system is responsible for discharging the liability, while the settlement is responsible for transferring value to the counterparty.
+
+Settlements may be performed by integrating with a **settlement system**, or medium for exchanging value. Some settlements may transfer funds on a **ledger**, or registry of account balances and/or transactions, which is a type of settlement system. (Although not all settlement systems are ledgers, here, the terms are sometimes used interchangeably.)
 
 Settlement systems include, but are not limited to:
 
@@ -69,7 +73,9 @@ Settlement systems include, but are not limited to:
 
 TODO Explain that settlement is triggered by the accounting system?
 
-TODO Should the expected netting behavior be included?
+TODO Explain _how_ the value is provided to the other party -- some ways to do that, and why the spec is ultimately agnostic to it
+
+Individual settlement engine implementations define how these settlements are performed and how these settlements are received.
 
 ### Double-entry bookkeeping
 
@@ -77,17 +83,21 @@ The interface in this specification provides a mechanism to reconcile settled ca
 
 Together, a settlement engine and an accounting system interface with one another to perform double-entry bookkeeping.
 
-To ensure accurate double-entry bookkeeping, settlement engine and accounting system implementations MUST enforce several core guarantees.
+To ensure accurate, balanced double-entry bookkeeping, settlement engine and accounting system implementations MUST enforce several invariants.
 
-#### Settlement engine guarantees
+#### Settlement engine invariants
 
 ##### Settlement symmetry
 
-Given two non-malicious peers transacting under normal conditions, compatible settlement engine implementations MUST ensure outgoing settlements from one peer are eventually acknowledged as incoming settlements by the other.
+The fundamental expected behavior of a settlement engine implementation is the sum of amounts one instance is instructed to settle eventually equals the sum of amounts the recipient instance instructs its accounting system to credit as incoming settlements.
 
-More formally, the sum of amounts one settlement engine instance is instructed to settle MUST eventually equal the sum of amounts the peer's settlement engine instance instructs its accounting system to credit as incoming settlements.
+Many factors may cause temporary or lasting inconsistencies between these instructed and acknowledged settlements:
+- Time to finalize settlements on the underlying ledger
+- Unintended bugs in the settlement engine implementation
+- External conditions, such as poor network connectivity
+- Intended settlement engine behavior, such as accruing owed balance to cover a fee
 
-Varying external conditions, such as connectivity between peers or settlement system latency, MAY delay or prevent consistency of these instructed and acknowledged settlements.
+As long as the instructed settlements do not equal the acknowledged settlements, the double-entry bookkeeping is out-of-balance.
 
 ##### Track uncredited incoming settlements
 
@@ -97,7 +107,7 @@ If the request fails after retrying per the [idempotency rules](#idempotency), t
 
 When a subsequent settlement is received, the settlement engine MUST request the accounting system to credit a new incoming settlement for the total amount yet to be credited, including the leftover amount(s).
 
-#### Accounting system guarantees
+#### Accounting system invariants
 
 ##### Account for outgoing settlements
 
@@ -198,9 +208,9 @@ For example, one cent represents an asset scale of 2 in the case of USD, whereas
 
 #### Selecting scales
 
-Settlement engines MUST use the denomination of its settlements, which is typically the smallest denomination of the asset on the settlement system, as the scale to perform or fulfill requests.
+Settlement engines are RECOMMENDED to perform or fulfill requests with amounts denominated in the same scale as its settlements.
 
-Accounting systems and settlement engines are RECOMMENDED to use the same denomination or scale to minimize conversion inconsistencies, but MAY use different denominations. For example, micropayments may require more precision than can actually be settled, or database limitations of the accounting system may require less precision than the settlement system is capable of.
+Account balances within the accounting systems are RECOMMENDED to be denominated in the same scale as their corresponding settlement engine, but MAY use different ones. For example, micropayments may require more precision than can actually be settled, or databases may limit precision to less than the settlement system is capable of.
 
 #### `Quantity` JSON type
 
