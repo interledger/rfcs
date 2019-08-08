@@ -434,11 +434,11 @@ Content-Type: application/octet-stream
 
 ### Idempotence
 
-Idempotent requests ensure each side effect, such as performing a settlement, only happens once, even though the same request may be called multiple times. For example, if a request to send a settlement fails due to a network connection error, [idempotence](https://en.wikipedia.org/wiki/Idempotence) prevents a client from accidentally triggering multiple settlements when it retries the request.
+Idempotent requests ensure each side effect only happens once, even though the same request may be called multiple times. For example, if a request to perform a settlement fails due to a network connection error, [idempotence](https://en.wikipedia.org/wiki/Idempotence) prevents a client from accidentally triggering multiple settlements when it retries the request.
 
 #### Performing idempotent requests
 
-Each distinct operation, such as each request to settle, must have an idempotency key, or globally unique string. This key MUST be derived from a cryptographically secure source of randomness to avoid collisions, such as a v4 UUID. Clients MUST provide this key within an `Idempotency-Key: <key>` header in all POST requests.
+Requests to settle or requests to credit incoming settlements MUST include an idempotency key, or globally unique string, within an `Idempotency-Key: <key>` header. To avoid collisions, this key MUST be derived from a cryptographically secure source of randomness, such as a v4 UUID.
 
 #### Recommended retry behavior
 
@@ -448,8 +448,6 @@ To prevent overwhelming the server, the client SHOULD exponentially backoff each
 
 #### Handling idempotent requests
 
-All `POST` endpoints MUST support idempotency keys.
-
-Before an endpoint responds to a `POST` request with a new idempotency key (one it hasn't seen before), it should persist the idempotency key and the state of its response. If a subsequent request is sent with the same idempotency key, the server should use the state from the initial request to return the same response.
+Endpoints to settle and endpoints to credit incoming settlements MUST support idempotency keys. Before an endpoint responds to the request with a new idempotency key (one it hasn't seen before), it should persist the idempotency key and the state of its response. If a subsequent request is sent with the same idempotency key, the server should use the state from the initial request to return the same response.
 
 Servers MUST persist idempotency keys and response state for at least 24 hours after the initial request was performed.
