@@ -161,7 +161,7 @@ Final errors indicate that the payment is invalid and should not be retried unle
 | **F01** | **Invalid Packet** | The ILP packet was syntactically invalid. | (empty) |
 | **F02** | **Unreachable** | There was no way to forward the payment, because the destination ILP address was wrong or the connector does not have a route to the destination. | (empty) |
 | **F03** | **Invalid Amount** | The amount is invalid, for example it contains more digits of precision than are available on the destination ledger or the amount is greater than the total amount of the given asset in existence. | (empty) |
-| **F04** | **Insufficient Destination Amount** | The receiver deemed the amount insufficient, for example you tried to pay a $100 invoice with $10. | (empty) |
+| **F04** | **Insufficient Destination Amount** | The receiver deemed the amount insufficient, for example, the effective exchange rate was too low. | (empty) |
 | **F05** | **Wrong Condition** | The receiver generated a different condition and cannot fulfill the payment. | (empty) |
 | **F06** | **Unexpected Payment** | The receiver was not expecting a payment like this (the data and destination address don't make sense in that combination, for example if the receiver does not understand the transport protocol used) | (empty) |
 | **F07** | **Cannot Receive** | The receiver (beneficiary) is unable to accept this payment due to a constraint. For example, the payment would put the receiver above its maximum account balance. | (empty) |
