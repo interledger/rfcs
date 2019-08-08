@@ -13,13 +13,13 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 This specification codifies a common interface for **settlement engines**. Settlement engines are services which perform two primary operations:
 
-1. Send payments: execute outgoing settlements
-2. Receive payments: acknowledge incoming settlements
+1. Execute outgoing settlements
+2. Acknowledge incoming settlements
 
 Counterparties may operate compatible settlement engines to settle their liabilities between one another. Different implementations may utilize different settlement systems or types of settlements, such as:
 
-- Sending money or assets to the counterparty
-- Transferring value on a shared ledger
+- Transferring money or assets to the counterparty
+- Sending payments on a shared ledger
 - Signing and exchanging payment channel claims
 - Performing a task for the counterparty with a mutually ascribed value
 
@@ -62,14 +62,14 @@ Settlements may occur on a **settlement system**, or medium for exchanging value
 
 Examples of settlement systems include:
 
-- Cryptocurrencies, blockchains, and distributed ledgers
-- Payment channels and layer 2 networks
 - Bank clearing houses
 - Credit card processors
 - Money transfer services
+- Cryptocurrencies, blockchains, and distributed ledgers
+- Payment channels and layer 2 networks
 - Cash or physical delivery of assets
 
-The accounting system is responsible for triggering settlements, which may be based on the TODO liabilities owed the peer.
+The accounting system is responsible for triggering outgoing settlements. For example, when the accounts payable reaches a particular threshold, the accounting system could trigger a settlement to reduce the liabilities owed to the peer to a predefined, lesser amount.
 
 ### Double-entry bookkeeping
 
@@ -83,7 +83,7 @@ To ensure accurate, balanced double-entry bookkeeping, settlement engine and acc
 
 ##### Settlement symmetry
 
-Individual settlement engine implementations define how value is transferred to the counterparty: this specification merely defines settlements in terms of how settlement engines behave. TODO
+Individual settlement engine implementations define how value is transferred to the counterparty: this specification merely defines settlements in terms of how settlement engines and accounting systems must behave.
 
 The fundamental expected behavior of a settlement engine implementation is the sum of amounts one instance is instructed to settle eventually equals the sum of amounts the recipient instance instructs its accounting system to credit as incoming settlements.
 
@@ -147,7 +147,7 @@ Interledger connectors use a transport, such as HTTP or WebSockets, to send and 
 2. Origin connector forwards the message to the peer's connector using its existing transport.
 3. Peer connector receives the message, identifies which settlement engine instance the account is associated with, and sends a request to its settlement engine to handle the message.
 4. Peer settlement engine processes the message and responds with its own message.
-5. Peer connector sends the response message back across the transport channel to the origin connector.
+5. Peer connector sends the response message back across the transport to the origin connector.
 6. Origin connector sends the response message back to the origin settlement engine.
 
 When a connector receives a request to send a message to the peer, the raw message from the settlement engine MUST be encoded within an ILP PREPARE packet as described below. Then, the ILP PREPARE should be sent to the peer's connector associated with the account using ILP-over-HTTP.
@@ -211,7 +211,7 @@ Account balances within the accounting systems are RECOMMENDED to be denominated
 
 #### `Quantity` object
 
-Represents an amount denominated in some unit of a particular fungible asset. (Since account balances may only be denominated in a single asset, the type of asset should be implicit).
+An amount denominated in some unit of a single, fungible asset. (Since each account is denominated in a single asset, the type of asset is implied.)
 
 ##### Attributes
 
@@ -240,16 +240,9 @@ The response to the request MUST include the converted, rounded **[`Quantity`](#
 
 Then, the system with the additional precision initiating the request MUST track the leftover sum so it may accumulate and be retried in subsequent requests.
 
-### Settlement Engine HTTP API
+### Settlement Engine HTTP API Endpoints
 
 Settlement engines MUST implement these endpoints.
-
-#### `AccountData` object
-
-TODO Spec out these and ensure the naming is consistent
-
-- "sendMessageCallbackUrl"
-- "creditSettlementCallbackUrl"
 
 #### Initiate an account
 
@@ -258,45 +251,18 @@ Inform the settlement engine that a new accounting relationship was instantiated
 ##### Request
 
 ```http
-PUT /accounts/:id HTTP/1.1
+POST /accounts/:id HTTP/1.1
 ```
-
-##### Response
-
-```http
-HTTP/1.1 201 CREATED
-```
-
-#### Retrieve an account
-
-##### Request
-
-##### Response
-
-#### Update an account
-
-##### Request
-
-```http
-PUT /accounts/:id HTTP/1.1
-Accept: application/json
-Content-Type: application/json
-```
-
-TODO paylaod
 
 ##### Response
 
 ```http
 HTTP/1.1 200 OK
-Content-Type: application/json
 ```
-
-TODO payload
 
 #### Delete an account
 
-TODO Should deleting an account be an endpoint?
+Instructs the connector that an accounting relationship was terminated.
 
 ##### Request
 
@@ -307,14 +273,16 @@ DELETE /accounts/:id HTTP/1.1
 ##### Response
 
 ```http
-HTTP/1.1 204 No Content
+HTTP/1.1 200 OK
 ```
 
 #### Perform outgoing settlement
 
-##### Request
+The accounting system requests a settlement to occur with a particular account. The accounting system should [account for the outgoing settlement](#account-for-outgoing-settlements).
 
-The accounting system requests a settlement to occur with a particular account. The accounting system should [ensure accurate double-entry bookkeeping](#account-for-outgoing-settlements).
+The settlement engine serving the request should [asynchronously](#asynchronous-design) perform a [settlement](#settlement).
+
+##### Request
 
 ```http
 POST /accounts/:id/settlements HTTP/1.1
@@ -327,18 +295,16 @@ Idempotency-Key: <key>
 
 ##### Response
 
-The settlement engine should [asynchronously](#asynchronous-design) perform a [settlement](#settlement).
-
 ```http
 HTTP/1.1 202 ACCEPTED
 Content-Type: application/json
 ```
 
-> **[`Quantity`](#quantity-json-type)** enqueued to settle, which is always less than or equal to the quantity in the original request
+> **[`Quantity`](#quantity-json-type)** enqueued to settle, which MUST be less than or equal to the quantity in the original request
 
 #### Handle incoming message
 
-Respond to an incoming message from the given peer's settlement engine. The transport MUST be the only entity invoking this instruction.
+Incoming messages from the peer should prompt requests to this endpoint so the settlement engine may handle them. The settlement engine can respond with its own message, which should be proxied back to the peer it originated from.
 
 ##### Request
 
@@ -359,27 +325,115 @@ Content-Type: application/octet-stream
 
 > _&lt;raw bytes of response&gt;_
 
-#### Additional RPCs
-
-Settlement engine implementations MAY expose additional, non-standard endpoints for manual operations or other configuration.
-
-### Settlement Engine Webhooks
-
-Settlement engine implementations MUST implement the following callbacks.
-
-#### Credit incoming settlement webhook
-
-Settlement engine implementations MUST send a callback request to an account's `creditSettlementCallbackUrl` after an incoming settlement is received.
-
-To ensure accurate double-entry bookkeeping, the endpoint handling the call, such as an accounting system, is RECOMMENDED to [account for the incoming settlement](#account-for-incoming-settlements).
+#### Create or update incoming settlement webhook
 
 ##### Request
 
 ```http
-POST <callbackUrl> HTTP/1.1
+POST /accounts/:id/webhooks/settlements
 Accept: application/json
 Content-Type: application/json
-Idempotency-Key: <key>
+```
+
+```json
+{
+  "url": <settlements_callback_url>
+}
+```
+
+##### Response
+
+```http
+HTTP/1.1 201 CREATED
+Content-Type: application/json
+```
+
+```json
+{
+  "url": <settlements_callback_url>
+}
+```
+
+#### Delete incoming settlement webhook
+
+##### Request
+
+```http
+DELETE /accounts/:id/webhooks/settlements
+```
+
+##### Response
+
+```http
+HTTP/1.1 200 OK
+```
+
+#### Create or update outgoing message webhook
+
+##### Request
+
+```http
+POST /accounts/:id/webhooks/messages
+Accept: application/json
+Content-Type: application/json
+```
+
+```json
+{
+  "url": <messages_callback_url>
+}
+```
+
+##### Response
+
+```http
+HTTP/1.1 201 CREATED
+Content-Type: application/json
+```
+
+```json
+{
+  "url": <messages_callback_url>
+}
+```
+
+#### Delete outgoing message webhook
+
+##### Request
+
+```http
+POST /accounts/:id/webhooks/messages
+```
+
+##### Response
+
+```http
+HTTP/1.1 200 OK
+```
+
+#### Additional endpoints
+
+Settlement engine implementations MAY expose additional, non-standard endpoints for manual operations or other configuration.
+
+### Settlement Engine HTTP API Webhooks
+
+Settlement engine implementations MUST execute the following callback requests. Accounting system endpoints configured to handle the callbacks MUST respond accordingly.
+
+Note that all webhook callback URLs MUST include the account identifier and type of event in the URL since the information is omitted from the request payload.
+
+#### Credit incoming settlement webhook
+
+The settlement engine should send requests to this callback as it receives incoming settlements in order to ensure [settlement symmetry](#settlement-symmetry).
+
+The accounting system handling the request should [account for the incoming settlement](#account-for-incoming-settlements). If the accounting system only credits a partial amount, the settlement engine should [track the uncredited amounts](#track-uncredited-incoming-settlements).
+
+##### Request
+
+```http
+POST <settlement_callback_url> HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Idempotency-Key: <idempotency_key>
 ```
 
 > **[`Quantity`](#quantity-json-type)** to be credited to the account as an incoming settlement
@@ -391,23 +445,16 @@ HTTP/1.1 201 CREATED
 Content-Type: application/json
 ```
 
-> **[`Quantity`](#quantity-json-type)** credited to the account as an incoming settlement
->
-> - The amount credited MUST always be less than or equal to the quantity in the original request.
-> - If the quantity credited is less than the quantity of the original request, the settlement engine MUST track the leftover amount so it may accumulate and be added to subsequent notifications to prevent the two systems getting out-of-sync.
+> **[`Quantity`](#quantity-json-type)** credited to the account as an incoming settlement, which MUST  be less than or equal to the quantity in the original request
 
 #### Send outgoing message webhook
 
-Settlement engine implementations MUST send a callback request to an account's `sendMessageCallbackUrl` to send a settlement-related message to the peer's settlmenet engine.
-
-To support messaging between peers, the endpoint handling the call SHOULD send the message to the peer's settlement engine and return its response.
-
-TODO link to #usage-with-ilp-over-http
+To send a message to a peer's settlement engine, settlement engines should send this callback request to the configured webhook. The configured endpoint should [proxy the message](#exchanging-messages) to the peer's settlement engine and return its response.
 
 ##### Request
 
 ```http
-POST <callbackUrl> HTTP/1.1
+POST <messages_callback_url> HTTP/1.1
 Accept: application/octet-stream
 Content-Type: application/octet-stream
 ```
