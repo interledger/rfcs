@@ -13,15 +13,14 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 This specification codifies a common interface for **settlement engines**. Settlement engines are services which perform two primary operations:
 
-1. Execute outgoing settlements
-2. Acknowledge incoming settlements
+1. Send outgoing settlements
+2. Receive incoming settlements
 
 Counterparties may operate compatible settlement engines to settle their liabilities between one another. Different implementations may utilize different settlement systems or types of settlements, such as:
 
 - Transferring money or assets to the counterparty
 - Sending payments on a shared ledger
 - Signing and exchanging payment channel claims
-- Performing a task for the counterparty with a mutually ascribed value
 
 ## Usage in Interledger
 
@@ -29,7 +28,7 @@ Counterparties may operate compatible settlement engines to settle their liabili
 
 In the [Interledger protocol](../0001-interledger-architecture/0001-interledger-architecture.md), a **peer** is a connector who is a counterparty to another connector. An **account** is the connector's relationship with the counterparty, representing their arrangement to transact with one another. Connectors clear and fulfill ILP packets with their peers, which represent conditional IOUs that affect these accounts.
 
-A connector may extend a given peer a limited line of credit, or none at all, depending upon their trustworthiness. As the connector receives incoming ILP PREPARE packets from a peer, forwards them, and returns corresponding ILP FULFILL packets, that peer's liabilities to the connector accrue. If the peer's liabilities exceed the credit limit assigned to it, the connector may reject and decline to forward additional packets.
+A connector may extend a given peer a limited line of credit, or none at all, depending upon their trustworthiness. As the connector receives incoming ILP Prepare packets from a peer, forwards them, and returns corresponding ILP Fulfill packets, that peer's liabilities to the connector accrue. If the peer's liabilities exceed the credit limit assigned to it, the connector may reject and decline to forward additional packets.
 
 In order to continue transacting, the peer must settle their liabilities. In most cases, this is accomplished through sending a payment on a settlement system that both peers have agreed to use. The connector should acknowledge the incoming payment&mdash;irrevocably discharging some liability the peer owed to it&mdash;and enabling it to clear and forward subsequent packets from the peer on credit.
 
@@ -150,11 +149,11 @@ Interledger connectors use a transport, such as HTTP or WebSockets, to send and 
 5. Peer connector sends the response message back across the transport to the origin connector.
 6. Origin connector sends the response message back to the origin settlement engine.
 
-When a connector receives a request to send a message to the peer, the raw message from the settlement engine MUST be encoded within an ILP PREPARE packet as described below. Then, the ILP PREPARE should be sent to the peer's connector associated with the account using ILP-over-HTTP.
+When a connector receives a request to send a message to the peer, the raw message from the settlement engine MUST be encoded within an ILP Prepare packet as described below. Then, the ILP Prepare should be sent to the peer's connector associated with the account using ILP-over-HTTP.
 
-The peer's connector MUST extract the message data and forward it to its settlement engine for processing, and MUST NOT forward the ILP packet to any other connectors. When the settlement engine responds with a response message, the connector MUST encode the raw message from the settlement engine within an ILP FULFILL or ILP REJECT, depending upon the code of the response. If the connector was unable to process the request, it MUST respond with an ILP REJECT.
+The peer's connector MUST extract the message data and forward it to its settlement engine for processing, and MUST NOT forward the ILP packet to any other connectors. When the settlement engine responds with a response message, the connector MUST encode the raw message from the settlement engine within an ILP Fulfill or ILP Reject, depending upon the code of the response. If the connector was unable to process the request, it MUST respond with an ILP Reject.
 
-##### PREPARE
+##### ILP Prepare
 
 - `amount`: `0`
 - `expiresAt`: _Determined by connector_
@@ -162,12 +161,12 @@ The peer's connector MUST extract the message data and forward it to its settlem
 - `destination`: `peer.settle`
 - `data`: _Request message from sender settlement engine_
 
-##### FULFILL
+##### ILP Fulfill
 
 - `fulfillment`: `0000000000000000000000000000000000000000000000000000000000000000`
 - `data`: _Response message from recipient settlement engine_
 
-##### REJECT
+##### ILP Reject
 
 - `code`: _Determined by connector from HTTP status of forwarded request_
 - `triggeredBy`: `peer.settle`
@@ -216,7 +215,7 @@ An amount denominated in some unit of a single, fungible asset. (Since each acco
 ##### Attributes
 
 - **`amount`** &mdash; string
-  - Quantity of the unit, which is a non-negative integer.
+  - Amount of the unit, which is a non-negative integer.
   - This amount is encoded as a string to ensure no precision is lost on platforms that don't natively support arbitrary precision integers.
 - **`scale`** &mdash; number
   - Asset scale of the unit, between `0` and the maximum 8-bit unsigned integer, `255` (inclusive).
@@ -486,6 +485,8 @@ To prevent overwhelming the server, the client SHOULD exponentially backoff each
 
 #### Handling idempotent requests
 
-Endpoints to settle and endpoints to credit incoming settlements MUST support idempotency keys. Before an endpoint responds to the request with a new idempotency key (one it hasn't seen before), it should persist the idempotency key and the state of its response. If a subsequent request is sent with the same idempotency key, the server should use the state from the initial request to return the same response.
+Endpoints to settle and endpoints to credit incoming settlements MUST support idempotency keys.
 
-Servers MUST persist idempotency keys and response state for at least 24 hours after the initial request was performed.
+Before an endpoint responds to the request with a new idempotency key (one it hasn't seen before), it should persist the idempotency key and the state of its response. If a subsequent request is sent with the same idempotency key, the server should use the state from the initial request to return the same response. Servers MUST persist idempotency keys and response state for at least 24 hours after the initial request was performed.
+
+Idempotency keys may be any length, but at a minimum, servers MUST support idempotency keys up to 32 characters long.
