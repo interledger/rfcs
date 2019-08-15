@@ -60,9 +60,8 @@ Interledger connectors are RECOMMENDED to operate an **accounting system** which
   - Positive amount indicates its peer is indebted to the connector (an _asset_ to the connector).
   - Negative amount indicates its peer has sent a pre-payment to the connector.
 
-(Note that "accounts payable" and "accounts receivable" refer to accounts as _records_, distinct from accounts referring to the _arrangement_ between counterparties.)
 
-Thus, the connector's accounts payable with its peer should mirror its peer's accounts receivable with the connector, and respectively, the connector's accounts receivable should equal its peer's accounts payable.
+Thus, a given connector's "accounts payable" balance should mirror its peer's "accounts receivable" balance. Likewise, a connector's "accounts receivable" balance should mirror its peer's "accounts payable" balance.
 
 ## Settlement
 
@@ -93,7 +92,7 @@ Together, a settlement engine and an accounting system interface with one anothe
 
 #### Account for outgoing settlements
 
-The accounting system is responsible for triggering outgoing settlements. For example, when the accounts payable reaches a particular threshold, the accounting system could trigger a settlement to reduce the amount owed to the peer to a predefined, lesser amount.
+The accounting system is responsible for triggering outgoing settlements. For example, when the accounts payable reaches a particular threshold, the accounting system SHOULD trigger a settlement to reduce the amount owed to the peer to a predefined, lesser amount in order to be able to continue transacting with the peer.
 
 If the accounting system opts to trigger a settlement:
 
@@ -108,15 +107,15 @@ If request retries fail per the [idempotence rules](#idempotence), the accountin
 
 If the settlement engine instructs the accounting system a settlement was received, the accounting system MUST credit the accounts receivable, subtracting the amount of the settlement.
 
-The accounting system MUST respond with the amount it credited to the account. If it only credited a partial amount (due to lesser precision), the settlement engine tracks the leftover, uncredited amount.
+The accounting system MUST respond with the amount it credited to the account. If it only credited a partial amount (due to lesser precision), the settlement engine tracks the leftover, uncredited amount and includes it in the next incoming settlement notification to the accounting system.
 
 ### Settlement symmetry invariant
 
 The fundamental expected behavior of a settlement engine implementation is the sum of amounts one instance is instructed to settle eventually equals the sum of amounts the recipient instance instructs its accounting system to credit as incoming settlements.
 
-As long as the instructed settlements do not equal the acknowledged settlements, the double-entry bookkeeping is out-of-balance. Settlement engines MUST minimize the time that the bookkeeping is unbalanced.
+As long as the instructed settlements do not equal the acknowledged settlements, the double-entry bookkeeping is out-of-balance. Settlement engines SHOULD minimize the time that the bookkeeping is unbalanced.
 
-To trigger a settlement, the accounting system preemptively debits the accounts payable before the settlement has been initiated. For a period of time, the accounts payable of the peer sending the settlement is inconsistent with the accounts receivable of the peer who will later receive the settlement.
+When the accounting system triggers a settlement, the accounting system should preemptively debit the accounts payable balance before any settlement has been initiated. During this time, the accounts payable balance of the settlement sender will be inconsistent with the accounts receivable balance of the settlement receiver.
 
 Many factors may result in these inconsistencies:
 
@@ -136,7 +135,7 @@ Refunding failed settlements would enable the peer's accounting system balances 
 
 After the settlement engine requests the accounting system to credit an incoming settlement, if the accounting system responds that it only credited a partial amount (due to lesser precision), the settlement engine MUST track the uncredited leftover amount.
 
-If the request fails after retrying per the [idempotence rules](#idempotence), the settlement engine MUST track the uncredited amount to retry later.
+If the request fails after retrying per the [idempotence rules](#idempotence), the settlement engine MUST track the uncredited amount in order to retry later.
 
 When a subsequent settlement is received, the settlement engine MUST request the accounting system to credit a new incoming settlement for the total amount yet to be credited, including the leftover, uncredited amount(s).
 
