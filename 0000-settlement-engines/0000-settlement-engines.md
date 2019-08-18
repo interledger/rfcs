@@ -389,6 +389,8 @@ To prevent overwhelming the server, the client SHOULD exponentially backoff each
 
 Endpoints to settle and endpoints to credit incoming settlements MUST support idempotency keys.
 
-Before an endpoint responds to the request with a new idempotency key (one it hasn't seen before), it should persist the idempotency key and the state of its response. If a subsequent request is sent with the same idempotency key, the server should use the state from the initial request to return the same response. Servers MUST persist idempotency keys and response state for at least 24 hours after the initial request was performed.
+Before an endpoint responds to the request with a new idempotency key (one it hasn't seen before), the endpoint should persist the idempotency key and the state of its response. If a subsequent request is encountered with the same idempotency key, the endpoint should use the state from the initial request to return the same response. 
+
+Endpoints MUST persist idempotency keys and response state for at least 24 hours after the initial request was performed.
 
 Idempotency keys may be any length, but at a minimum, servers MUST support idempotency keys up to 32 characters long.
