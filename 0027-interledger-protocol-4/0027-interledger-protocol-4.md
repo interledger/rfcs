@@ -41,7 +41,7 @@ Interledger is a protocol for sending packets of money across different payment 
 
 ILPv4 packets may be sent over any communication channel between peers. Account balances are adjusted when accepting and forwarding ILP packets and may be rebalanced using any available means, ranging from ledger transfers triggered by an API, to signed updates to payment channels, or the physical delivery of cash or other goods.
 
-ILPv4 will often be used with a Transport Layer protocol such as the [STREAM](../0029-stream/0029-stream.md) protocol, which handles the generation of ILP conditions and fulfillments. ILPv4 may also be used with higher-level protocols that implement chunking and reassembly of higher-value payments.
+ILPv4 will often be used with a Transport Layer protocol, such as the [STREAM](../0029-stream/0029-stream.md) protocol, which handles the generation of ILP conditions and fulfillments. ILPv4 may also be used with higher-level protocols that implement chunking and reassembly of higher-value payments.
 
 ### Differences from Previous Versions of ILP
 
