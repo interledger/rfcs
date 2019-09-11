@@ -24,7 +24,7 @@ Counterparties may operate compatible settlement engines to settle their liabili
 
 ## Motivation
 
-Settlement engines supercede the [Ledger Plugin Interface (LPIv2)](../deprecated/0024-ledger-plugin-interface-2/0024-ledger-plugin-interface-2.md), an earlier abstraction for settlement integrations with Interledger. This new model addresses these issues:
+Settlement engines supercede the [Ledger Plugin Interface (LPIv2)](../deprecated/0024-ledger-plugin-interface-2/0024-ledger-plugin-interface-2.md) as an abstraction for settlement integrations with Interledger. This new model addresses these issues:
 
 1. Multi-account plugins required logic for handling ILP packets, increasing implementation complexity.
 2. Plugins bundled settlement and bilateral communication functionality together, limiting composability.
@@ -47,9 +47,9 @@ Settlement engines provide a standardized mechanism for Interledger connectors t
 
 ## Accounting
 
-Connectors MUST record their transactions with peers and/or the effects of their transactions with peers through the process of accounting.
+Connectors are RECOMMENDED to record their transactions with peers through the process of accounting.
 
-In this accounting context, an **account** represents amounts received (credits) and amounts owed (debits) for a set of transactions between counterparties. The **balance** of an account is the net difference between these credits and debits. All the balances and transactions of an account are denominated in a single, fungible asset.
+In this financial accounting context, an **account** represents amounts received (credits) and amounts owed (debits) for a set of transactions between counterparties. The **balance** of an account is the net difference between these credits and debits. All the balances and transactions of an account are denominated in a single, fungible asset.
 
 Interledger connectors are RECOMMENDED to operate an **accounting system** which keeps a record of two accounts for each peer:
 
@@ -59,8 +59,6 @@ Interledger connectors are RECOMMENDED to operate an **accounting system** which
 - **Accounts receivable**, the amount owed to the connector by its peer for packets the connector has fulfilled.
   - Positive amount indicates its peer is indebted to the connector (an _asset_ to the connector).
   - Negative amount indicates its peer has sent a pre-payment to the connector.
-
-(Note that "accounts payable" and "accounts receivable" refer to accounts as _records_, distinct from accounts referring to the _arrangement_ between counterparties.)
 
 Thus, the connector's accounts payable with its peer should mirror its peer's accounts receivable with the connector, and respectively, the connector's accounts receivable should equal its peer's accounts payable.
 
@@ -102,7 +100,7 @@ If the accounting system opts to trigger a settlement:
 
 If the settlement engine responds that it only queued a partial amount for settlement (due to lesser precision), the accounting system MUST credit back the accounts payable, adding the leftover amount.
 
-If request retries fail per the [idempotence rules](#idempotence), the accounting system MUST credit back the accounts payable, adding the amount of the failed settlement.
+If request retries fail per the [idempotence behavior](#idempotence), the accounting system MUST credit back the accounts payable, adding the amount of the failed settlement.
 
 #### Account for incoming settlements
 
@@ -114,15 +112,15 @@ The accounting system MUST respond with the amount it credited to the account. I
 
 The fundamental expected behavior of a settlement engine implementation is the sum of amounts one instance is instructed to settle eventually equals the sum of amounts the recipient instance instructs its accounting system to credit as incoming settlements.
 
-As long as the instructed settlements do not equal the acknowledged settlements, the double-entry bookkeeping is out-of-balance. Settlement engines MUST minimize the time that the bookkeeping is unbalanced.
+As long as the instructed settlements do not equal the acknowledged settlements, the double-entry bookkeeping is out-of-balance. Settlement engines SHOULD minimize the time that the bookkeeping is unbalanced.
 
-To trigger a settlement, the accounting system preemptively debits the accounts payable before the settlement has been initiated. For a period of time, the accounts payable of the peer sending the settlement is inconsistent with the accounts receivable of the peer who will later receive the settlement.
+When the accounting system triggers a settlement, the accounting system preemptively debits the accounts payable balance before any settlement has been initiated. During this time, the accounts payable balance of the settlement sender will be inconsistent with the accounts receivable balance of the settlement recipient.
 
 Many factors may result in these inconsistencies:
 
 #### Settlement delay
 
-All settlement engine implementations necessitate some settlement delay, or time until an instructed settlement is credited by the counterparty, due to network latency between peers or the time to finalize settlements on an underlying ledger or system.
+Settlement engine implementations MAY have settlement delay, or time until an instructed settlement is credited by the counterparty, due to network latency between peers or the time to finalize settlements on an underlying ledger or system.
 
 #### Failed outgoing settlements
 
@@ -136,7 +134,7 @@ Refunding failed settlements would enable the peer's accounting system balances 
 
 After the settlement engine requests the accounting system to credit an incoming settlement, if the accounting system responds that it only credited a partial amount (due to lesser precision), the settlement engine MUST track the uncredited leftover amount.
 
-If the request fails after retrying per the [idempotence rules](#idempotence), the settlement engine MUST track the uncredited amount to retry later.
+If the request fails after retrying per the [idempotence behavior](#idempotence), the settlement engine MUST track the uncredited amount to retry later.
 
 When a subsequent settlement is received, the settlement engine MUST request the accounting system to credit a new incoming settlement for the total amount yet to be credited, including the leftover, uncredited amount(s).
 
@@ -148,7 +146,7 @@ Operators and external factors outside the control of the settlement engine impl
 
 In order to settle or receive settlements with a peer, a settlement engine may first need to retrieve or communicate information with the peer's settlement engine. Two peered settlement engine instances may send and receive settlement-related messages among themselves, such as identifiers for their ledger accounts.
 
-To support multiple interoperable settlement engine implementations for a particular settlement system, implementators may standardize the schema and type of messages their settlement engines use to communicate with one another. This work is out-of-scope of this RFC.
+To support multiple interoperable settlement engine implementations for a particular settlement system, implementors may standardize the schema and type of messages their settlement engines use to communicate with one another. This work is out-of-scope of this RFC.
 
 Interledger connectors use a transport, such as HTTP or WebSockets, to send and receive data with peers. Settlement engine implementations SHOULD proxy all messages through its Interledger connector's existing transport like so:
 
@@ -156,7 +154,7 @@ Interledger connectors use a transport, such as HTTP or WebSockets, to send and 
 2. Origin connector encodes the raw message within an ILP Prepare packet (described below), which is sent to the peer's connector using its existing transport.
 3. Peer connector receives the message within the ILP Prepare, identifies which settlement engine instance the account is associated with, and sends a request to its settlement engine to handle the message. The peer connector MUST NOT forward the ILP Prepare to any other connectors.
 4. Peer settlement engine processes the message and responds with its own message.
-5. Peer connector sends the response message back across the transport to the origin connector within an ILP Fulfill or ILP Reject, depending upon the code of the response (described below). If the peer, connector was unable to process the request, it MUST respond with an ILP Reject.
+5. Peer connector sends the response message back across the transport to the origin connector within an ILP Fulfill or ILP Reject, depending upon the code of the response (described below). If the peer connector was unable to process the request, it MUST respond with an ILP Reject.
 6. Origin connector sends the response message back to the origin settlement engine.
 
 ### ILP Prepare
@@ -198,6 +196,8 @@ An **asset scale** is the difference in orders of magnitude between the standard
 For example, one cent represents an asset scale of 2 in the case of USD, whereas one satoshi represents an asset scale of 8 in the case of Bitcoin.
 
 ### Selecting scales
+
+TODO this is weird because we're not defining what settlements are -- what is "scale as its settlements" ?
 
 Settlement engines are RECOMMENDED to perform or fulfill requests with amounts denominated in the same scale as its settlements.
 
@@ -247,13 +247,20 @@ Informs the settlement engine that a new account was created within the accounti
 #### Request
 
 ```http
-PUT /accounts/:id HTTP/1.1
+POST /accounts HTTP/1.1
+Content-Type: application/json
+```
+
+```json
+{
+  "id": <accountId>
+}
 ```
 
 #### Response
 
 ```http
-HTTP/1.1 200 OK
+HTTP/1.1 201 Created
 ```
 
 ### Delete an account
@@ -269,12 +276,12 @@ DELETE /accounts/:id HTTP/1.1
 #### Response
 
 ```http
-HTTP/1.1 200 OK
+HTTP/1.1 204 No-Content
 ```
 
 ### Perform outgoing settlement
 
-Asynchronously send an outgoing settlement. The accounting system sends this request and [accounts for outgoing settlements](#account-for-outgoing-settlements).
+Asynchronously send an outgoing settlement. The accounting system sends this request and [accounts for outgoing settlements](#account-for-outgoing-settlements). (TODO link to other SE behavior here)
 
 #### Request
 
@@ -290,7 +297,7 @@ Idempotency-Key: <key>
 #### Response
 
 ```http
-HTTP/1.1 202 ACCEPTED
+HTTP/1.1 201 Created
 Content-Type: application/json
 ```
 
@@ -313,7 +320,7 @@ Content-Type: application/octet-stream
 #### Response
 
 ```http
-HTTP/1.1 200 OK
+HTTP/1.1 201 Created
 Content-Type: application/octet-stream
 ```
 
@@ -343,7 +350,7 @@ Idempotency-Key: <key>
 #### Response
 
 ```http
-HTTP/1.1 201 CREATED
+HTTP/1.1 201 Created
 Content-Type: application/json
 ```
 
@@ -366,7 +373,7 @@ Content-Type: application/octet-stream
 #### Response
 
 ```http
-HTTP/1.1 200 OK
+HTTP/1.1 201 OK
 Content-Type: application/octet-stream
 ```
 
