@@ -387,11 +387,13 @@ Idempotent requests ensure each side effect only happens once, even though the s
 
 Requests to settle or requests to credit incoming settlements MUST include an idempotency key, or globally unique string, within an `Idempotency-Key: <key>` header. To avoid collisions, this key MUST be derived from a cryptographically secure source of randomness.
 
-### Recommended retry behavior
+### Retry behavior
 
-If the client receives no response, it MUST retry the request with the same idempotency key.
+This retry behavior ensures the client and server are eventually consistent and never perform any unsafe balance rollbacks that could result in lost funds or double payments.
 
-To prevent overwhelming the server, the client SHOULD exponentially backoff each retry attempt and add random "jitter" to vary the retry interval. After several failed attempts, the client MUST rollback any side effects it performed, such as [refunding balances](#double-entry-bookkeeping).
+If the client receives no response, an HTTP 5xx error, or an HTTP 409 Conflict error, the client MUST retry the request with the same idempotency key. If the response is a client error, such as another HTTP 4xx error, the client MUST rollback the balance update and NOT perform any subsequent retries.
+
+To prevent overwhelming the server, the client SHOULD exponentially backoff after each failed retry attempt and add random "jitter" to vary the retry interval. The maximum retry interval MUST be no greater than 1 hour. Clients also MUST retry indefinitely until they have received an acknowledgement from the server that the request was processed or failed.
 
 ### Handling idempotent requests
 
@@ -399,6 +401,4 @@ Endpoints to settle and endpoints to credit incoming settlements MUST support id
 
 Before an endpoint responds to the request with a new idempotency key (one it hasn't seen before), the endpoint should persist the idempotency key and the state of its response. If a subsequent request is encountered with the same idempotency key, the endpoint should use the state from the initial request to return the same response.
 
-Endpoints MUST persist idempotency keys and response state for at least 24 hours after the initial request was performed.
-
-Idempotency keys may be any length, but at a minimum, servers MUST support idempotency keys up to 32 characters long.
+For safety, endpoints MUST persist idempotency keys and response state for at least 24 hours since the most recent request with the same idempotency key.
