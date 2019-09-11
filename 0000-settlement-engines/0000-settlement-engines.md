@@ -60,7 +60,7 @@ Interledger connectors are RECOMMENDED to operate an **accounting system** which
   - Positive amount indicates its peer is indebted to the connector (an _asset_ to the connector).
   - Negative amount indicates its peer has sent a pre-payment to the connector.
 
-Thus, the connector's accounts payable with its peer should mirror its peer's accounts receivable with the connector, and respectively, the connector's accounts receivable should equal its peer's accounts payable.
+Thus, a given connector's "accounts payable" balance should mirror its peer's "accounts receivable" balance. Likewise, a connector's "accounts receivable" balance should mirror its peer's "accounts payable" balance.
 
 ## Settlement
 
@@ -91,7 +91,7 @@ Together, a settlement engine and an accounting system interface with one anothe
 
 #### Account for outgoing settlements
 
-The accounting system is responsible for triggering outgoing settlements. For example, when the accounts payable reaches a particular threshold, the accounting system could trigger a settlement to reduce the amount owed to the peer to a predefined, lesser amount.
+The accounting system is responsible for triggering outgoing settlements. For example, when the accounts payable reaches a particular threshold, the accounting system SHOULD trigger a settlement to reduce the amount owed to the peer to a predefined, lesser amount in order to be able to continue transacting with the peer.
 
 If the accounting system opts to trigger a settlement:
 
@@ -106,7 +106,7 @@ If request retries fail per the [idempotence behavior](#idempotence), the accoun
 
 If the settlement engine instructs the accounting system a settlement was received, the accounting system MUST credit the accounts receivable, subtracting the amount of the settlement.
 
-The accounting system MUST respond with the amount it credited to the account. If it only credited a partial amount (due to lesser precision), the settlement engine tracks the leftover, uncredited amount.
+The accounting system MUST respond with the amount it credited to the account. If it only credited a partial amount (due to lesser precision), the settlement engine tracks the leftover, uncredited amount and includes it in the next incoming settlement notification to the accounting system.
 
 ### Settlement symmetry invariant
 
@@ -397,6 +397,8 @@ To prevent overwhelming the server, the client SHOULD exponentially backoff each
 
 Endpoints to settle and endpoints to credit incoming settlements MUST support idempotency keys.
 
-Before an endpoint responds to the request with a new idempotency key (one it hasn't seen before), it should persist the idempotency key and the state of its response. If a subsequent request is sent with the same idempotency key, the server should use the state from the initial request to return the same response. Servers MUST persist idempotency keys and response state for at least 24 hours after the initial request was performed.
+Before an endpoint responds to the request with a new idempotency key (one it hasn't seen before), the endpoint should persist the idempotency key and the state of its response. If a subsequent request is encountered with the same idempotency key, the endpoint should use the state from the initial request to return the same response.
+
+Endpoints MUST persist idempotency keys and response state for at least 24 hours after the initial request was performed.
 
 Idempotency keys may be any length, but at a minimum, servers MUST support idempotency keys up to 32 characters long.
