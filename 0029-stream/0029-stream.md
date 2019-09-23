@@ -1,6 +1,6 @@
 ---
 title: STREAM - A Multiplexed Money and Data Transport for ILP
-draft: 6
+draft: 7
 ---
 
 # STREAM: A Multiplexed Money and Data Transport for ILP
@@ -403,6 +403,13 @@ The amounts in this frame are denominated in the units of the endpoint sending t
 | Data | VarOctetString | Application data. |
 
 Packets may be received out of order so the `Offset` is used to indicate the correct position of the byte segment in the overall stream. The first `StreamData` frame sent for a given stream MUST start with an `Offset` of zero.
+
+Fragments of data provided by a stream's `StreamData` frames MUST NOT ever overlap with one another. For example, the following combination of frames is forbidden because bytes 15-19 were provided twice:
+
+    StreamData { StreamID: 1, Offset: 10, Data: "1234567890" }
+    StreamData { StreamID: 1, Offset: 15, Data: "67890" }
+
+In other words, if a sender resends data (e.g. because a packet was lost), it MUST resend the exact frames — offset and data. This rule exists to simplify data reassembly for the receiver.
 
 #### 5.3.12. `StreamMaxData` Frame
 
