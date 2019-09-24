@@ -24,7 +24,7 @@ Counterparties may operate compatible settlement engines to settle their liabili
 
 ## Motivation
 
-Settlement engines supercede the [Ledger Plugin Interface (LPIv2)](../deprecated/0024-ledger-plugin-interface-2/0024-ledger-plugin-interface-2.md) as an abstraction for settlement integrations with Interledger. This new model addresses these issues:
+Settlement engines supersede the [Ledger Plugin Interface (LPIv2)](../deprecated/0024-ledger-plugin-interface-2/0024-ledger-plugin-interface-2.md) as an abstraction for settlement integrations with Interledger. This new model addresses these issues:
 
 1. Multi-account plugins required logic for handling ILP packets, increasing implementation complexity.
 2. Plugins bundled settlement and bilateral communication functionality together, limiting composability.
@@ -95,7 +95,7 @@ The accounting system is responsible for triggering outgoing settlements. For ex
 
 If the accounting system opts to trigger a settlement:
 
-1. The accounting system MUST debit the accounts payable, subtracing the amount of the settlement.
+1. The accounting system MUST debit the accounts payable, subtracting the amount of the settlement.
 2. Then, the accounting system MUST send a request to the settlement engine to settle the amount.
 
 If the settlement engine responds that it only queued a partial amount for settlement (due to lesser precision), the accounting system MUST credit back the accounts payable, adding the leftover amount.
@@ -305,7 +305,7 @@ Content-Type: application/json
 
 ### Handle incoming message
 
-Process and respond to an incoming message from the peer's settlement engine. The connector sends this request when it receives it an incoming settlement message from the peer, and returns the response message back to the peer.
+Process and respond to an incoming message from the peer's settlement engine. The connector sends this request when it receives an incoming settlement message from the peer, and returns the response message back to the peer.
 
 #### Request
 
@@ -393,7 +393,7 @@ This retry behavior ensures the client and server are eventually consistent and 
 
 If the client receives no response, an HTTP 5xx error, or an HTTP 409 Conflict error, the client MUST retry the request with the same idempotency key. If the response is a client error, such as another HTTP 4xx error, the client MUST rollback the balance update and NOT perform any subsequent retries.
 
-To prevent overwhelming the server, the client SHOULD exponentially backoff after each failed retry attempt and add random "jitter" to vary the retry interval. The maximum retry interval MUST be no greater than 1 hour. Clients also MUST retry indefinitely until they have received an acknowledgement from the server that the request was processed or failed.
+To prevent overwhelming the server, the client SHOULD exponentially backoff after each failed retry attempt and add random "jitter" to vary the retry interval. The maximum retry interval MUST be no greater than 1 hour. Clients also MUST retry indefinitely until they have received an acknowledgment from the server that the request was processed or failed.
 
 ### Handling idempotent requests
 
