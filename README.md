@@ -33,7 +33,6 @@ The default encoding rules for Interledger protocols are the Canonical Octet Enc
 
 ## Core Interledger Protocol Specs
 
-
 * **[27: Interledger Protocol V4 (ILPv4)](0027-interledger-protocol-4/0027-interledger-protocol-4.md)**
 
   Specifies the Interledger Protocol and Interledger Packet, which are used for sending payment instructions across different ledgers and connectors. This is the core protocol in the Interledger stack.
@@ -61,4 +60,3 @@ The default encoding rules for Interledger protocols are the Canonical Octet Enc
 * **[23: Bilateral Transfer Protocol (BTP)](0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md)**
 
   Recommended API for trustlines and payment channels.
-
