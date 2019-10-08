@@ -1,6 +1,6 @@
 ---
 title: STREAM - A Multiplexed Money and Data Transport for ILP
-draft: 7
+draft: 8
 ---
 
 # STREAM: A Multiplexed Money and Data Transport for ILP
@@ -174,7 +174,11 @@ Implementations SHOULD wait for a valid response (encrypted with the same shared
 
 #### 4.3.1. Connection Asset Details
 
-Each endpoint MAY expose their asset details by sending a `ConnectionAssetDetails` frame.
+Each endpoint MAY expose their asset details by sending a `ConnectionAssetDetails` frame. This frame is optional because some use-cases, such as Web Monetization, do not require it.
+
+Asset details exposed by this frame MUST not change during the lifetime of a Connection. Because of this, endpoints that honor `ConnectionAssetDetails` frames SHOULD ignore any repeat `ConnectionAssetDetails` frames for a given Connection.
+
+Endpoints that wish to discover the other endpoint's asset details MAY send a `ConnectionNewAddress` frame to prompt the endpoint to respond with a `ConnectionAssetDetails` frame.
 
 ### 4.4. Streams
 
@@ -327,6 +331,8 @@ If implementations allow half-open connections, an endpoint MAY continue sending
 |---|---|---|
 | Source Address | ILP Address | New ILP address of the endpoint that sent the frame. |
 
+If an endpoint receives a `ConnectionNewAddress` frame, the endpoint MUST respond with a `ConnectionAssetDetails` frame. 
+
 #### 5.3.3. `ConnectionMaxData` Frame
 
 | Field | Type | Description |
@@ -431,6 +437,8 @@ In other words, if a sender resends data (e.g. because a packet was lost), it MU
 |---|---|---|
 | Source Asset Code | Utf8String | Asset code of endpoint that sent the frame. |
 | Source Asset Scale | UInt8 | Asset scale of endpoint that sent the frame. |
+
+Asset details exposed by this frame MUST not change during the lifetime of a Connection. Because of this, endpoints that honor `ConnectionAssetDetails` frames SHOULD ignore any repeat `ConnectionAssetDetails` frames for a given Connection.
 
 ### 5.4. Error Codes
 
