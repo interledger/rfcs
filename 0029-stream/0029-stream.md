@@ -436,7 +436,7 @@ In other words, if a sender resends data (e.g. because a packet was lost), it MU
 | Source Asset Code | Utf8String | Asset code of endpoint that sent the frame. |
 | Source Asset Scale | UInt8 | Asset scale of endpoint that sent the frame. |
 
-If an endpoint receives a `ConnectionAssetDetails` frame, the endpoint MUST respond with a new `ConnectionAssetDetails` frame containing its own asset details. In order to avoid infinite loops, this response frame MUST be encoded into the Stream packet response that correlates to request containing the initial `ConnectionAssetDetails` frame. 
+If an endpoint receives a `ConnectionAssetDetails` frame, the endpoint MUST respond with a new `ConnectionAssetDetails` frame containing its own asset details.
 
 Asset details exposed by this frame MUST NOT change during the lifetime of a Connection. Because of this, endpoints that honor `ConnectionAssetDetails` frames SHOULD ignore any repeat `ConnectionAssetDetails` frames received on a given Connection.
 
