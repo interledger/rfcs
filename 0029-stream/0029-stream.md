@@ -438,7 +438,7 @@ In other words, if a sender resends data (e.g. because a packet was lost), it MU
 | Source Asset Code | Utf8String | Asset code of endpoint that sent the frame. |
 | Source Asset Scale | UInt8 | Asset scale of endpoint that sent the frame. |
 
-Asset details exposed by this frame MUST not change during the lifetime of a Connection. Because of this, endpoints that honor `ConnectionAssetDetails` frames SHOULD ignore any repeat `ConnectionAssetDetails` frames for a given Connection.
+Asset details exposed by this frame MUST NOT change during the lifetime of a Connection. Because of this, endpoints that honor `ConnectionAssetDetails` frames SHOULD ignore any repeat `ConnectionAssetDetails` frames for a given Connection.
 
 ### 5.4. Error Codes
 
