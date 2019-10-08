@@ -178,7 +178,7 @@ Each endpoint MAY expose their asset details by sending a `ConnectionAssetDetail
 
 Asset details exposed by this frame MUST not change during the lifetime of a Connection. Because of this, endpoints that honor `ConnectionAssetDetails` frames SHOULD ignore any repeat `ConnectionAssetDetails` frames for a given Connection.
 
-Endpoints that wish to discover the other endpoint's asset details MAY send a `ConnectionNewAddress` frame to prompt the endpoint to respond with a `ConnectionAssetDetails` frame.
+Endpoints that wish to discover the other endpoint's asset details MAY send a `ConnectionAssetDetails` frame containing their own asset details. The other endpoint MUST respond to this frame with a new `ConnectionAssetDetails` frame containing its own asset details. In order to avoid infinite loops, this response frame MUST be encoded into the Stream packet response that correlates to request containing the initial `ConnectionAssetDetails` frame. 
 
 ### 4.4. Streams
 
@@ -329,9 +329,7 @@ If implementations allow half-open connections, an endpoint MAY continue sending
 
 | Field | Type | Description |
 |---|---|---|
-| Source Address | ILP Address | New ILP address of the endpoint that sent the frame. |
-
-If an endpoint receives a `ConnectionNewAddress` frame, the endpoint MUST respond with a `ConnectionAssetDetails` frame. 
+| Source Address | ILP Address | New ILP address of the endpoint that sent the frame. | 
 
 #### 5.3.3. `ConnectionMaxData` Frame
 
@@ -438,7 +436,9 @@ In other words, if a sender resends data (e.g. because a packet was lost), it MU
 | Source Asset Code | Utf8String | Asset code of endpoint that sent the frame. |
 | Source Asset Scale | UInt8 | Asset scale of endpoint that sent the frame. |
 
-Asset details exposed by this frame MUST NOT change during the lifetime of a Connection. Because of this, endpoints that honor `ConnectionAssetDetails` frames SHOULD ignore any repeat `ConnectionAssetDetails` frames for a given Connection.
+If an endpoint receives a `ConnectionAssetDetails` frame, the endpoint MUST respond with a new `ConnectionAssetDetails` frame containing its own asset details. In order to avoid infinite loops, this response frame MUST be encoded into the Stream packet response that correlates to request containing the initial `ConnectionAssetDetails` frame. 
+
+Asset details exposed by this frame MUST NOT change during the lifetime of a Connection. Because of this, endpoints that honor `ConnectionAssetDetails` frames SHOULD ignore any repeat `ConnectionAssetDetails` frames received on a given Connection.
 
 ### 5.4. Error Codes
 
