@@ -178,8 +178,6 @@ Each endpoint MAY expose their asset details by sending a `ConnectionAssetDetail
 
 Asset details exposed by this frame MUST not change during the lifetime of a Connection.
 
-Endpoints that wish to discover the other endpoint's asset details MAY send a `ConnectionAssetDetails` frame containing its own asset details. The other endpoint MUST respond to this frame with a new `ConnectionAssetDetails` frame containing its own asset details.
-
 ### 4.4. Streams
 
 Once a connection is established, either endpoint can create streams to send money or data.
@@ -435,8 +433,6 @@ In other words, if a sender resends data (e.g. because a packet was lost), it MU
 |---|---|---|
 | Source Asset Code | Utf8String | Asset code of endpoint that sent the frame. |
 | Source Asset Scale | UInt8 | Asset scale of endpoint that sent the frame. |
-
-If an endpoint receives a `ConnectionAssetDetails` frame, the endpoint MUST respond with a new `ConnectionAssetDetails` frame containing its own asset details.
 
 Asset details exposed by this frame MUST NOT change during the lifetime of a Connection.
 
