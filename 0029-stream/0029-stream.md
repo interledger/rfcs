@@ -327,7 +327,7 @@ If implementations allow half-open connections, an endpoint MAY continue sending
 
 | Field | Type | Description |
 |---|---|---|
-| Source Address | ILP Address | New ILP address of the endpoint that sent the frame. | 
+| Source Address | ILP Address | New ILP address of the endpoint that sent the frame. |
 
 #### 5.3.3. `ConnectionMaxData` Frame
 
