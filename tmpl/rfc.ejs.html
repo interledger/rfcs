@@ -36,7 +36,7 @@
      <nav class="navbar fixed-top navbar-expand-lg navbar-dark nav-innerpage">
         <div class="navbar-leftbg"><a href="/" class="navbar-brand"><img src="/assets/img/ilp_logo@2x.png" class="logo"  height="44" alt="Interledger" /></a></div>
         <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarHolder" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-  
+
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse justify-content-end" id="navbarHolder">
@@ -64,11 +64,15 @@
                 <li class="nav-label">Quick Start</li>
                 <li><a href="/overview.html">Overview</a></li>
                 <li><a href="/getting-started.html">Getting Started</a></li>
+                <ul>
+                    <li><a href="/sending-value-programmatically.html">Sending Value Programmatically</a></li>
+                    <li><a href="/connect-ilp-testnet.html">Connect to an ILP Tesnet</a></li>
+                </ul>
               </ul>
               <ul class=" sidebar_pagelist">
                 <li class="nav-label">Community Resources</li>
-                <li><a class="external-link" href="https://medium.com/interledger-blog">Blog &amp; Tutorials<i class="fa fa-external-link" aria-hidden="true"></i></a></li>
-                <li><a href="/libraries.html">Libraries &amp; Tools</a></li>
+                <li><a class="external-link" href="https://medium.com/interledger-blog">Blog and Tutorials<i class="fa fa-external-link" aria-hidden="true"></i></a></li>
+                <li><a href="/libraries.html">Libraries and Tools</a></li>
                 <li><a href="/summit-2019.html">ILP Summit 2019 Videos</a></li>
               </ul>
 
@@ -131,7 +135,7 @@
             <% if (typeof deprecated === 'string') { -%>
               <% deprecated = deprecated.match(/^http(s)?\:/) ? deprecated : '../' + deprecated -%>
               <br/>It has been replaced by <a href="<%= deprecated %>">this</a> new specification.
-            <% } -%>            
+            <% } -%>
           </p>
             <% } -%>
           <%- content %>
