@@ -176,7 +176,7 @@ Implementations SHOULD wait for a valid response (encrypted with the same shared
 
 Each endpoint MAY expose their asset details by sending a `ConnectionAssetDetails` frame. This frame is optional because some use-cases, such as Web Monetization, do not require it.
 
-Asset details exposed by this frame MUST not change during the lifetime of a Connection. Because of this, endpoints that honor `ConnectionAssetDetails` frames SHOULD ignore any repeat `ConnectionAssetDetails` frames for a given Connection.
+Asset details exposed by this frame MUST not change during the lifetime of a Connection.
 
 Endpoints that wish to discover the other endpoint's asset details MAY send a `ConnectionAssetDetails` frame containing its own asset details. The other endpoint MUST respond to this frame with a new `ConnectionAssetDetails` frame containing its own asset details.
 
@@ -438,7 +438,7 @@ In other words, if a sender resends data (e.g. because a packet was lost), it MU
 
 If an endpoint receives a `ConnectionAssetDetails` frame, the endpoint MUST respond with a new `ConnectionAssetDetails` frame containing its own asset details.
 
-Asset details exposed by this frame MUST NOT change during the lifetime of a Connection. Because of this, endpoints that honor `ConnectionAssetDetails` frames SHOULD ignore any repeat `ConnectionAssetDetails` frames received on a given Connection.
+Asset details exposed by this frame MUST NOT change during the lifetime of a Connection.
 
 ### 5.4. Error Codes
 
