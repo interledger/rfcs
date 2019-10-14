@@ -1,7 +1,7 @@
 ---
 title: Web Monetization
 draft: FINAL
-deprecated: https://adrianhopebailie.github.io/web-monetization/
+deprecated: https://webmonetization.org/specification.html
 ---
 
 # Web Monetization
