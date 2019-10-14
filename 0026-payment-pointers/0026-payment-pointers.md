@@ -1,6 +1,7 @@
 ---
 title: Payment Pointers
-draft: 2
+draft: FINAL
+deprecated: https://paymentpointers.org/
 ---
 # Payment Pointers and Payment Setup Protocols
 
