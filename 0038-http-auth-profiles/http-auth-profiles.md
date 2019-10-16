@@ -33,9 +33,9 @@ In order to find this balance, this document defines three Authentication profil
 
 * `SIMPLE`: Allows two ILP nodes to utilize a previously agreed-upon shared-secret as a [Bearer token](https://tools.ietf.org/html/rfc6750) in all HTTP requests. Peers SHOULD consider this token to be opaque and SHOULD NOT derive any special meaning from the token. 
 
-* `JWT_HS_256`: Allows two ILP nodes to utilize a previously agreed-upon shared-secret in order to _derive_ a `Bearer token` that conforms to the JSON Web Token (JWT) specification as defined in [RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html)
+* `JWT_HS_256`: Allows two ILP nodes to utilize a previously agreed-upon shared-secret in order to _derive_ a `Bearer token` that conforms to the JSON Web Token (JWT) specification as defined in [RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html) using the `HS_256` algorithm defined in section 3.2 of [RFC-7518](https://www.rfc-editor.org/rfc/rfc7518#section-3.2)
 
-* `JWT_RS_256`: Allows two ILP nodes to utilize public-key pairs to _derive_ a `Bearer token` that conforms to the JSON Web Token (JWT) specification.
+* `JWT_RS_256`: Allows two ILP nodes to utilize public-key pairs to _derive_ a `Bearer token` that conforms to the JSON Web Token (JWT) specification as defined in [RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html) using the `RS_256` algorithm defined in section 3.3 of [RFC-7518](https://www.rfc-editor.org/rfc/rfc7518#section-3.3)
 
 Peers MAY use any standard HTTP authentication mechanism to authenticate incoming requests, but SHOULD support `JWT_HS_256` at a minimum. It is RECOMMENDED to use `JWT_RS_256` for production deployments.
 
