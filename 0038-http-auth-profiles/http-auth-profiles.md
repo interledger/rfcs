@@ -99,6 +99,8 @@ Using the JWT specification, this token can be verified using the shared-secret 
   * The actual shared-secret is _never_ transmitted "on the wire" during any request. Instead, authentication tokens are always _derived_ from the shared-secret, which eliminates the risk of an _actual_ shared-secret being intercepted  in transit.
 
 * **Cons**
+  * More complex than the `SIMPLE` profile.
+  * Potentially more computation required due to SHA-256 calculations and JSON serialization/deserialization (though this is somewhat muted if short-lived tokens are re-used across multiple requests).
   * Total transmitted bytes for authentication are more than the `SIMPLE` scheme (about 41 bytes, or ~50% more). However, HTTP/2 header compression should mitigate this differential.
   * Requires out-of-band communication for both peers to agree upon the shared secret.
 
@@ -140,9 +142,10 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0H891JhR+Stgx81JyZeU48F4VUAS7E/OKvaVG5OjE
   * Allows for asymmetric key rotation without forcing a peer to change a shared-secret. 
 
 * **Cons**
+  * More complex than the `SIMPLE` and `JWT_HS_256` profile.
   * Total transmitted bytes for authentication are more than the `SIMPLE` and `JWT_HS_256` schemes. However, HTTP/2 header compression should mitigate this differential as well.
   * Requires out-of-band communication for both peers to agree upon public keys.
-  * Verification performance is slower than the `HS_256_profile`.
+  * Verification performance is slower than the `SIMPLE` and `JWT_HS_256` profile`.
 
 ### Authorization
 The `HS-256` and `RS_256` profiles defined in this RFC rely upon signed JWTs, which support arbitrary claims that can be used for authorization decisions. This document does not define any authorization-specific primitives, although implementations MAY use various authentication claims in order to inform authorization decisions.
@@ -174,7 +177,7 @@ Implementations SHOULD minimize the amount of time that an actual secret-value e
 All Interledger connections MUST be performed over a TLS session. However, it is also RECOMMENDED to use TLS Client Certificates between peers for additional security. 
   
 ### High Security Deployments
-For deployments requiring very high security, it is recommended to utilize a secret-store deployed outside of the Interledger software runtime, such as [Vault](https://www.vaultproject.io/) or an [HSM](https://safenet.gemalto.com/data-encryption/hardware-security-modules-hsms/) or both. 
+For deployments requiring very high security, it is recommended to utilize a secret-store deployed outside of the Interledger software runtime, such as a "key management service" and/or "hardware key storage." 
 
 This will provide an extra layer of protection in the event that a runtime is compromised, and will also make it significantly harder for an attacker to compromise actual shared-secret or private key values (especially if employing an HSM). 
 
