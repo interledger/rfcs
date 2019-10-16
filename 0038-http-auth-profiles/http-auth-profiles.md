@@ -15,7 +15,7 @@ The profiles defined in this RFC should:
 
 * ...be as simple as possible while also being highly secure. 
 * ...clearly define any trade-offs involved in choosing a particular profile.
-* ...be easily implementable across programming languages in order to aid braod adoption.
+* ...be easily implementable across programming languages in order to aid broad adoption.
 * ...utilise well-known and broadly deployed protocols in order to increase confidence the profiles.
 * ...be suitable for high-performance use-cases, such as ILPv4 packet processing.
 * ...resist replays (emphasis: resist, not necessarily be replay-proof, in order to support high-performance use-cases).
