@@ -7,7 +7,7 @@ draft: 1
 A minimal set of extensible, token-based profiles for securing Interledger relationships using HTTP.
 
 ## Motivation
-Many Interledger protocols and software work well using HTTP. For example, [ILP-over-HTTP]() utilizes HTTP at the [Link Layer](https://interledger.org/rfcs/0001-interledger-architecture/). Additionally, Interledger software often uses HTTP for administrative functionality and other purposes.
+Many Interledger protocols and software work well using HTTP. For example, [ILP-over-HTTP](https://github.com/interledger/rfcs/blob/master/0035-ilp-over-http/0035-ilp-over-http.md) utilizes HTTP at the [Link Layer](https://interledger.org/rfcs/0001-interledger-architecture/). Additionally, Interledger software often uses HTTP for administrative functionality and other purposes.
 
 This document defines common profiles that can be used to ensure implementations of Interledger software work securely in an interoperable fashion, while simultaneously allowing Interledger software operators to more clearly understand the trade-offs involved with various security choices.
 
@@ -31,7 +31,7 @@ When authenticating requests between Interledger nodes, it is important to choos
 
 In order to find this balance, this document defines three Authentication profiles, each with various trade-offs that should be considered before use:
 
-* `SIMPLE`: Allows two ILP nodes to utilize a previously agreed-upon shared-secret as a [Bearer token](https://tools.ietf.org/html/rfc6750) in all ILP-over-HTTP requests. Peers SHOULD consider this token to be opaque and SHOULD NOT derive any special meaning from the token. 
+* `SIMPLE`: Allows two ILP nodes to utilize a previously agreed-upon shared-secret as a [Bearer token](https://tools.ietf.org/html/rfc6750) in all HTTP requests. Peers SHOULD consider this token to be opaque and SHOULD NOT derive any special meaning from the token. 
 
 * `JWT_HS_256`: Allows two ILP nodes to utilize a previously agreed-upon shared-secret in order to _derive_ a `Bearer token` that conforms to the JSON Web Token (JWT) specification as defined in [RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html)
 
