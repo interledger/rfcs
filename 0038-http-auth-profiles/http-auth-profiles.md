@@ -33,9 +33,9 @@ In order to find this balance, this document defines three Authentication profil
 
 * `SIMPLE`: Allows two ILP nodes to utilize a previously agreed-upon shared-secret as a [Bearer token](https://tools.ietf.org/html/rfc6750) in all HTTP requests. Peers SHOULD consider this token to be opaque and SHOULD NOT derive any special meaning from the token. 
 
-* `JWT_HS_256`: Allows two ILP nodes to utilize a previously agreed-upon shared-secret in order to _derive_ a `Bearer token` that conforms to the JSON Web Token (JWT) specification as defined in [RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html) using the `HS_256` algorithm defined in section 3.2 of [RFC-7518](https://www.rfc-editor.org/rfc/rfc7518#section-3.2)
+* `JWT_HS_256`: Allows two ILP nodes to utilize a previously agreed-upon shared-secret in order to _derive_ a `Bearer token` that conforms to the JSON Web Token (JWT) specification as defined in [RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html) using the `HS_256` signing algorithm defined in section 3.2 of [RFC-7518](https://www.rfc-editor.org/rfc/rfc7518#section-3.2).
 
-* `JWT_RS_256`: Allows two ILP nodes to utilize public-key pairs to _derive_ a `Bearer token` that conforms to the JSON Web Token (JWT) specification as defined in [RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html) using the `RS_256` algorithm defined in section 3.3 of [RFC-7518](https://www.rfc-editor.org/rfc/rfc7518#section-3.3)
+* `JWT_RS_256`: Allows two ILP nodes to utilize public-key pairs to _derive_ a `Bearer token` that conforms to the JSON Web Token (JWT) specification as defined in [RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html) using the `RS_256` signing algorithm defined in section 3.3 of [RFC-7518](https://www.rfc-editor.org/rfc/rfc7518#section-3.3).
 
 Peers MAY use any standard HTTP authentication mechanism to authenticate incoming requests, but SHOULD support `JWT_HS_256` at a minimum. It is RECOMMENDED to use `JWT_RS_256` for production deployments.
 
@@ -59,7 +59,7 @@ Implementations MAY support this profile, but SHOULD consider it for development
 ##### Trade-off Summary
 * **Pros**
   * The simplest, most usable Authentication profile -- just a shared-secret with _at least_ 32 bytes and an identity header.
-  * Very little processing time to verify a token (Note that token verification in this mode should utilize a Constant Time Comparison to avoid [Timing Attacks](https://en.wikipedia.org/wiki/Timing_attack)))
+  * Very little processing time to verify a token (Note that token verification in this mode should utilize a Constant Time Comparison to avoid [Timing Attacks](https://en.wikipedia.org/wiki/Timing_attack)).
 
 * **Cons**
   * The shared-secret is transmitted "on the wire" for every request, increasing the chances that it might be intercepted by a compromised TLS session (e.g., a [MITM attack](https://en.wikipedia.org/wiki/Man-in-the-middle_attack)); a TLS termination endpoint (e.g., a Load Balancer); or logged by an internal system during transit.
@@ -67,14 +67,15 @@ Implementations MAY support this profile, but SHOULD consider it for development
   * Requires out-of-band communication for both peers to agree upon the shared secret.
 
 #### `JWT_HS_256` Authentication Profile
-This profile allows two ILP nodes to utilize a previously agreed-upon shared-secret, but then derive an [RFC-7519](https://tools.ietf.org/html/rfc7519) compliant JWT token in order to perform actual authentication.
+This profile allows two ILP nodes to utilize a previously agreed-upon shared-secret, but then derive an [RFC-7519](https://tools.ietf.org/html/rfc7519) compliant JWT token signed using the `HS_256` algorithm defined in section 3.2 of [RFC-7518](https://www.rfc-editor.org/rfc/rfc7518#section-3.2). This allows either party holding the shared secret to perform actual authentication by verifying the JWT using these algorithms.
 
 ##### JWT Claims
-In order to be considered a valid JWT for this profile, the signed JWT MUST contain a `sub` (subject) claim containing the identifier of the "principal" that the token authenticates.
+In order to be considered a valid JWT for this profile, signed JWTs MUST contain the following claims as defined in RFC-7519:
+ 
+ * `sub` (subject):   * `sub` (issuer): A claim that claim identifies the principal that is the subject of the JWT. See [Section 4.1.2 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.2) for more details.
+* `exp` (expiry): A claim that indicates a date/time after which the token should be considered invalid. Implementations SHOULD reject any tokens with a missing or invalid expiry claim.  See [Section 4.1.4 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.4) for more details.
 
-A JWT token SHOULD also include an `exp` (expiry) claim that indicates a date/time after which the token should be considered invalid. Implementations SHOULD reject any tokens with a missing or invalid expiry claim. 
-
-Note that tokens without this claim never expire, and only become invalid if the shared-secret used to sign the JWT changes or is otherwise invalidated.
+Implementations SHOULD reject any tokens with a missing or invalid expiry claim because tokens without this claim never expire, and only become invalid if the shared-secret used to sign the JWT changes or is otherwise invalidated.
 
 ##### Example Usage
 In this profile, the JWT is passed as an `Authorization` header in each HTTP request, using the [Bearer token](https://tools.ietf.org/html/rfc6750) scheme. 
@@ -105,7 +106,9 @@ Using the JWT specification, this token can be verified using the shared-secret 
   * Requires out-of-band communication for both peers to agree upon the shared secret.
 
 #### `JWT_RS_256` Authentication Profile
-This profile allows two ILP nodes to utilize public/private key pairs and an asymmetric signature scheme to generate and verify auth tokens. This requires one private key be used to sign a given JWT, with a different public key used to verify the signature. The specific algorithm for this profiles is `RS_256` as defined in [RFC-7518](https://www.rfc-editor.org/rfc/rfc7518#section-3.3). 
+This profile allows two ILP nodes to utilize public/private keys and an asymmetric signature algorithm to generate and verify auth tokens using different keys for signing and verification.
+ 
+This profile relies upon JWT tokens that are signed using the `RS_256` signature algorithm defined in section 3.3 of [RFC-7518](https://www.rfc-editor.org/rfc/rfc7518#section-3.3).
 
 ##### JWT Claims
 In order to be considered a valid JWT for this profile, a signed JWT MUST contain the following claims:
