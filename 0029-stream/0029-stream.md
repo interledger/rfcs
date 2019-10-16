@@ -174,7 +174,7 @@ Implementations SHOULD wait for a valid response (encrypted with the same shared
 
 #### 4.3.1. Connection Asset Details
 
-Each endpoint MAY expose their asset details by sending a `ConnectionAssetDetails` frame. This frame is optional because some use-cases, such as Web Monetization, do not require it.
+Each endpoint MAY expose their asset details by sending a `ConnectionAssetDetails` frame. This frame is optional because some use-cases do not require it.
 
 Asset details exposed by this frame MUST not change during the lifetime of a Connection.
 
