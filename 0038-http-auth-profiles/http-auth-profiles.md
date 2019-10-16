@@ -82,12 +82,6 @@ In this profile, the JWT is passed as an `Authorization` header in each HTTP req
 
 One example of such a Bearer token:
 
-`Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGljZSJ9._Jn0pkqrK1leE3WZJKn-g5hm5kGJxGdSHggtz5wO1w4`. 
-
-Using the JWT specification, this token can be verified using the shared-secret previously agreed upon. For example, the above token contains a `sub` claim of `alice` and can be verified using a shared-secret value of `HEiMCp0FoAC903QHueY89gAWJHo` (Base64 encoded).
-
-Another example is a Bearer token that contains an expiration date:
-
 `Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGljZSIsImV4cCI6MTU1ODAzNTg2OH0.__9CiSGdn4Grhl48slun7Lp4q4xt0uq398omcipBU8M`. 
 
 Using the JWT specification, this token can be verified using the shared-secret previously agreed upon. For example, the above token contains a `sub` claim of `alice` and an `exp` claim of `1558035868`, which means this token is no longer valid after `May 16th, 2019 at 9:29:11 GMT`. This token can be verified using a shared-secret value of `HEiMCp0FoAC903QHueY89gAWJHo` (Base64 encoded).
