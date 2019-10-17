@@ -72,10 +72,12 @@ This profile allows two ILP nodes to utilize a previously agreed-upon shared-sec
 ##### JWT Claims
 In order to be considered a valid JWT for this profile, signed JWTs MUST contain the following claims as defined in RFC-7519:
  
- * `sub` (subject):   * `sub` (issuer): A claim that claim identifies the principal that is the subject of the JWT. See [Section 4.1.2 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.2) for more details.
+ * `sub` (subject): A claim that claim identifies the principal that is the subject of the JWT. See [Section 4.1.2 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.2) for more details.
 * `exp` (expiry): A claim that indicates a date/time after which the token should be considered invalid. Implementations SHOULD reject any tokens with a missing or invalid expiry claim.  See [Section 4.1.4 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.4) for more details.
 
 Implementations SHOULD reject any tokens with a missing or invalid expiry claim because tokens without this claim never expire, and only become invalid if the shared-secret used to sign the JWT changes or is otherwise invalidated.
+
+Implementation MAY utilize other claims defined in RFC-7519 such as `iss`, `aud` or others. The claims are optional for this profile on a per-peer deployment basis.
 
 ##### Example Usage
 In this profile, the JWT is passed as an `Authorization` header in each HTTP request, using the [Bearer token](https://tools.ietf.org/html/rfc6750) scheme. 
@@ -121,12 +123,12 @@ One example of such a Bearer token:
 
 Using the JWT specification, this token can be verified using the public-key that corresponds to the private key that signed the token. For example, the above token contains the following claims:
 
-* `iss`: "https://idp.exmaple.org",
-* `sub`: "https://example.com/alice",
-* `aud`: "https://example.com/bob",
+* `iss`: https://idp.exmaple.org
+* `sub`: https://example.com/alice
+* `aud`: https://example.com/bob
 * `exp`: 1516239022
 
-The token can be verified using the following public-key, which in a production deployment might be advertised at a TLS-encrypted endpoint conforming to [RFC-7517](https://tools.ietf.org/html/rfc7517):
+The token can be verified using the following public-key, which in a production deployment can be advertised at a TLS-encrypted HTTP endpoint conforming to [RFC-7517](https://tools.ietf.org/html/rfc7517):
  
  ```
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0H891JhR+Stgx81JyZeU48F4VUAS7E/OKvaVG5OjE9c+iIp2WcYFHqWjeBfrcPS1ADnTbxiKDd5D7EGWLDkBGha9H7m2hH/4PhywHomltp4Z1W7HJISzIS5JvPWFctKeKmhEekMi24yhtf44NkZg2zQijzLMQuxfaPGoW/88omtuDVaqQUmt3/Vx3v8D5ejQ2N8p7BrvpiUPQy+ZakAJf7MG0+EnaCjgnGAc9Q9wEBgMq6ifAENLne6BtQvA34jiWEIGDuD/veUwe0r0Ao/ZipZfcRJKybYNHbs5YQoxXOI2qo8qPwFrF2AJzak8+MwaiFYrDzGk8nV3e3i38RH0p test@example.com
@@ -142,19 +144,19 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0H891JhR+Stgx81JyZeU48F4VUAS7E/OKvaVG5OjE
   * More complex than the `SIMPLE` and `JWT_HS_256` profile.
   * Total transmitted bytes for authentication are more than the `SIMPLE` and `JWT_HS_256` schemes. However, HTTP/2 header compression should mitigate this differential as well.
   * Requires out-of-band communication for both peers to agree upon public keys.
-  * Verification performance is slower than the `SIMPLE` and `JWT_HS_256` profile`.
+  * Verification performance is slower than the `SIMPLE` and `JWT_HS_256` profile.
 
 ### Authorization
 The `HS-256` and `RS_256` profiles defined in this RFC rely upon signed JWTs, which support arbitrary claims that can be used for authorization decisions. This document does not define any authorization-specific primitives, although implementations MAY use various authentication claims in order to inform authorization decisions.
 
 ## Appendix1: Security Best Practices
-This section outlines and clarifies some best practices for authentication-token security when using this protocol. Recommendations in this section are _Non-Normative_, but highly RECOMMENDED.
+This section outlines and clarifies some best practices for authentication-token security when using this profiles defined in this RFC. Recommendations in this section are _Non-Normative_, but highly RECOMMENDED.
 
 ### Follow Standardized Security Recommendations
 It is advisable to follow all applicable best practices when using a Bearer-token scheme for authentication. [Section 5.1 of RFC-6570](https://tools.ietf.org/html/rfc6750#section-5) contains a number of good practices that should be considered on a per-deployment basis. 
 
 ### Use SIMPLE Profile for Development/Testing Only
-The `SIMPLE` authentication profile provides only marginal benefits when compared to the `JWT_HS_256` profile, but introduces significant drawbacks as outlined in the "Trade-off Summary" sections of this RFC. As such, the `SIMPLE` profile MAY be used for development or testing purposes, but SHOULD NOT be used in production scenarios. Instead, prefer `JWT_HS_256` for production deployments.
+The `SIMPLE` authentication profile provides only marginal benefits when compared to the `JWT_HS_256` profile, but introduces significant drawbacks as outlined in the "Trade-off Summary" sections of this RFC. As such, the `SIMPLE` profile MAY be used for development or testing purposes, but SHOULD NOT be used in production scenarios. Instead, prefer `JWT_RS_256` for production deployments.
 
 ### Avoid HTTP Basic and Form-based Auth
 HTTP Auth schemes using a username and password are NOT RECOMMENDED for the same reasons that the `SIMPLE` profile is only recommended for development and testing scenarios.
@@ -165,24 +167,25 @@ Tokens generators should choose a reasonable token expiry. Considerations in thi
 As a best practice, implementations SHOULD use tokens that expire. For example, consider generating tokens with a lifetime that doesn't exceed 5 minutes.
 
 ### Secrets At Rest
-Implementations SHOULD protect secret-values that can be used to generate authentication tokens by encrypting them prior to storage. This will help prevent actual shared-secrets or other sensitive data from being captured by unauthorized parties, increasing the chances that only Interledger software will be able to generate tokens.
+Implementations SHOULD protect secret-values that can be used to generate authentication tokens by encrypting them prior to storage, and/or storing them in an encrypted storage device. This will help prevent actual shared-secrets or other sensitive data from being captured by unauthorized parties, increasing the chances that only Interledger software will be able to generate tokens.
   
 ### Secrets In Memory
 Implementations SHOULD minimize the amount of time that an actual secret-value exists in-memory in unencrypted form. This includes narrowing the availability of secrets to only code that actually requires them; minimizing the time any secret might exist in memory; and zeroing out memory after a secret is no longer used, if possible. 
 
 ### Mutual TLS
-All Interledger connections MUST be performed over a TLS session. However, it is also RECOMMENDED to use TLS Client Certificates between peers for additional security. 
+All Interledger connections MUST be performed over a TLS session. However, it is also RECOMMENDED to use a certificate-based [Mutual Authentication](https://en.wikipedia.org/wiki/Mutual_authentication) scheme, such as one that employs client certificates between peers for additional security. 
   
 ### High Security Deployments
-For deployments requiring very high security, it is recommended to utilize a secret-store deployed outside of the Interledger software runtime, such as a "key management service" and/or "hardware key storage." 
+For deployments requiring very high security, it is recommended to utilize a secret-store deployed outside of the Interledger software runtime, such as a key-management service and/or a hardware security module ([HSM](https://en.wikipedia.org/wiki/Hardware_security_module)). 
 
-This will provide an extra layer of protection in the event that a runtime is compromised, and will also make it significantly harder for an attacker to compromise actual shared-secret or private key values (especially if employing an HSM). 
+This will provide an extra layer of protection in the event that the Interledger runtime is compromised, and will also make it significantly harder for an attacker to compromise actual shared-secret or private key values. 
 
-However, before employing such a system, operators SHOULD perform extensive performance testing to ensure proper levels of service.
+Before employing such a system, operators SHOULD perform extensive performance testing to ensure proper levels of service.
  
 ## Appendix2: Normative References
 For more details on the algorithms and standards referenced in this RFC, see the following:
 
 * RFC-6750: [Bearer Token Usage](https://tools.ietf.org/html/rfc6750)
+* RFC-7517: [JSON Web Key (JWK)](https://tools.ietf.org/html/rfc7517)
 * RFC-7518: [JSON Web Algorithms (JWA)](https://www.rfc-editor.org/rfc/rfc7518.html)
 * RFC-7519: [JSON Web Token (JWT)](https://www.rfc-editor.org/rfc/rfc7519.html)
