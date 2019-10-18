@@ -80,7 +80,7 @@ The response MUST contain at least the following headers:
 
 | Header          | Description                                                |
 |:----------------|:-----------------------------------------------------------|
-| `Content-Type`  | MUST be `application/spsp4+json` to indicates the response is encoded as [JSON](http://www.json.org/) and that the ILP payment should be sent via STREAM. |
+| `Content-Type`  | MUST be `application/spsp4+json` to indicate the response is encoded as [JSON](http://www.json.org/) and that the ILP payment should be sent via STREAM. |
 | `Cache-Control` | Indicates how long the SPSP Client should cache the response. See supported cache-control directives below. |
 
 To handle as many transactions per second as possible, the SPSP Client caches results from the SPSP Server. The information returned by the SPSP Server is not expected to change rapidly, so repeated requests for the same information are usually redundant. The SPSP Server communicates how long to cache results for using the HTTP-standard [`Cache-Control` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) in the responses to RESTful API calls.
