@@ -1,6 +1,6 @@
 ---
 title: The Simple Payment Setup Protocol (SPSP)
-draft: 8
+draft: 9
 ---
 # Simple Payment Setup Protocol (SPSP)
 
