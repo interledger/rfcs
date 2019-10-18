@@ -145,7 +145,7 @@ Given the open STREAM connection, the SPSP Client begins sending ILP packets of 
 
 Given the open STREAM connection, either the SPSP Client or the Server begins sending ILP packets of data.
 
-The size of the data SHOULD be defined setting STREAM `maxOffset`. Each application built on STREAM and using the principle of data transmission MAY define more restrictive requirements. 
+The size of the data SHOULD be defined by setting STREAM `maxOffset`. Each application built on STREAM and using the principle of data transmission MAY define more restrictive requirements. 
 
 ---
 
