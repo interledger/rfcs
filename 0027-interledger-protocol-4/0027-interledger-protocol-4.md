@@ -1,6 +1,6 @@
 ---
 title: Interledger Protocol V4 (ILPv4)
-draft: 7
+draft: 9
 ---
 
 # Interledger Protocol V4
@@ -41,7 +41,7 @@ Interledger is a protocol for sending packets of money across different payment 
 
 ILPv4 packets may be sent over any communication channel between peers. Account balances are adjusted when accepting and forwarding ILP packets and may be rebalanced using any available means, ranging from ledger transfers triggered by an API, to signed updates to payment channels, or the physical delivery of cash or other goods.
 
-In most cases, ILPv4 will be used with a Transport Layer protocol such as the [Pre-Shared Key V2 (PSKv2)](../0025-pre-shared-key-2/0025-pre-shared-key-2.md) protocol, which handles the generation of ILP conditions and fulfillments. ILPv4 may also be used with higher-level protocols that implement chunking and reassembly of higher-value payments.
+ILPv4 will often be used with a Transport Layer protocol, such as the [STREAM](../0029-stream/0029-stream.md) protocol, which handles the generation of ILP conditions and fulfillments. ILPv4 may also be used with higher-level protocols that implement chunking and reassembly of higher-value payments.
 
 ### Differences from Previous Versions of ILP
 
@@ -161,7 +161,7 @@ Final errors indicate that the payment is invalid and should not be retried unle
 | **F01** | **Invalid Packet** | The ILP packet was syntactically invalid. | (empty) |
 | **F02** | **Unreachable** | There was no way to forward the payment, because the destination ILP address was wrong or the connector does not have a route to the destination. | (empty) |
 | **F03** | **Invalid Amount** | The amount is invalid, for example it contains more digits of precision than are available on the destination ledger or the amount is greater than the total amount of the given asset in existence. | (empty) |
-| **F04** | **Insufficient Destination Amount** | The receiver deemed the amount insufficient, for example you tried to pay a $100 invoice with $10. | (empty) |
+| **F04** | **Insufficient Destination Amount** | The receiver deemed the amount insufficient, for example, the effective exchange rate was too low. | (empty) |
 | **F05** | **Wrong Condition** | The receiver generated a different condition and cannot fulfill the payment. | (empty) |
 | **F06** | **Unexpected Payment** | The receiver was not expecting a payment like this (the data and destination address don't make sense in that combination, for example if the receiver does not understand the transport protocol used) | (empty) |
 | **F07** | **Cannot Receive** | The receiver (beneficiary) is unable to accept this payment due to a constraint. For example, the payment would put the receiver above its maximum account balance. | (empty) |

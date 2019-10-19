@@ -1,6 +1,6 @@
 ---
 title: STREAM - A Multiplexed Money and Data Transport for ILP
-draft: 5
+draft: 7
 ---
 
 # STREAM: A Multiplexed Money and Data Transport for ILP
@@ -24,6 +24,7 @@ This document specifies the STREAM Interledger Transport protocol, which provide
   - [4.1. Setup](#41-setup)
   - [4.2. Matching Packets to Connections](#42-matching-packets-to-connections)
   - [4.3. Client Address Communication and Connection Migration](#43-client-address-communication-and-connection-migration)
+    - [4.3.1. Connection Asset Details](#431-connection-asset-details)
   - [4.4. Streams](#44-streams)
     - [4.4.1. Opening New Streams](#441-opening-new-streams)
     - [4.4.2. Sending Money](#442-sending-money)
@@ -37,6 +38,7 @@ This document specifies the STREAM Interledger Transport protocol, which provide
     - [5.1.1. Encryption Envelope](#511-encryption-envelope)
     - [5.1.2. Encryption Pseudocode](#512-encryption-pseudocode)
     - [5.1.3. Maximum Number of Packets Per Connection](#513-maximum-number-of-packets-per-connection)
+    - [5.1.4. Maximum `VarUInt` Size](#514-maximum-varuint-size)
   - [5.2. STREAM Packet](#52-stream-packet)
   - [5.3. Frames](#53-frames)
     - [5.3.1. `ConnectionClose` Frame](#531-connectionclose-frame)
@@ -52,6 +54,7 @@ This document specifies the STREAM Interledger Transport protocol, which provide
     - [5.3.11. `StreamData` Frame](#5311-streamdata-frame)
     - [5.3.12. `StreamMaxData` Frame](#5312-streammaxdata-frame)
     - [5.3.13. `StreamDataBlocked` Frame](#5313-streamdatablocked-frame)
+    - [5.3.14. `ConnectionAssetDetails` Frame](#5314-connectionassetdetails-frame)
   - [5.4. Error Codes](#54-error-codes)
 - [6. Condition and Fulfillment Generation](#6-condition-and-fulfillment-generation)
   - [6.1. Unfulfillable Condition](#61-unfulfillable-condition)
@@ -257,7 +260,7 @@ var { ciphertext, auth_tag } = aes_256_gcm(encryption_key, iv, data);
 
 Implementations MUST close the connection once either endpoint has sent 2^31 packets. According to [NIST](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf), it is unsafe to use AES-GCM for more than 2^32 packets using the same encryption key. (STREAM uses the limit of 2^31 because both endpoints encrypt packets with the same key.)
 
-#### 5.1.4. Maximum VarUInt Size
+#### 5.1.4. Maximum `VarUInt` Size
 
 Implementations MAY NOT support `VarUInt`s larger than `MaxUInt64` (for performance reasons).
 
@@ -400,6 +403,13 @@ The amounts in this frame are denominated in the units of the endpoint sending t
 | Data | VarOctetString | Application data. |
 
 Packets may be received out of order so the `Offset` is used to indicate the correct position of the byte segment in the overall stream. The first `StreamData` frame sent for a given stream MUST start with an `Offset` of zero.
+
+Fragments of data provided by a stream's `StreamData` frames MUST NOT ever overlap with one another. For example, the following combination of frames is forbidden because bytes 15-19 were provided twice:
+
+    StreamData { StreamID: 1, Offset: 10, Data: "1234567890" }
+    StreamData { StreamID: 1, Offset: 15, Data: "67890" }
+
+In other words, if a sender resends data (e.g. because a packet was lost), it MUST resend the exact frames — offset and data. This rule exists to simplify data reassembly for the receiver.
 
 #### 5.3.12. `StreamMaxData` Frame
 
