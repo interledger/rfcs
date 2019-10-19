@@ -11,45 +11,49 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## Overview
 
-This specification codifies a common interface for **settlement engines**. Settlement engines are services which perform two primary operations:
+### Clearing
 
-1. Send outgoing settlements
-2. Receive incoming settlements
-
-Counterparties may operate compatible settlement engines to settle their liabilities between one another. Different implementations may utilize different settlement systems or types of settlements, such as:
-
-- Transferring money or assets to the counterparty
-- Sending payments on a shared ledger
-- Signing and exchanging payment channel claims
-
-## Motivation
-
-Settlement engines supersede the [Ledger Plugin Interface (LPIv2)](../deprecated/0024-ledger-plugin-interface-2/0024-ledger-plugin-interface-2.md) as an abstraction for settlement integrations with Interledger. This new model addresses these issues:
-
-1. Multi-account plugins required logic for handling ILP packets, increasing implementation complexity.
-2. Plugins bundled settlement and bilateral communication functionality together, limiting composability.
-3. JavaScript plugins limited interoperability with non-JavaScript connector implementations.
-4. Plugins operated in the same process as the connector, which limited scaling the two services independently.
-
-TODO Should I explicitly outline the "goals"? What is the aim of this specification? (seems to be some disagreement)
-
-## The Flow
-
-In the [Interledger protocol](../0001-interledger-architecture/0001-interledger-architecture.md), a **peer** is a connector who is a counterparty to another connector. An **account** is the connector's relationship with the counterparty, representing their arrangement to transact with one another. Connectors clear and fulfill ILP packets with their peers, which represent conditional IOUs that affect these accounts.
+In the [Interledger protocol](../0001-interledger-architecture/0001-interledger-architecture.md), connectors maintain **peers**, or counterparty connectors whom they transact with. Connectors clear and fulfill ILP packets with their peers, representing conditional IOUs which affect financial accounting balances&mdash;**accounts**&mdash;between them.
 
 A connector may extend a given peer a limited line of credit, or none at all, depending upon their trustworthiness. As the connector receives incoming ILP Prepare packets from a peer, forwards them, and returns corresponding ILP Fulfill packets, that peer's liabilities to the connector accrue. If the peer's liabilities exceed the credit limit assigned to it, the connector may reject and decline to forward additional packets.
 
-In order to continue transacting, the peer must settle their liabilities. In most cases, this is accomplished through sending a payment on a settlement system that both peers have agreed to use. The connector should credit the incoming payment, irrevocably discharging a sum the peer owed to it, which enables clearing subsequent packets from the peer.
+### Settlement
 
-Settlement engines provide a standardized mechanism for Interledger connectors to coordinate and reconcile these settlements.
+In order to continue transacting, the peer must settle their liabilities. In most cases, this is accomplished through sending a payment on a settlement system that both peers have agreed to use. The connector should credit the incoming payment, irrevocably discharging a sum the peer owed to it, which enables it to clear subsequent Interledger packets from the peer.
+
+A **settlement** is the irrevocable discharge of a liability via an unconditional transfer of an asset or financial instrument. Settlements may occur on a **settlement system**, or medium for exchanging value. Some settlements may transfer funds on a **ledger**, or registry of account balances and/or transactions, which is a type of settlement system. (Although not all settlement systems are ledgers, here, the terms are sometimes used interchangeably.)
+
+Examples of systems that settle Interledger credit relationships may include:
+
+- Traditional banking infrastructure
+- Cryptocurrencies and distributed ledgers
+- Payment channels and layer 2 networks
+- Money transfer services
+- Mobile money services
+- Cash or physical delivery of assets
+
+### Settlement Engines
+
+_Settlement engines_ are services operated by two Interledger peers that facilitate sending and receiving settlements between them. Since an Interledger connector may have many peers that settle over the same system, a single settlement engine may manage multiple accounts, to settle with many different peers.
+
+This specification defines a standardized HTTP API for Interledger connectors to interface with their settlement engines, and vice versa. Connectors trigger the settlement engine to perform settlements, and settlement engines trigger the connector to adjust accounting balances when incoming settlements are received, like so:
 
 ![Settlement architecture](../shared/graphs/settlement-architecture.svg)
 
-## Accounting
+## Motivation
 
-Connectors are RECOMMENDED to record their transactions with peers through the process of accounting.
+Settlement engines supercede the [Ledger Plugin Interface (LPIv2)](../deprecated/0024-ledger-plugin-interface-2/0024-ledger-plugin-interface-2.md) as an abstraction for settlement integrations with Interledger. This new model addresses these issues:
 
-In this financial accounting context, an **account** represents amounts received (credits) and amounts owed (debits) for a set of transactions between counterparties. The **balance** of an account is the net difference between these credits and debits. All the balances and transactions of an account are denominated in a single, fungible asset.
+1. Multi-account plugins necessitated non-trivial connector logic for handling ILP packets.
+2. Plugin implementations were tightly coupled with a single bilateral communication mechanism.
+3. JavaScript plugins limited interoperability with non-JavaScript connector implementations.
+4. Plugins operated in the same process as the connector, which prevented scaling the two services independently.
+
+## Concepts
+
+### Accounting
+
+Connectors are RECOMMENDED to record the effects of their transactions in an **accounting system**. In this financial accounting context, an **account** represents amounts received (credits) and amounts owed (debits) for a set of transactions between counterparties. The **balance** of an account is the net difference between these credits and debits. All the balances and transactions of an account are denominated in a single, fungible asset.
 
 Interledger connectors are RECOMMENDED to operate an **accounting system** which keeps a record of two accounts for each peer:
 
@@ -62,87 +66,41 @@ Interledger connectors are RECOMMENDED to operate an **accounting system** which
 
 Thus, a given connector's "accounts payable" balance should mirror its peer's "accounts receivable" balance. Likewise, a connector's "accounts receivable" balance should mirror its peer's "accounts payable" balance.
 
-## Settlement
-
-A **settlement** is the irrevocable discharge of a liability by providing something of value to the party owed.
-
-Settlements may occur on a **settlement system**, or medium for exchanging value. Some settlements may transfer funds on a **ledger**, or registry of account balances and/or transactions, which is a type of settlement system. (Although not all settlement systems are ledgers, here, the terms are sometimes used interchangeably.)
-
-Examples of settlement systems include:
-
-TODO Are these actually settlement systems?
-
-- Bank clearing houses
-- Credit card processors
-- Money transfer services
-- Cryptocurrencies, blockchains, and distributed ledgers
-- Payment channels and layer 2 networks
-- Cash or physical delivery of assets
-
-## Double-entry bookkeeping
-
-TODO Evan: Is it correct to refer to it as "credit" if you were prefunding or settling things right away? (It might be, but then it would be worth clarifying the different uses of credit -- IOUs, "credits vs debits", and this usage)
-
-TODO Explain clearing vs settlement?
-
-Together, a settlement engine and an accounting system interface with one another to perform double-entry bookkeeping. To ensure accurate, balanced double-entry bookkeeping, settlement engine and accounting system implementations MUST enforce several invariants.
-
-### Accounting system invariants
+Together, a settlement engine and an accounting system interface with one another to perform double-entry bookkeeping with eventual consistency. To ensure accurate, balanced double-entry bookkeeping, settlement engine and accounting system implementations MUST enforce several invariants.
 
 #### Account for outgoing settlements
 
 The accounting system is responsible for triggering outgoing settlements. For example, when the accounts payable reaches a particular threshold, the accounting system SHOULD trigger a settlement to reduce the amount owed to the peer to a predefined, lesser amount in order to be able to continue transacting with the peer.
 
-If the accounting system opts to trigger a settlement:
-
-1. The accounting system MUST debit the accounts payable, subtracting the amount of the settlement.
-2. Then, the accounting system MUST send a request to the settlement engine to settle the amount.
-
-If the settlement engine responds that it only queued a partial amount for settlement (due to lesser precision), the accounting system MUST credit back the accounts payable, adding the leftover amount.
-
-If request retries fail per the [idempotence behavior](#idempotence), the accounting system MUST credit back the accounts payable, adding the amount of the failed settlement.
+When the accounting system triggers a settlement, it MUST debit the accounts payable, subtracting the amount of the settlement before sending the request to the settlement engine to settle the amount.
 
 #### Account for incoming settlements
 
-If the settlement engine instructs the accounting system a settlement was received, the accounting system MUST credit the accounts receivable, subtracting the amount of the settlement.
+If the settlement engine instructs the accounting system an incoming settlement was received, the accounting system MUST credit the accounts receivable, subtracting the amount of the settlement.
 
-The accounting system MUST respond with the amount it credited to the account. If it only credited a partial amount (due to lesser precision), the settlement engine tracks the leftover, uncredited amount and includes it in the next incoming settlement notification to the accounting system.
-
-### Settlement symmetry invariant
+### Settlement symmetry
 
 The fundamental expected behavior of a settlement engine implementation is the sum of amounts one instance is instructed to settle eventually equals the sum of amounts the recipient instance instructs its accounting system to credit as incoming settlements.
 
 As long as the instructed settlements do not equal the acknowledged settlements, the double-entry bookkeeping is out-of-balance. Settlement engines SHOULD minimize the time that the bookkeeping is unbalanced.
 
-When the accounting system triggers a settlement, the accounting system preemptively debits the accounts payable balance before any settlement has been initiated. During this time, the accounts payable balance of the settlement sender will be inconsistent with the accounts receivable balance of the settlement recipient.
-
-Many factors may result in these inconsistencies:
+The purpose of the settlement engine interface is to enable automated settlement and accounting. Settlement engines are not designed to enforce or guarantee that counterparties settle their liabilities or honor incoming payments. Accordingly, malicious counterparties or peers operating incompatible settlement engines break any settlement symmetry.
 
 #### Settlement delay
 
-Settlement engine implementations MAY have settlement delay, or time until an instructed settlement is credited by the counterparty, due to network latency between peers or the time to finalize settlements on an underlying ledger or system.
+When the accounting system triggers a settlement, the accounting system preemptively debits the accounts payable balance before any settlement has been initiated. During this time, the accounts payable balance of the settlement sender will be inconsistent with the accounts receivable balance of the settlement recipient.
 
-#### Failed outgoing settlements
+Settlement engine implementations incur settlement delay, or time until an instructed settlement is credited by the counterparty, due to network latency between peers or the time to finalize settlements on an underlying ledger or system.
 
-If an outgoing settlement fails, the settlement engine MUST track the amount of the settlement to retry it later.
+#### Retrying failed settlements
 
-An intentional design decision was to hide failures from the accounting system rather than refunding failed settlements back to the accounts payable. Since the settlement engine tracks these failed amounts, if the conditions change so the settlement engine is later able to settle, a new settlement attempt may safely begin immediately.
+If an outgoing settlement fails, such as due to network connectivity issues, the settlement engine MUST track the amount of the settlement and retry it later.
+
+An intentional design decision was to hide failures from the accounting system rather than refunding failed settlements back to the accounts payable. Since the settlement engine tracks these failed amounts, if the settlement engine is able to settle later, a new settlement attempt may safely begin immediately.
 
 Refunding failed settlements would enable the peer's accounting system balances to appear synchronized. However, if settlement continues to fail, the credit limit would eventually be breached and prevent the peers from transacting, negating this utility.
 
-#### Uncredited incoming settlements
-
-After the settlement engine requests the accounting system to credit an incoming settlement, if the accounting system responds that it only credited a partial amount (due to lesser precision), the settlement engine MUST track the uncredited leftover amount.
-
-If the request fails after retrying per the [idempotence behavior](#idempotence), the settlement engine MUST track the uncredited amount to retry later.
-
-When a subsequent settlement is received, the settlement engine MUST request the accounting system to credit a new incoming settlement for the total amount yet to be credited, including the leftover, uncredited amount(s).
-
-#### Operating inconsistences
-
-Operators and external factors outside the control of the settlement engine implementation may also cause inconsistences, such as network connectivity, peers operating incompatible settlement engines, or malicious peers.
-
-## Exchanging messages
+### Exchanging messages
 
 In order to settle or receive settlements with a peer, a settlement engine may first need to retrieve or communicate information with the peer's settlement engine. Two peered settlement engine instances may send and receive settlement-related messages among themselves, such as identifiers for their ledger accounts.
 
@@ -177,13 +135,13 @@ Interledger connectors use a transport, such as HTTP or WebSockets, to send and 
 - `message`: _Determined by connector_
 - `data`: _Response message from recipient settlement engine, or empty if antecedent failure_
 
-## Accounts and identifiers
+### Accounts and identifiers
 
 Each account MUST be identified by a unique, [URL-safe](https://tools.ietf.org/html/rfc3986#section-2.3) string, immutable for the lifetime of the account.
 
 The settlement engine MUST be responsible for correlating an account identifier to the peer's identity on the shared ledger or settlement system, if required. For separation of concerns between clearing and settlement, the accounting system is NOT RECOMMENDED to have knowledge of the peer's identity on the shared settlement system.
 
-## Units and quantities
+### Units and quantities
 
 Asset amounts may be represented using any arbitrary denomination. For example, one U.S. dollar may be represented as \$1 or 100 cents, each of which is equivalent in value. Likewise, one Bitcoin may be represented as 1 BTC or 100,000,000 satoshis.
 
@@ -197,11 +155,7 @@ For example, one cent represents an asset scale of 2 in the case of USD, whereas
 
 ### Selecting scales
 
-TODO this is weird because we're not defining what settlements are -- what is "scale as its settlements" ?
-
-Settlement engines are RECOMMENDED to perform or fulfill requests with amounts denominated in the same scale as its settlements.
-
-Account balances within the accounting systems are RECOMMENDED to be denominated in the same scale as their corresponding settlement engine, but MAY use different ones. For example, micropayments may require more precision than can actually be settled, or databases may limit precision to less than the settlement system is capable of.
+Account balances within the accounting system are RECOMMENDED to be denominated in a scale corresponding to the unit settlements are denominated in, but MAY use different ones. For example, micropayments may require more precision than can actually be settled, or databases may limit precision to less than the settlement system is capable of.
 
 ### **`Quantity`** object
 
@@ -228,11 +182,7 @@ To represent $2.54 in units of cents, where the amount is a multiple of $0.01:
 
 ### Scale conversions
 
-If the accounting system or settlement engine receives a request with a **[`Quantity`](#quantity-json-type)** denominated in a unit more precise than its unit, it MUST convert the quantity into its native unit. If so, the resulting amount MUST be rounded down before fulfilling the request.
-
-The response to the request MUST include the converted, rounded **[`Quantity`](#quantity-json-type)** used to fulfill the request, which MUST be less than or equal to the amount sent in the original request. (If the amount rounds down to 0, then the amount in the response would be 0.)
-
-Then, the system with the additional precision initiating the request MUST track the leftover sum so it may accumulate and be retried in subsequent requests.
+If the settlement engine receives a request with a **[`Quantity`](#quantity-object)** denominated in a unit more precise than it is capable of settling, it MUST persist the leftover amount. The leftover amounts MUST be processed later after they accumulate to a unit feasible for settlement.
 
 ## Settlement Engine HTTP API
 
@@ -281,7 +231,7 @@ HTTP/1.1 204 No-Content
 
 ### Perform outgoing settlement
 
-Asynchronously send an outgoing settlement. The accounting system sends this request and [accounts for outgoing settlements](#account-for-outgoing-settlements). (TODO link to other SE behavior here)
+Asynchronously send an outgoing settlement. The accounting system sends this request and [accounts for outgoing settlements](#account-for-outgoing-settlements).
 
 #### Request
 
@@ -292,7 +242,7 @@ Content-Type: application/json
 Idempotency-Key: <key>
 ```
 
-> **[`Quantity`](#quantity-json-type)** to settle
+> **[`Quantity`](#quantity-object)** to settle
 
 #### Response
 
@@ -300,8 +250,6 @@ Idempotency-Key: <key>
 HTTP/1.1 201 Created
 Content-Type: application/json
 ```
-
-> **[`Quantity`](#quantity-json-type)** enqueued to settle, which MUST be less than or equal to the quantity in the original request
 
 ### Handle incoming message
 
@@ -334,7 +282,7 @@ HTTP/2 is RECOMMENDED for performance reasons, although HTTP/1.1 MAY also be use
 
 ### Credit incoming settlement
 
-[Account for an incoming settlement](#account-for-incoming-settlements). The settlement engine sends this request as it receives incoming settlements in in order to ensure [settlement symmetry](#settlement-symmetry). If the accounting system responds that it only credited a partial amount, the settlement engine [tracks the uncredited amounts](#track-uncredited-incoming-settlements).
+[Account for an incoming settlement](#account-for-incoming-settlements). The settlement engine sends this request as it receives incoming settlements in in order to ensure [settlement symmetry](#settlement-symmetry).
 
 #### Request
 
@@ -345,7 +293,7 @@ Content-Type: application/json
 Idempotency-Key: <key>
 ```
 
-> **[`Quantity`](#quantity-json-type)** to be credited to the account as an incoming settlement
+> **[`Quantity`](#quantity-object)** to be credited to the account as an incoming settlement
 
 #### Response
 
@@ -353,8 +301,6 @@ Idempotency-Key: <key>
 HTTP/1.1 201 Created
 Content-Type: application/json
 ```
-
-> **[`Quantity`](#quantity-json-type)** credited to the account as an incoming settlement, which MUST  be less than or equal to the quantity in the original request
 
 ### Send outgoing message
 
@@ -391,7 +337,7 @@ Requests to settle or requests to credit incoming settlements MUST include an id
 
 This retry behavior ensures the client and server are eventually consistent and never perform any unsafe balance rollbacks that could result in lost funds or double payments.
 
-If the client receives no response, an HTTP 5xx error, or an HTTP 409 Conflict error, the client MUST retry the request with the same idempotency key. If the response is a client error, such as another HTTP 4xx error, the client MUST rollback the balance update and NOT perform any subsequent retries.
+If the client receives no response or an HTTP error, the client MUST retry the request with the same idempotency key.
 
 To prevent overwhelming the server, the client SHOULD exponentially backoff after each failed retry attempt and add random "jitter" to vary the retry interval. The maximum retry interval MUST be no greater than 1 hour. Clients also MUST retry indefinitely until they have received an acknowledgment from the server that the request was processed or failed.
 

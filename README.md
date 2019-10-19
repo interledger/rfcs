@@ -53,6 +53,6 @@ The default encoding rules for Interledger protocols are the Canonical Octet Enc
 
 ## Ledger Layer
 
-- **[00: Settlement Engines](0000-settlement-engines/0000-settlement-engines.md)**
+- **[38: Settlement Engines](0038-settlement-engines/0038-settlement-engines.md)**
 
   Specifies an interface to send and receive payments across different settlement systems and ledgers.
