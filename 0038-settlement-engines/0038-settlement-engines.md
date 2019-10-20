@@ -53,7 +53,7 @@ Settlement engines supercede the [Ledger Plugin Interface (LPIv2)](../deprecated
 
 ### Accounting
 
-Connectors are RECOMMENDED to record the effects of their transactions in an **accounting system**. In this financial accounting context, an **account** represents amounts received (credits) and amounts owed (debits) for a set of transactions between counterparties. The **balance** of an account is the net difference between these credits and debits. All the balances and transactions of an account are denominated in a single, fungible asset.
+In a financial accounting context, an **account** represents amounts received (credits) and amounts owed (debits) for a set of transactions between counterparties. The **balance** of an account is the net difference between these credits and debits. All the balances and transactions of an account are denominated in a single, fungible asset.
 
 Interledger connectors are RECOMMENDED to operate an **accounting system** which keeps a record of two accounts for each peer:
 
@@ -64,15 +64,15 @@ Interledger connectors are RECOMMENDED to operate an **accounting system** which
   - Positive amount indicates its peer is indebted to the connector (an _asset_ to the connector).
   - Negative amount indicates its peer has sent a pre-payment to the connector.
 
-Thus, a given connector's "accounts payable" balance should mirror its peer's "accounts receivable" balance. Likewise, a connector's "accounts receivable" balance should mirror its peer's "accounts payable" balance.
+Thus, a given connector's accounts payable balance should mirror its peer's accounts receivable balance. Likewise, a connector's accounts receivable balance should mirror its peer's accounts payable balance.
 
-Together, a settlement engine and an accounting system interface with one another to perform double-entry bookkeeping with eventual consistency. To ensure accurate, balanced double-entry bookkeeping, settlement engine and accounting system implementations MUST enforce several invariants.
+Together, a settlement engine and an accounting system interface with one another to perform double-entry bookkeeping with eventual consistency. To ensure accurate, balanced double-entry bookkeeping, settlement engine and accounting system implementations MUST enforce several invariants:
 
 #### Account for outgoing settlements
 
-The accounting system is responsible for triggering outgoing settlements. For example, when the accounts payable reaches a particular threshold, the accounting system SHOULD trigger a settlement to reduce the amount owed to the peer to a predefined, lesser amount in order to be able to continue transacting with the peer.
+The accounting system is responsible for triggering outgoing settlements. For example, when the accounts payable reaches a particular threshold, the accounting system could trigger a settlement reducing the amount owed to the peer to a predefined, lesser amount.
 
-When the accounting system triggers a settlement, it MUST debit the accounts payable, subtracting the amount of the settlement before sending the request to the settlement engine to settle the amount.
+When the accounting system triggers a settlement, it MUST debit the accounts payable, subtracting the amount of the settlement, and then send a request to the settlement engine to settle the amount.
 
 #### Account for incoming settlements
 
@@ -84,13 +84,13 @@ The fundamental expected behavior of a settlement engine implementation is the s
 
 As long as the instructed settlements do not equal the acknowledged settlements, the double-entry bookkeeping is out-of-balance. Settlement engines SHOULD minimize the time that the bookkeeping is unbalanced.
 
-The purpose of the settlement engine interface is to enable automated settlement and accounting. Settlement engines are not designed to enforce or guarantee that counterparties settle their liabilities or honor incoming payments. Accordingly, malicious counterparties or peers operating incompatible settlement engines break any settlement symmetry.
+The purpose of the settlement engine interface is to enable and account for automated settlements. Settlement engines are not designed to enforce or guarantee that counterparties settle their liabilities or honor incoming payments. Accordingly, malicious counterparties or peers operating incompatible settlement engine implementations break any settlement symmetry.
 
 #### Settlement delay
 
 When the accounting system triggers a settlement, the accounting system preemptively debits the accounts payable balance before any settlement has been initiated. During this time, the accounts payable balance of the settlement sender will be inconsistent with the accounts receivable balance of the settlement recipient.
 
-Settlement engine implementations incur settlement delay, or time until an instructed settlement is credited by the counterparty, due to network latency between peers or the time to finalize settlements on an underlying ledger or system.
+Settlement engine implementations necessarily incur settlement delay, or time until an instructed settlement is credited by the counterparty, due to network latency between peers or the time to finalize settlements on an underlying ledger or system.
 
 #### Retrying failed settlements
 
@@ -106,7 +106,7 @@ In order to settle or receive settlements with a peer, a settlement engine may f
 
 To support multiple interoperable settlement engine implementations for a particular settlement system, implementors may standardize the schema and type of messages their settlement engines use to communicate with one another. This work is out-of-scope of this RFC.
 
-Interledger connectors use a transport, such as HTTP or WebSockets, to send and receive data with peers. Settlement engine implementations SHOULD proxy all messages through its Interledger connector's existing transport like so:
+Interledger connectors use network transports, such as HTTP or WebSockets, to send and receive ILP packets with peers. Settlement engine implementations SHOULD proxy all messages through its Interledger connector's existing transport like so:
 
 1. Origin settlement engine sends a request to its connector with the settlement-related message to forward.
 2. Origin connector encodes the raw message within an ILP Prepare packet (described below), which is sent to the peer's connector using its existing transport.
@@ -115,7 +115,7 @@ Interledger connectors use a transport, such as HTTP or WebSockets, to send and 
 5. Peer connector sends the response message back across the transport to the origin connector within an ILP Fulfill or ILP Reject, depending upon the code of the response (described below). If the peer connector was unable to process the request, it MUST respond with an ILP Reject.
 6. Origin connector sends the response message back to the origin settlement engine.
 
-### ILP Prepare
+#### ILP Prepare
 
 - `amount`: `0`
 - `expiresAt`: _Determined by connector_
@@ -123,12 +123,12 @@ Interledger connectors use a transport, such as HTTP or WebSockets, to send and 
 - `destination`: `peer.settle`
 - `data`: _Request message from sender settlement engine_
 
-### ILP Fulfill
+#### ILP Fulfill
 
 - `fulfillment`: `0000000000000000000000000000000000000000000000000000000000000000`
 - `data`: _Response message from recipient settlement engine_
 
-### ILP Reject
+#### ILP Reject
 
 - `code`: _Determined by connector from HTTP status of forwarded request_
 - `triggeredBy`: `peer.settle`
@@ -139,7 +139,7 @@ Interledger connectors use a transport, such as HTTP or WebSockets, to send and 
 
 Each account MUST be identified by a unique, [URL-safe](https://tools.ietf.org/html/rfc3986#section-2.3) string, immutable for the lifetime of the account.
 
-The settlement engine MUST be responsible for correlating an account identifier to the peer's identity on the shared ledger or settlement system, if required. For separation of concerns between clearing and settlement, the accounting system is NOT RECOMMENDED to have knowledge of the peer's identity on the shared settlement system.
+The settlement engine MUST be responsible for correlating an account identifier to the peer's identity on the shared ledger or settlement system, if required. To prevent tight coupling, the accounting system is NOT RECOMMENDED to have knowledge of the peer's identity on the shared settlement system.
 
 ### Units and quantities
 
@@ -153,15 +153,15 @@ An **asset scale** is the difference in orders of magnitude between the standard
 
 For example, one cent represents an asset scale of 2 in the case of USD, whereas one satoshi represents an asset scale of 8 in the case of Bitcoin.
 
-### Selecting scales
+#### Selecting scales
 
-Account balances within the accounting system are RECOMMENDED to be denominated in a scale corresponding to the unit settlements are denominated in, but MAY use different ones. For example, micropayments may require more precision than can actually be settled, or databases may limit precision to less than the settlement system is capable of.
+Account balances in the accounting system SHOULD be denominated in a scale corresponding to the unit settlements are denominated in, but MAY be denominated in a different scale. For example, micropayments may require more precision than can actually be settled, or databases may limit precision to less than the settlement system is capable of.
 
-### **`Quantity`** object
+#### **`Quantity`** object
 
 An amount denominated in some unit of a single, fungible asset. (Since each account is denominated in a single asset, the type of asset is implied.)
 
-#### Attributes
+##### Attributes
 
 - **`amount`** &mdash; string
   - Amount of the unit, which is a non-negative integer.
@@ -169,7 +169,7 @@ An amount denominated in some unit of a single, fungible asset. (Since each acco
 - **`scale`** &mdash; number
   - Asset scale of the unit, between `0` and the maximum 8-bit unsigned integer, `255` (inclusive).
 
-#### Example
+##### Example
 
 To represent $2.54 in units of cents, where the amount is a multiple of $0.01:
 
@@ -180,9 +180,9 @@ To represent $2.54 in units of cents, where the amount is a multiple of $0.01:
 }
 ```
 
-### Scale conversions
+#### Scale conversions
 
-If the settlement engine receives a request with a **[`Quantity`](#quantity-object)** denominated in a unit more precise than it is capable of settling, it MUST persist the leftover amount. The leftover amounts MUST be processed later after they accumulate to a unit feasible for settlement.
+If the settlement engine receives a request with a **[`Quantity`](#quantity-object)** denominated in a unit more precise than it is capable of settling, it MUST persist the leftover amount. The leftover amounts MUST be settled later after they accumulate to a unit feasible for settlement.
 
 ## Settlement Engine HTTP API
 
@@ -203,7 +203,7 @@ Content-Type: application/json
 
 ```json
 {
-  "id": <accountId>
+  "id": <id>
 }
 ```
 
