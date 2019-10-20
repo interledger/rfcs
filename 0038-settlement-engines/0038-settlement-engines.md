@@ -203,7 +203,7 @@ Content-Type: application/json
 
 ```json
 {
-  "id": <id>
+  "id": "<id>"
 }
 ```
 
