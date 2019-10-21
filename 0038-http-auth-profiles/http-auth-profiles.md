@@ -37,7 +37,7 @@ In order to find this balance, this document defines three Authentication profil
 
 * `JWT_RS_256`: Allows two ILP nodes to utilize public-key pairs to _derive_ a `Bearer token` that conforms to the JSON Web Token (JWT) specification as defined in [RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html) using the `RS_256` signing algorithm defined in section 3.3 of [RFC-7518](https://www.rfc-editor.org/rfc/rfc7518#section-3.3).
 
-Peers MAY use any standard HTTP authentication mechanism to authenticate incoming requests, but SHOULD support `JWT_HS_256` at a minimum. It is RECOMMENDED to use `JWT_RS_256` for production deployments.
+Peers MAY use any standard HTTP authentication mechanism to authenticate incoming requests, but SHOULD support `SIMPLE` and `JWT_HS_256` at a minimum.
 
 #### `SIMPLE` Authentication Profile
 This profile allows two ILP nodes to utilize a previously agreed-upon shared-secret that contains at least 32 bytes (256 bits) of randomly generated data, and is encoded using Base64.
@@ -53,8 +53,6 @@ An example shared-secret in this profile is `HEiMCp0FoAC903QHueY89gAWJHo/izaBnJU
 Auth-Principal: alice-usd-123
 Authorization: Bearer HEiMCp0FoAC903QHueY89gAWJHo/izaBnJU8/58rlSI=
 ``` 
-
-Implementations MAY support this profile, but SHOULD consider it for development purposes only.
  
 ##### Trade-off Summary
 * **Pros**
@@ -155,12 +153,9 @@ This section outlines and clarifies some best practices for authentication-token
 ### Follow Standardized Security Recommendations
 It is advisable to follow all applicable best practices when using a Bearer-token scheme for authentication. [Section 5.1 of RFC-6570](https://tools.ietf.org/html/rfc6750#section-5) contains a number of good practices that should be considered on a per-deployment basis. 
 
-### Use SIMPLE Profile for Development/Testing Only
-The `SIMPLE` authentication profile provides only marginal benefits when compared to the `JWT_HS_256` profile, but introduces significant drawbacks as outlined in the "Trade-off Summary" sections of this RFC. As such, the `SIMPLE` profile MAY be used for development or testing purposes, but SHOULD NOT be used in production scenarios. Instead, prefer `JWT_RS_256` for production deployments.
+### Prefer SIMPLE Profile for Lower-value Scenarios
+The `SIMPLE` authentication profile provides performance and simplicity benefits when compared to the `JWT_HS_256` or `JWT_RS_256` profiles, but introduces important drawbacks as outlined in the "Trade-off Summary" sections of this RFC. As such, the `SIMPLE` profile SHOULD be used for lower-value scenarios when possible.
 
-### Avoid HTTP Basic and Form-based Auth
-HTTP Auth schemes using a username and password are NOT RECOMMENDED for the same reasons that the `SIMPLE` profile is only recommended for development and testing scenarios.
- 
 ### Use Reasonable Token Expiries
 Tokens generators should choose a reasonable token expiry. Considerations in this choice include the ability to cache and re-use tokens for a limited time in order to enable very fast authentication decisions. However, this should be balanced against a desire for shorter token lifetimes, which will limit the attack surface caused by a compromised token.
 
