@@ -73,7 +73,7 @@ This profile allows two ILP nodes to utilize a previously agreed-upon shared-sec
 In order to be considered a valid JWT for this profile, signed JWTs MUST contain the following claims as defined in RFC-7519:
  
  * `sub` (subject): A claim that claim identifies the principal that is the subject of the JWT. See [Section 4.1.2 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.2) for more details.
-* `exp` (expiry): A claim that indicates a date/time after which the token should be considered invalid. Implementations SHOULD reject any tokens with a missing or invalid expiry claim.  See [Section 4.1.4 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.4) for more details.
+* `exp` (expiry): A claim that indicates a date/time after which the token should be considered invalid. Implementations MUST reject any tokens with a missing or invalid expiry claim.  See [Section 4.1.4 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.4) for more details.
 
 Implementations SHOULD reject any tokens with a missing or invalid expiry claim because tokens without this claim never expire, and only become invalid if the shared-secret used to sign the JWT changes or is otherwise invalidated.
 
