@@ -70,7 +70,7 @@ This profile allows two ILP nodes to utilize a previously agreed-upon shared-sec
 ##### JWT Claims
 In order to be considered a valid JWT for this profile, signed JWTs MUST contain the following claims as defined in RFC-7519:
  
- * `sub` (subject): A claim that claim identifies the principal that is the subject of the JWT. See [Section 4.1.2 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.2) for more details.
+ * `sub` (subject): A claim that identifies the principal that is the subject of the JWT. See [Section 4.1.2 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.2) for more details.
 * `exp` (expiry): A claim that indicates a date/time after which the token should be considered invalid. Implementations MUST reject any tokens with a missing or invalid expiry claim.  See [Section 4.1.4 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.4) for more details.
 
 Implementation MAY utilize other claims defined in RFC-7519 such as `iss`, `aud` or others. The claims are optional for this profile on a per-peer deployment basis.
@@ -105,9 +105,9 @@ This profile relies upon JWT tokens that are signed using the `RS_256` signature
 ##### JWT Claims
 In order to be considered a valid JWT for this profile, a signed JWT MUST contain the following claims:
  
- * `iss` (issuer): A claim that claim identifies the principal that issued the JWT. See [Section 4.1.1 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.1) for more details.
- * `sub` (issuer): A claim that claim identifies the principal that is the subject of the JWT. See [Section 4.1.2 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.2) for more details.
- * `aud` (audience): A claim that claim identifies the recipients that the JWT is intended for. See [Section 4.1.3 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.3) for more details.
+ * `iss` (issuer): A claim that identifies the principal that issued the JWT. See [Section 4.1.1 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.1) for more details.
+ * `sub` (issuer): A claim that identifies the principal that is the subject of the JWT. See [Section 4.1.2 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.2) for more details.
+ * `aud` (audience): A claim that identifies the recipients that the JWT is intended for. See [Section 4.1.3 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.3) for more details.
  * `exp` (expiry): A claim that indicates a date/time after which the token should be considered invalid. Implementations SHOULD reject any tokens with a missing or invalid expiry claim.  See [Section 4.1.4 of RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1.4) for more details.
 
 ##### Example Usage
