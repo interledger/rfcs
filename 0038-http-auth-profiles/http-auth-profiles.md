@@ -12,8 +12,7 @@ Many Interledger protocols and software work well using HTTP. For example, [ILP-
 This document defines common profiles that can be used to ensure implementations of Interledger software work securely in an interoperable fashion, while simultaneously allowing Interledger software operators to more clearly understand the trade-offs involved with various security choices.
 
 The profiles defined in this RFC should:
-
-* ...be as simple as possible while also being highly secure. 
+ 
 * ...clearly define any trade-offs involved in choosing a particular profile.
 * ...be easily implementable across programming languages in order to aid broad adoption.
 * ...utilise well-known and broadly deployed protocols in order to increase confidence in the profiles.
