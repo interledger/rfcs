@@ -1,7 +1,7 @@
 ---
 title: Web Monetization
 draft: FINAL
-deprecated: https://adrianhopebailie.github.io/web-monetization/
+deprecated: https://webmonetization.org/specification.html
 ---
 
 # Web Monetization
@@ -173,3 +173,4 @@ Contains the `Monetization ID` (currently referred to as `requestId` in the even
 ```http
 Web-Monetization-Id: dcd479ad-7d8d-4210-956a-13c14b8c67eb
 ```
+
