@@ -1,6 +1,6 @@
 ---
 title: STREAM - A Multiplexed Money and Data Transport for ILP
-draft: 7
+draft: 8 
 ---
 
 # STREAM: A Multiplexed Money and Data Transport for ILP
@@ -174,7 +174,9 @@ Implementations SHOULD wait for a valid response (encrypted with the same shared
 
 #### 4.3.1. Connection Asset Details
 
-Each endpoint MAY expose their asset details by sending a `ConnectionAssetDetails` frame.
+Each endpoint MAY expose their asset details by sending a `ConnectionAssetDetails` frame. This frame is optional because some use-cases do not require it.
+
+Asset details exposed by this frame MUST not change during the lifetime of a Connection.
 
 ### 4.4. Streams
 
@@ -431,6 +433,8 @@ In other words, if a sender resends data (e.g. because a packet was lost), it MU
 |---|---|---|
 | Source Asset Code | Utf8String | Asset code of endpoint that sent the frame. |
 | Source Asset Scale | UInt8 | Asset scale of endpoint that sent the frame. |
+
+Asset details exposed by this frame MUST NOT change during the lifetime of a Connection.
 
 ### 5.4. Error Codes
 
