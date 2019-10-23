@@ -30,7 +30,7 @@ When authenticating requests between Interledger nodes, it is important to choos
 
 In order to find this balance, this document defines three Authentication profiles, each with various trade-offs that should be considered before use:
 
-* `SIMPLE`: Allows two ILP nodes to utilize a previously agreed-upon shared-secret as a [Bearer token](https://tools.ietf.org/html/rfc6750) in all HTTP requests. Peers SHOULD consider this token to be opaque and SHOULD NOT derive any special meaning from the token. 
+* `SIMPLE`: Allows an ILP node to construct a potentially long-lived, randomly generated 32-byte [Bearer token](https://tools.ietf.org/html/rfc6750) that can be used by the producer of the token to authenticate incoming HTTP requests.
 
 * `JWT_HS_256`: Allows two ILP nodes to utilize a previously agreed-upon shared-secret in order to _derive_ a `Bearer token` that conforms to the JSON Web Token (JWT) specification as defined in [RFC-7519](https://www.rfc-editor.org/rfc/rfc7519.html) using the `HS_256` signing algorithm defined in section 3.2 of [RFC-7518](https://www.rfc-editor.org/rfc/rfc7518#section-3.2).
 
@@ -39,29 +39,31 @@ In order to find this balance, this document defines three Authentication profil
 Peers MAY use any standard HTTP authentication mechanism to authenticate incoming requests, but SHOULD support `SIMPLE` and `JWT_HS_256` at a minimum.
 
 #### `SIMPLE` Authentication Profile
-This profile allows two ILP nodes to utilize a previously agreed-upon shared-secret that contains at least 32 bytes (256 bits) of randomly generated data, and is encoded using Base64.
+This profile allows an ILP node to construct a potentially long-lived, randomly generated, 32-byte [Bearer token](https://tools.ietf.org/html/rfc6750) that can used to authenticate incoming HTTP calls.
 
-Because tokens in this profile do not inherently contain information about the identity of the caller, requests MUST contain an additional HTTP request-header named `Auth-Principal`.
- 
-This extra header allows for the identity of the authentication request to be separated from authentication token itself, which reduces computational overhead as well as data-management complexity (e.g., implementations do not need to create data-store indexes using derivations of tokens for lookup purposes).
+More specifically, a `token-user` will supply this token as a credential when making HTTP requests to the `token-producer`. From the perspective of the token-user, tokens SHOULD be treated as opaque with no special meaning inferred from the structure of a token.
 
+A token-producer SHOULD generate unique tokens for each token-user. This will allow the token-producer to control any implementation-specific properties of its tokens, such as expiry, replay-ability, or other characteristics that might apply to any particular use-case. 
+
+For example, a token-producer may wish to create a SIMPLE token that consists of 32 bytes of random data (as required by this profile), but prefix this data with an account-identifier. As long as the token contains at least 32 bytes of random data, and the token-user can treat the token as an opaque string, then this would be a valid token according to the SIMPLE scheme.
+  
 ##### Example Usage
-An example shared-secret in this profile is `HEiMCp0FoAC903QHueY89gAWJHo/izaBnJU8/58rlSI=`. This shared secret is passed as an `Authorization` header in each HTTP request, using the Bearer token scheme, along with an `Auth-Principal` header like this: 
+An example shared-secret in this profile is `user1234:HEiMCp0FoAC903QHueY89gAWJHo/izaBnJU8/58rlSI=`. From the perspective of the token-user, this token is opaque. However, from the perspective of the token-producer, this token includes additional information that can be used to for non-normative purposes.
 
+In an actual HTTP request, this header would look like this:
 ```
-Auth-Principal: alice-usd-123
-Authorization: Bearer HEiMCp0FoAC903QHueY89gAWJHo/izaBnJU8/58rlSI=
+Authorization: Bearer user1234:HEiMCp0FoAC903QHueY89gAWJHo/izaBnJU8/58rlSI=
 ``` 
  
 ##### Trade-off Summary
 * **Pros**
-  * The simplest, most usable Authentication profile -- just a shared-secret with _at least_ 32 bytes and an identity header.
+  * The simplest, most usable profile -- just a string composed of at least 32 random bytes.
   * Very little processing time to verify a token (Note that token verification in this mode should utilize a Constant Time Comparison to avoid [Timing Attacks](https://en.wikipedia.org/wiki/Timing_attack)).
 
 * **Cons**
-  * The shared-secret is transmitted "on the wire" for every request, increasing the chances that it might be intercepted by a compromised TLS session (e.g., a [MITM attack](https://en.wikipedia.org/wiki/Man-in-the-middle_attack)); a TLS termination endpoint (e.g., a Load Balancer); or logged by an internal system during transit.
-  * The shared-secret itself never expires, so if an implementation neglects to rotate the secret with its peer, this token will likely be very long-lived. This increases the chance of compromise by an attacker, and means compromised usage of this type of token could go undetected for very longer periods of time.
-  * Requires out-of-band communication for both peers to agree upon the shared secret.
+  * The token secret is transmitted "on the wire" for every request, increasing the chances that it might be comprised. Compromise might occur through a variety of vectors, including: interception by a compromised TLS session (e.g., a [MITM attack](https://en.wikipedia.org/wiki/Man-in-the-middle_attack)); a TLS termination endpoint that proxies the request (e.g., a Load Balancer); accidental or intentional logging by an internal system; or some other leakage.
+  * Tokens in this scheme are not required to expire, so if an implementation neglects to rotate the token for a particular peer, tokens in this profile will likely be very long-lived. This increases the chance of compromise by an attacker. Additionally, compromised usage of this type of token could go undetected for very longer periods of time.
+  * Requires out-of-band communication for token-users to acquire a token from a token-producer. 
 
 #### `JWT_HS_256` Authentication Profile
 This profile allows two ILP nodes to utilize a previously agreed-upon shared-secret, but then derive an [RFC-7519](https://tools.ietf.org/html/rfc7519) compliant JWT token signed using the `HS_256` algorithm defined in section 3.2 of [RFC-7518](https://www.rfc-editor.org/rfc/rfc7518#section-3.2). This allows either party holding the shared secret to perform actual authentication by verifying the JWT using these algorithms.
@@ -85,16 +87,16 @@ Using the JWT specification, this token can be verified using the shared-secret 
 
 ##### Trade-off Summary
 * **Pros**
-  * Allows both identity and authentication claims to be contained in single Bearer token, which eliminates the need for a second `Auth-Principal` header.
+  * JWT specifies a known encoding to allow both identity and authentication claims to be contained in single Bearer token.
   * Requires only enough processing to perform an HMAC-SHA256 signing operation, which is very fast.
-  * Supports token expiry, which allows tokens to be generally short-lived so that peers can narrow the potential window of unauthorized usage in the event of token compromise.
-  * The actual shared-secret is _never_ transmitted "on the wire" during any request. Instead, authentication tokens are always _derived_ from the shared-secret, which eliminates the risk of an _actual_ shared-secret being intercepted  in transit.
+  * Supports normative token expiry, which allows tokens to be generally short-lived so that peers can narrow the potential window of unauthorized usage in the event of token compromise.
+  * The actual shared-secret is _never_ transmitted "on the wire" during any request. Instead, authentication tokens are always _derived_ from the shared-secret, which limits the risk of token compromise to the window of time that the token is not expired.
 
 * **Cons**
   * More complex than the `SIMPLE` profile.
   * Potentially more computation required due to SHA-256 calculations and JSON serialization/deserialization (though this is somewhat muted if short-lived tokens are re-used across multiple requests).
-  * Total transmitted bytes for authentication are more than the `SIMPLE` scheme (about 41 bytes, or ~50% more). However, HTTP/2 header compression should mitigate this differential.
-  * Requires out-of-band communication for both peers to agree upon the shared secret.
+  * Total transmitted bytes for authentication are slightly more than the `SIMPLE` scheme in the general case.
+  * Requires out-of-band communication for both peers to agree upon the shared secret used to derive tokens.
 
 #### `JWT_RS_256` Authentication Profile
 This profile allows two ILP nodes to utilize public/private keys and an asymmetric signature algorithm to generate and verify auth tokens using different keys for signing and verification.
@@ -131,9 +133,8 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0H891JhR+Stgx81JyZeU48F4VUAS7E/OKvaVG5OjE
 
 ##### Trade-off Summary
 * **Pros**
-  * Similar benefits to the `JWT_HS_256` profile, but more securely supports the issuer claim because each party signs tokens with its own private key. This allows token verifiers to know exactly who generated the token, including allowing for 3rd-party signing.
-  * Supports token expiry, which allows tokens to be generally short-lived so that peers can narrow the potential window of unauthorized usage in the event of token compromise.
-  * Allows for asymmetric key rotation without forcing a peer to change a shared-secret. 
+  * Similar benefits to the `JWT_HS_256` profile, but more securely supports the issuer claim because each party signs tokens with its own private key. This allows token verifiers to affirmatively know exactly who generated the token, for example when employing a 3rd-party token generator such as in delegated authentication scenarios.
+  * Allows for asymmetric key rotation without forcing a peer to change a shared-secret by allowing a peer to advertise at a TLS-encrypted HTTP endpoint conforming to [RFC-7517](https://tools.ietf.org/html/rfc7517).
 
 * **Cons**
   * More complex than the `SIMPLE` and `JWT_HS_256` profile.
