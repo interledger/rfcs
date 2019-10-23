@@ -1,6 +1,6 @@
 ---
 title: The Simple Payment Setup Protocol (SPSP)
-draft: 8
+draft: 9
 ---
 # Simple Payment Setup Protocol (SPSP)
 
@@ -80,7 +80,7 @@ The response MUST contain at least the following headers:
 
 | Header          | Description                                                |
 |:----------------|:-----------------------------------------------------------|
-| `Content-Type`  | MUST be `application/spsp4+json` to indicates the response is encoded as [JSON](http://www.json.org/) and that the ILP payment should be sent via STREAM. |
+| `Content-Type`  | MUST be `application/spsp4+json` to indicate the response is encoded as [JSON](http://www.json.org/) and that the ILP payment should be sent via STREAM. |
 | `Cache-Control` | Indicates how long the SPSP Client should cache the response. See supported cache-control directives below. |
 
 To handle as many transactions per second as possible, the SPSP Client caches results from the SPSP Server. The information returned by the SPSP Server is not expected to change rapidly, so repeated requests for the same information are usually redundant. The SPSP Server communicates how long to cache results for using the HTTP-standard [`Cache-Control` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) in the responses to RESTful API calls.
@@ -145,7 +145,7 @@ Given the open STREAM connection, the SPSP Client begins sending ILP packets of 
 
 Given the open STREAM connection, either the SPSP Client or the Server begins sending ILP packets of data.
 
-The size of the data SHOULD be defined setting STREAM `maxOffset`. Each application built on STREAM and using the principle of data transmission MAY define more restrictive requirements. 
+The size of the data SHOULD be defined by setting STREAM `maxOffset`. Each application built on STREAM and using the principle of data transmission MAY define more restrictive requirements. 
 
 ---
 
