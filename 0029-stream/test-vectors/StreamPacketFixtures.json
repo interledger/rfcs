@@ -1,0 +1,831 @@
+[
+  {
+    "name": "sequence:0",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": []
+    },
+    "buffer": "AQwBAAEAAQA="
+  },
+  {
+    "name": "sequence:max_js",
+    "packet": {
+      "sequence": "9007199254740991",
+      "packetType": 12,
+      "amount": "0",
+      "frames": []
+    },
+    "buffer": "AQwHH////////wEAAQA="
+  },
+  {
+    "name": "sequence:max_uint_64",
+    "packet": {
+      "sequence": "18446744073709551615",
+      "packetType": 12,
+      "amount": "0",
+      "frames": []
+    },
+    "buffer": "AQwI//////////8BAAEA"
+  },
+  {
+    "name": "type:prepare",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": []
+    },
+    "buffer": "AQwBAAEAAQA="
+  },
+  {
+    "name": "type:fulfill",
+    "packet": {
+      "sequence": "0",
+      "packetType": 13,
+      "amount": "0",
+      "frames": []
+    },
+    "buffer": "AQ0BAAEAAQA="
+  },
+  {
+    "name": "type:reject",
+    "packet": {
+      "sequence": "0",
+      "packetType": 14,
+      "amount": "0",
+      "frames": []
+    },
+    "buffer": "AQ4BAAEAAQA="
+  },
+  {
+    "name": "amount:0",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": []
+    },
+    "buffer": "AQwBAAEAAQA="
+  },
+  {
+    "name": "amount:max_js",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "9007199254740991",
+      "frames": []
+    },
+    "buffer": "AQwBAAcf////////AQA="
+  },
+  {
+    "name": "amount:max_uint_64",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "18446744073709551615",
+      "frames": []
+    },
+    "buffer": "AQwBAAj//////////wEA"
+  },
+  {
+    "name": "frame:connection_close",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 1,
+          "name": "ConnectionClose",
+          "errorCode": 1,
+          "errorMessage": "fail"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEBBgEEZmFpbA=="
+  },
+  {
+    "name": "frame:connection_new_address",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 2,
+          "name": "ConnectionNewAddress",
+          "sourceAccount": "example.alice"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQECDg1leGFtcGxlLmFsaWNl"
+  },
+  {
+    "name": "frame:connection_asset_details",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 7,
+          "name": "ConnectionAssetDetails",
+          "sourceAssetCode": "ABC",
+          "sourceAssetScale": 255
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEHBQNBQkP/"
+  },
+  {
+    "name": "frame:connection_max_data:0",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 3,
+          "name": "ConnectionMaxData",
+          "maxOffset": "0"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEDAgEA"
+  },
+  {
+    "name": "frame:connection_max_data:max_js",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 3,
+          "name": "ConnectionMaxData",
+          "maxOffset": "9007199254740991"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEDCAcf////////"
+  },
+  {
+    "name": "frame:connection_max_data:max_uint_64",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 3,
+          "name": "ConnectionMaxData",
+          "maxOffset": "18446744073709551615"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEDCQj//////////w=="
+  },
+  {
+    "name": "frame:connection_data_blocked:0",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 4,
+          "name": "ConnectionDataBlocked",
+          "maxOffset": "0"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEEAgEA"
+  },
+  {
+    "name": "frame:connection_data_blocked:max_js",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 4,
+          "name": "ConnectionDataBlocked",
+          "maxOffset": "9007199254740991"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEECAcf////////"
+  },
+  {
+    "name": "frame:connection_data_blocked:max_uint_64",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 4,
+          "name": "ConnectionDataBlocked",
+          "maxOffset": "18446744073709551615"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEECQj//////////w=="
+  },
+  {
+    "name": "frame:connection_max_stream_id:0",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 5,
+          "name": "ConnectionMaxStreamId",
+          "maxStreamId": "0"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEFAgEA"
+  },
+  {
+    "name": "frame:connection_max_stream_id:max_js",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 5,
+          "name": "ConnectionMaxStreamId",
+          "maxStreamId": "9007199254740991"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEFCAcf////////"
+  },
+  {
+    "name": "frame:connection_max_stream_id:max_uint_64",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 5,
+          "name": "ConnectionMaxStreamId",
+          "maxStreamId": "18446744073709551615"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEFCQj//////////w=="
+  },
+  {
+    "name": "frame:connection_stream_id_blocked:0",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 6,
+          "name": "ConnectionStreamIdBlocked",
+          "maxStreamId": "0"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEGAgEA"
+  },
+  {
+    "name": "frame:connection_stream_id_blocked:max_js",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 6,
+          "name": "ConnectionStreamIdBlocked",
+          "maxStreamId": "9007199254740991"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEGCAcf////////"
+  },
+  {
+    "name": "frame:connection_stream_id_blocked:max_uint_64",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 6,
+          "name": "ConnectionStreamIdBlocked",
+          "maxStreamId": "18446744073709551615"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEGCQj//////////w=="
+  },
+  {
+    "name": "frame:stream_close",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 16,
+          "name": "StreamClose",
+          "streamId": "123",
+          "errorCode": 255,
+          "errorMessage": "an error message"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEQFAF7/xBhbiBlcnJvciBtZXNzYWdl"
+  },
+  {
+    "name": "frame:stream_money:0",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 17,
+          "name": "StreamMoney",
+          "streamId": "123",
+          "shares": "0"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQERBAF7AQA="
+  },
+  {
+    "name": "frame:stream_money:max_js",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 17,
+          "name": "StreamMoney",
+          "streamId": "123",
+          "shares": "9007199254740991"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQERCgF7Bx////////8="
+  },
+  {
+    "name": "frame:stream_money:max_uint_64",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 17,
+          "name": "StreamMoney",
+          "streamId": "123",
+          "shares": "18446744073709551615"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQERCwF7CP//////////"
+  },
+  {
+    "name": "frame:stream_max_money:receive_max:0",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 18,
+          "name": "StreamMaxMoney",
+          "streamId": "123",
+          "receiveMax": "0",
+          "totalReceived": "456"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQESBwF7AQACAcg="
+  },
+  {
+    "name": "frame:stream_max_money:receive_max:max_js",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 18,
+          "name": "StreamMaxMoney",
+          "streamId": "123",
+          "receiveMax": "9007199254740991",
+          "totalReceived": "456"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQESDQF7Bx////////8CAcg="
+  },
+  {
+    "name": "frame:stream_max_money:receive_max:max_uint_64",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 18,
+          "name": "StreamMaxMoney",
+          "streamId": "123",
+          "receiveMax": "18446744073709551615",
+          "totalReceived": "456"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQESDgF7CP//////////AgHI"
+  },
+  {
+    "name": "frame:stream_max_money:total_received:0",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 18,
+          "name": "StreamMaxMoney",
+          "streamId": "123",
+          "receiveMax": "456",
+          "totalReceived": "0"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQESBwF7AgHIAQA="
+  },
+  {
+    "name": "frame:stream_max_money:total_received:max_js",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 18,
+          "name": "StreamMaxMoney",
+          "streamId": "123",
+          "receiveMax": "456",
+          "totalReceived": "9007199254740991"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQESDQF7AgHIBx////////8="
+  },
+  {
+    "name": "frame:stream_max_money:total_received:max_uint_64",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 18,
+          "name": "StreamMaxMoney",
+          "streamId": "123",
+          "receiveMax": "456",
+          "totalReceived": "18446744073709551615"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQESDgF7AgHICP//////////"
+  },
+  {
+    "name": "frame:stream_money_blocked:send_max:0",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 19,
+          "name": "StreamMoneyBlocked",
+          "streamId": "123",
+          "sendMax": "0",
+          "totalSent": "456"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQETBwF7AQACAcg="
+  },
+  {
+    "name": "frame:stream_money_blocked:send_max:max_js",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 19,
+          "name": "StreamMoneyBlocked",
+          "streamId": "123",
+          "sendMax": "9007199254740991",
+          "totalSent": "456"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQETDQF7Bx////////8CAcg="
+  },
+  {
+    "name": "frame:stream_money_blocked:send_max:max_uint_64",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 19,
+          "name": "StreamMoneyBlocked",
+          "streamId": "123",
+          "sendMax": "18446744073709551615",
+          "totalSent": "456"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQETDgF7CP//////////AgHI"
+  },
+  {
+    "name": "frame:stream_money_blocked:total_sent:0",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 19,
+          "name": "StreamMoneyBlocked",
+          "streamId": "123",
+          "sendMax": "456",
+          "totalSent": "0"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQETBwF7AgHIAQA="
+  },
+  {
+    "name": "frame:stream_money_blocked:total_sent:max_js",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 19,
+          "name": "StreamMoneyBlocked",
+          "streamId": "123",
+          "sendMax": "456",
+          "totalSent": "9007199254740991"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQETDQF7AgHIBx////////8="
+  },
+  {
+    "name": "frame:stream_money_blocked:total_sent:max_uint_64",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 19,
+          "name": "StreamMoneyBlocked",
+          "streamId": "123",
+          "sendMax": "456",
+          "totalSent": "18446744073709551615"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQETDgF7AgHICP//////////"
+  },
+  {
+    "name": "frame:stream_data",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 20,
+          "name": "StreamData",
+          "streamId": "123",
+          "offset": "456",
+          "data": "Zm9vYmFy"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEUDAF7AgHIBmZvb2Jhcg=="
+  },
+  {
+    "name": "frame:stream_data:offset:0",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 20,
+          "name": "StreamData",
+          "streamId": "123",
+          "offset": "0",
+          "data": ""
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEUBQF7AQAA"
+  },
+  {
+    "name": "frame:stream_data:offset:max_js",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 20,
+          "name": "StreamData",
+          "streamId": "123",
+          "offset": "9007199254740991",
+          "data": ""
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEUCwF7Bx////////8A"
+  },
+  {
+    "name": "frame:stream_data:offset:max_uint_64",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 20,
+          "name": "StreamData",
+          "streamId": "123",
+          "offset": "18446744073709551615",
+          "data": ""
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEUDAF7CP//////////AA=="
+  },
+  {
+    "name": "frame:stream_max_data:offset:0",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 21,
+          "name": "StreamMaxData",
+          "streamId": "123",
+          "maxOffset": "0"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEVBAF7AQA="
+  },
+  {
+    "name": "frame:stream_max_data:offset:max_js",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 21,
+          "name": "StreamMaxData",
+          "streamId": "123",
+          "maxOffset": "9007199254740991"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEVCgF7Bx////////8="
+  },
+  {
+    "name": "frame:stream_max_data:offset:max_uint_64",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 21,
+          "name": "StreamMaxData",
+          "streamId": "123",
+          "maxOffset": "18446744073709551615"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEVCwF7CP//////////"
+  },
+  {
+    "name": "frame:stream_data_blocked:offset:0",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 22,
+          "name": "StreamDataBlocked",
+          "streamId": "123",
+          "maxOffset": "0"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEWBAF7AQA="
+  },
+  {
+    "name": "frame:stream_data_blocked:offset:max_js",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 22,
+          "name": "StreamDataBlocked",
+          "streamId": "123",
+          "maxOffset": "9007199254740991"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEWCgF7Bx////////8="
+  },
+  {
+    "name": "frame:stream_data_blocked:offset:max_uint_64",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 22,
+          "name": "StreamDataBlocked",
+          "streamId": "123",
+          "maxOffset": "18446744073709551615"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEWCwF7CP//////////"
+  },
+  {
+    "name": "frame:stream_max_money:receive_max:too_big",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 18,
+          "name": "StreamMaxMoney",
+          "streamId": "123",
+          "receiveMax": "18446744073709551615",
+          "totalReceived": "456"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQESDwF7CQEAAAAAAAAAAAIByA==",
+    "decode_only": true
+  },
+  {
+    "name": "frame:stream_money_blocked:send_max:too_big",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 19,
+          "name": "StreamMoneyBlocked",
+          "streamId": "123",
+          "sendMax": "18446744073709551615",
+          "totalSent": "456"
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQETDwF7CQEAAAAAAAAAAAIByA==",
+    "decode_only": true
+  }
+]
