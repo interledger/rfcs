@@ -46,6 +46,8 @@ More specifically, a `token-user` will supply this token as a credential when ma
 A token-producer SHOULD generate unique tokens for each token-user. This will allow the token-producer to control any implementation-specific properties of its tokens, such as expiry, replay-ability, or other characteristics that might apply to any particular use-case. 
 
 For example, a token-producer may wish to create a SIMPLE token that consists of 32 bytes of random data (as required by this profile), but prefix this data with an account-identifier. As long as the token contains at least 32 bytes of random data, and the token-user can treat the token as an opaque string, then this would be a valid token according to the SIMPLE scheme.
+
+Token distribution from the token-producer to the token-consumer is out of scope for this RFC.
   
 ##### Example Usage
 An example shared-secret in this profile is `user1234:HEiMCp0FoAC903QHueY89gAWJHo/izaBnJU8/58rlSI=`. From the perspective of the token-user, this token is opaque. However, from the perspective of the token-producer, this token includes additional information that can be used to for non-normative purposes.
