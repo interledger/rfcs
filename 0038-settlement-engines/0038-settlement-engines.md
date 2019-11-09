@@ -1,6 +1,6 @@
 ---
 title: Settlement Engines
-draft: 1
+draft: 2
 ---
 
 # Settlement Engines
@@ -319,7 +319,7 @@ Content-Type: application/octet-stream
 #### Response
 
 ```http
-HTTP/1.1 201 OK
+HTTP/1.1 201 Created
 Content-Type: application/octet-stream
 ```
 
