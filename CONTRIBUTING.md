@@ -27,10 +27,10 @@ The process differentiates between specifications that are incubating (similar t
 Theare are three document types: *Proposals*, *Working Drafts*, and *Candidate Specifications*.
 
 ### Proposals
-A _Proposal_ is an RFC document that proposes some new feature, protocol or idea related to Interledger. The criteria for getting a proposal document merged is minimal: project maintainers will review the document to ensure style conformance and applicability to Interledger standards, but will otherwise require not require editorial fixes before allowing a proposal to be published.
+A _Proposal_ is an RFC document that proposes some new feature, protocol or idea related to Interledger. The criteria for getting a proposal document merged is minimal: project maintainers will review the document to ensure style conformance and applicability to Interledger standards, but will otherwise not require editorial fixes before allowing a proposal to be published.
 
-#### Publish a Proposal
-To publish a new Proposal, submit a Pull Request to the [RFC Proposals repo](https://github.com/interledger/rfcs/proposals) with a new Markdown file. The file MUST follow the naming convention `0000-title`, where title is a lower case title with spaces replaced by hyphens (`-`), and have front-matter (similar to GitHub pages rendered from MarkDown) specifying at least a `title` and `draft` (an integer, starting at 1 and incrementing with each revision of the RFC).
+#### Publishing a Proposal
+To publish a new Proposal, submit a Pull Request to the [RFC Proposals repo](https://github.com/interledger/rfcs/proposals) with a new Markdown file. The file MUST follow the naming convention `0000-title`, where title is a lower case title with spaces replaced by hyphens (`-`), and have front-matter (similar to GitHub pages rendered from MarkDown) specifying at least a `title`, `type`, and `draft` (an integer, starting at 1 and incrementing with each revision of the RFC). The `type` MUST have the value `proposal`.
 
 Example:
 ```markdown
@@ -50,7 +50,9 @@ A _Working Draft_ is an RFC that has gained significant consensus support from t
 #### Publishing a Working Draft
 Assuming there is consensus to publish, one of the project maintainers will review the submission and assign an RFC number to the document, making a follow up commit to the PR which renames the file as appropriate. 
 
-The maintainer will move the document into the [RFC Working Drafts repo](https://github.com/interledger/rfcs/working-drafts). Subsequent updates to the document will trigger a publishing workflow that creates an HTML rendered version of the document that contains a permalink to the draft. Each revision must increment the `draft` number in the front-matter or the publishing will fail.
+The maintainer will move the document into the [RFC Working Drafts repo](https://github.com/interledger/rfcs/working-drafts) and update the `type` to be `working-draft`. 
+
+Subsequent updates to the document will trigger a publishing workflow that creates an HTML rendered version of the document that contains a permalink to the draft. Each revision must increment the `draft` number in the front-matter or the publishing will fail.
 
 Example:
 ```markdown
@@ -70,7 +72,9 @@ A _Candidate Specification_ is a document that was previously a Working Draft RF
 #### Publishing a Candidate Specification
 When a Working Draft is considered stable there is a call for review from the community to publish the document as a Candidate Specification.
 
-Assuming there is consensus to publish, a maintainer will move the document into the [RFCs repo](https://github.com/interledger/rfcs). Once published as a Candidate Specifiation, no further substantive changes are allowed under the same RFC number (the draft number changes to FINAL).
+Assuming there is consensus to publish, a maintainer will move the document into the [RFCs repo](https://github.com/interledger/rfcs) and update the `type` to `candidate-specification`. 
+
+Once published as a Candidate Specification, no further substantive changes are allowed under the same RFC number (the draft number changes to FINAL).
 
 Candidate Specifications may also be published in a W3C Community Group report and may be published as an IETF Internet Draft, if appropriate.
 
