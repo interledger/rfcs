@@ -1,5 +1,6 @@
 ---
 title: Interledger HTTP Authentication Profiles
+type: proposal
 draft: 1
 ---
 
