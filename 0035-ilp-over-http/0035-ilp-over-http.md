@@ -4,6 +4,7 @@ draft: 2
 ---
 
 # ILP Over HTTP
+
 > A bilateral communication protocol for server-to-server connections
 
 ## Motivation
@@ -24,7 +25,9 @@ This is a minimal protocol built on HTTP. HTTP/2 is HIGHLY RECOMMENDED for perfo
 
 Peers MAY use any standard HTTP authentication mechanism to authenticate incoming requests. TLS Client Certificates are RECOMMENDED between peers for security and performance, though bearer tokens such as JSON Web Tokens (JWTs) or Macaroons MAY be used instead. Basic authentication (username and password) is NOT RECOMMENDED, because of the additional delay introduced by securely hashing the password.
 
-### Request
+### ILP Prepare
+
+#### Request
 
 ```http
 POST /ilp HTTP/x.x
@@ -32,18 +35,24 @@ Host: example.com
 Accept: application/octet-stream
 Content-Type: application/octet-stream
 Authorization: Bearer zxcljvoizuu09wqqpowipoalksdflksjdgxclvkjl0s909asdf
+Idempotency-Key: 8988dd17-55e4-40e0-9c57-419d81a0e3a5
 
 < Body: Binary OER-Encoded ILP Prepare Packet >
 ```
 
-**Field Details:**
+- **Path** &mdash; A connector MAY specify any HTTP path for their peer to send ILP packets to.
+- **Host Header** &mdash; The standard [HTTP Host Header](https://tools.ietf.org/html/rfc2616#section-14.23) indicating the domain of the HTTP server the Request is sent to.
+- **Content-Type / Accept Headers** &mdash; MUST be set to `application/octet-stream`.
+- **Idempotency Key Header** &mdash; Globally unique string identifying this request, which MUST be derived from a cryptographically secure source of randomness.
+- **Body** &mdash; ILP Packet encoded using OER, as specified in [RFC 27: Interledger Protocol V4](./0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 
-- **Path** - A connector MAY specify any HTTP path for their peer to send ILP packets to.
-- **Host Header** - The standard [HTTP Host Header](https://tools.ietf.org/html/rfc2616#section-14.23) indicating the domain of the HTTP server the Request is sent to.
-- **Content-Type / Accept Headers** - MUST be set to `application/octet-stream`.
-- **Body** - ILP Packet encoded using OER, as specified in [RFC 27: Interledger Protocol V4](./0027-interledger-protocol-4/0027-interledger-protocol-4.md).
+#### Response
 
-### Response
+```http
+HTTP/x.x 200 OK
+```
+
+For backwards compatibility with [RFC 35: ILP over HTTP (draft 2)](https://interledger.org/rfcs/0035-ilp-over-http/draft-2.html), if no `Idempotency-Key` header is included, the raw OER-encoded ILP Fulfill or Reject MUST be returned within the body of the response:
 
 ```http
 HTTP/x.x 200 OK
@@ -52,7 +61,48 @@ Content-Type: application/octet-stream
 < Body: Binary OER-Encoded ILP Fulfill or Reject Packet >
 ```
 
-All ILP Packets MUST be returned with the HTTP status code `200: OK`.
+### ILP Fulfill/Reject
 
-An endpoint MAY return standard HTTP errors, including but not limited to: a malformed or unauthenticated request, rate limiting, or an unresponsive upstream service. Connectors SHOULD either retry the request, if applicable, or relay an ILP Reject packet back to the original sender with an appropriate [Final or Temporary error code](./0027-interledger-protocol-4/0027-interledger-protocol-4#error-codes). Server errors (status codes 500-599) SHOULD be translated into ILP Reject packets with `T00: Temporary Error` codes.
+#### Request
 
+```http
+POST /ilp HTTP/x.x
+Host: example.com
+Content-Type: application/octet-stream
+Authorization: Bearer zxcljvoizuu09wqqpowipoalksdflksjdgxclvkjl0s909asdf
+Idempotency-Key: 8988dd17-55e4-40e0-9c57-419d81a0e3a5
+
+< Body: Binary OER-Encoded ILP Fulfill or Reject Packet >
+```
+
+- **Path** &mdash; A connector MAY specify any HTTP path for their peer to send ILP packets to.
+- **Host Header** &mdash; The standard [HTTP Host Header](https://tools.ietf.org/html/rfc2616#section-14.23) indicating the domain of the HTTP server the Request is sent to.
+- **Content-Type Header** &mdash; MUST be set to `application/octet-stream`.
+- **Idempotency Key Header** &mdash; Same idempotency key used in the corresponding ILP Prepare.
+- **Body** &mdash; ILP Packet encoded using OER, as specified in [RFC 27: Interledger Protocol V4](./0027-interledger-protocol-4/0027-interledger-protocol-4.md).
+
+#### Response
+
+```http
+HTTP/x.x 200 OK
+```
+
+### Error Handling
+
+All semantically valid requests accepted for processing MUST be returned with the HTTP status code `200 OK`, even if the packet is ultimately rejected.
+
+An endpoint MAY return standard HTTP errors, including but not limited to: a malformed or unauthenticated request, rate limiting, or an unresponsive upstream service. Connectors SHOULD relay an ILP Reject packet back to the original sender with an appropriate [Final or Temporary error code](./0027-interledger-protocol-4/0027-interledger-protocol-4#error-codes). Server errors (status codes 500-599) SHOULD be translated into ILP Reject packets with `T00: Temporary Error` codes.
+
+### Idempotence Behavior
+
+Every Interledger packet corresponds to a transaction that may affect financial accounting balances. If a request fails, such as due to a network connection error, retrying ILP requests and responses with [idempotence](https://en.wikipedia.org/wiki/Idempotence) can prevent balance inconsistencies between peers.
+
+To enable this functionality, the two phases of an ILP packet lifecycle are separated into two different HTTP requests: one for the ILP Prepare, and one for the corresponding ILP Fulfill or ILP Reject.
+
+Responses with an HTTP `200 OK` status attest that the packet has been successfully accepted for processing, even if the packet may not necessarily be forwarded. If the connector responds with an HTTP `5xx` or `409 Conflict` status, the client SHOULD retry the request with the same idempotency key.
+
+If no HTTP response is received within a given timeout, clients should retry sending the packet with the same idempotency key. Clients SHOULD ensure there are multiple attempts to deliver the packet to the peer before the corresponding ILP Prepare expires.
+
+When a connector begins processing an incoming ILP Prepare with an idempotency key it has not already tracked, it MUST persist that key. If a subsequent request is encountered with the same idempotency key, the packet should be ignored, and the connector should respond with the same `200 OK` status. For safety, the connector MUST persist each idempotency key until the corresponding ILP Prepare expires.
+
+Since ILP Prepare expirations are typically on the order of seconds and the transport layer will handle flow control, exponential backoff and jitter for retries are unnecessary.
