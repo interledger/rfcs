@@ -35,6 +35,7 @@ Host: example.com
 Accept: application/octet-stream
 Content-Type: application/octet-stream
 Authorization: Bearer zxcljvoizuu09wqqpowipoalksdflksjdgxclvkjl0s909asdf
+Request-Id: 42ee09c8-a6de-4ae3-8a47-4732b0cbb07b
 Idempotency-Key: 8988dd17-55e4-40e0-9c57-419d81a0e3a5
 
 < Body: Binary OER-Encoded ILP Prepare Packet >
@@ -43,7 +44,8 @@ Idempotency-Key: 8988dd17-55e4-40e0-9c57-419d81a0e3a5
 - **Path** &mdash; A connector MAY specify any HTTP path for their peer to send ILP packets to.
 - **Host Header** &mdash; The standard [HTTP Host Header](https://tools.ietf.org/html/rfc2616#section-14.23) indicating the domain of the HTTP server the Request is sent to.
 - **Content-Type / Accept Headers** &mdash; MUST be set to `application/octet-stream`.
-- **Idempotency Key Header** &mdash; Globally unique string identifying this request, which MUST be derived from a cryptographically secure source of randomness.
+- **Request ID Header** &mdash; UUIDv4 to correlate the corresponding ILP Fulfill/Reject with this ILP Prepare, generated from a cryptographically secure source of randomness.
+- **Idempotency Key Header** &mdash; UUIDv4 to uniquely identify this packet, generated from a cryptographically secure source of randomness.
 - **Body** &mdash; ILP Packet encoded using OER, as specified in [RFC 27: Interledger Protocol V4](./0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 
 #### Response
@@ -70,7 +72,8 @@ POST /ilp HTTP/x.x
 Host: example.com
 Content-Type: application/octet-stream
 Authorization: Bearer zxcljvoizuu09wqqpowipoalksdflksjdgxclvkjl0s909asdf
-Idempotency-Key: 8988dd17-55e4-40e0-9c57-419d81a0e3a5
+Request-Id: 42ee09c8-a6de-4ae3-8a47-4732b0cbb07b
+Idempotency-Key: 6ff99499-008e-4499-8644-048450627496
 
 < Body: Binary OER-Encoded ILP Fulfill or Reject Packet >
 ```
@@ -78,7 +81,8 @@ Idempotency-Key: 8988dd17-55e4-40e0-9c57-419d81a0e3a5
 - **Path** &mdash; A connector MAY specify any HTTP path for their peer to send ILP packets to.
 - **Host Header** &mdash; The standard [HTTP Host Header](https://tools.ietf.org/html/rfc2616#section-14.23) indicating the domain of the HTTP server the Request is sent to.
 - **Content-Type Header** &mdash; MUST be set to `application/octet-stream`.
-- **Idempotency Key Header** &mdash; Same idempotency key used in the corresponding ILP Prepare.
+- **Request ID Header** &mdash; Request ID from the corresponding ILP Prepare, which is a UUIDv4.
+- **Idempotency Key Header** &mdash; UUIDv4 to uniquely identify this packet, generated from a cryptographically secure source of randomness.
 - **Body** &mdash; ILP Packet encoded using OER, as specified in [RFC 27: Interledger Protocol V4](./0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 
 #### Response
