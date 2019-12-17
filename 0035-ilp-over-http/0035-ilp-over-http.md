@@ -91,6 +91,12 @@ Idempotency-Key: 6ff99499-008e-4499-8644-048450627496
 HTTP/x.x 200 OK
 ```
 
+If the request ID doesn't correspond to an in-flight ILP Prepare, the connector should ignore it and return an error:
+
+```http
+HTTP/x.x 400 Bad Request
+```
+
 ### Error Handling
 
 All semantically valid requests accepted for processing MUST be returned with the HTTP status code `200 OK`, even if the packet is ultimately rejected.
