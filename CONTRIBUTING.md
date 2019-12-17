@@ -93,4 +93,4 @@ Lorum Ipsum etc
 ```
 
 ### Rejected RFCs
-An RFC document may be rejected phase after public discussion has settled and comments have been made summarizing the rationale for rejection. A member of the core team will move rejected proposals to the [/rejected](https://github.com/interledger/rfcs/rejected) folder in this repo.
+An RFC document may be rejected after public discussion has settled and comments have been made summarizing the rationale for rejection. A member of the core team will move rejected proposals to the [/rejected](https://github.com/interledger/rfcs/rejected) folder in this repo.
