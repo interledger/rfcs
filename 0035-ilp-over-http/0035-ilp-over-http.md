@@ -111,8 +111,10 @@ To enable this functionality, the two phases of an ILP packet lifecycle are sepa
 
 Responses with an HTTP `200 OK` status attest that the packet has been successfully accepted for processing, even if the packet may not necessarily be forwarded. If the connector responds with an HTTP `5xx` or `409 Conflict` status, the client SHOULD retry the request with the same idempotency key.
 
-If no HTTP response is received within a given timeout, clients should retry sending the packet with the same idempotency key. Clients SHOULD ensure there are multiple attempts to deliver the packet to the peer before the corresponding ILP Prepare expires.
+If no HTTP response is received within a given timeout, clients SHOULD retry sending the packet with the same idempotency key. Clients SHOULD ensure there are multiple attempts to deliver the packet to the peer before the corresponding ILP Prepare expires.
 
-When a connector begins processing an incoming ILP Prepare with an idempotency key it has not already tracked, it MUST persist that key. If a subsequent request is encountered with the same idempotency key, the packet should be ignored, and the connector should respond with the same `200 OK` status. For safety, the connector MUST persist each idempotency key until the corresponding ILP Prepare expires.
+**NOTE:** Clients MUST ensure their peer supports [RFC 35: ILP over HTTP](.) draft 3 or later before retrying ILP Prepare requests to prevent duplicate side effects.
+
+When a connector begins processing an incoming packet with an idempotency key it has not already tracked, it MUST persist that key. If a subsequent request of the same type (ILP Prepare, or ILP Fulfill/Reject) is encountered with the same idempotency key, the packet should be ignored, and the connector should respond with the same `200 OK` status. For safety, the connector MUST persist each idempotency key until the corresponding ILP Prepare expires.
 
 Since ILP Prepare expirations are typically on the order of seconds and the transport layer will handle flow control, exponential backoff and jitter for retries are unnecessary.
