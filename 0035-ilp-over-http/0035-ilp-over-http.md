@@ -54,7 +54,7 @@ Idempotency-Key: 8988dd17-55e4-40e0-9c57-419d81a0e3a5
 HTTP/x.x 200 OK
 ```
 
-For backwards compatibility with [RFC 35: ILP over HTTP (draft 2)](https://interledger.org/rfcs/0035-ilp-over-http/draft-2.html), if no `Idempotency-Key` header is included, the raw OER-encoded ILP Fulfill or Reject MUST be returned within the body of the response:
+If no `Idempotency-Key` header is included in the HTTP request, then the raw OER-encoded ILP Fulfill or Reject MUST be returned within the body of the response:
 
 ```http
 HTTP/x.x 200 OK
