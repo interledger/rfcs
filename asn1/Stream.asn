@@ -67,7 +67,8 @@ FrameSet FRAME ::= {
   {19 StreamMoneyBlocked} |
   {20 StreamData} |
   {21 StreamMaxData} |
-  {22 StreamDataBlocked}
+  {22 StreamDataBlocked} |
+  {23 StreamReceipt]}
 }
 
 StreamFrame ::= SEQUENCE {
@@ -172,6 +173,14 @@ StreamDataBlocked ::= SEQUENCE {
 
   -- Maximum number of bytes the endpoint wants to send on this stream
   maxOffset VarUInt
+}
+
+StreamReceipt ::= SEQUENCE {
+  -- Identifier of the stream
+  streamId VarUInt,
+
+  -- Receipt for verifying the total amount received on this stream
+  receipt VarBytes
 }
 
 END

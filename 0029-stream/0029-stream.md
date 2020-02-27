@@ -1,6 +1,6 @@
 ---
 title: STREAM - A Multiplexed Money and Data Transport for ILP
-draft: 8 
+draft: 9
 ---
 
 # STREAM: A Multiplexed Money and Data Transport for ILP
@@ -55,6 +55,7 @@ This document specifies the STREAM Interledger Transport protocol, which provide
     - [5.3.12. `StreamMaxData` Frame](#5312-streammaxdata-frame)
     - [5.3.13. `StreamDataBlocked` Frame](#5313-streamdatablocked-frame)
     - [5.3.14. `ConnectionAssetDetails` Frame](#5314-connectionassetdetails-frame)
+    - [5.3.15. `StreamReceipt` Frame](#5315-streamreceipt-frame)
   - [5.4. Error Codes](#54-error-codes)
 - [6. Condition and Fulfillment Generation](#6-condition-and-fulfillment-generation)
   - [6.1. Unfulfillable Condition](#61-unfulfillable-condition)
@@ -192,6 +193,8 @@ Client streams MUST be odd-numbered starting with 1 and server-initiated streams
 
 Money can be sent for a given stream by sending an ILP Prepare packet with a non-zero `amount` and a `StreamMoney` frame in the STREAM packet to indicate which stream the money is for. A single ILP Prepare can carry value destined for multiple streams and the `shares` field in each of the `StreamMoney` frames indicates what portion of the Prepare amount should go to each stream.
 
+The receiver MAY include `StreamReceipt` frames in the ILP Fulfill packet indicating the total amount of money received in each stream. Receipts can be verified, in order to verify payment, using a secret that is pre-shared with the receiver.
+
 #### 4.4.3. Sending Data
 
 Data can be sent for a given stream by sending an ILP Prepare packet with a `StreamData` frame in the STREAM packet. A single ILP Prepare can carry data destined for multiple streams.
@@ -313,6 +316,7 @@ The frame types are as follows and each is described in greater detail below:
 | `0x14` | Stream Data |
 | `0x15` | Stream Data Max |
 | `0x16` | Stream Data Blocked |
+| `0x17` | Stream Receipt |
 
 #### 5.3.1. `ConnectionClose` Frame
 
@@ -435,6 +439,23 @@ In other words, if a sender resends data (e.g. because a packet was lost), it MU
 | Source Asset Scale | UInt8 | Asset scale of endpoint that sent the frame. |
 
 Asset details exposed by this frame MUST NOT change during the lifetime of a Connection.
+
+#### 5.3.15. `StreamReceipt` Frame
+
+| Field | Type | Description |
+|---|---|---|
+| Stream ID | VarUInt | Identifier of the stream this frame refers to. |
+| Receipt | VarOctetString | Proof provided by the receiver of the total amount received on this stream |
+
+The `Receipt` MUST contain the following fields encoded using the [Octet Encoding Rules (OER)](http://www.oss.com/asn1/resources/books-whitepapers-pubs/Overview_of_OER.pdf):
+
+| Field | Type | Description |
+|---|---|---|
+| Receipt Nonce | VarOctetString | A random nonce pre-shared between the verifying party and the receiver used to identify the STREAM connection. |
+| Stream ID | VarUInt | Identifier of the stream this receipt refers to. |
+| Total Received | VarUInt | Total amount, denominated in the units of the receiver, that the receiver has received on this stream thus far. |
+| Stream Start Time | VarUInt | A timestamp referring to the time that the stream was established at the receiver. |
+| HMAC | VarOctetString | HMAC over all other fields using a secret pre-shared between the verifying party and the receiver. |
 
 ### 5.4. Error Codes
 

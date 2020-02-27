@@ -1,6 +1,6 @@
 ---
 title: The Simple Payment Setup Protocol (SPSP)
-draft: 9
+draft: 10
 ---
 # Simple Payment Setup Protocol (SPSP)
 
@@ -24,6 +24,7 @@ SPSP provides for exchanging basic server details needed by a client to set up a
 * **SPSP Server** - The application that handles incoming SPSP requests from the SPSP Client.
 * **SPSP Endpoint** - The specific HTTPS endpoint on the SPSP Server used for setting up a payment.
 * **STREAM Module** - Software included in the SPSP Client and Server that implements the [STREAM](../0029-stream/0029-stream.md) protocol.
+* **STREAM Receipt** - Proof provided by the payment recipient of the total amount received on a stream.
 
 ### Interfaces
 
@@ -61,6 +62,17 @@ GET /.well-known/pay HTTP/1.1
 Host: example.com
 Accept: application/spsp4+json, application/spsp+json
 ```
+
+##### Request Headers
+
+The request MAY contain at least the following headers in order to pre-share STREAM Receipt details between the SPSP Server and a party verifying payments sent to the SPSP Server:
+
+| Header          | Description                                                |
+|:----------------|:-----------------------------------------------------------|
+| `Receipt-Nonce`  | A random nonce used to identify the STREAM connection in STREAM Receipts. |
+| `Receipt-Secret` | The key used to generate a STREAM Receipt's HMAC. |
+
+The SPSP Client MAY be provided with an SPSP Endpoint belonging to the receipt verifier, which would add the receipt headers and proxy the query to the SPSP Server.
 
 #### Response
 ``` http
