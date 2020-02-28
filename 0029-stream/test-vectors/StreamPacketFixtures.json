@@ -801,11 +801,11 @@
           "type": 23,
           "name": "StreamReceipt",
           "streamId": "123",
-          "receipt": "Zm9vYmFy"
+          "receipt": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         }
       ]
     },
-    "buffer": "AQwBAAEAAQEXCQF7BmZvb2Jhcg=="
+    "buffer": "AQwBAAEAAQEXSgF7AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
   },
   {
     "name": "frame:stream_max_money:receive_max:too_big",

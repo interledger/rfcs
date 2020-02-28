@@ -69,8 +69,8 @@ The request MAY contain at least the following headers in order to pre-share STR
 
 | Header          | Description                                                |
 |:----------------|:-----------------------------------------------------------|
-| `Receipt-Nonce`  | A random nonce used to identify the STREAM connection in STREAM Receipts. |
-| `Receipt-Secret` | The key used to generate a STREAM Receipt's HMAC. |
+| `Receipt-Nonce`  | A 16-byte random nonce used to identify the STREAM connection in STREAM Receipts. |
+| `Receipt-Secret` | The 32-byte key used to generate a STREAM Receipt's HMAC. |
 
 The SPSP Client MAY be provided with an SPSP Endpoint belonging to the receipt verifier, which would add the receipt headers and proxy the query to the SPSP Server.
 

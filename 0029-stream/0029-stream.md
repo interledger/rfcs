@@ -445,17 +445,18 @@ Asset details exposed by this frame MUST NOT change during the lifetime of a Con
 | Field | Type | Description |
 |---|---|---|
 | Stream ID | VarUInt | Identifier of the stream this frame refers to. |
-| Receipt | VarOctetString | Proof provided by the receiver of the total amount received on this stream |
+| Receipt | 72-Byte OctetString | Proof provided by the receiver of the total amount received on this stream |
 
 The `Receipt` MUST contain the following fields encoded using the [Octet Encoding Rules (OER)](http://www.oss.com/asn1/resources/books-whitepapers-pubs/Overview_of_OER.pdf):
 
 | Field | Type | Description |
 |---|---|---|
-| Receipt Nonce | VarOctetString | A random nonce pre-shared between the verifying party and the receiver used to identify the STREAM connection. |
-| Stream ID | VarUInt | Identifier of the stream this receipt refers to. |
-| Total Received | VarUInt | Total amount, denominated in the units of the receiver, that the receiver has received on this stream thus far. |
-| Stream Start Time | VarUInt | A timestamp referring to the time that the stream was established at the receiver. |
-| HMAC | VarOctetString | HMAC over all other fields using a secret pre-shared between the verifying party and the receiver. |
+| HMAC | UInt256 | HMAC-SHA256 over all other fields using a secret pre-shared between the verifying party and the receiver. |
+| Receipt Nonce | UInt128 | A random nonce pre-shared between the verifying party and the receiver used to identify the STREAM connection. |
+| Stream ID | UInt64 | Identifier of the stream this receipt refers to. |
+| Total Received | UInt64 | Total amount, denominated in the units of the receiver, that the receiver has received on this stream thus far. |
+| Stream Start Time | UInt64 | A UNIX timestamp referring to the time that the stream was established at the receiver. |
+
 
 ### 5.4. Error Codes
 
