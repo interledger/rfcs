@@ -193,7 +193,7 @@ Client streams MUST be odd-numbered starting with 1 and server-initiated streams
 
 Money can be sent for a given stream by sending an ILP Prepare packet with a non-zero `amount` and a `StreamMoney` frame in the STREAM packet to indicate which stream the money is for. A single ILP Prepare can carry value destined for multiple streams and the `shares` field in each of the `StreamMoney` frames indicates what portion of the Prepare amount should go to each stream.
 
-The receiver MAY include `StreamReceipt` frames in the ILP Fulfill packet indicating the total amount of money received in each stream. Receipts can be verified, in order to verify payment, using a secret that is pre-shared with the receiver.
+The receiver SHOULD include `StreamReceipt` frames in the ILP Fulfill packet indicating the total amount of money received in each stream, unless a secret key with which to generate receipts was not pre-shared with the receiver. Receipts can be verified, in order to confirm payment, using the pre-shared secret.
 
 #### 4.4.3. Sending Data
 
