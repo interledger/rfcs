@@ -159,6 +159,8 @@ A server MUST communicate the following values to a client using an **authentica
 
 To avoid storing a 32 byte secret for each connection, a server MAY deterministically generate the shared secret for each connection from a single server secret and a nonce appended to the ILP Address given to a particular client, for example by using an HMAC.
 
+For each new connection, a server MAY be provided with a pre-shared 32 byte Receipt Secret to generate receipts and 16 byte Receipt Nonce to include in those receipts. To avoid storing these for each connection, a server MAY deterministically append them to the ILP Address given to a particular client. If doing so, the server MUST encrypt the Receipt Secret.
+
 ### 4.2. Matching Packets to Connections
 
 Incoming packets can either be associated with an existing connection, or, for servers, potentially create a new connection. Endpoints MAY append extra segments to the ILP addresses assigned to them by their upstream connectors to help direct incoming packets.
@@ -193,7 +195,7 @@ Client streams MUST be odd-numbered starting with 1 and server-initiated streams
 
 Money can be sent for a given stream by sending an ILP Prepare packet with a non-zero `amount` and a `StreamMoney` frame in the STREAM packet to indicate which stream the money is for. A single ILP Prepare can carry value destined for multiple streams and the `shares` field in each of the `StreamMoney` frames indicates what portion of the Prepare amount should go to each stream.
 
-The receiver SHOULD include `StreamReceipt` frames in the ILP Fulfill packet indicating the total amount of money received in each stream, unless a secret key with which to generate receipts was not pre-shared with the receiver. Receipts can be verified, in order to confirm payment, using the pre-shared secret.
+The receiver SHOULD include `StreamReceipt` frames in the ILP Fulfill packet indicating the total amount of money received in each stream, unless a Receipt Secret and Receipt Nonce were not pre-shared with the receiver. Receipts can be verified, in order to confirm payment, using the Receipt Secret.
 
 #### 4.4.3. Sending Data
 
@@ -451,7 +453,7 @@ The `Receipt` MUST contain the following fields encoded using the [Octet Encodin
 
 | Field | Type | Description |
 |---|---|---|
-| HMAC | UInt256 | HMAC-SHA256 over all other fields using a secret pre-shared between the verifying party and the receiver. |
+| HMAC | UInt256 | HMAC-SHA256 over all other fields using the 32 byte Receipt Secret, which is pre-shared between the verifying party and the receiver. |
 | Receipt Nonce | UInt128 | A random nonce pre-shared between the verifying party and the receiver used to identify the STREAM connection. |
 | Stream ID | UInt8 | Identifier of the stream this receipt refers to. |
 | Total Received | UInt64 | Total amount, denominated in the units of the receiver, that the receiver has received on this stream thus far. |
