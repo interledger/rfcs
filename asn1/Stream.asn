@@ -180,7 +180,7 @@ StreamReceipt ::= SEQUENCE {
   streamId VarUInt,
 
   -- Receipt for verifying the total amount received on this stream
-  receipt OCTET STRING (SIZE(65))
+  receipt VarBytes
 }
 
 END

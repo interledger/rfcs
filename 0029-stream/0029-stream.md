@@ -459,7 +459,6 @@ The `Receipt` MUST contain the following fields encoded using the [Octet Encodin
 | Receipt Nonce | UInt128 | A random nonce pre-shared between the verifying party and the receiver used to identify the STREAM connection. |
 | Stream ID | UInt8 | Identifier of the stream this receipt refers to. |
 | Total Received | UInt64 | Total amount, denominated in the units of the receiver, that the receiver has received on this stream thus far. |
-| Stream Start Time | UInt64 | A UNIX timestamp referring to the time that the stream was established at the receiver. |
 | HMAC | UInt256 | HMAC-SHA256 using the 32 byte Receipt Secret, which is pre-shared between the verifying party and the receiver. The HMAC message is the concatenation of all other receipt fields, in the order listed above. |
 
 
