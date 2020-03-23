@@ -81,7 +81,8 @@ Content-Type: application/spsp4+json
 
 {
   "destination_account": "example.ilpdemo.red.bob",
-  "shared_secret": "6jR5iNIVRvqeasJeCty6C+YB5X9FhSOUPCL/5nha5Vs="
+  "shared_secret": "6jR5iNIVRvqeasJeCty6C+YB5X9FhSOUPCL/5nha5Vs=",
+  "receipts": true
 }
 ```
 More information about the parameters can be found in section [Response Body](#response-body).
@@ -112,6 +113,7 @@ The response body is a JSON object that includes basic account details necessary
 |---|---|---|
 | `destination_account` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md) | ILP Address of the SPSP Server. In case of push payments, this is the receiver. In case of pull payments, this is the sender. |
 | `shared_secret` | 32 bytes, [base64 (base64url) encoded](https://en.wikipedia.org/wiki/Base64) (including padding) | The shared secret to be used by this specific HTTP client in the [STREAM](../0029-stream/0029-stream.md). Should be shared only by the server and this specific HTTP client, and should therefore be different in each query response. Even though clients SHOULD accept base64url encoded secrets, base64 encoded secrets are recommended. |
+| `receipts` | Boolean | _(OPTIONAL)_  If `true`, the SPSP server will issue STREAM Receipts in the STREAM connection. If `false` or omitted, the server will not issue STREAM Receipts. |
 
 ##### Errors
 
