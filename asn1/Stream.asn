@@ -7,6 +7,7 @@ IMPORTS
     UInt8,
     UInt96,
     UInt128,
+    UInt256,
     VarUInt,
     VarBytes
     FROM GenericTypes
@@ -74,6 +75,24 @@ FrameSet FRAME ::= {
 StreamFrame ::= SEQUENCE {
   type FRAME.&typeId ({FrameSet}),
   data FRAME.&Type ({FrameSet}{@type})
+}
+
+StreamReceipt ::= SEQUENCE {
+  -- Always 1 for now
+  version UInt8,
+
+  -- Identifier of the connection
+  receipt UInt128,
+
+  -- Identifier of the stream
+  streamId UInt8,
+
+  -- Total amount the stream has received so far
+  totalReceived UInt64,
+
+  -- HMAC-SHA256 using a 32 byte Secret
+  -- The message is the concatenation of all other fields, in the order listed above
+  hmac UInt256
 }
 
 ConnectionError ::= SEQUENCE {
@@ -180,7 +199,7 @@ StreamReceipt ::= SEQUENCE {
   streamId VarUInt,
 
   -- Receipt for verifying the total amount received on this stream
-  receipt VarBytes
+  receipt StreamReceipt
 }
 
 END

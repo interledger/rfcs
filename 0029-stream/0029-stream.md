@@ -451,7 +451,7 @@ Asset details exposed by this frame MUST NOT change during the lifetime of a Con
 | Stream ID | VarUInt | Identifier of the stream this frame refers to. |
 | Receipt | VarOctetString | Proof provided by the receiver of the total amount received on this stream |
 
-The `Receipt` MUST contain the following fields encoded using [CANONICAL-OER](https://github.com/interledger/rfcs/blob/master/0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md#canonical-oer)(find more details [here](https://github.com/interledger/rfcs/blob/05ab457b9301b031e1ec954632582a325c4907b4/asn1/README.md)):
+The `Receipt` MUST contain the following fields encoded using [CANONICAL-OER](https://github.com/interledger/rfcs/blob/master/0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md#canonical-oer) (find more details [here](https://github.com/interledger/rfcs/blob/05ab457b9301b031e1ec954632582a325c4907b4/asn1/README.md)):
 
 | Field | Type | Description |
 |---|---|---|
