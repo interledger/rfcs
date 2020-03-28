@@ -159,7 +159,7 @@ A server MUST communicate the following values to a client using an **authentica
 
 To avoid storing a 32 byte secret for each connection, a server MAY deterministically generate the shared secret for each connection from a single server secret and a nonce appended to the ILP Address given to a particular client, for example by using an HMAC.
 
-For each new connection, a server MAY be provided with a pre-shared 32 byte Receipt Secret to generate receipts and 16 byte Receipt Nonce to include in those receipts. To avoid storing these for each connection, a server MAY deterministically append them to the ILP Address given to a particular client. If doing so, the server MUST encrypt the Receipt Secret.
+For each new connection, a server MAY be provided with a pre-shared 32 byte Receipt Secret (to generate receipts) and a 16 byte Receipt Nonce (to include in those receipts). To avoid storing this data for each connection, a Server MAY deterministically append this data to the ILP Address used for a Connection. If doing so, the server MUST encrypt the Receipt Secret.
 
 ### 4.2. Matching Packets to Connections
 
@@ -451,7 +451,7 @@ Asset details exposed by this frame MUST NOT change during the lifetime of a Con
 | Stream ID | VarUInt | Identifier of the stream this frame refers to. |
 | Receipt | VarOctetString | Proof provided by the receiver of the total amount received on this stream |
 
-The `Receipt` MUST contain the following fields encoded using the [Octet Encoding Rules (OER)](http://www.oss.com/asn1/resources/books-whitepapers-pubs/Overview_of_OER.pdf):
+The `Receipt` MUST contain the following fields encoded using [CANONICAL-OER](https://github.com/interledger/rfcs/blob/master/0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md#canonical-oer)(find more details [here](https://github.com/interledger/rfcs/blob/05ab457b9301b031e1ec954632582a325c4907b4/asn1/README.md)):
 
 | Field | Type | Description |
 |---|---|---|
