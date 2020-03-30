@@ -24,7 +24,6 @@ SPSP provides for exchanging basic server details needed by a client to set up a
 * **SPSP Server** - The application that handles incoming SPSP requests from the SPSP Client.
 * **SPSP Endpoint** - The specific HTTPS endpoint on the SPSP Server used for setting up a payment.
 * **STREAM Module** - Software included in the SPSP Client and Server that implements the [STREAM](../0029-stream/0029-stream.md) protocol.
-* **STREAM Receipt** - Proof provided by the payment recipient of the total amount received on a stream.
 
 ### Interfaces
 
@@ -65,12 +64,12 @@ Accept: application/spsp4+json, application/spsp+json
 
 ##### Request Headers to Support STREAM Receipts
 
-The request MAY contain at least the following headers in order to pre-share STREAM Receipt details between the SPSP Server and a party verifying payments sent to the SPSP Server:
+The request MAY contain at least the following headers in order to pre-share [STREAM Receipt](../proposals/0000-stream-receipts.md) details between the SPSP Server and [receipt verifier](../proposals/0000-stream-receipts.md#conventions-and-definitions):
 
 | Header          | Description                                                |
 |:----------------|:-----------------------------------------------------------|
-| `Receipt-Nonce`  | A base64-encoded 16-byte random nonce used to identify the STREAM connection in STREAM Receipts. |
-| `Receipt-Secret` | A base64-encoded 32-byte key used to generate a STREAM Receipt's HMAC. |
+| `Receipt-Nonce`  | A base64-encoded Receipt Nonce. |
+| `Receipt-Secret` | A base64-encoded Receipt Secret. |
 
 The SPSP Client MAY be provided with an SPSP Endpoint belonging to the receipt verifier, which would add the receipt headers and proxy the query to the SPSP Server.
 

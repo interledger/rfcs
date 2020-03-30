@@ -82,7 +82,7 @@ Receipt ::= SEQUENCE {
   version UInt8,
 
   -- Identifier of the connection
-  receipt UInt128,
+  nonce UInt128,
 
   -- Identifier of the stream
   streamId UInt8,
