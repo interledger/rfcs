@@ -22,7 +22,7 @@ Definitions of terms that are used in this document:
 - **Receiver** - The party that is receiving funds over STREAM
 - **Verifier** - The party that wishes to verify that ILP payments occurred to the Receiver
 - **Sender** - The party that is sending funds over STREAM
-- **Receipt Nonce** - A random nonce used to identify a STREAM connection in a Receipt
+- **Receipt Nonce** - A unique nonce used to identify a STREAM connection in a Receipt
 - **Receipt Secret** - The key used to generate a Receipt's HMAC
 - **Receipt** - A binary object containing a version number, the Receipt Nonce, a Stream ID on the STREAM connection, an integer amount of funds received on a stream, and an HMAC over all those fields
 
@@ -48,7 +48,7 @@ Alteratively, the Verifier MAY forego checking the Receipt amount if they are on
 
 This flow occurs for each STREAM connection with Receipts enabled.
 
-1. Verifier MUST generate a random Receipt Nonce.
+1. Verifier MUST generate a unique Receipt Nonce.
 
 2. Verifier MUST communicate the Receipt Nonce and Receipt Secret to the Receiver. The Receipt Secret MUST NOT be communicated to the Sender.
 
@@ -56,7 +56,7 @@ This flow occurs for each STREAM connection with Receipts enabled.
 
 4. Sender MUST give the Receipt directly or indirectly to the Verifier.
 
-5. Verifier MUST verify the Receipt before crediting the Sender with the Receipt amount.
+5. Verifier MUST verify the Receipt before accepting the Receipt amount as paid.
 
 ### Stateless Verifier
 
@@ -64,7 +64,7 @@ The Verifier MAY generate the Receipt Secret by producing an HMAC of the Receipt
 
 ### Stateless Receiver
 
-Before a STREAM connection is established, the Receiver MAY use the Receipt Nonce and Receipt Secret as parameters to generate connection details (ILP Address and shared secret). The Receiver MAY encode the Receipt Nonce and Receipt Secret in the STREAM server ILP Address to allow the STREAM receiver to avoid persisting state. If doing so, the Receipt Secret MUST be encrypted. The Receipt Nonce MUST be unique each time STREAM parameters are generated, since it MUST be unique per STREAM connection.
+Before a STREAM connection is established, the Receiver MAY use the Receipt Nonce and Receipt Secret as parameters to generate connection details (ILP Address and shared secret). The Receiver MAY encode the Receipt Nonce and Receipt Secret in the STREAM server ILP Address to allow the STREAM receiver to avoid persisting state. If doing so, the Receipt Secret MUST be encrypted. The Receipt Nonce MUST be unique each time STREAM parameters are generated, since it MUST be unique globally.
 
 ### SPSP
 
@@ -87,7 +87,7 @@ A Receipt MUST contain the following fields encoded using [CANONICAL-OER](https:
 | Field | Type | Description |
 |---|---|---|
 | Version | UInt8 | `1` for this version. |
-| Receipt Nonce | UInt128 | A random nonce pre-shared between the Verifier and the Receiver used to identify the STREAM connection. |
+| Receipt Nonce | UInt128 | A unique nonce pre-shared between the Verifier and the Receiver used to identify the STREAM connection. |
 | Stream ID | UInt8 | Identifier of the stream this Receipt refers to. |
 | Total Received | UInt64 | Total amount, denominated in the units of the Receiver, that the Receiver has received on this stream thus far. |
 | HMAC | UInt256 | HMAC-SHA256 using the 32 byte Receipt Secret, which is pre-shared between the Verifier and the Receiver. The HMAC message is the concatenation of all other Receipt fields, in the order listed above. |
