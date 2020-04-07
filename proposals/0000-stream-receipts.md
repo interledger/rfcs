@@ -68,7 +68,7 @@ Before a STREAM connection is established, the Receiver MAY use the Receipt Nonc
 
 ### SPSP
 
-The Verifier MAY communicate the Receipt Nonce and Receipt Secret to the Receiver by proxying the Sender's (SPSP)](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) query, as follows:
+The Verifier MAY communicate the Receipt Nonce and Receipt Secret to the Receiver by proxying the Sender's [SPSP](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) query, as follows:
 
 1. Sender queries the Verifier's payment pointer URL.
 2. Verifier MUST add the Receipt Nonce and Receipt Secret to the request in `Receipt-Nonce` and `Receipt-Secret` headers.
