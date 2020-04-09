@@ -198,8 +198,10 @@ StreamReceipt ::= SEQUENCE {
   -- Identifier of the stream
   streamId VarUInt,
 
-  -- Receipt for verifying the total amount received on this stream
-  receipt Receipt
+  -- Length-prefixed Receipt for verifying the total amount received on this stream
+  -- The sender is not expected to decode the Receipt fields but must be able to decode the
+  -- receipt string in the frame, even if it represents an unsupported Receipt version
+  receipt VarBytes
 }
 
 END
