@@ -77,10 +77,22 @@ StreamFrame ::= SEQUENCE {
   data FRAME.&Type ({FrameSet}{@type})
 }
 
-Receipt ::= SEQUENCE {
-  -- Always 1 for now
-  version UInt8,
+RECEIPT ::= CLASS {
+  &typeId UInt8 UNIQUE,
+  &Type
+} WITH SYNTAX {&typeId &Type}
 
+ReceiptSet RECEIPT ::= {
+  {1 ReceiptV1}
+}
+
+Receipt ::= SEQUENCE {
+  type RECEIPT.&typeId ({ReceiptSet}),
+  -- NOT length-prefixed
+  data RECEIPT.&Type ({ReceiptSet}{@type})
+}
+
+ReceiptV1 ::= SEQUENCE {
   -- Identifier of the connection
   nonce UInt128,
 
@@ -91,7 +103,8 @@ Receipt ::= SEQUENCE {
   totalReceived UInt64,
 
   -- HMAC-SHA256 using a 32 byte Secret
-  -- The message is the concatenation of all other fields, in the order listed above
+  -- The message is the concatenation of the 1 byte type/version (always 1) and all other fields,
+  -- in the order listed above
   hmac UInt256
 }
 
@@ -201,7 +214,7 @@ StreamReceipt ::= SEQUENCE {
   -- Length-prefixed Receipt for verifying the total amount received on this stream
   -- The sender is not expected to decode the Receipt fields but must be able to decode the
   -- receipt string in the frame, even if it represents an unsupported Receipt version
-  receipt VarBytes
+  receipt Receipt
 }
 
 END
