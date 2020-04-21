@@ -449,7 +449,7 @@ Asset details exposed by this frame MUST NOT change during the lifetime of a Con
 | Field | Type | Description |
 |---|---|---|
 | Stream ID | VarUInt | Identifier of the stream this frame refers to. |
-| Receipt | VarOctetString | Length-prefixed [STREAM Receipt](../proposals/0000-stream-receipts.md#specification) provided by the receiver as proof of the total amount received on this stream. The sender MUST be able to decode the receipt string in the frame, even if it represents an unsupported STREAM Receipt version. The sender is not expected to decode the receipt itself. |
+| Receipt | VarOctetString | Length-prefixed [STREAM Receipt](../proposals/0000-stream-receipts.md#specification) provided by the receiver as proof of the total amount received on this stream. Note that the stream sender is not expected to decode the receipt itself. |
 
 ### 5.4. Error Codes
 
