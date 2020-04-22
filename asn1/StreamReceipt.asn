@@ -1,0 +1,45 @@
+StreamReceipt
+DEFINITIONS
+AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+    UInt8,
+    UInt64,
+    UInt128,
+    UInt256
+    FROM GenericTypes
+;
+
+RECEIPT ::= CLASS {
+  &typeId UInt8 UNIQUE,
+  &Type
+} WITH SYNTAX {&typeId &Type}
+
+ReceiptSet RECEIPT ::= {
+  {1 ReceiptV1}
+}
+
+Receipt ::= SEQUENCE {
+  type RECEIPT.&typeId ({ReceiptSet}),
+  -- NOT length-prefixed
+  data RECEIPT.&Type ({ReceiptSet}{@type})
+}
+
+ReceiptV1 ::= SEQUENCE {
+  -- Identifier of the connection
+  nonce UInt128,
+
+  -- Identifier of the stream
+  streamId UInt8,
+
+  -- Total amount the stream has received so far
+  totalReceived UInt64,
+
+  -- HMAC-SHA256 using a 32 byte Secret
+  -- The message is the concatenation of the 1 byte type/version (always 1) and all other fields,
+  -- in the order listed above
+  hmac UInt256
+}
+
+END
