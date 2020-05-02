@@ -791,6 +791,23 @@
     "buffer": "AQwBAAEAAQEWCwF7CP//////////"
   },
   {
+    "name": "frame:stream_receipt",
+    "packet": {
+      "sequence": "0",
+      "packetType": 12,
+      "amount": "0",
+      "frames": [
+        {
+          "type": 23,
+          "name": "StreamReceipt",
+          "streamId": "1",
+          "receipt": "AQAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAfTBIvoCUt67Zy1ZGCP3EOmVFtZzhc85fah8yPnoyL9RMA=="
+        }
+      ]
+    },
+    "buffer": "AQwBAAEAAQEXPQEBOgEAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAH0wSL6AlLeu2ctWRgj9xDplRbWc4XPOX2ofMj56Mi/UTA="
+  },
+  {
     "name": "frame:stream_max_money:receive_max:too_big",
     "packet": {
       "sequence": "0",
