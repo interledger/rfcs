@@ -42,7 +42,7 @@ To execute this flow, participants perform the following steps:
 ![unidirectional-flow](images/unidirectional-flow.svg)
 
 1. Initiator sends an ILP Prepare packet containing the following details:
-   - **Destination**: Recipient's Interledger address.
+   - **Destination**: An Interledger address that starts with the Recipient's Interledger address.
    - **Amount**: Any amount chosen by the Initiator.
    - **Expiry**: Any appropriate expiry.
    - **Condition**: The Ping Protocol Condition, as defined above.
