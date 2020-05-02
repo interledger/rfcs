@@ -1,6 +1,7 @@
 ---
 title: The Simple Payment Setup Protocol (SPSP)
-draft: 10
+type: working-draft
+draft: 11
 ---
 # Simple Payment Setup Protocol (SPSP)
 
@@ -64,7 +65,7 @@ Accept: application/spsp4+json, application/spsp+json
 
 ##### Request Headers to Support STREAM Receipts
 
-The request MAY contain at least the following headers in order to pre-share [STREAM Receipt](../proposals/0000-stream-receipts.md) details between the SPSP Server and [receipt verifier](../proposals/0000-stream-receipts.md#conventions-and-definitions):
+The request MAY contain at least the following headers in order to pre-share [STREAM Receipt](../0039-stream-receipts/0039-stream-receipts.md) details between the SPSP Server and [receipt verifier](../0039-stream-receipts/0039-stream-receipts.md#conventions-and-definitions):
 
 | Header          | Description                                                |
 |:----------------|:-----------------------------------------------------------|
