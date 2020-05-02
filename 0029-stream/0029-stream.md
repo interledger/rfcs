@@ -1,6 +1,6 @@
 ---
 title: STREAM - A Multiplexed Money and Data Transport for ILP
-draft: 8 
+draft: 9 
 ---
 
 # STREAM: A Multiplexed Money and Data Transport for ILP
@@ -152,7 +152,7 @@ This section describes how connections and streams are created, used, and closed
 
 A server MUST communicate the following values to a client using an **authenticated, encrypted** communication channel (such as HTTPS). Key exchange is NOT provided by STREAM.
 
-- STREAM Version (optional -- assumed to be version 1 unless specified)
+- STREAM Version (OPTIONAL -- assumed to be version 1 unless specified)
 - Server ILP Address
 - Cryptographically secure random or pseudorandom shared secret (it is RECOMMENDED to use 32 bytes)
 
@@ -164,19 +164,29 @@ Incoming packets can either be associated with an existing connection, or, for s
 
 STREAM packets are completely encrypted so endpoints must try to decrypt and parse them to determine whether a given packet was sent by the other endpoint of a connection. Incoming Prepare packets whose data cannot be decrypted with the expected shared secret MUST be rejected with `F06: Unexpected Payment` errors.
 
-### 4.3. Client Address Communication and Connection Migration
+### 4.3. Optional Connection Details
+ 
+#### 4.3.1. Client Address Communication (Receivers Only)
 
-When a client connects to a server, they MUST communicate their ILP address to the server using a `ConnectionNewAddress` frame.
+When a client connects to a server, the client MAY communicate its ILP Address to the server using a  `ConnectionNewAddress` frame. This allows the client to function as a receiver on the Connection. Without this frame, a server would not have a destination address to send packets to a client.
 
-Either endpoint MAY change their ILP address at any point during a connection by sending a `ConnectionNewAddress` frame. To ensure the new address is received and acknowledged, implementations MAY choose to send these frames only in ILP Prepare packets.
+In the most advanced scenarios where clients and servers are both capable of simultaneously sending and receiving, the `ConnectionNewAddress` frame enables bi-directional payment flows. However, the frame is OPTIONAL because clients are commonly not capable of receiving. For example, a client may not be accessible from a routable ILP Address.
 
-Implementations SHOULD wait for a valid response (encrypted with the same shared secret) from the new address to validate the new path. STREAM uses the authenticated request/response packets in lieu of [QUIC's explicit Path Validation](https://quicwg.github.io/base-drafts/draft-ietf-quic-transport.html#rfc.section.6.7). Implementations SHOULD refrain from sending large numbers of packets or large amounts of data to a new ILP address before validating the path to avoid being tricked into participating in a Denial of Service (DoS) attack on a third-party endpoint.
+#### 4.3.2. Connection Migration (Receivers Only)
 
-#### 4.3.1. Connection Asset Details
+If an endpoint supports receiving, then the endpoint MAY change its ILP Address at any point during a connection by sending a `ConnectionNewAddress` frame. To ensure the new address is received and acknowledged, implementations MAY choose to send these frames only in ILP Prepare packets, although certain connections may not support this (e.g., a receiver emitting this frame to a non-receiving sender will only be able to propagate this frame in a fulfill or reject packet).
 
-Each endpoint MAY expose their asset details by sending a `ConnectionAssetDetails` frame. This frame is optional because some use-cases do not require it.
+Senders encountering this frame SHOULD wait for a valid response (encrypted with the same shared secret) from the new address to validate the new path. STREAM relies upon this authenticated request/response packet flow in lieu of [QUIC's explicit Path Validation](https://quicwg.github.io/base-drafts/draft-ietf-quic-transport.html#rfc.section.6.7), so implementations SHOULD refrain from sending large numbers of packets or large amounts of data to a new ILP address before validating the path to avoid being tricked into participating in a Denial of Service (DoS) attack on a third-party endpoint.
 
-Asset details exposed by this frame MUST not change during the lifetime of a Connection.
+#### 4.3.3. Connection Asset Details
+
+Either endpoint MAY expose its asset details by sending a `ConnectionAssetDetails` frame in a stream packet with sequence value of zero (`0`).
+ 
+Asset details, whether exposed by this frame or obtained by a higher-layer protocol, MUST not change during the lifetime of a Connection. Endpoints that encounter a `ConnectionAssetDetails` frame in a packet with a non-zero sequence number SHOULD ignore the frame.
+
+This frame is OPTIONAL because the frame is generally only useful for senders who wish to verify the amount received on a path. For example, a client or server that only functions as a sender, but not a receiver, does not need to emit this frame if the endpoint on the other side of the connection does not need the information. Refer to Section 3.4 (Exchange Rates) for more information.
+
+ If a receiver receives a `ConnectionAssetDetails` frame that contradicts either the asset details in a previously encountered frame, or contradicts the asset details supplied by a higher-layer protocol, then the receiver SHOULD close the connection because it would be ambiguous which asset details are authoritative.
 
 ### 4.4. Streams
 
