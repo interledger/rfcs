@@ -1,5 +1,6 @@
 ---
 title: Peering, Clearing and Settling
+type: working-draft
 draft: 3
 ---
 

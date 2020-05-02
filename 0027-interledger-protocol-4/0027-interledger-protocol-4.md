@@ -1,5 +1,6 @@
 ---
 title: Interledger Protocol V4 (ILPv4)
+type: working-draft
 draft: 9
 ---
 
