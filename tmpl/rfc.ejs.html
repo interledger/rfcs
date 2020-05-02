@@ -9,11 +9,11 @@
     <title><%= title %> | Interledger</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
     <!-- Custom styles -->
-    <link href="/css/monokai-sublime.css" rel="stylesheet">
-    <link href="/css/custom.css" rel="stylesheet">
+    <link href="/assets/css/monokai-sublime.css" rel="stylesheet">
+    <link href="/assets/css/custom.css" rel="stylesheet">
 
     <!-- Google fonts -->
     <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,200,600,700|Droid+Sans+Mono|Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
@@ -30,41 +30,83 @@
     <![endif]-->
   </head>
 
-  <body data-spy="scroll" data-target="#myScrollspy" data-offset="160" class="spec">
+  <body data-spy="scroll" data-target="#myScrollspy" data-offset="160" class="spec sidebar-primary">
 
      <!-- navbar -->
-      <nav class="navbar navbar-default navbar-fixed-top">
-        <div class="container">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/"><img class="logo" alt="interledger" src="/assets/ilp_icon.png"/></a>
-          </div>
-          <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-              <li class="active"><a href="/overview.html">Docs</a></li>
-              <li><a href="/community.html">Community</a></li>
-              <li><a href="/news.html">News</a></li>
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-              <li><a target="_blank" href="https://github.com/interledger">Github</a></li>
-            </ul>
-          </div>
+     <nav class="navbar fixed-top navbar-expand-lg navbar-dark nav-innerpage">
+        <div class="navbar-leftbg"><a href="/" class="navbar-brand"><img src="/assets/img/ilp_logo@2x.png" class="logo"  height="44" alt="Interledger" /></a></div>
+        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarHolder" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarHolder">
+          <ul class="nav navbar-nav">
+                <li class="nav-item" ><a class="nav-link" href="/overview.html">Docs</a></li>
+                <li class="nav-item" ><a class="nav-link" href="/libraries.html">Tools</a></li>
+                <li class="nav-item" ><a class="nav-link" href="/community.html">Community</a></li>
+                <li class="nav-item"><a class="nav-link" target="_blank" href="https://github.com/interledger">Edit on Github</a></li>
+                <li class="nav-item"><a class="nav-link cornerlink" href="/getting-started.html">Get Started</a></li>
+          </ul><!-- /.navbar-nav -->
+          <div class="cornerbox"></div>
         </div>
-      </nav>
+        <div class="menu-overlay"></div>
+    </nav>
 
     <!-- docs overview section -->
 
-    <div class="container docs-wrapper">
+    <div class="container-fluid ">
       <div class="row">
-        <div id="sidebarContent">
-          <nav class="col-sm-4" id="myScrollspy">
-            <ul class="nav-fixed nav nav-sidebar">
-              <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div>
+
+        <!-- Left nav -->
+        <aside class="sidebar col-md-4 col-lg-3 p-0 order-md-1" role="complementary">
+            <div id="sidenav" class="tree_nav">
+              <ul class=" sidebar_pagelist ">
+                <li class="nav-label">Quick Start</li>
+                <li><a href="/overview.html">Overview</a></li>
+                <li><a href="/getting-started.html">Getting Started</a></li>
+                <ul>
+                    <li><a href="/sending-value-programmatically.html">Sending Value Programmatically</a></li>
+                    <li><a href="/connect-ilp-testnet.html">Connect to an ILP Tesnet</a></li>
+                </ul>
+              </ul>
+              <ul class=" sidebar_pagelist">
+                <li class="nav-label">Community Resources</li>
+                <li><a class="external-link" href="https://medium.com/interledger-blog">Blog and Tutorials<i class="fa fa-external-link" aria-hidden="true"></i></a></li>
+                <li><a href="/libraries.html">Libraries and Tools</a></li>
+                <li><a href="/summit-2019.html">ILP Summit 2019 Videos</a></li>
+              </ul>
+
+              <div class="sidebar-nav-header">Specs</div>
+              <ul class=" sidebar_pagelist sidebar_indent">
+                <li><a href="/rfcs/0027-interledger-protocol-4/">Interledger Protocol 4 (ILPv4)</a></li>
+                <li><a href="/rfcs/0015-ilp-addresses/">Interledger Addresses</a></li>
+                <li><a href="/rfcs/0029-stream/">STREAM Protocol</a></li>
+                <li><a href="/rfcs/0009-simple-payment-setup-protocol/">Simple Payment Setup Protocol (SPSP)</a></li>
+                <li><a href="/rfcs/0030-notes-on-oer-encoding/">Notes on OER encoding</a></li>
+                <li><a href="/rfcs/0031-dynamic-configuration-protocol/">Dynamic Configuration Protocol (ILDCP)</a></li>
+                <li><a href="/rfcs/0038-settlement-engines/">Settlement Engines</a></li>
+                <li><a href="/rfcs/0032-peering-clearing-settlement/">Peering, Clearing and Settlement</a></li>
+                <li><a href="/rfcs/0035-ilp-over-http/">ILP over HTTP</a></li>
+                <li><a href="/rfcs/0036-spsp-pull-payments/">SPSP Pull Payments</a></li>
+                <li>&nbsp;</li>
+                <li><a class="external-link" target="_blank" href="https://paymentpointers.org">Payment Pointers</a></li>
+                <li><a class="external-link" target="_blank" href="https://webmonetization.org">Web Monetization</a></li>
+                <li><a class="external-link" target="_blank" href="https://w3c.github.io/webpayments/proposals/interledger-payment-method.html">W3C Web Payments</a></li>
+              </ul>
+            </div>
+          </aside>
+        <!-- End Left nav -->
+
+        <!-- Right sidebar -->
+      <aside class="right-sidebar col-lg-3 order-lg-4 p-0" role="complementary">
+        <!-- <div id="sidebarContent"> -->
+            <div class="card" id="page-toc-wrapper">
+          <!-- <nav class="col-sm-4" id="myScrollspy"> -->
+              <div class="card-header">
+                  <h4>On This Page</h4>
+                </div>
+            <ul class="card-body">
+              <!-- <div class="overview-back"><a href="/overview.html"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Back to Overview</a></div> -->
 <% if (typeof draftNumber !== 'undefined' && typeof rfcNumber !== 'undefined') { -%>
                 <li class="nav-label">
                   <a href="./draft-<%= draftNumber %>.html">ILP-RFC <%= rfcNumber %> Draft <%= draftNumber %></a>
@@ -77,49 +119,55 @@
                 </li>
 <% } -%>
               <% toc.forEach((entry) => { %>
-                <li<%- (entry.type === 'h2') ? ' class="nav-label"' : '' %>>
+                <li<%- (entry.type === 'h2') ? ' class="level-2"' : ' class="level-3"' %>>
                   <a href="<%= entry.anchor %>"><%= entry.title %></a>
                 </li>
               <% }) %>
             </ul>
-          </nav>
-        </div>
-        <div class="col-sm-8 markdown-body">
+            </div>
+        <!-- </div> -->
+        </aside>
+        <!-- End Right sidebar -->
+
+        <!-- Center -->
+        <div class="main col-md-8  col-lg-6   order-md-3  " role="main" id="main_content_body">
             <% if (deprecated) { -%>
           <p class="alert alert-warning" style="margin-top: 35px">
             <strong>This specification has been deprecated.</strong>
             <% if (typeof deprecated === 'string') { -%>
-              <br/>It has been replaced by <a href="../<%= deprecated %>">this</a> new specification.
-            <% } -%>            
+              <% deprecated = deprecated.match(/^http(s)?\:/) ? deprecated : '../' + deprecated -%>
+              <br/>It has been replaced by <a href="<%= deprecated %>">this</a> new specification.
+            <% } -%>
           </p>
             <% } -%>
           <%- content %>
         </div>
+        <!-- End Center -->
       </div>
 
     </div> <!-- /container -->
 
     <footer>
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12">
-            <div class="col-sm-4 col-xs-12">
-              <p>Copyright © 2018<br/> W3C Interledger Payments CG</p>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-sm-9 col-xs-12 float-left footertext">
+                        <p><img src="/assets/img/ilp_footer_logo@2x.png" height="44" alt="Interledger" align="left" /> Interledger Project<br><span>Documentation licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0.</a></span></p>
+                    </div>
+                    <div class="col-sm-3 col-xs-12 float-right">
+                        <a href="https://twitter.com/interledger"><img src="/assets/img/Twitter.png"></a>
+                        <a href="https://communityinviter.com/apps/interledger/interledger-working-groups-slack"><img src="/assets/img/Slack.png"></a>
+                    </div>
+                </div>
             </div>
-            <div class="col-sm-4 col-xs-12">
-              <p class="text-center">See list of <a target="_blank" href="https://www.w3.org/community/interledger/participants">Contributors</a></p>
-            </div>
-            <div class="col-sm-4 col-xs-12">
-              <p class="pull-right">
-                <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
-            </div>
-          </div>
         </div>
-      </div>
     </footer>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
+    <script src="/assets/js/bootstrap.min.js"></script>
+    <script src="/assets/js/highlight.pack.js"></script>
+    <script src="/assets/js/custom.js"></script>
+
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -130,7 +178,6 @@
       ga('send', 'pageview');
 
     </script>
-    <script src="/js/highlight.pack.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
+
   </body>
 </html>

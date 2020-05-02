@@ -23,42 +23,36 @@ The default encoding rules for Interledger protocols are the Canonical Octet Enc
 
 ## Interledger Overview and Explanatory Docs
 
-* **[1: Interledger Architecture](0001-interledger-architecture/0001-interledger-architecture.md)**
+- **[1: Interledger Architecture](0001-interledger-architecture/0001-interledger-architecture.md)**
 
   Overview of the Interledger architecture.
 
-* **[19: Glossary](./0019-glossary/0019-glossary.md)**
+- **[19: Glossary](./0019-glossary/0019-glossary.md)**
 
   Definitions of Interledger terminology.
 
 ## Core Interledger Protocol Specs
 
-
-* **[27: Interledger Protocol V4 (ILPv4)](0027-interledger-protocol-4/0027-interledger-protocol-4.md)**
+- **[27: Interledger Protocol V4 (ILPv4)](0027-interledger-protocol-4/0027-interledger-protocol-4.md)**
 
   Specifies the Interledger Protocol and Interledger Packet, which are used for sending payment instructions across different ledgers and connectors. This is the core protocol in the Interledger stack.
 
-* **[15: ILP Addresses](0015-ilp-addresses/0015-ilp-addresses.md)**
+- **[15: ILP Addresses](0015-ilp-addresses/0015-ilp-addresses.md)**
 
   Specifies the Interledger Address format for ledgers and accounts.
 
 ## Protocols Built Upon ILP
 
-* **[9: Simple Payment Setup Protocol (SPSP)](0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md)**
+- **[9: Simple Payment Setup Protocol (SPSP)](0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md)**
 
   A basic Application Layer protocol that uses HTTPS to exchange details needed to set up an Interledger payment.
 
-* **[29: STREAM](0029-stream/0029-stream.md)**
+- **[29: STREAM](0029-stream/0029-stream.md)**
 
   The recommended Transport Layer protocol for most use cases, which handles quoting, individual payments, chunked payments, and streaming payments using a shared secret between the sender and receiver.
 
 ## Ledger Layer
 
-* **[24: Ledger Plugin Interface V2](0024-ledger-plugin-interface-2/0024-ledger-plugin-interface-2.md)**
+- **[38: Settlement Engines](0038-settlement-engines/0038-settlement-engines.md)**
 
-  Ledger abstraction used in the JavaScript implementation. This can be used as a model for defining such plugins in other languages.
-
-* **[23: Bilateral Transfer Protocol (BTP)](0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md)**
-
-  Recommended API for trustlines and payment channels.
-
+  Specifies an interface to send and receive payments across different settlement systems and ledgers.

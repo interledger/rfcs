@@ -1,6 +1,6 @@
 ---
 title: Interledger Dynamic Configuration Protocol
-draft: 2
+draft: 3
 ---
 
 # Interledger Dynamic Configuration Protocol (ILDCP) v1
@@ -48,7 +48,7 @@ An exchange of configuration information is done using the following procedure.
 ### Packet
 The request and the response above are transferred in [ILP packets](../0027-interledger-protocol-4/0027-interledger-protocol-4.md#specification). 
 
-The `fulfillment` of the response packet is always a zero-filled 32 byte octet string, therefor the condition is always the SHA-256 hash digest of that, i.e. the Base64 decoded value of `Zmh6rfhivXdsj8GLjp+OIAiXFIVu4jOzkCpZHQ1fKSU=`.
+The `fulfillment` of the response packet is always a zero-filled 32 byte octet string, therefore the condition is always the SHA-256 hash digest of that, i.e. the Base64 decoded value of `Zmh6rfhivXdsj8GLjp+OIAiXFIVu4jOzkCpZHQ1fKSU=`.
 
 As with other bilateral protocols the packets are addressed directly to the peer using the `peer.` address prefix. ILDCP packets are specifically identified using the address `peer.config`.
 
