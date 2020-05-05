@@ -1,7 +1,7 @@
 ---
 title: STREAM - A Multiplexed Money and Data Transport for ILP
 type: working-draft
-draft: 9
+draft: 10
 ---
 
 # STREAM: A Multiplexed Money and Data Transport for ILP
@@ -12,57 +12,59 @@ This document specifies the STREAM Interledger Transport protocol, which provide
 
 **Table of Contents:**
 
-- [1. Introduction](#1-introduction)
-- [2. Conventions and Definitions](#2-conventions-and-definitions)
-- [3. Overview](#3-overview)
-  - [3.1. Relationship with Other Protocols](#31-relationship-with-other-protocols)
-  - [3.2. Why Streams?](#32-why-streams)
-  - [3.3. Multiplexed Streams](#33-multiplexed-streams)
-  - [3.4. Exchange Rates](#34-exchange-rates)
-  - [3.5. Packets and Frames](#35-packets-and-frames)
-  - [3.6. Packet Acknowledgements (ACKs)](#36-packet-acknowledgements-acks)
-- [4. Life of a Connection](#4-life-of-a-connection)
-  - [4.1. Setup](#41-setup)
-  - [4.2. Matching Packets to Connections](#42-matching-packets-to-connections)
-  - [4.3. Client Address Communication and Connection Migration](#43-client-address-communication-and-connection-migration)
-    - [4.3.1. Connection Asset Details](#431-connection-asset-details)
-  - [4.4. Streams](#44-streams)
-    - [4.4.1. Opening New Streams](#441-opening-new-streams)
-    - [4.4.2. Sending Money](#442-sending-money)
-    - [4.4.3. Sending Data](#443-sending-data)
-    - [4.4.4. Stream-Level Flow Control](#444-stream-level-flow-control)
-    - [4.4.5. Closing Streams](#445-closing-streams)
-  - [4.5. Connection-Level Flow Control](#45-connection-level-flow-control)
-  - [4.6. Closing Connections](#46-closing-connections)
-- [5. Packet and Frame Specification](#5-packet-and-frame-specification)
-  - [5.1. Encryption](#51-encryption)
-    - [5.1.1. Encryption Envelope](#511-encryption-envelope)
-    - [5.1.2. Encryption Pseudocode](#512-encryption-pseudocode)
-    - [5.1.3. Maximum Number of Packets Per Connection](#513-maximum-number-of-packets-per-connection)
-    - [5.1.4. Maximum `VarUInt` Size](#514-maximum-varuint-size)
-  - [5.2. STREAM Packet](#52-stream-packet)
-  - [5.3. Frames](#53-frames)
-    - [5.3.1. `ConnectionClose` Frame](#531-connectionclose-frame)
-    - [5.3.2. `ConnectionNewAddress` Frame](#532-connectionnewaddress-frame)
-    - [5.3.3. `ConnectionMaxData` Frame](#533-connectionmaxdata-frame)
-    - [5.3.4. `ConnectionDataBlocked` Frame](#534-connectiondatablocked-frame)
-    - [5.3.5. `ConnectionMaxStreamId` Frame](#535-connectionmaxstreamid-frame)
-    - [5.3.6. `ConnectionStreamIdBlocked` Frame](#536-connectionstreamidblocked-frame)
-    - [5.3.7. `StreamClose` Frame](#537-streamclose-frame)
-    - [5.3.8. `StreamMoney` Frame](#538-streammoney-frame)
-    - [5.3.9. `StreamMaxMoney` Frame](#539-streammaxmoney-frame)
-    - [5.3.10. `StreamMoneyBlocked` Frame](#5310-streammoneyblocked-frame)
-    - [5.3.11. `StreamData` Frame](#5311-streamdata-frame)
-    - [5.3.12. `StreamMaxData` Frame](#5312-streammaxdata-frame)
-    - [5.3.13. `StreamDataBlocked` Frame](#5313-streamdatablocked-frame)
-    - [5.3.14. `ConnectionAssetDetails` Frame](#5314-connectionassetdetails-frame)
-    - [5.3.15. `StreamReceipt` Frame](#5315-streamreceipt-frame)
-  - [5.4. Error Codes](#54-error-codes)
-- [6. Condition and Fulfillment Generation](#6-condition-and-fulfillment-generation)
-  - [6.1. Unfulfillable Condition](#61-unfulfillable-condition)
-    - [6.2. Fulfillable Condition](#62-fulfillable-condition)
-    - [6.3. Fulfillment Generation](#63-fulfillment-generation)
-- [Appendix A: Similarities and Differences with QUIC](#appendix-a--similarities-and-differences-with-quic)
+- [STREAM: A Multiplexed Money and Data Transport for ILP](#stream-a-multiplexed-money-and-data-transport-for-ilp)
+  - [Abstract](#abstract)
+  - [1. Introduction](#1-introduction)
+  - [2. Conventions and Definitions](#2-conventions-and-definitions)
+  - [3. Overview](#3-overview)
+    - [3.1. Relationship with Other Protocols](#31-relationship-with-other-protocols)
+    - [3.2. Why Streams?](#32-why-streams)
+    - [3.3. Multiplexed Streams](#33-multiplexed-streams)
+    - [3.4. Exchange Rates](#34-exchange-rates)
+    - [3.5. Packets and Frames](#35-packets-and-frames)
+    - [3.6. Packet Acknowledgements (ACKs)](#36-packet-acknowledgements-acks)
+  - [4. Life of a Connection](#4-life-of-a-connection)
+    - [4.1. Setup](#41-setup)
+    - [4.2. Matching Packets to Connections](#42-matching-packets-to-connections)
+    - [4.3. Client Address Communication and Connection Migration](#43-client-address-communication-and-connection-migration)
+      - [4.3.1. Connection Asset Details](#431-connection-asset-details)
+    - [4.4. Streams](#44-streams)
+      - [4.4.1. Opening New Streams](#441-opening-new-streams)
+      - [4.4.2. Sending Money](#442-sending-money)
+      - [4.4.3. Sending Data](#443-sending-data)
+      - [4.4.4. Stream-Level Flow Control](#444-stream-level-flow-control)
+      - [4.4.5. Closing Streams](#445-closing-streams)
+    - [4.5. Connection-Level Flow Control](#45-connection-level-flow-control)
+    - [4.6. Closing Connections](#46-closing-connections)
+  - [5. Packet and Frame Specification](#5-packet-and-frame-specification)
+    - [5.1. Encryption](#51-encryption)
+      - [5.1.1. Encryption Envelope](#511-encryption-envelope)
+      - [5.1.2. Encryption Pseudocode](#512-encryption-pseudocode)
+      - [5.1.3. Maximum Number of Packets Per Connection](#513-maximum-number-of-packets-per-connection)
+      - [5.1.4. Maximum `VarUInt` Size](#514-maximum-varuint-size)
+    - [5.2. STREAM Packet](#52-stream-packet)
+    - [5.3. Frames](#53-frames)
+      - [5.3.1. `ConnectionClose` Frame](#531-connectionclose-frame)
+      - [5.3.2. `ConnectionNewAddress` Frame](#532-connectionnewaddress-frame)
+      - [5.3.3. `ConnectionMaxData` Frame](#533-connectionmaxdata-frame)
+      - [5.3.4. `ConnectionDataBlocked` Frame](#534-connectiondatablocked-frame)
+      - [5.3.5. `ConnectionMaxStreamId` Frame](#535-connectionmaxstreamid-frame)
+      - [5.3.6. `ConnectionStreamIdBlocked` Frame](#536-connectionstreamidblocked-frame)
+      - [5.3.7. `StreamClose` Frame](#537-streamclose-frame)
+      - [5.3.8. `StreamMoney` Frame](#538-streammoney-frame)
+      - [5.3.9. `StreamMaxMoney` Frame](#539-streammaxmoney-frame)
+      - [5.3.10. `StreamMoneyBlocked` Frame](#5310-streammoneyblocked-frame)
+      - [5.3.11. `StreamData` Frame](#5311-streamdata-frame)
+      - [5.3.12. `StreamMaxData` Frame](#5312-streammaxdata-frame)
+      - [5.3.13. `StreamDataBlocked` Frame](#5313-streamdatablocked-frame)
+      - [5.3.14. `ConnectionAssetDetails` Frame](#5314-connectionassetdetails-frame)
+      - [5.3.15. `StreamReceipt` Frame](#5315-streamreceipt-frame)
+    - [5.4. Error Codes](#54-error-codes)
+  - [6. Condition and Fulfillment Generation](#6-condition-and-fulfillment-generation)
+    - [6.1. Unfulfillable Condition](#61-unfulfillable-condition)
+      - [6.2. Fulfillable Condition](#62-fulfillable-condition)
+      - [6.3. Fulfillment Generation](#63-fulfillment-generation)
+  - [Appendix A: Similarities and Differences with QUIC](#appendix-a-similarities-and-differences-with-quic)
 
 ## 1. Introduction
 
@@ -160,7 +162,7 @@ A server MUST communicate the following values to a client using an **authentica
 
 To avoid storing a 32 byte secret for each connection, a server MAY deterministically generate the shared secret for each connection from a single server secret and a nonce appended to the ILP Address given to a particular client, for example by using an HMAC.
 
-For each new connection, a server MAY be provided with a pre-shared 32 byte Receipt Secret (to generate [STREAM receipts](../proposals/0000-stream-receipts.md)) and a 16 byte Receipt Nonce (to include in those receipts). To avoid storing this data for each connection, a Server MAY deterministically append this data to the ILP Address used for a Connection. If doing so, the server MUST encrypt the Receipt Secret.
+For each new connection, a server MAY be provided with a pre-shared 32 byte Receipt Secret (to generate [STREAM receipts](../0039-stream-receipts/0039-stream-receipts.md)) and a 16 byte Receipt Nonce (to include in those receipts). To avoid storing this data for each connection, a Server MAY deterministically append this data to the ILP Address used for a Connection. If doing so, the server MUST encrypt the Receipt Secret.
 
 ### 4.2. Matching Packets to Connections
 
@@ -198,7 +200,7 @@ Money can be sent for a given stream by sending an ILP Prepare packet with a non
 
 The receiver SHOULD include `StreamReceipt` frames in the ILP Fulfill packet indicating the total amount of money received in each stream, unless a Receipt Secret and Receipt Nonce were not pre-shared with the receiver.
 
-To use [STREAM receipts](../proposals/0000-stream-receipts.md), the Receipt Secret and Receipt Nonce are pre-shared between the receiver and [receipt verifier](../proposals/0000-stream-receipts.md#conventions-and-definitions). Receipts are generated by the receiver and passed to the sender, who may submit the receipts directly or indirectly to the verifier. This allows the verifier to confirm the payment, as only the receiver and the verifier know the Receipt Secret.
+To use [STREAM receipts](../0039-stream-receipts/0039-stream-receipts.md), the Receipt Secret and Receipt Nonce are pre-shared between the receiver and [receipt verifier](../0039-stream-receipts/0039-stream-receipts.md#conventions-and-definitions). Receipts are generated by the receiver and passed to the sender, who may submit the receipts directly or indirectly to the verifier. This allows the verifier to confirm the payment, as only the receiver and the verifier know the Receipt Secret.
 
 #### 4.4.3. Sending Data
 
@@ -450,7 +452,7 @@ Asset details exposed by this frame MUST NOT change during the lifetime of a Con
 | Field | Type | Description |
 |---|---|---|
 | Stream ID | VarUInt | Identifier of the stream this frame refers to. |
-| Receipt | VarOctetString | Length-prefixed [STREAM Receipt](../proposals/0000-stream-receipts.md#specification) provided by the receiver as proof of the total amount received on this stream. Note that the stream sender is not expected to decode the receipt itself. |
+| Receipt | VarOctetString | Length-prefixed [STREAM Receipt](../0039-stream-receipts/0039-stream-receipts.md#specification) provided by the receiver as proof of the total amount received on this stream. Note that the stream sender is not expected to decode the receipt itself. |
 
 ### 5.4. Error Codes
 

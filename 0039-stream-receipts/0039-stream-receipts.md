@@ -1,6 +1,6 @@
 ---
 title: STREAM Receipts
-type: proposal
+type: working-draft
 draft: 1
 ---
 
