@@ -1,5 +1,6 @@
 ---
 title: Hashed-Timelock Agreements (HTLAs)
+type: working-draft
 draft: 2
 ---
 

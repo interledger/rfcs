@@ -1,5 +1,6 @@
 ---
 title: SPSP Pull Payments
+type: working-draft
 draft: 1
 ---
 # SPSP Pull Payments

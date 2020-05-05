@@ -1,5 +1,6 @@
 ---
 title: Notes on OER Encoding
+type: working-draft
 draft: 3
 ---
 

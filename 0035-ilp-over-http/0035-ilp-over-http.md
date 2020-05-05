@@ -1,5 +1,6 @@
 ---
 title: ILP Over HTTP
+type: working-draft
 draft: 2
 ---
 

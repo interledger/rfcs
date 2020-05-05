@@ -1,5 +1,6 @@
 ---
 title: ILP Addresses
+type: working-draft
 draft: 6
 ---
 # ILP Addresses - v2.0.0
