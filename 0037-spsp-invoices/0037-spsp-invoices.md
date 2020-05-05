@@ -1,5 +1,6 @@
 ---
 title: SPSP Invoices
+type: working-draft
 draft: 2
 ---
 # SPSP Invoices

@@ -1,5 +1,6 @@
 ---
 title: Interledger Node - Requirements Specification
+type: working-draft
 draft: 1
 ---
 # Interledger Node - Requirements Specification

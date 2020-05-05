@@ -1,5 +1,6 @@
 ---
 title: Interledger Architecture
+type: working-draft
 draft: 7
 ---
 
