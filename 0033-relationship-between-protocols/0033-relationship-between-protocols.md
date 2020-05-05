@@ -1,5 +1,6 @@
 ---
 title: Relationship between Protocols
+type: working-draft
 draft: 2
 ---
 

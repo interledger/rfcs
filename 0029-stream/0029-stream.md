@@ -1,5 +1,6 @@
 ---
 title: STREAM - A Multiplexed Money and Data Transport for ILP
+type: working-draft
 draft: 9
 ---
 

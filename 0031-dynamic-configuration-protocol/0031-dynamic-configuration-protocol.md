@@ -1,5 +1,6 @@
 ---
 title: Interledger Dynamic Configuration Protocol
+type: working-draft
 draft: 3
 ---
 

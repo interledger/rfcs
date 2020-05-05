@@ -1,5 +1,6 @@
 ---
 title: Paid HTTP APIs
+type: working-draft
 draft: 5
 ---
 # Paid HTTP APIs

@@ -1,5 +1,6 @@
 ---
 title: Connector Risk Mitigations
+type: working-draft
 draft: 3
 ---
 # Connector Risk Mitigations

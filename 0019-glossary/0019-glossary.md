@@ -1,5 +1,6 @@
 ---
 title: Glossary
+type: working-draft
 draft: 3
 ---
 # Glossary
