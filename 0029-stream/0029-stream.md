@@ -184,14 +184,16 @@ In the most advanced scenarios where clients and servers are both capable of sim
 
 If an endpoint supports receiving, then the endpoint MAY change its ILP Address at any point during a connection by sending a `ConnectionNewAddress` frame. To ensure the new address is received and acknowledged, implementations MAY choose to send these frames only in ILP Prepare packets, although certain connections may not support this (e.g., a receiver emitting this frame to a non-receiving sender will only be able to propagate this frame in a fulfill or reject packet).
 
-Senders encountering this frame SHOULD wait for a valid response (encrypted with the same shared secret) from the new address to validate the new path. STREAM relies upon this authenticated request/response packet flow in lieu of [QUIC's explicit Path Validation](https://quicwg.github.io/base-drafts/draft-ietf-quic-transport.html#rfc.section.6.7), so implementations SHOULD refrain from sending large numbers of packets or large amounts of data to a new ILP address before validating the path to avoid being tricked into participating in a Denial of Service (DoS) attack on a third-party endpoint.
+Senders encountering this frame SHOULD wait for a separate, valid request/response (encrypted with the same shared secret) from the new address to validate the new path. STREAM relies upon this authenticated request/response packet flow in lieu of [QUIC's explicit Path Validation](https://quicwg.github.io/base-drafts/draft-ietf-quic-transport.html#rfc.section.6.7), so implementations SHOULD refrain from sending large numbers of packets or large amounts of data to a new ILP address before validating the path. For example, this might help avoid being tricked into participating in a Denial of Service (DoS) attack on a third-party endpoint.
 
 #### 4.3.3. Connection Asset Details
-Either endpoint MAY expose its asset details by sending a `ConnectionAssetDetails` frame in a stream packet with sequence value of zero (`0`). Endpoints that encounter a `ConnectionAssetDetails` frame in a packet with a non-zero sequence number SHOULD ignore the frame. 
+Either endpoint MAY expose its asset details by sending a `ConnectionAssetDetails` frame in a stream packet.
 
 Asset details, whether exposed by this frame or obtained by a higher-layer protocol, MUST not change during the lifetime of a Connection. Therefore, if a receiver receives a `ConnectionAssetDetails` frame that contradicts existing asset details, then the receiver SHOULD close the connection because it would be ambiguous which asset details are authoritative.
 
 This frame is OPTIONAL because the frame is generally only useful for senders who wish to verify the amount received on a path. For example, a client or server that only functions as a sender, but not a receiver, does not need to emit this frame if the endpoint on the other side of the connection does not need the information. Refer to Section 3.4 (Exchange Rates) for more information.
+
+This document purposefully avoids mandating how a sender can prompt a receiver from sending a `ConnectionAssetDetails`. However, most receiver implementations emit this frame in response to receiving a `ConnectionNewAddress` frame.
 
 ### 4.4. Streams
 
