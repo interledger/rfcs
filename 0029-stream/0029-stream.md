@@ -193,7 +193,6 @@ Asset details, whether exposed by this frame or obtained by a higher-layer proto
 
 This frame is OPTIONAL because the frame is generally only useful for senders who wish to verify the amount received on a path. For example, a client or server that only functions as a sender, but not a receiver, does not need to emit this frame if the endpoint on the other side of the connection does not need the information. Refer to Section 3.4 (Exchange Rates) for more information.
 
-This document purposefully avoids mandating how a sender can prompt a receiver from sending a `ConnectionAssetDetails`. However, most receiver implementations emit this frame in response to receiving a `ConnectionNewAddress` frame.
 
 ### 4.4. Streams
 
