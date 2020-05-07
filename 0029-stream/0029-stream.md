@@ -174,13 +174,13 @@ STREAM packets are completely encrypted so endpoints must try to decrypt and par
 
 ### 4.3. Connection Details
  
-#### 4.3.1. Client Address Communication (Receivers Only)
+#### 4.3.1. Client Address Communication
 
 When a client connects to a server, the client MAY communicate its ILP Address to the server using a  `ConnectionNewAddress` frame. This allows the client to function as a receiver on the Connection. Without this frame, a server would not have a destination address to send packets to a client.
 
 If the server is capable of sending ILP Prepare packets and the client is capable of receiving ILP Prepare packets, the `ConnectionNewAddress` frame enables bi-directional payment flows. However, the frame is OPTIONAL because clients may not be capable of receiving ILP Prepare packets. For example, a client may not be accessible from a routable ILP Address.
 
-#### 4.3.2. Connection Migration (Receivers Only)
+#### 4.3.2. Connection Migration
 
 If an endpoint supports receiving, then the endpoint MAY change its ILP Address at any point during a connection by sending a `ConnectionNewAddress` frame. To ensure the new address is received and acknowledged, implementations MAY choose to send these frames only in ILP Prepare packets, although certain connections may not support this (e.g., a receiver emitting this frame to a non-receiving sender will only be able to propagate this frame in an ILP Fulfill or ILP Reject packet).
 
