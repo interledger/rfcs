@@ -172,7 +172,7 @@ Incoming packets can either be associated with an existing connection, or, for s
 
 STREAM packets are completely encrypted so endpoints must try to decrypt and parse them to determine whether a given packet was sent by the other endpoint of a connection. Incoming Prepare packets whose data cannot be decrypted with the expected shared secret MUST be rejected with `F06: Unexpected Payment` errors.
 
-### 4.3. Optional Connection Details
+### 4.3. Connection Details
  
 #### 4.3.1. Client Address Communication (Receivers Only)
 
