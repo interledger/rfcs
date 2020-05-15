@@ -191,8 +191,7 @@ Either endpoint MAY expose its asset details by sending a `ConnectionAssetDetail
 
 Asset details, whether exposed by this frame or obtained by a higher-layer protocol, MUST not change during the lifetime of a Connection. Therefore, if a receiver receives a `ConnectionAssetDetails` frame that contradicts existing asset details, then the receiver SHOULD close the connection because it would be ambiguous which asset details are authoritative.
 
-This frame is OPTIONAL because the frame is generally only useful for senders who wish to verify the amount received on a path. For example, a client or server that only functions as a sender, but not a receiver, does not need to emit this frame if the endpoint on the other side of the connection does not need the information. Refer to Section 3.4 (Exchange Rates) for more information.
-
+While this frame is OPTIONAL, each endpoint SHOULD emit this frame when possible. For example, senders need the recipient to share asset details in order to enforce minimum exchange rates. Refer to [Section 3.4 (Exchange Rates)](#34-exchange-rates) for more information.
 
 ### 4.4. Streams
 
