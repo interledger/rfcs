@@ -187,7 +187,7 @@ If an endpoint supports receiving, then the endpoint MAY change its ILP Address 
 Senders encountering this frame SHOULD wait for a separate, valid request/response (encrypted with the same shared secret) from the new address to validate the new path. STREAM relies upon this authenticated request/response packet flow in lieu of [QUIC's explicit Path Validation](https://quicwg.github.io/base-drafts/draft-ietf-quic-transport.html#rfc.section.6.7), so implementations SHOULD refrain from sending large numbers of packets or large amounts of data to a new ILP address before validating the path. For example, this might help avoid being tricked into participating in a Denial of Service (DoS) attack on a third-party endpoint.
 
 #### 4.3.3. Connection Asset Details
-Either endpoint MAY expose its asset details by sending a `ConnectionAssetDetails` frame in a stream packet.
+Either endpoint MAY expose its asset details by sending a `ConnectionAssetDetails` frame in a STREAM packet.
 
 Asset details, whether exposed by this frame or obtained by a higher-layer protocol, MUST not change during the lifetime of a Connection. Therefore, if a receiver receives a `ConnectionAssetDetails` frame that contradicts existing asset details, then the receiver SHOULD close the connection because it would be ambiguous which asset details are authoritative.
 
