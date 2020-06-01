@@ -65,7 +65,7 @@ Accept: application/spsp4+json, application/spsp+json
 
 ##### Request Headers to Support Web Monetization Polyfills
 
-[Web Monetization](../0028-web-monetization/0028-web-monetization.md) polyfills may query SPSP from a non-privileged context they are implemented as a script rather than a browser extension. Sites may choose to use a script-based polyfill to enable Web Monetization for their visitors without requiring any browser extension or browser support.
+[Web Monetization](../0028-web-monetization/0028-web-monetization.md) polyfills may query SPSP from a non-privileged context if they are implemented as a script rather than a browser extension. Sites may choose to use a script-based polyfill to enable Web Monetization for their visitors without requiring any browser extension or browser support.
 
 In this situation, [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) headers are necessary to make the SPSP server reachable. If CORS headers are not included, the SPSP query will be rejected and Web Monetization will fail to initialize.
 
