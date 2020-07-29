@@ -1,7 +1,7 @@
 ---
 title: STREAM - A Multiplexed Money and Data Transport for ILP
 type: working-draft
-draft: 10
+draft: 11
 ---
 
 # STREAM: A Multiplexed Money and Data Transport for ILP
@@ -26,8 +26,10 @@ This document specifies the STREAM Interledger Transport protocol, which provide
   - [4. Life of a Connection](#4-life-of-a-connection)
     - [4.1. Setup](#41-setup)
     - [4.2. Matching Packets to Connections](#42-matching-packets-to-connections)
-    - [4.3. Client Address Communication and Connection Migration](#43-client-address-communication-and-connection-migration)
-      - [4.3.1. Connection Asset Details](#431-connection-asset-details)
+    - [4.3 Connection Details](#43-connection-details)
+      - [4.3.1. Client Address Communication](#431-client-address-communication)
+      - [4.3.2. Connection Migration](#432-connection-migration)
+      - [4.3.3. Connection Asset Details](#433-connection-asset-details)
     - [4.4. Streams](#44-streams)
       - [4.4.1. Opening New Streams](#441-opening-new-streams)
       - [4.4.2. Sending Money](#442-sending-money)
@@ -156,7 +158,7 @@ This section describes how connections and streams are created, used, and closed
 
 A server MUST communicate the following values to a client using an **authenticated, encrypted** communication channel (such as HTTPS). Key exchange is NOT provided by STREAM.
 
-- STREAM Version (optional -- assumed to be version 1 unless specified)
+- STREAM Version (OPTIONAL -- assumed to be version 1 unless specified)
 - Server ILP Address
 - Cryptographically secure random or pseudorandom shared secret (it is RECOMMENDED to use 32 bytes)
 
@@ -170,19 +172,26 @@ Incoming packets can either be associated with an existing connection, or, for s
 
 STREAM packets are completely encrypted so endpoints must try to decrypt and parse them to determine whether a given packet was sent by the other endpoint of a connection. Incoming Prepare packets whose data cannot be decrypted with the expected shared secret MUST be rejected with `F06: Unexpected Payment` errors.
 
-### 4.3. Client Address Communication and Connection Migration
+### 4.3. Connection Details
+ 
+#### 4.3.1. Client Address Communication
 
-When a client connects to a server, they MUST communicate their ILP address to the server using a `ConnectionNewAddress` frame.
+When a client connects to a server, the client MAY communicate its ILP Address to the server using a  `ConnectionNewAddress` frame. This allows the client to function as a receiver on the Connection. Without this frame, a server would not have a destination address to send packets to a client.
 
-Either endpoint MAY change their ILP address at any point during a connection by sending a `ConnectionNewAddress` frame. To ensure the new address is received and acknowledged, implementations MAY choose to send these frames only in ILP Prepare packets.
+If the server is capable of sending ILP Prepare packets and the client is capable of receiving ILP Prepare packets, the `ConnectionNewAddress` frame enables bi-directional money and data flows. However, the frame is OPTIONAL because clients may not be capable of receiving ILP Prepare packets. For example, a client using a request-response protocol like HTTP to send ILP packets doesn't have a persistent connection for receiving ILP Prepare packets.
 
-Implementations SHOULD wait for a valid response (encrypted with the same shared secret) from the new address to validate the new path. STREAM uses the authenticated request/response packets in lieu of [QUIC's explicit Path Validation](https://quicwg.github.io/base-drafts/draft-ietf-quic-transport.html#rfc.section.6.7). Implementations SHOULD refrain from sending large numbers of packets or large amounts of data to a new ILP address before validating the path to avoid being tricked into participating in a Denial of Service (DoS) attack on a third-party endpoint.
+#### 4.3.2. Connection Migration
 
-#### 4.3.1. Connection Asset Details
+If an endpoint supports receiving, then the endpoint MAY change its ILP Address at any point during a connection by sending a `ConnectionNewAddress` frame. To ensure the new address is received and acknowledged, implementations MAY choose to send these frames only in ILP Prepare packets, although certain connections may not support this (e.g., a receiver emitting this frame to a non-receiving sender will only be able to propagate this frame in an ILP Fulfill or ILP Reject respone packet).
 
-Each endpoint MAY expose their asset details by sending a `ConnectionAssetDetails` frame. This frame is optional because some use-cases do not require it.
+Senders encountering this frame SHOULD wait for a separate, valid request/response (encrypted with the same shared secret) from the new address to validate the new path. STREAM relies upon this authenticated request/response packet flow in lieu of [QUIC's explicit Path Validation](https://quicwg.github.io/base-drafts/draft-ietf-quic-transport.html#rfc.section.6.7), so implementations SHOULD refrain from sending large numbers of packets or large amounts of data to a new ILP address before validating the path. For example, this might help avoid being tricked into participating in a Denial of Service (DoS) attack on a third-party endpoint.
 
-Asset details exposed by this frame MUST not change during the lifetime of a Connection.
+#### 4.3.3. Connection Asset Details
+Either endpoint MAY expose its asset details by sending a `ConnectionAssetDetails` frame in a STREAM packet.
+
+Asset details, whether exposed by this frame or obtained by a higher-layer protocol, MUST not change during the lifetime of a Connection. Therefore, if a receiver receives a `ConnectionAssetDetails` frame that contradicts existing asset details, then the receiver SHOULD close the connection because it would be ambiguous which asset details are authoritative.
+
+While this frame is OPTIONAL, each endpoint SHOULD emit this frame when possible. For example, senders need the recipient to share asset details in order to enforce minimum exchange rates. Refer to [Section 3.4 (Exchange Rates)](#34-exchange-rates) for more information.
 
 ### 4.4. Streams
 
