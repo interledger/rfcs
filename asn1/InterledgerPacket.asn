@@ -12,21 +12,6 @@ IMPORTS
     InterledgerFulfill,
     InterledgerReject
     FROM InterledgerProtocol
-
-    InterledgerProtocolPaymentData,
-    ForwardedPaymentData,
-    InterledgerProtocolErrorData,
-    InterledgerProtocolFulfillmentData,
-    InterledgerProtocolRejectionData
-    FROM LegacyInterledgerProtocol
-
-    QuoteLiquidityRequestData,
-    QuoteLiquidityResponseData,
-    QuoteBySourceAmountRequestData,
-    QuoteBySourceAmountResponseData,
-    QuoteByDestinationAmountRequestData,
-    QuoteByDestinationAmountResponseData
-    FROM InterledgerQuotingProtocol
 ;
 
 PACKET ::= CLASS {
@@ -35,17 +20,6 @@ PACKET ::= CLASS {
 } WITH SYNTAX {&typeId &Type}
 
 PacketSet PACKET ::= {
-    {1 InterledgerProtocolPaymentData} |
-    {2 QuoteLiquidityRequestData} |
-    {3 QuoteLiquidityResponseData} |
-    {4 QuoteBySourceAmountRequestData} |
-    {5 QuoteBySourceAmountResponseData} |
-    {6 QuoteByDestinationAmountRequestData} |
-    {7 QuoteByDestinationAmountResponseData} |
-    {8 InterledgerProtocolErrorData} |
-    {9 InterledgerProtocolFulfillmentData} |
-    {10 ForwardedPaymentData} |
-    {11 InterledgerProtocolRejectionData} |
     {12 InterledgerPrepare} |
     {13 InterledgerFulfill} |
     {14 InterledgerReject}
