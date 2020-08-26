@@ -48,32 +48,4 @@ Address ::= IA5String
 
 Timestamp ::= PrintableString (SIZE(17))
 
--- --------------------------------------------------------------------------
-
--- Liquidity curves describe the relationship between input and output amount
--- for a given path between a pair of ledgers.
---
--- The curve is expressed as a series of points given as coordinates of the form
--- <inputAmount, outputAmount>. If a sender sends `inputAmount` units to the
--- connector, the recipient will receive `outputAmount`. The curve may represent
--- the liquidity through a single connector, or multiple liquidity curves can be
--- combined into one to represent the liquidity through a given path of
--- connectors.
---
--- Points are ordered by inputAmount. The inputAmount is strictly increasing
--- from point to point. The outputAmount is monotonically increasing, meaning
--- each successively point must have an equal or greater outputAmount.
---
--- The first point represents the minimum amount that can be transacted, while
--- the final point represents the maximum amount that can be transacted.
---
--- If a query does not match a point exactly, implementations MUST use linear
--- interpolation. When querying by outputAmount, if multiple points match
--- exactly, the lowest inputAmount of any of these points MUST be returned.
-
-LiquidityCurve ::= SEQUENCE OF SEQUENCE {
-  x UInt64,
-  y UInt64
-}
-
 END
