@@ -35,18 +35,21 @@ Host: example.com
 Accept: application/octet-stream
 Content-Type: application/octet-stream
 Authorization: Bearer zxcljvoizuu09wqqpowipoalksdflksjdgxclvkjl0s909asdf
+Callback-Url: https://example.com/incoming/ilp
 Request-Id: 42ee09c8-a6de-4ae3-8a47-4732b0cbb07b
-Idempotency-Key: 8988dd17-55e4-40e0-9c57-419d81a0e3a5
 
 < Body: Binary OER-Encoded ILP Prepare Packet >
 ```
 
 - **Path** &mdash; A connector MAY specify any HTTP path for their peer to send ILP packets to.
-- **Host Header** &mdash; The standard [HTTP Host Header](https://tools.ietf.org/html/rfc2616#section-14.23) indicating the domain of the HTTP server the Request is sent to.
+- **Host Header** &mdash; The standard [HTTP Host Header](https://tools.ietf.org/html/rfc2616#section-14.23) indicating the domain of the HTTP server the request is sent to.
 - **Content-Type / Accept Headers** &mdash; MUST be set to `application/octet-stream`.
-- **Request Id Header** &mdash; _Optional_. UUIDv4 to correlate the corresponding ILP Fulfill/Reject.
-- **Idempotency Key Header** &mdash; _Optional_. UUIDv4 to uniquely identify this ILP Prepare packet.
 - **Body** &mdash; ILP Prepare encoded using OER, as specified in [RFC 27: Interledger Protocol V4](./0027-interledger-protocol-4/0027-interledger-protocol-4.md).
+
+Requests expecting an asynchronous reply SHOULD also include the following headers:
+
+- **Callback URL Header** &mdash; _Optional_. Callback URL of the origin connector to send an asynchronous HTTP request with the ILP Fulfill/Reject.
+- **Request Id Header** &mdash; _Optional_. UUIDv4 to uniquely identify this ILP Prepare, and correlate the corresponding ILP Fulfill/Reject.
 
 #### Response
 
@@ -59,23 +62,13 @@ Content-Type: application/octet-stream
 < Body: Binary OER-Encoded ILP Fulfill or Reject Packet >
 ```
 
-If the request included a `Request-Id` header, the recipient handling the ILP Prepare SHOULD choose to handle the packet asynchronously and return the corresponding ILP Fulfill/Reject in a separate outgoing HTTP request.
+If the request included a `Callback-Url` header and `Request-Id` header, the recipient handling the ILP Prepare SHOULD choose to handle the packet asynchronously and return the corresponding ILP Fulfill/Reject in a separate outgoing HTTP request.
 
 In the asynchronous mode, if the request is semantically valid, the recipient MUST respond immediately that the ILP Prepare is accepted for processing, even if the packet will ultimately be rejected:
 
 ```http
 HTTP/x.x 202 Accepted
 ```
-
-#### Retry Behavior
-
-Two peers MAY retry ILP Prepare packets, but MUST both agree to support retries out-of-band. If the sender retried sending a Prepare to a peer that doesn't support idempotence, multiple packets may mistakenly be fulfilled, and their accounting balances would desynchronize. Retrying ILP Prepare packets enables faster recovery when a packet is temporarily lost in transit instead of waiting for the packet to expire.
-
-If the recipient of the ILP Prepare responds with a `5xx` status or no HTTP response is received within a given timeout, the sender of the ILP Prepare SHOULD retry sending the packet with the same idempotency key.
-
-The sender MUST conclude retrying after receiving a response with a `2xx` status, `4xx` error, or receiving the corresponding ILP Fulfill/Reject packet.
-
-The sender SHOULD ensure there are multiple attempts to deliver the packet to the peer before the ILP Prepare expires.
 
 ### Async ILP Fulfill/Reject Reply
 
@@ -87,16 +80,14 @@ Host: example.com
 Content-Type: application/octet-stream
 Authorization: Bearer zxcljvoizuu09wqqpowipoalksdflksjdgxclvkjl0s909asdf
 Request-Id: 42ee09c8-a6de-4ae3-8a47-4732b0cbb07b
-Idempotency-Key: 6ff99499-008e-4499-8644-048450627496
 
 < Body: Binary OER-Encoded ILP Fulfill or Reject Packet >
 ```
 
-- **Path** &mdash; A connector MAY specify any HTTP path for their peer to send ILP packets to.
+- **Path** &mdash; HTTP path from the callback URL in the original request carrying the ILP Prepare.
 - **Host Header** &mdash; The standard [HTTP Host Header](https://tools.ietf.org/html/rfc2616#section-14.23) indicating the domain of the HTTP server the Request is sent to.
 - **Content-Type Header** &mdash; MUST be set to `application/octet-stream`.
-- **Request Id Header** &mdash; Request ID from the corresponding ILP Prepare, which is a UUIDv4.
-- **Idempotency Key Header** &mdash; _Optional_. UUIDv4 to uniquely identify this ILP Fulfill or Reject packet.
+- **Request Id Header** &mdash; Request ID from the corresponding ILP Prepare, which is a UUIDv4, matching this reply to the original request.
 - **Body** &mdash; ILP Packet encoded using OER, as specified in [RFC 27: Interledger Protocol V4](./0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 
 #### Response
@@ -105,7 +96,7 @@ Idempotency-Key: 6ff99499-008e-4499-8644-048450627496
 HTTP/x.x 200 OK
 ```
 
-If the request ID doesn't correspond to an in-flight ILP Prepare, the connector should ignore it and return an error:
+If the request ID doesn't correspond to an in-flight ILP Prepare, or a reply was already processed, the connector should ignore it and return an error:
 
 ```http
 HTTP/x.x 400 Bad Request
@@ -113,23 +104,17 @@ HTTP/x.x 400 Bad Request
 
 #### Retry Behavior
 
-If the recipient of the ILP Fulfill/Reject responds with a `5xx` status or no HTTP response is received within a given timeout, the sender of the ILP Fulfill/Reject SHOULD retry sending the packet with the same idempotency key.
+If the recipient of the ILP Fulfill/Reject responds with a `5xx` status or no HTTP response is received within a given timeout, the sender of the ILP Fulfill/Reject SHOULD retry sending the request.
 
 The sender of the ILP Fulfill/Reject MUST conclude retrying after receiving a response with a `2xx` status or `4xx` error.
 
-The sender SHOULD ensure there are multiple attempts to deliver the reply packet to the peer before the corresponding ILP Prepare expires.
+The sender of the ILP Fulfill/Reject SHOULD ensure there are multiple attempts to deliver the reply packet to the peer before the corresponding ILP Prepare expires.
 
-### Idempotence
+#### Idempotence
 
-Every Interledger packet corresponds to a transaction that may affect financial accounting balances. If a request fails, such as due to a network connection error, retrying ILP requests and responses with [idempotence](https://en.wikipedia.org/wiki/Idempotence) can prevent balance inconsistencies between peers.
+An ILP Fulfill packet corresponds to a commitment which affects financial accounting balances. If an HTTP request carrying the ILP reply fails, such as due to a network connection error, retrying delivery of the ILP reply with [idempotence](https://en.wikipedia.org/wiki/Idempotence) can prevent balance inconsistencies between peers.
 
-If peers choose to retry ILP Prepare packets, they MUST both support idempotence. Peers SHOULD support idempotence for asynchronous ILP Fulfill/Reject replies.
-
-For connectors that support idempotence:
-
-- When a connector begins processing an incoming packet with an idempotency key it has not already tracked, it MUST persist that key.
-- If a subsequent request of the same type (ILP Prepare, or ILP Fulfill/Reject) is encountered with the same idempotency key, the packet MUST be ignored and responded to with the successful status.
-- For safety, the connector MUST persist each idempotency key until some amount of time after the corresponding ILP Prepare expires so it doesn't accidentally process a duplicate ILP Prepare packet.
+If the sender of an ILP Prepare expects an asynchronous reply, they should only process the first ILP reply they receive corresponding to the in-flight ILP Prepare.
 
 ### Error Handling
 
