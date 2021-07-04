@@ -15,7 +15,7 @@ Scaling Interledger infrastructure to handle large volumes of ILP packets requir
 
 In an ILP Over HTTP connection, both peers run HTTP servers with accessible HTTPS endpoints. When peering, the peers exchange their respective URLs, authentication tokens or TLS certificates, ILP addresses, and settlement-related details.
 
-Each ILP Prepare packet is sent as the body of an HTTP request to the peer's server endpoint. ILP Fulfill or Reject packets are returned as the body of the HTTP response in the synchronous mode, or sent in a separate HTTP request in the asynchronous mode.
+Each ILP Prepare packet is sent as the body of an HTTP request to the peer's server endpoint. ILP Fulfill or Reject packets are returned as the body of the HTTP response in synchronous mode, or sent in a separate HTTP request in asynchronous mode.
 
 ## Specification
 
@@ -31,11 +31,12 @@ Peers MAY use any standard HTTP authentication mechanism to authenticate incomin
 
 ```http
 POST /ilp HTTP/x.x
-Host: example.com
+Host: bob.example
 Accept: application/octet-stream
 Content-Type: application/octet-stream
 Authorization: Bearer zxcljvoizuu09wqqpowipoalksdflksjdgxclvkjl0s909asdf
-Callback-Url: https://example.com/incoming/ilp
+Prefer: respond-async
+Callback-Url: https://alice.example/incoming/ilp
 Request-Id: 42ee09c8-a6de-4ae3-8a47-4732b0cbb07b
 
 < Body: Binary OER-Encoded ILP Prepare Packet >
@@ -46,14 +47,15 @@ Request-Id: 42ee09c8-a6de-4ae3-8a47-4732b0cbb07b
 - **Content-Type / Accept Headers** &mdash; MUST be set to `application/octet-stream`.
 - **Body** &mdash; ILP Prepare encoded using OER, as specified in [RFC 27: Interledger Protocol V4](./0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 
-Requests expecting an asynchronous reply SHOULD also include the following headers:
+Asynchronous mode uses these additional headers:
 
+- **Prefer** &mdash; MUST be set to `respond-async`. If omitted, the reply behavior defaults to synchronous mode.
 - **Callback URL Header** &mdash; _Optional_. Callback URL of the origin connector to send an asynchronous HTTP request with the ILP Fulfill/Reject.
 - **Request Id Header** &mdash; _Optional_. UUIDv4 to uniquely identify this ILP Prepare, and correlate the corresponding ILP Fulfill/Reject.
 
 #### Response
 
-In the synchronous mode, the raw OER-encoded ILP Fulfill or Reject is returned within the body of the response:
+In synchronous mode, the raw OER-encoded ILP Fulfill or Reject is returned within the body of the response:
 
 ```http
 HTTP/x.x 200 OK
@@ -62,9 +64,9 @@ Content-Type: application/octet-stream
 < Body: Binary OER-Encoded ILP Fulfill or Reject Packet >
 ```
 
-If the request included a `Callback-Url` header and `Request-Id` header, the recipient handling the ILP Prepare SHOULD choose to handle the packet asynchronously and return the corresponding ILP Fulfill/Reject in a separate outgoing HTTP request.
+If the request includes a `Prefer: respond-async` header, the recipient handling the ILP Prepare SHOULD choose to handle the packet asynchronously and return the corresponding ILP Fulfill/Reject in a separate outgoing HTTP request.
 
-In the asynchronous mode, if the request is semantically valid, the recipient MUST respond immediately that the ILP Prepare is accepted for processing, even if the packet will ultimately be rejected:
+If the request is semantically valid and the recipient chooses to handle it asynchronously, they MUST respond immediately that the ILP Prepare is accepted for processing, even if the packet will ultimately be rejected:
 
 ```http
 HTTP/x.x 202 Accepted
@@ -75,8 +77,8 @@ HTTP/x.x 202 Accepted
 #### Request
 
 ```http
-POST /ilp HTTP/x.x
-Host: example.com
+POST /incoming/ilp HTTP/x.x
+Host: alice.example
 Content-Type: application/octet-stream
 Authorization: Bearer zxcljvoizuu09wqqpowipoalksdflksjdgxclvkjl0s909asdf
 Request-Id: 42ee09c8-a6de-4ae3-8a47-4732b0cbb07b
