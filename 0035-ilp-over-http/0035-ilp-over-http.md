@@ -50,8 +50,8 @@ Request-Id: 42ee09c8-a6de-4ae3-8a47-4732b0cbb07b
 Asynchronous mode uses these additional headers:
 
 - **Prefer** &mdash; MUST be set to `respond-async`. If omitted, the reply behavior defaults to synchronous mode.
-- **Callback URL Header** &mdash; _Optional_. Callback URL of the origin connector to send an asynchronous HTTP request with the ILP Fulfill/Reject.
-- **Request Id Header** &mdash; _Optional_. UUIDv4 to uniquely identify this ILP Prepare, and correlate the corresponding ILP Fulfill/Reject.
+- **Request Id Header** &mdash; UUIDv4 to uniquely identify this ILP Prepare, and correlate the corresponding ILP Fulfill/Reject.
+- **Callback URL Header** &mdash; Callback URL of the origin connector to send an asynchronous HTTP request with the ILP Fulfill/Reject. Required unless peers exchange the callback URL out-of-band.
 
 #### Response
 
