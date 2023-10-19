@@ -108,7 +108,7 @@ This section provides a high-level description of key aspects of STREAM that are
 
 ### 3.1. Relationship with Other Protocols
 
-![STREAM in the Interledger Stack](../shared/graphs/stream-in-protocol-suite.svg)
+![STREAM in the Interledger Stack](https://raw.githubusercontent.com/interledger/rfcs/master/shared/graphs/stream-in-protocol-suite.svg)
 
 STREAM is a Transport Protocol, designed to be used with [ILPv4](../0027-interledger-protocol-4/0027-interledger-protocol-4.md). Application Layer protocols, such as the [Simple Payment Setup Protocol (SPSP)](../0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md) can use STREAM to send money and data between endpoints.
 
