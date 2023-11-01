@@ -24,7 +24,7 @@ The "Interledger protocol suite" can be used among any network of participants, 
 
 When two parties want to do business online, the one who sends money is the _sender_ and the one who gets money is the _receiver_. If the sender and the receiver don't have some monetary system in common, they need one or more parties to connect them. In the Interledger architecture, _connectors_ forward money through the network until it reaches the receiver.
 
-![Diagram showing Sender linked to two Connectors and a Receiver in a line](../shared/graphs/interledger-model.svg)
+![Diagram showing Sender linked to two Connectors and a Receiver in a line](https://raw.githubusercontent.com/interledger/rfcs/master/shared/graphs/interledger-model.svg)
 
 Within these specifications, we use _node_ as a general term for any participant in the Interledger. A node may be a sender, a receiver, or a connector. The node may represent a person or business, or perhaps a single device or software program. In the case where a node represents a device or software program, the node is usually connected to another node that represents the device's owner or the person running the software.
 
@@ -34,7 +34,7 @@ Connectors provide a service of forwarding packets and relaying money, and they 
 
 ### Protocol Layers
 
-![Diagram of protocol suite: Application layer protocols like SPSP provide messaging, on top of Transport protocols like STREAM, which are on top of the Interledger Protocol ILPv4; the Link layer establishes secure communications between peers; below that, the Settlement layer is dependent on a variety of different ledgers and their native protocols.](../shared/graphs/protocol-suite.svg)
+![Diagram of protocol suite: Application layer protocols like SPSP provide messaging, on top of Transport protocols like STREAM, which are on top of the Interledger Protocol ILPv4; the Link layer establishes secure communications between peers; below that, the Settlement layer is dependent on a variety of different ledgers and their native protocols.](https://raw.githubusercontent.com/interledger/rfcs/master/shared/graphs/protocol-suite.svg)
 
 Like the Internet protocol stack that inspired it, the Interledger protocol suite is divided into layers of protocols with different responsibilities. Lower-level protocols provide basic functionality that higher-level protocols depend on to provide more complex functionality.
 
@@ -121,11 +121,11 @@ Interledger moves money by relaying _packets_. In the Interledger Protocol, a "p
 
 When the prepare packet arrives at the receiver, if the amount of money to be received is acceptable, the receiver fulfills the condition with a "fulfill" packet that confirms the balance change in the account between the last connector and the receiver. Connectors pass the "fulfill" packet back up the chain, confirming the planned balance changes along the way, until the sender's money has been paid to the first connector.
 
-![Diagram: a prepare packet flows forward from Sender to Connector, to another Connector, to Receiver. A fulfill packet flows backward from Receiver to the second Connector, to the first Connector, to the Sender.](../shared/graphs/packet-flow-happy.svg)
+![Diagram: a prepare packet flows forward from Sender to Connector, to another Connector, to Receiver. A fulfill packet flows backward from Receiver to the second Connector, to the first Connector, to the Sender.](https://raw.githubusercontent.com/interledger/rfcs/master/shared/graphs/packet-flow-happy.svg)
 
 At any step along the way, a connector or the receiver can reject the payment, sending a "reject" packet back up the chain. This can happen if the receiver doesn't want the money, or a connector can't forward it. A prepared payment can also expire without the condition being fulfilled. In all these cases, no balances change.
 
-![Diagram: a prepare packet flows forward from Sender to Connector, to another Connector, who rejects it. A reject packet flows backward from the second Connector to the first Connector, then to the Sender.](../shared/graphs/packet-flow-reject.svg)
+![Diagram: a prepare packet flows forward from Sender to Connector, to another Connector, who rejects it. A reject packet flows backward from the second Connector to the first Connector, then to the Sender.](https://raw.githubusercontent.com/interledger/rfcs/master/shared/graphs/packet-flow-reject.svg)
 
 The flow is specified in detail in [IL-RFC-27: Interledger Protocol version 4](../0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 

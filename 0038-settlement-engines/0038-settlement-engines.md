@@ -39,7 +39,7 @@ _Settlement engines_ are services operated by two Interledger peers that facilit
 
 This specification defines a standardized HTTP API for Interledger connectors to interface with their settlement engines, and vice versa. Connectors trigger the settlement engine to perform settlements, and settlement engines trigger the connector to adjust accounting balances when incoming settlements are received, like so:
 
-![Settlement architecture](../shared/graphs/settlement-architecture.svg)
+![Settlement architecture](https://raw.githubusercontent.com/interledger/rfcs/master/shared/graphs/settlement-architecture.svg)
 
 ## Motivation
 
