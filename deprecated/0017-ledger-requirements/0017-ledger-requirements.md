@@ -26,12 +26,12 @@ The ledger MUST provide authorization holds, conditional upon a cryptographic ha
 
 Transfers using authorization holds can be in four distinct states:
 
-![Transfers start in the proposed state, transition to the prepared state and finally to the executed state, which is final. Proposed and prepared transfers can also transition to the rejected state, which is final as well.](../shared/graphs/transfer-states.svg)
+![Transfers start in the proposed state, transition to the prepared state and finally to the executed state, which is final. Proposed and prepared transfers can also transition to the rejected state, which is final as well.](https://raw.githubusercontent.com/interledger/rfcs/master/shared/graphs/transfer-states.svg)
 
-* Proposed -- Nothing has happened yet.
-* Prepared -- Funds are held.
-* Executed -- The transfer has completed.
-* Rejected -- The transfer has been canceled (and funds returned to the sender.)
+- Proposed -- Nothing has happened yet.
+- Prepared -- Funds are held.
+- Executed -- The transfer has completed.
+- Rejected -- The transfer has been canceled (and funds returned to the sender.)
 
 <span class="show alert alert-info">**Hint:** Authorization holds are the financial equivalent of a [two-phase commit](http://foldoc.org/two-phase%20commit).</span>
 
@@ -39,7 +39,7 @@ The ledger MUST be able to release the held funds to the receiver upon receiving
 
 The ledger MUST support releasing held funds back to the sender after a timeout.
 
-The ledger MUST support attaching a short message or *memo* to each transfer.
+The ledger MUST support attaching a short message or _memo_ to each transfer.
 
 The ledger MUST support notifications to account holders when transfers are prepared, executed, or rejected that affect their accounts.
 
@@ -96,4 +96,3 @@ Not all ledgers support held transfers. In the case of a ledger that doesn't, th
 2. The receiver MAY trust the sender. The sender will notify the receiver about the intent to transfer. If the receiver provides a fulfillment for the condition before the expiry date, the sender will perform a regular transfer to the receiver.
 
 3. The sender and receiver MAY appoint a mutually trusted third-party which has an account on the local ledger. The sender performs a regular transfer into a neutral third-party account. In the first step, funds are transfered into the account belonging to the neutral third-party.
-

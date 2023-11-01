@@ -3,6 +3,7 @@ title: The Interledger Protocol (ILP)
 draft: FINAL
 deprecated: 0027-interledger-protocol-4
 ---
+
 # Interledger Protocol (ILP)
 
 ## Preface
@@ -49,7 +50,7 @@ See [IL-RFC 19](../0019-glossary/0019-glossary.md) for definitions of terms like
 
 The following diagram illustrates the place of the interledger protocol in the protocol hierarchy:
 
-![Interledger model](../shared/graphs/protocol-suite.svg)
+![Interledger model](https://raw.githubusercontent.com/interledger/rfcs/master/shared/graphs/protocol-suite.svg)
 
 The interledger protocol interfaces on one side to the higher level end-to-end protocols and on the other side to the local ledger protocol. In this context a "ledger" may be a small ledger owned by an individual or organization or a large public ledger such as Bitcoin.
 
@@ -67,7 +68,6 @@ The protocol uses transfer holds to ensure a sender's funds are delivered to the
               LLI-1       LLI-1       LLI-2         LLI-2
                  \  (4,18) /             \  (8,14)   /
                 Local Ledger 1          Local Ledger 2
-
 
 1. The sending application uses a higher-level protocol to negotiate the address, an amount, a cryptographic condition, and a timeout with the destination. It calls on the interledger module to send a payment with these parameters.
 
@@ -120,6 +120,7 @@ When routing payments with relatively large amounts, the connectors and the inte
 #### Addressing
 
 As with the [internet protocol](https://tools.ietf.org/html/rfc791#section-2.3), interledger distinguishes between names, addresses, and routes.
+
 > "A name indicates what we seek. An address indicates where it is. A route indicates how to get there. The internet protocol deals primarily with addresses. It is the task of higher level (i.e., end-to-end or application) protocols to make the mapping from names to addresses."
 
 The interledger module translates interledger addresses to local ledger addresses. Connectors and local ledger interfaces are responsible for translating addresses into interledger routes and local routes, respectively.
@@ -160,54 +161,52 @@ Here is a summary of the fields in the delivered and forwarded ILP payment packe
 
 #### Delivered Payment Packet
 
-| Field | Type | Short Description |
-|:--|:--|:--|
-| type | UInt8 | Always `1`, indicates that this ILP packet is an ILP Payment Packet (type 1) |
-| length | Length Determinant | Indicates how many bytes the rest of the packet has |
-| amount | UInt64 | Amount the destination account should receive, denominated in the asset of the destination ledger |
-| account | Address | Address corresponding to the destination account |
-| data | OCTET STRING | Transport layer data attached to the payment |
-| extensions | Length Determinant | Always `0`
+| Field      | Type               | Short Description                                                                                 |
+| :--------- | :----------------- | :------------------------------------------------------------------------------------------------ |
+| type       | UInt8              | Always `1`, indicates that this ILP packet is an ILP Payment Packet (type 1)                      |
+| length     | Length Determinant | Indicates how many bytes the rest of the packet has                                               |
+| amount     | UInt64             | Amount the destination account should receive, denominated in the asset of the destination ledger |
+| account    | Address            | Address corresponding to the destination account                                                  |
+| data       | OCTET STRING       | Transport layer data attached to the payment                                                      |
+| extensions | Length Determinant | Always `0`                                                                                        |
 
 Here's an example:
 
 | Type | Length, 8+(1+14)+(1+3)+1=28 | Amount (123,000,000) ... |
-|:--|:--|:--|
-| 1    |  28    | 0 0 0 0 7 84 |
-
+| :--- | :-------------------------- | :----------------------- |
+| 1    | 28                          | 0 0 0 0 7 84             |
 
 | .. Amount (123,000,000) | Length | Address ... ('g.us.') |
-|:--|:--|:--|
-| 212 192 | 14     | 103 46 117 115 46 |
+| :---------------------- | :----- | :-------------------- |
+| 212 192                 | 14     | 103 46 117 115 46     |
 
-| ... Address ('nexus.bo') ... |
-|:--|
+| ... Address ('nexus.bo') ...  |
+| :---------------------------- |
 | 110 101 120 117 115 46 98 111 |
 
 | ... Address ('b') | length | data    | extensions |
-|:--|:--|:--|:--|
-| 98 | 3      | 4 16 65 | 0          |
+| :---------------- | :----- | :------ | :--------- |
+| 98                | 3      | 4 16 65 | 0          |
 
 ### Forwarded Payment Packet (experimental)
 
-| Field | Type | Short Description |
-|:--|:--|:--|
-| type | UInt8 | Always `10`, indicates that this ILP packet is an ILP Forwarded Payment Packet (type 10) |
-| length | Length Determinant | Indicates how many bytes the rest of the packet has |
-| account | Address | Address corresponding to the destination account |
-| data | OCTET STRING | Transport layer data attached to the payment |
-| extensions | Length Determinant | Always `0`
+| Field      | Type               | Short Description                                                                        |
+| :--------- | :----------------- | :--------------------------------------------------------------------------------------- |
+| type       | UInt8              | Always `10`, indicates that this ILP packet is an ILP Forwarded Payment Packet (type 10) |
+| length     | Length Determinant | Indicates how many bytes the rest of the packet has                                      |
+| account    | Address            | Address corresponding to the destination account                                         |
+| data       | OCTET STRING       | Transport layer data attached to the payment                                             |
+| extensions | Length Determinant | Always `0`                                                                               |
 
 Example:
 
-| Type | Length, (1+14)+(1+3)+1=20 | Length | Address ... ('g.us.nexus.bo')
-|:--|:--|:--|:--|
-| 10   |  20                       | 14     | 103 46 117 115 46 110 101 120 117 115 46 98 111 |
+| Type | Length, (1+14)+(1+3)+1=20 | Length | Address ... ('g.us.nexus.bo')                   |
+| :--- | :------------------------ | :----- | :---------------------------------------------- |
+| 10   | 20                        | 14     | 103 46 117 115 46 110 101 120 117 115 46 98 111 |
 
 | ... Address ('b') | length | data    | extensions |
-|:--|:--|:--|:--|
-| 98 | 3      | 4 16 65 | 0          |
-
+| :---------------- | :----- | :------ | :--------- |
+| 98                | 3      | 4 16 65 | 0          |
 
 Let's look more closely at the three important fields: `amount`, `address`, and `data`.
 
@@ -250,12 +249,12 @@ Arbitrary data that is attached to the payment. The contents are defined by the 
 
 Here is a summary of the fields in the ILP error format:
 
-| Field | Type | Short Description |
-|:--|:--|:--|
-| code | IA5String | [ILP Error Code](#ilp-error-codes) |
-| triggeredBy | Address | ILP address of the entity that originally emitted the error |
-| message | UTF8String | Error data provided for debugging purposes |
-| data | OCTET STRING | Error data provided for debugging purposes |
+| Field       | Type         | Short Description                                           |
+| :---------- | :----------- | :---------------------------------------------------------- |
+| code        | IA5String    | [ILP Error Code](#ilp-error-codes)                          |
+| triggeredBy | Address      | ILP address of the entity that originally emitted the error |
+| message     | UTF8String   | Error data provided for debugging purposes                  |
+| data        | OCTET STRING | Error data provided for debugging purposes                  |
 
 #### code
 
@@ -293,14 +292,14 @@ Machine-readable data. The format is defined for each error code. Implementation
 
 Here is a summary of the fields in the ILP error format:
 
-| Field | Type | Short Description |
-|:--|:--|:--|
-| code | IA5String | [ILP Error Code](#ilp-error-codes) |
-| name | IA5String | [ILP Error Code Name](#ilp-error-codes) |
-| triggeredBy | Address | ILP address of the entity that originally emitted the error |
-| forwardedBy | SEQUENCE OF Address | ILP addresses of connectors that relayed the error message |
-| triggeredAt | GeneralizedTime | Time when the error was initially emitted |
-| data | OCTET STRING | Error data provided for debugging purposes |
+| Field       | Type                | Short Description                                           |
+| :---------- | :------------------ | :---------------------------------------------------------- |
+| code        | IA5String           | [ILP Error Code](#ilp-error-codes)                          |
+| name        | IA5String           | [ILP Error Code Name](#ilp-error-codes)                     |
+| triggeredBy | Address             | ILP address of the entity that originally emitted the error |
+| forwardedBy | SEQUENCE OF Address | ILP addresses of connectors that relayed the error message  |
+| triggeredAt | GeneralizedTime     | Time when the error was initially emitted                   |
+| data        | OCTET STRING        | Error data provided for debugging purposes                  |
 
 #### code
 
@@ -344,54 +343,54 @@ Unless otherwise specified, `data` SHOULD be encoded as UTF-8.
 
 Inspired by [HTTP Status Codes](https://tools.ietf.org/html/rfc2616#section-10), ILP errors are categorized based on the intended behavior of the caller when they get the given error.
 
-#### F__ - Final Error
+#### F\_\_ - Final Error
 
 Final errors indicate that the payment is invalid and should not be retried unless the details are changed.
 
-| Code | Name | Description | Data Fields |
-|---|---|---|---|
-| **F00** | **Bad Request** | Generic sender error. | (empty) |
-| **F01** | **Invalid Packet** | The ILP packet was syntactically invalid. | (empty) |
-| **F02** | **Unreachable** | There was no way to forward the payment, because the destination ILP address was wrong or the connector does not have a route to the destination. | (empty) |
-| **F03** | **Invalid Amount** | The amount is invalid, for example it contains more digits of precision than are available on the destination ledger or the amount is greater than the total amount of the given asset in existence. | (empty) |
-| **F04** | **Insufficient Destination Amount** | The receiver deemed the amount insufficient, for example you tried to pay a $100 invoice with $10. | (empty) |
-| **F05** | **Wrong Condition** | The receiver generated a different condition and cannot fulfill the payment. | (empty) |
-| **F06** | **Unexpected Payment** | The receiver was not expecting a payment like this (the memo and destination address don't make sense in that combination, for example if the receiver does not understand the transport protocol used) | (empty) |
-| **F07** | **Cannot Receive** | The receiver is unable to accept this payment due to a constraint. For example, the payment would put the receiver above its maximum account balance. | (empty) |
-| **F99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. | (empty) |
+| Code    | Name                                | Description                                                                                                                                                                                             | Data Fields |
+| ------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| **F00** | **Bad Request**                     | Generic sender error.                                                                                                                                                                                   | (empty)     |
+| **F01** | **Invalid Packet**                  | The ILP packet was syntactically invalid.                                                                                                                                                               | (empty)     |
+| **F02** | **Unreachable**                     | There was no way to forward the payment, because the destination ILP address was wrong or the connector does not have a route to the destination.                                                       | (empty)     |
+| **F03** | **Invalid Amount**                  | The amount is invalid, for example it contains more digits of precision than are available on the destination ledger or the amount is greater than the total amount of the given asset in existence.    | (empty)     |
+| **F04** | **Insufficient Destination Amount** | The receiver deemed the amount insufficient, for example you tried to pay a $100 invoice with $10.                                                                                                      | (empty)     |
+| **F05** | **Wrong Condition**                 | The receiver generated a different condition and cannot fulfill the payment.                                                                                                                            | (empty)     |
+| **F06** | **Unexpected Payment**              | The receiver was not expecting a payment like this (the memo and destination address don't make sense in that combination, for example if the receiver does not understand the transport protocol used) | (empty)     |
+| **F07** | **Cannot Receive**                  | The receiver is unable to accept this payment due to a constraint. For example, the payment would put the receiver above its maximum account balance.                                                   | (empty)     |
+| **F99** | **Application Error**               | Reserved for application layer protocols. Applications MAY use names other than `Application Error`.                                                                                                    | (empty)     |
 
-#### T__ - Temporary Error
+#### T\_\_ - Temporary Error
 
 Temporary errors indicate a failure on the part of the receiver or an intermediary system that is unexpected or likely to be resolved soon. Senders SHOULD retry the same payment again, possibly after a short delay.
 
-| Code | Name | Description | Data Fields |
-|---|---|---|---|
-| **T00** | **Internal Error** | A generic unexpected exception. This usually indicates a bug or unhandled error case. | (empty) |
-| **T01** | **Ledger Unreachable** | The connector has a route or partial route to the destination but was unable to reach the next ledger. Try again later. | (empty) |
-| **T02** | **Ledger Busy** | The ledger is rejecting requests due to overloading. Try again later. | (empty) |
-| **T03** | **Connector Busy** | The connector is rejecting requests due to overloading. Try again later. | (empty) |
-| **T04** | **Insufficient Liquidity** | The connector would like to fulfill your request, but it doesn't currently have enough money. Try again later. | (empty) |
-| **T05** | **Rate Limited** | The sender is sending too many payments and is being rate-limited by a ledger or connector. If a connector gets this error because they are being rate-limited, they SHOULD retry the payment through a different route or respond to the sender with a `T03: Connector Busy` error. | (empty) |
-| **T99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. | (empty) |
+| Code    | Name                       | Description                                                                                                                                                                                                                                                                          | Data Fields |
+| ------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- |
+| **T00** | **Internal Error**         | A generic unexpected exception. This usually indicates a bug or unhandled error case.                                                                                                                                                                                                | (empty)     |
+| **T01** | **Ledger Unreachable**     | The connector has a route or partial route to the destination but was unable to reach the next ledger. Try again later.                                                                                                                                                              | (empty)     |
+| **T02** | **Ledger Busy**            | The ledger is rejecting requests due to overloading. Try again later.                                                                                                                                                                                                                | (empty)     |
+| **T03** | **Connector Busy**         | The connector is rejecting requests due to overloading. Try again later.                                                                                                                                                                                                             | (empty)     |
+| **T04** | **Insufficient Liquidity** | The connector would like to fulfill your request, but it doesn't currently have enough money. Try again later.                                                                                                                                                                       | (empty)     |
+| **T05** | **Rate Limited**           | The sender is sending too many payments and is being rate-limited by a ledger or connector. If a connector gets this error because they are being rate-limited, they SHOULD retry the payment through a different route or respond to the sender with a `T03: Connector Busy` error. | (empty)     |
+| **T99** | **Application Error**      | Reserved for application layer protocols. Applications MAY use names other than `Application Error`.                                                                                                                                                                                 | (empty)     |
 
-#### R__ - Relative Error
+#### R\_\_ - Relative Error
 
 Relative errors indicate that the payment did not have enough of a margin in terms of money or time. However, it is impossible to tell whether the sender did not provide enough error margin or the path suddenly became too slow or illiquid. The sender MAY retry the payment with a larger safety margin.
 
-| Code | Name | Description | Data Fields |
-|---|---|---|---|
-| **R00** | **Transfer Timed Out** | The transfer timed out, meaning the next party in the chain did not respond. This could be because you set your timeout too low or because something look longer than it should. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. | (empty) |
-| **R01** | **Insufficient Source Amount** | Either the sender did not send enough money or the exchange rate changed before the payment was prepared. The sender MAY try again with a higher amount, but they SHOULD NOT do this indefinitely or a malicious connector could steal money from them. | (empty) |
-| **R02** | **Insufficient Timeout** | The connector could not forward the payment, because the timeout was too low to subtract its safety margin. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. | (empty) |
-| **R99** | **Application Error** | Reserved for application layer protocols. Applications MAY use names other than `Application Error`. | (empty) |
+| Code    | Name                           | Description                                                                                                                                                                                                                                                                                                                                                             | Data Fields |
+| ------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| **R00** | **Transfer Timed Out**         | The transfer timed out, meaning the next party in the chain did not respond. This could be because you set your timeout too low or because something look longer than it should. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time. | (empty)     |
+| **R01** | **Insufficient Source Amount** | Either the sender did not send enough money or the exchange rate changed before the payment was prepared. The sender MAY try again with a higher amount, but they SHOULD NOT do this indefinitely or a malicious connector could steal money from them.                                                                                                                 | (empty)     |
+| **R02** | **Insufficient Timeout**       | The connector could not forward the payment, because the timeout was too low to subtract its safety margin. The sender MAY try again with a higher expiry, but they SHOULD NOT do this indefinitely or a malicious connector could cause them to tie up their money for an unreasonably long time.                                                                      | (empty)     |
+| **R99** | **Application Error**          | Reserved for application layer protocols. Applications MAY use names other than `Application Error`.                                                                                                                                                                                                                                                                    | (empty)     |
 
 ### ILP Fulfillment Data Format
 
 This type of ILP packet is attached to a fulfillment and carries additional transport layer information that the sender may use to make further payments. Here is a summary of the fields in the ILP fulfillment data format:
 
-| Field | Type | Short Description |
-|:--|:--|:--|
-| data | OCTET STRING | Transport layer fulfillment data |
+| Field | Type         | Short Description                |
+| :---- | :----------- | :------------------------------- |
+| data  | OCTET STRING | Transport layer fulfillment data |
 
 #### Example
 
@@ -401,9 +400,9 @@ The ILP packet type is always `9` for fulfillment data, and extensions is always
 (and when passed between software modules like for instance ledger plugins),
 the resulting ILP packet would look like this:
 
-| type | content length | payload length | data | extensions |
-|:--|:--|:--|:--|:--|
-| 9 | 5 | 3 | 4 16 65 | 0 |
+| type | content length | payload length | data    | extensions |
+| :--- | :------------- | :------------- | :------ | :--------- |
+| 9    | 5              | 3              | 4 16 65 | 0          |
 
 #### data
 
@@ -421,18 +420,18 @@ See [ASN.1 Definitions](../asn1/InterledgerProtocol.asn).
 
 The following initial entries should be added to the Interledger Header Type registry to be created and maintained at (the suggested URI) http://www.iana.org/assignments/interledger-header-types:
 
-| Header Type ID | Protocol | Message Type |
-|:--|:--|:--|
-| 1 | ILP | [IlpPayment](#ilp-payment-packet-format) |
-| 2 | [ILQP][] | QuoteLiquidityRequest |
-| 3 | [ILQP][] | QuoteLiquidityResponse |
-| 4 | [ILQP][] | QuoteBySourceAmountRequest |
-| 5 | [ILQP][] | QuoteBySourceAmountResponse |
-| 6 | [ILQP][] | QuoteByDestinationAmountRequest |
-| 7 | [ILQP][] | QuoteByDestinationAmountResponse |
-| 8 | ILP | [IlpError](#ilp-error-format) |
-| 9 | ILP | [IlpFulfillmentData](#ilp-fulfillment-data-format) |
-| 10 | ILP | [IlpForwardedPaymentData](#ilp-forwarded-payment-packet-experimental) |
-| 11 | ILP | [IlpRejectionData](#ilp-rejection-format) |
+| Header Type ID | Protocol | Message Type                                                          |
+| :------------- | :------- | :-------------------------------------------------------------------- |
+| 1              | ILP      | [IlpPayment](#ilp-payment-packet-format)                              |
+| 2              | [ILQP][] | QuoteLiquidityRequest                                                 |
+| 3              | [ILQP][] | QuoteLiquidityResponse                                                |
+| 4              | [ILQP][] | QuoteBySourceAmountRequest                                            |
+| 5              | [ILQP][] | QuoteBySourceAmountResponse                                           |
+| 6              | [ILQP][] | QuoteByDestinationAmountRequest                                       |
+| 7              | [ILQP][] | QuoteByDestinationAmountResponse                                      |
+| 8              | ILP      | [IlpError](#ilp-error-format)                                         |
+| 9              | ILP      | [IlpFulfillmentData](#ilp-fulfillment-data-format)                    |
+| 10             | ILP      | [IlpForwardedPaymentData](#ilp-forwarded-payment-packet-experimental) |
+| 11             | ILP      | [IlpRejectionData](#ilp-rejection-format)                             |
 
 [ILQP]: ../0008-interledger-quoting-protocol/
