@@ -38,7 +38,7 @@ Connectors provide a service of forwarding packets and relaying money, and they 
 
 Like the Internet protocol stack that inspired it, the Interledger protocol suite is divided into layers of protocols with different responsibilities. Lower-level protocols provide basic functionality that higher-level protocols depend on to provide more complex functionality.
 
-> **Aside:** Not pictured in the diagram are configuration protocols including [IL-RFC-31: Interledger Dynamic Configuration Protocol](../0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md) and **Route Broadcasting Protocol**. These protocols are built on top of the Interledger Protocol layer and support it, but are not considered to be transport or application-layer protocols.
+> **Aside:** Not pictured in the diagram are configuration protocols including [now-deprecated IL-RFC-31: Interledger Dynamic Configuration Protocol](https://github.com/interledger/rfcs/blob/2dfdcf47ac52489a4ad473a5d869cd9f0217db67/0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md) and **Route Broadcasting Protocol**. These protocols are built on top of the Interledger Protocol layer and support it, but are not considered to be transport or application-layer protocols.
 
 The following sections describe the general functions of each layer in the protocol suite. For an alternate explanation with detailed depictions of the protocols' data formats, see [IL-RFC-33: Relationship Between Protocols](../0033-relationship-between-protocols/0033-relationship-between-protocols.md).
 
