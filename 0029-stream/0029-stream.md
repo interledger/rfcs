@@ -82,7 +82,7 @@ STREAM is a multiplexed Interledger Transport Protocol that provides for sending
 - Generating and fulfilling ILP packet conditions
 - Connection migration
 
-STREAM is a successor to the [Pre-Shared Key V2 (PSK2)](../0025-pre-shared-key-2/0025-pre-shared-key-2.md) Transport Protocol and also takes significant inspiration from the [QUIC](https://tools.ietf.org/html/draft-ietf-quic-transport-10) Internet Transport Protocol. Like PSK2, STREAM uses a shared secret to authenticate and encrypt multiple packets, as well as to generate the conditions and fulfillments. In addition, STREAM enables sending money and data in both directions between the two endpoints and automatically determines how much money and data can be sent in each ILP packet. STREAM borrows heavily from QUIC's packet format, stream multiplexing, and approach to flow control (see [Appendix A](#appendix-a-similarities-and-differences-with-quic) for similarities and differences with QUIC).
+STREAM is a successor to the [Pre-Shared Key V2 (PSK2)](../0025-pre-shared-key-2/0025-pre-shared-key-2.md) Transport Protocol and also takes significant inspiration from the [QUIC](https://datatracker.ietf.org/doc/html/rfc9000) Internet Transport Protocol. Like PSK2, STREAM uses a shared secret to authenticate and encrypt multiple packets, as well as to generate the conditions and fulfillments. In addition, STREAM enables sending money and data in both directions between the two endpoints and automatically determines how much money and data can be sent in each ILP packet. STREAM borrows heavily from QUIC's packet format, stream multiplexing, and approach to flow control (see [Appendix A](#appendix-a-similarities-and-differences-with-quic) for similarities and differences with QUIC).
 
 ## 2. Conventions and Definitions
 
@@ -122,7 +122,7 @@ In another application, an endpoint can open a stream, send a specific amount of
 
 STREAM uses bidirectional streams, which can be used for request/response flows or one-way messages.
 
-The choice of streams as the key abstraction is inspired by [QUIC](https://quicwg.github.io/base-drafts/draft-ietf-quic-transport.html#rfc.section.9) and the earlier [Structured Streams Transport (SST)](http://www.brynosaurus.com/pub/net/sst.pdf).
+The choice of streams as the key abstraction is inspired by [QUIC](https://datatracker.ietf.org/doc/html/rfc9000#section-13) and the earlier [Structured Streams Transport (SST)](http://www.brynosaurus.com/pub/net/sst.pdf).
 
 ### 3.3. Multiplexed Streams
 
@@ -173,10 +173,10 @@ Incoming packets can either be associated with an existing connection, or, for s
 STREAM packets are completely encrypted so endpoints must try to decrypt and parse them to determine whether a given packet was sent by the other endpoint of a connection. Incoming Prepare packets whose data cannot be decrypted with the expected shared secret MUST be rejected with `F06: Unexpected Payment` errors.
 
 ### 4.3. Connection Details
- 
+
 #### 4.3.1. Client Address Communication
 
-When a client connects to a server, the client MAY communicate its ILP Address to the server using a  `ConnectionNewAddress` frame. This allows the client to function as a receiver on the Connection. Without this frame, a server would not have a destination address to send packets to a client.
+When a client connects to a server, the client MAY communicate its ILP Address to the server using a `ConnectionNewAddress` frame. This allows the client to function as a receiver on the Connection. Without this frame, a server would not have a destination address to send packets to a client.
 
 If the server is capable of sending ILP Prepare packets and the client is capable of receiving ILP Prepare packets, the `ConnectionNewAddress` frame enables bi-directional money and data flows. However, the frame is OPTIONAL because clients may not be capable of receiving ILP Prepare packets. For example, a client using a request-response protocol like HTTP to send ILP packets doesn't have a persistent connection for receiving ILP Prepare packets.
 
@@ -184,9 +184,10 @@ If the server is capable of sending ILP Prepare packets and the client is capabl
 
 If an endpoint supports receiving, then the endpoint MAY change its ILP Address at any point during a connection by sending a `ConnectionNewAddress` frame. To ensure the new address is received and acknowledged, implementations MAY choose to send these frames only in ILP Prepare packets, although certain connections may not support this (e.g., a receiver emitting this frame to a non-receiving sender will only be able to propagate this frame in an ILP Fulfill or ILP Reject respone packet).
 
-Senders encountering this frame SHOULD wait for a separate, valid request/response (encrypted with the same shared secret) from the new address to validate the new path. STREAM relies upon this authenticated request/response packet flow in lieu of [QUIC's explicit Path Validation](https://quicwg.github.io/base-drafts/draft-ietf-quic-transport.html#rfc.section.6.7), so implementations SHOULD refrain from sending large numbers of packets or large amounts of data to a new ILP address before validating the path. For example, this might help avoid being tricked into participating in a Denial of Service (DoS) attack on a third-party endpoint.
+Senders encountering this frame SHOULD wait for a separate, valid request/response (encrypted with the same shared secret) from the new address to validate the new path. STREAM relies upon this authenticated request/response packet flow in lieu of [QUIC's explicit Path Validation](https://datatracker.ietf.org/doc/html/rfc9000#section-8.2), so implementations SHOULD refrain from sending large numbers of packets or large amounts of data to a new ILP address before validating the path. For example, this might help avoid being tricked into participating in a Denial of Service (DoS) attack on a third-party endpoint.
 
 #### 4.3.3. Connection Asset Details
+
 Either endpoint MAY expose its asset details by sending a `ConnectionAssetDetails` frame in a STREAM packet.
 
 Asset details, whether exposed by this frame or obtained by a higher-layer protocol, MUST not change during the lifetime of a Connection. Therefore, if a receiver receives a `ConnectionAssetDetails` frame that contradicts existing asset details, then the receiver SHOULD close the connection because it would be ambiguous which asset details are authoritative.
@@ -259,11 +260,11 @@ If subsequent versions support additional encryption algorithms, those details s
 
 See the [ASN.1 definition](../asn1/Stream.asn) for the formal encryption envelope specification.
 
-| Field | Type | Description |
-|---|---|---|
-| Random IV  | 12-Byte UInt | Nonce used as input to the AES-GCM algorithm. Also ensures conditions are random. Endpoints MUST NOT encrypt two packets with the same nonce |
-| Authentication Tag | 16-Byte UInt | Authentication tag produced by AES-GCM encryption that ensures data integrity |
-| Ciphertext | 0-32739 Bytes | Encrypted data (see below for contents) |
+| Field              | Type          | Description                                                                                                                                  |
+| ------------------ | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Random IV          | 12-Byte UInt  | Nonce used as input to the AES-GCM algorithm. Also ensures conditions are random. Endpoints MUST NOT encrypt two packets with the same nonce |
+| Authentication Tag | 16-Byte UInt  | Authentication tag produced by AES-GCM encryption that ensures data integrity                                                                |
+| Ciphertext         | 0-32739 Bytes | Encrypted data (see below for contents)                                                                                                      |
 
 Note that the `Ciphertext` is NOT length-prefixed. The length can be inferred from the ILP packet because the whole `data` field is encoded with a length prefix. (This is done so that the entire `data` field is indistinguishable from random bytes.)
 
@@ -287,21 +288,21 @@ Implementations MAY NOT support `VarUInt`s larger than `MaxUInt64` (for performa
 
 If an implementation does not support larger `VarUInt`s, it MUST:
 
-  * When decoding a `StreamMaxMoney` frame, if the `receiveMax` is too large to fit in a `UInt64`, decode `receiveMax` as `MaxUInt64`.
-  * When decoding a `StreamMoneyBlockedFrame` frame, if the `sendMax` is too large to fit in a `UInt64`, decode `sendMax` as `MaxUInt64`.
+- When decoding a `StreamMaxMoney` frame, if the `receiveMax` is too large to fit in a `UInt64`, decode `receiveMax` as `MaxUInt64`.
+- When decoding a `StreamMoneyBlockedFrame` frame, if the `sendMax` is too large to fit in a `UInt64`, decode `sendMax` as `MaxUInt64`.
 
 ### 5.2. STREAM Packet
 
 See the [ASN.1 definition](../asn1/Stream.asn) for the formal packet specification.
 
-| Field | Type | Description |
-|---|---|---|
-| Version | UInt8 | `1` for this version |
-| ILP Packet Type | UInt8 | ILPv4 packet type this STREAM packet MUST be sent in (`12` for Prepare, `13` for Fulfill, and `14` for Reject). Endpoints MUST discard STREAM packets that comes in on the wrong ILP Packet Type. (This is done to prevent malicious intermediaries from swapping the `data` fields from different valid ILP packets.) |
-| Sequence | VarUInt | Identifier for an ILP request / response. Clients and Servers track their own outgoing packet sequence numbers and increment the `Sequence` for each ILP Prepare they send. The Receiver MUST respond with a STREAM packet that includes the same `Sequence` as the Sender's Prepare packet. A sender MUST discard a STREAM packet in which the `Sequence` does not match the STREAM packet sent with their ILP Prepare. |
-| Prepare Amount | VarUInt | If the STREAM packet is sent on an ILP Prepare, this represents the minimum the receiver should accept. If the packet is sent on an ILP Fulfill or Reject, this represents the amount that the receiver got in the Prepare. |
-| Frames | SEQUENCE OF Frame | An array of Frames, which are specified below. |
-| Junk Data | N/A | Extra bytes that MUST be ignored. Implementations MAY append zero-bytes to pad packets to a specific size. Future versions of STREAM may specify additional fields that come after the `Frames` (zero-bytes MUST be used for padding to avoid confusion with future protocol versions). |
+| Field           | Type              | Description                                                                                                                                                                                                                                                                                                                                                                                                              |
+| --------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Version         | UInt8             | `1` for this version                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ILP Packet Type | UInt8             | ILPv4 packet type this STREAM packet MUST be sent in (`12` for Prepare, `13` for Fulfill, and `14` for Reject). Endpoints MUST discard STREAM packets that comes in on the wrong ILP Packet Type. (This is done to prevent malicious intermediaries from swapping the `data` fields from different valid ILP packets.)                                                                                                   |
+| Sequence        | VarUInt           | Identifier for an ILP request / response. Clients and Servers track their own outgoing packet sequence numbers and increment the `Sequence` for each ILP Prepare they send. The Receiver MUST respond with a STREAM packet that includes the same `Sequence` as the Sender's Prepare packet. A sender MUST discard a STREAM packet in which the `Sequence` does not match the STREAM packet sent with their ILP Prepare. |
+| Prepare Amount  | VarUInt           | If the STREAM packet is sent on an ILP Prepare, this represents the minimum the receiver should accept. If the packet is sent on an ILP Fulfill or Reject, this represents the amount that the receiver got in the Prepare.                                                                                                                                                                                              |
+| Frames          | SEQUENCE OF Frame | An array of Frames, which are specified below.                                                                                                                                                                                                                                                                                                                                                                           |
+| Junk Data       | N/A               | Extra bytes that MUST be ignored. Implementations MAY append zero-bytes to pad packets to a specific size. Future versions of STREAM may specify additional fields that come after the `Frames` (zero-bytes MUST be used for padding to avoid confusion with future protocol versions).                                                                                                                                  |
 
 ### 5.3. Frames
 
@@ -309,88 +310,88 @@ See the [ASN.1 definition](../asn1/Stream.asn) for the formal specification of t
 
 Each frame is encoded with its 1-byte type and length prefix. Implementations MUST ignore frames with unknown types. Future versions of STREAM may add new frame types.
 
-| Field | Type | Description |
-|---|---|---|
-| Type | UInt8 | Identifier for the frame type (see below) |
-| Data | Variable-Length Octet String | Frame contents |
+| Field | Type                         | Description                               |
+| ----- | ---------------------------- | ----------------------------------------- |
+| Type  | UInt8                        | Identifier for the frame type (see below) |
+| Data  | Variable-Length Octet String | Frame contents                            |
 
 The frame types are as follows and each is described in greater detail below:
 
-| Type ID | Frame |
-|---|---|
-| `0x01` | Connection Close |
-| `0x02` | Connection New Address |
-| `0x03` | Connection Max Data |
-| `0x04` | Connection Data Blocked |
-| `0x05` | Connection Max Stream ID |
-| `0x06` | Connection Stream ID Blocked |
-| `0x07` | Connection Asset Details |
-| `0x10` | Stream Close |
-| `0x11` | Stream Money |
-| `0x12` | Stream Money Max |
-| `0x13` | Stream Money Blocked |
-| `0x14` | Stream Data |
-| `0x15` | Stream Data Max |
-| `0x16` | Stream Data Blocked |
-| `0x17` | Stream Receipt |
+| Type ID | Frame                        |
+| ------- | ---------------------------- |
+| `0x01`  | Connection Close             |
+| `0x02`  | Connection New Address       |
+| `0x03`  | Connection Max Data          |
+| `0x04`  | Connection Data Blocked      |
+| `0x05`  | Connection Max Stream ID     |
+| `0x06`  | Connection Stream ID Blocked |
+| `0x07`  | Connection Asset Details     |
+| `0x10`  | Stream Close                 |
+| `0x11`  | Stream Money                 |
+| `0x12`  | Stream Money Max             |
+| `0x13`  | Stream Money Blocked         |
+| `0x14`  | Stream Data                  |
+| `0x15`  | Stream Data Max              |
+| `0x16`  | Stream Data Blocked          |
+| `0x17`  | Stream Receipt               |
 
 #### 5.3.1. `ConnectionClose` Frame
 
-| Field | Type | Description |
-|---|---|---|
-| Error Code | UInt8 | Machine-readable [Error Code](#54-error-codes) indicating why the connection was closed. |
-| Error Message | Utf8String | Human-readable string intended to give more information helpful for debugging purposes. |
+| Field         | Type       | Description                                                                              |
+| ------------- | ---------- | ---------------------------------------------------------------------------------------- |
+| Error Code    | UInt8      | Machine-readable [Error Code](#54-error-codes) indicating why the connection was closed. |
+| Error Message | Utf8String | Human-readable string intended to give more information helpful for debugging purposes.  |
 
 If implementations allow half-open connections, an endpoint MAY continue sending packets after receiving a `ConnectionClose` frame. Otherwise, the endpoint MUST close the connection immediately.
 
 #### 5.3.2. `ConnectionNewAddress` Frame
 
-| Field | Type | Description |
-|---|---|---|
+| Field          | Type        | Description                                          |
+| -------------- | ----------- | ---------------------------------------------------- |
 | Source Address | ILP Address | New ILP address of the endpoint that sent the frame. |
 
 #### 5.3.3. `ConnectionMaxData` Frame
 
-| Field | Type | Description |
-|---|---|---|
+| Field      | Type    | Description                                                                      |
+| ---------- | ------- | -------------------------------------------------------------------------------- |
 | Max Offset | VarUInt | The total number of bytes the endpoint is willing to receive on this connection. |
 
 Endpoints MUST NOT exceed the total number of bytes the other endpoint is willing to accept.
 
 #### 5.3.4. `ConnectionDataBlocked` Frame
 
-| Field | Type | Description |
-|---|---|---|
+| Field      | Type    | Description                                           |
+| ---------- | ------- | ----------------------------------------------------- |
 | Max Offset | VarUInt | The total number of bytes the endpoint wants to send. |
 
 #### 5.3.5. `ConnectionMaxStreamId` Frame
 
-| Field | Type | Description |
-|---|---|---|
+| Field         | Type    | Description                                              |
+| ------------- | ------- | -------------------------------------------------------- |
 | Max Stream ID | VarUInt | The maximum stream ID the endpoint is willing to accept. |
 
 #### 5.3.6. `ConnectionStreamIdBlocked` Frame
 
-| Field | Type | Description |
-|---|---|---|
+| Field         | Type    | Description                                        |
+| ------------- | ------- | -------------------------------------------------- |
 | Max Stream ID | VarUInt | The maximum stream ID the endpoint wishes to open. |
 
 #### 5.3.7. `StreamClose` Frame
 
-| Field | Type | Description |
-|---|---|---|
-| Stream ID | VarUInt | Identifier of the stream this frame refers to. |
-| Error Code | UInt8 | Machine-readable [Error Code](#54-error-codes) indicating why the stream was closed. |
+| Field         | Type       | Description                                                                             |
+| ------------- | ---------- | --------------------------------------------------------------------------------------- |
+| Stream ID     | VarUInt    | Identifier of the stream this frame refers to.                                          |
+| Error Code    | UInt8      | Machine-readable [Error Code](#54-error-codes) indicating why the stream was closed.    |
 | Error Message | Utf8String | Human-readable string intended to give more information helpful for debugging purposes. |
 
 If implementations allow half-open streams, an endpoint MAY continue sending money or data for this stream after receiving a `StreamClose` frame. Otherwise, the endpoint MUST close the stream immediately.
 
 #### 5.3.8. `StreamMoney` Frame
 
-| Field | Type | Description |
-|---|---|---|
-| Stream ID | VarUInt | Identifier of the stream this frame refers to. |
-| Shares | VarUInt | Proportion of the ILP Prepare `amount` destined for the stream specified. |
+| Field     | Type    | Description                                                               |
+| --------- | ------- | ------------------------------------------------------------------------- |
+| Stream ID | VarUInt | Identifier of the stream this frame refers to.                            |
+| Shares    | VarUInt | Proportion of the ILP Prepare `amount` destined for the stream specified. |
 
 The amount of money that should go to each stream is calculated by dividing the number of shares for the given stream by the total number of shares in all of the `StreamMoney` frames in the packet.
 
@@ -400,29 +401,29 @@ If the Prepare amount is not divisible by the total number of shares, implementa
 
 #### 5.3.9. `StreamMaxMoney` Frame
 
-| Field | Type | Description |
-|---|---|---|
-| Stream ID | VarUInt | Identifier of the stream this frame refers to. |
-| Receive Max | VarUInt | Total amount, denominated in the units of the endpoint sending this frame, that the endpoint is willing to receive on this stream. |
-| Total Received | VarUInt | Total amount, denominated in the units of the endpoint sending this frame, that the endpoint has received thus far. |
+| Field          | Type    | Description                                                                                                                        |
+| -------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Stream ID      | VarUInt | Identifier of the stream this frame refers to.                                                                                     |
+| Receive Max    | VarUInt | Total amount, denominated in the units of the endpoint sending this frame, that the endpoint is willing to receive on this stream. |
+| Total Received | VarUInt | Total amount, denominated in the units of the endpoint sending this frame, that the endpoint has received thus far.                |
 
 The amounts in this frame are denominated in the units of the endpoint sending the frame, so the other endpoint must use their calculated exchange rate to determine how much more they can send for this stream.
 
 #### 5.3.10. `StreamMoneyBlocked` Frame
 
-| Field | Type | Description |
-|---|---|---|
-| Stream ID | VarUInt | Identifier of the stream this frame refers to. |
-| Send Max | VarUInt | Total amount, denominated in the units of the endpoint sending this frame, that the endpoint wants to send. |
+| Field      | Type    | Description                                                                                                    |
+| ---------- | ------- | -------------------------------------------------------------------------------------------------------------- |
+| Stream ID  | VarUInt | Identifier of the stream this frame refers to.                                                                 |
+| Send Max   | VarUInt | Total amount, denominated in the units of the endpoint sending this frame, that the endpoint wants to send.    |
 | Total Sent | VarUInt | Total amount, denominated in the units of the endpoint sending this frame, that the endpoint has sent already. |
 
 #### 5.3.11. `StreamData` Frame
 
-| Field | Type | Description |
-|---|---|---|
-| Stream ID | VarUInt | Identifier of the stream this frame refers to. |
-| Offset | VarUInt | Position of this data in the byte stream. |
-| Data | VarOctetString | Application data. |
+| Field     | Type           | Description                                    |
+| --------- | -------------- | ---------------------------------------------- |
+| Stream ID | VarUInt        | Identifier of the stream this frame refers to. |
+| Offset    | VarUInt        | Position of this data in the byte stream.      |
+| Data      | VarOctetString | Application data.                              |
 
 Packets may be received out of order so the `Offset` is used to indicate the correct position of the byte segment in the overall stream. The first `StreamData` frame sent for a given stream MUST start with an `Offset` of zero.
 
@@ -435,49 +436,49 @@ In other words, if a sender resends data (e.g. because a packet was lost), it MU
 
 #### 5.3.12. `StreamMaxData` Frame
 
-| Field | Type | Description |
-|---|---|---|
-| Stream ID | VarUInt | Identifier of the stream this frame refers to. |
+| Field      | Type    | Description                                                                  |
+| ---------- | ------- | ---------------------------------------------------------------------------- |
+| Stream ID  | VarUInt | Identifier of the stream this frame refers to.                               |
 | Max Offset | VarUInt | The total number of bytes the endpoint is willing to receive on this stream. |
 
 #### 5.3.13. `StreamDataBlocked` Frame
 
-| Field | Type | Description |
-|---|---|---|
-| Stream ID | VarUInt | Identifier of the stream this frame refers to. |
+| Field      | Type    | Description                                                          |
+| ---------- | ------- | -------------------------------------------------------------------- |
+| Stream ID  | VarUInt | Identifier of the stream this frame refers to.                       |
 | Max Offset | VarUInt | The total number of bytes the endpoint wants to send on this stream. |
 
 #### 5.3.14. `ConnectionAssetDetails` Frame
 
-| Field | Type | Description |
-|---|---|---|
-| Source Asset Code | Utf8String | Asset code of endpoint that sent the frame. |
-| Source Asset Scale | UInt8 | Asset scale of endpoint that sent the frame. |
+| Field              | Type       | Description                                  |
+| ------------------ | ---------- | -------------------------------------------- |
+| Source Asset Code  | Utf8String | Asset code of endpoint that sent the frame.  |
+| Source Asset Scale | UInt8      | Asset scale of endpoint that sent the frame. |
 
 Asset details exposed by this frame MUST NOT change during the lifetime of a Connection.
 
 #### 5.3.15. `StreamReceipt` Frame
 
-| Field | Type | Description |
-|---|---|---|
-| Stream ID | VarUInt | Identifier of the stream this frame refers to. |
-| Receipt | VarOctetString | Length-prefixed [STREAM Receipt](../0039-stream-receipts/0039-stream-receipts.md#specification) provided by the receiver as proof of the total amount received on this stream. Note that the stream sender is not expected to decode the receipt itself. |
+| Field     | Type           | Description                                                                                                                                                                                                                                              |
+| --------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Stream ID | VarUInt        | Identifier of the stream this frame refers to.                                                                                                                                                                                                           |
+| Receipt   | VarOctetString | Length-prefixed [STREAM Receipt](../0039-stream-receipts/0039-stream-receipts.md#specification) provided by the receiver as proof of the total amount received on this stream. Note that the stream sender is not expected to decode the receipt itself. |
 
 ### 5.4. Error Codes
 
 Error codes are sent in `StreamClose` and `ConnectionClose` frames to indicate what caused the stream or connection to be closed.
 
-| Error Code | Name | Description |
-|---|---|---|
-| `0x01` | `NoError` | Indicates the stream or connection closed normally. |
-| `0x02` | `InternalError` | The endpoint encountered an unexpected error. |
-| `0x03` | `EndpointBusy` | The endpoint is temporarily overloaded and unable to process the packet. |
-| `0x04` | `FlowControlError` | The other endpoint exceeded the flow control limits advertised. |
-| `0x05` | `StreamIdError` | The other endpoint opened more streams than allowed. |
-| `0x06` | `StreamStateError` | The other endpoint sent frames for a stream that is already closed. |
-| `0x07` | `FrameFormatError` | The other endpoint sent a frame with invalid syntax. |
-| `0x08` | `ProtocolViolation` | The other endpoint sent invalid data or otherwise violated the protocol. |
-| `0x09` | `ApplicationError` | The application using STREAM closed the stream or connection with an error. |
+| Error Code | Name                | Description                                                                 |
+| ---------- | ------------------- | --------------------------------------------------------------------------- |
+| `0x01`     | `NoError`           | Indicates the stream or connection closed normally.                         |
+| `0x02`     | `InternalError`     | The endpoint encountered an unexpected error.                               |
+| `0x03`     | `EndpointBusy`      | The endpoint is temporarily overloaded and unable to process the packet.    |
+| `0x04`     | `FlowControlError`  | The other endpoint exceeded the flow control limits advertised.             |
+| `0x05`     | `StreamIdError`     | The other endpoint opened more streams than allowed.                        |
+| `0x06`     | `StreamStateError`  | The other endpoint sent frames for a stream that is already closed.         |
+| `0x07`     | `FrameFormatError`  | The other endpoint sent a frame with invalid syntax.                        |
+| `0x08`     | `ProtocolViolation` | The other endpoint sent invalid data or otherwise violated the protocol.    |
+| `0x09`     | `ApplicationError`  | The application using STREAM closed the stream or connection with an error. |
 
 ## 6. Condition and Fulfillment Generation
 

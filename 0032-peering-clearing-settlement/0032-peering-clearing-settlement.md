@@ -15,12 +15,13 @@ Further details on the ILP Protocol can be found in the [specification](../0027-
 The edge between any two nodes (peers) is a communication link (for exchanging ILP packets and other data), and an account held between the peers (the Interledger account). The Interledger account has a balance denominated in a mutually agreed upon asset (e.g. USD) at an agreed upon scale (e.g. 2). The balance on the account is **the net total of the amounts on any packets "successfully" routed between the peers**.
 
 The balance on the Interledger account can only change as a result of two events:
- 1. The "successful" routing of an ILP packet between the two peers
- 1. A payment made between the peers on the underlying payment network they have agreed to use to settle the Interledger account
+
+1.  The "successful" routing of an ILP packet between the two peers
+1.  A payment made between the peers on the underlying payment network they have agreed to use to settle the Interledger account
 
 _**NOTE:** In this context a packet is considered "successfully" routed if it is routed to the correct recipient, and they reply with a valid ILP Fulfill response which is routed back before the expiry on the packet._
 
-This document provides further details on when these events occur and how they are handled by the peers. 
+This document provides further details on when these events occur and how they are handled by the peers.
 
 Because amounts are sent in a standard form (unsigned 64-bit integers) as part of the ILP Prepare packet headers, it is necessary to infer the currency/asset and scale of the amount from the context of the packet.
 
@@ -28,15 +29,15 @@ This is why the asset and scale are pre-configured for each Interledger account 
 
 > **Example : Alice and Bob peer using Satoshis**
 
-> - Alice and Bob are nodes on the network.  
+> - Alice and Bob are nodes on the network.
 > - They agree to peer and exchange ILP packets using the [Bilateral Transfer Protocol (BTP)](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md)
 > - They also agree to denominate their Interledger account in Bitcoin (BTC) at a scale of 8 and settle using the Lightning network.
 
 > In this scenario Alice and Bob exchange ILP packets, which they are either sending or forwarding on behalf of another peer, using the BTP protocol. Every ILP Prepare packet has an amount (represented as an unsigned 64-bit integer). Because of how they have agreed to setup their peering relationship a packet with an amount of 5 represents 0.00000005 BTC (5 satoshis).
 
-Once peered, the two connectors both track the Interledger account balance and adjust it for every ILP Packet successfully routed between them. 
+Once peered, the two connectors both track the Interledger account balance and adjust it for every ILP Packet successfully routed between them.
 
-When a connector sends an ILP Prepare packet to a peer, and receives a valid ILP Fulfill response, before the expiry of the ILP Prepare, their balance with that peer **decreases**. 
+When a connector sends an ILP Prepare packet to a peer, and receives a valid ILP Fulfill response, before the expiry of the ILP Prepare, their balance with that peer **decreases**.
 
 When a connector receives an ILP Prepare packet and returns a valid ILP Fulfill response, before the expiry of the ILP Prepare, their balance with that peer **increases**.
 
@@ -50,16 +51,21 @@ In financial accounting terms this could be viewed as a revenue/expense account 
 
 > 1. Alice passes an ILP Prepare to Bob with an amount of 6.
 > 2. Bob replies, before the request expires, with a valid ILP Fulfill.
->   - Alice's balance is now -6 satoshis
->   - Bob's balance is now 6 satoshis
+>
+> - Alice's balance is now -6 satoshis
+> - Bob's balance is now 6 satoshis
+>
 > 3. Bob passes an ILP Prepare to Alice with an amount of 2.
 > 4. Alice is unable to route the packet and replies with an ILP Reject.
->   - Alice's balance is still -6 satoshis
->   - Bob's balance is still 6 satoshis
+>
+> - Alice's balance is still -6 satoshis
+> - Bob's balance is still 6 satoshis
+>
 > 5. Bob passes an ILP Prepare to Alice with an amount of 20.
 > 6. Alice replies, before the request expires, with a valid ILP Fulfill.
->   - Alice's balance is now 14 satoshis
->   - Bob's balance is now -14 satoshis
+>
+> - Alice's balance is now 14 satoshis
+> - Bob's balance is now -14 satoshis
 
 ## Clearing
 
@@ -79,8 +85,9 @@ However, there is an edge case where the peer's balances may be out of sync, as 
 
 > 1. Bob passes an ILP Prepare to Alice with an amount of 20.
 > 1. Alice replies with a valid ILP Fulfill and believes she has done so before the request expires, however Bob considers the request to have expired and has already rejected the payment to his downstream peer.
->   - Alice's balance is 20 satoshis
->   - Bob's balance is 0 satoshis
+>
+> - Alice's balance is 20 satoshis
+> - Bob's balance is 0 satoshis
 
 > Clearly, Bob and Alice need to reconcile this situation however the specific mechanism they use and recourse they take to resolve this difference is outside the scope of the Interledger protocol.
 
@@ -104,17 +111,18 @@ In the case of peers that use payment channels to settle this can be done for ev
 
 Connectors will configure their own business rules regarding when to settle, based on how much they trust their peers and the costs and speed of settlement on the underlying network.
 
-For most implementations, this configuration will consist of, at a minimum, a maximum balance, and a settlement threshold. 
+For most implementations, this configuration will consist of, at a minimum, a maximum balance, and a settlement threshold.
 
 ### Maximum Balance
 
-When a connector receives an incoming packet from a peer it will ensure that the amount of the packet, added to the current balance, does not exceed the maximum balance. If it does it MUST reject he packet with a [T04 - Insufficient Liquidity](https://interledger.org/rfcs/0027-interledger-protocol-4/#error-codes) error.
+When a connector receives an incoming packet from a peer it will ensure that the amount of the packet, added to the current balance, does not exceed the maximum balance. If it does it MUST reject he packet with a [T04 - Insufficient Liquidity](../0027-interledger-protocol-4/0027-interledger-protocol-4.md#error-codes) error.
 
-This is only likely to occur if: 
- 1. The settlement threshold is lower than the additive inverse (negation) of the maximum balance at the peer, or
- 1. The sending peer is unable to settle the account fast enough to keep up with the total amount in the packets being sent.
+This is only likely to occur if:
 
-In the former case the peer may choose to perform a settlement, even though it has not reached its settlement threshold so that the balance on the Interledger account at the peer is reduced below the maximum. 
+1.  The settlement threshold is lower than the additive inverse (negation) of the maximum balance at the peer, or
+1.  The sending peer is unable to settle the account fast enough to keep up with the total amount in the packets being sent.
+
+In the former case the peer may choose to perform a settlement, even though it has not reached its settlement threshold so that the balance on the Interledger account at the peer is reduced below the maximum.
 
 In the latter case, the sending peer may need to throttle back on the packets it sends to the upstream peer or they will need to make an alternative settlement arrangement that can accomodate the volume.
 
@@ -126,7 +134,7 @@ In a correctly configured peering the additive inverse (negation) of the settlem
 
 > **Example : Alice and Bob settle their account**
 
-> Assuming they start with a balance of 0 and have configured the following. 
+> Assuming they start with a balance of 0 and have configured the following.
 
 > - Alice has configured a settlement threshold of -10. This means Alice will settle with Bob as soon as she owes him 10 satoshis or more.
 > - Alice has configured a maximum balance of 20. This means Alice will reject any packets from Bob that would move the balance higher than 20.
