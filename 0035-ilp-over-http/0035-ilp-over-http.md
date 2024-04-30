@@ -46,7 +46,7 @@ Request-Id: 42ee09c8-a6de-4ae3-8a47-4732b0cbb07b
 - **Path** &mdash; A connector MAY specify any HTTP path for their peer to send ILP packets to.
 - **Host Header** &mdash; The standard [HTTP Host Header](https://tools.ietf.org/html/rfc2616#section-14.23) indicating the domain of the HTTP server the request is sent to.
 - **Content-Type / Accept Headers** &mdash; MUST be set to `application/octet-stream`.
-- **Body** &mdash; ILP Prepare encoded using OER, as specified in [RFC 27: Interledger Protocol V4](./0027-interledger-protocol-4/0027-interledger-protocol-4.md).
+- **Body** &mdash; ILP Prepare encoded using OER, as specified in [RFC 27: Interledger Protocol V4](../0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 
 Asynchronous mode uses these additional headers:
 
@@ -91,7 +91,7 @@ Request-Id: 42ee09c8-a6de-4ae3-8a47-4732b0cbb07b
 - **Host Header** &mdash; The standard [HTTP Host Header](https://tools.ietf.org/html/rfc2616#section-14.23) indicating the domain of the HTTP server the Request is sent to.
 - **Content-Type Header** &mdash; MUST be set to `application/octet-stream`.
 - **Request Id Header** &mdash; Request ID from the corresponding ILP Prepare, which is a UUIDv4, matching this reply to the original request.
-- **Body** &mdash; ILP Packet encoded using OER, as specified in [RFC 27: Interledger Protocol V4](./0027-interledger-protocol-4/0027-interledger-protocol-4.md).
+- **Body** &mdash; ILP Packet encoded using OER, as specified in [RFC 27: Interledger Protocol V4](../0027-interledger-protocol-4/0027-interledger-protocol-4.md).
 
 #### Response
 
@@ -121,4 +121,4 @@ If the sender of an ILP Prepare expects an asynchronous reply, they should only 
 
 ### Error Handling
 
-An endpoint MAY return standard HTTP errors, including but not limited to: a malformed or unauthenticated request, rate limiting, or an unresponsive upstream service. Connectors SHOULD relay an ILP Reject packet back to the original sender with an appropriate [Final or Temporary error code](./0027-interledger-protocol-4/0027-interledger-protocol-4#error-codes). Server errors (status codes 500-599) SHOULD be translated into ILP Reject packets with `T00: Temporary Error` codes.
+An endpoint MAY return standard HTTP errors, including but not limited to: a malformed or unauthenticated request, rate limiting, or an unresponsive upstream service. Connectors SHOULD relay an ILP Reject packet back to the original sender with an appropriate [Final or Temporary error code](../0027-interledger-protocol-4/0027-interledger-protocol-4#error-codes). Server errors (status codes 500-599) SHOULD be translated into ILP Reject packets with `T00: Temporary Error` codes.

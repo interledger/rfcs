@@ -43,7 +43,7 @@ This specification defines a standardized HTTP API for Interledger connectors to
 
 ## Motivation
 
-Settlement engines supercede the [Ledger Plugin Interface (LPIv2)](../deprecated/0024-ledger-plugin-interface-2/0024-ledger-plugin-interface-2.md) as an abstraction for settlement integrations with Interledger. This new model addresses these issues:
+Settlement engines supercede the [Ledger Plugin Interface (LPIv2)](../0024-ledger-plugin-interface-2/0024-ledger-plugin-interface-2.md) as an abstraction for settlement integrations with Interledger. This new model addresses these issues:
 
 1. Multi-account plugins necessitated non-trivial connector logic for handling ILP packets.
 2. Plugin implementations were tightly coupled with a single bilateral communication mechanism.

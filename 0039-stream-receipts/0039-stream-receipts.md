@@ -5,6 +5,7 @@ draft: 1
 ---
 
 # STREAM Receipts
+
 > Proof provided by a [STREAM](../0029-stream/0029-stream.md) receiver of the total amount received on a stream.
 
 ## Motivation
@@ -37,6 +38,7 @@ The Verifier SHOULD consider a Receipt valid if:
 - The Receipt is not stale.
 
 The Verifier SHOULD determine a length of time starting from when a Receipt Nonce is generated that corresponding Receipts will be considered valid. Mechanisms by which the Verifier can check Receipts' staleness include, but are not limited to:
+
 - persistently storing the Receipt Nonce and a timestamp relative to when the Nonce was generated
 - encoding a timestamp in the Receipt Nonce
 
@@ -78,16 +80,16 @@ The Verifier MAY communicate the Receipt Nonce and Receipt Secret to the Receive
 
 ### Web Monetization
 
-A [Web Monetization](https://webmonetization.org/specification.html) Sender MUST include each ILP Fulfill packet's Receipt in the corresponding `monetizationprogress` event. This allows the webpage to pass Receipts to the Verifier.
+A [Web Monetization](https://webmonetization.org/specification) Sender MUST include each ILP Fulfill packet's Receipt in the corresponding `monetizationprogress` event. This allows the webpage to pass Receipts to the Verifier.
 
 ## Specification
 
-A Receipt MUST contain the following fields encoded using [CANONICAL-OER](https://github.com/interledger/rfcs/blob/master/0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md#canonical-oer) (find more details [here](https://github.com/interledger/rfcs/blob/05ab457b9301b031e1ec954632582a325c4907b4/asn1/README.md)):
+A Receipt MUST contain the following fields encoded using [CANONICAL-OER](../0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md#canonical-oer) (find more details [here](https://github.com/interledger/rfcs/blob/05ab457b9301b031e1ec954632582a325c4907b4/asn1/README.md)):
 
-| Field | Type | Description |
-|---|---|---|
-| Version | UInt8 | `1` for this version. |
-| Receipt Nonce | UInt128 | A unique nonce pre-shared between the Verifier and the Receiver used to identify the STREAM connection. |
-| Stream ID | UInt8 | Identifier of the stream this Receipt refers to. |
-| Total Received | UInt64 | Total amount, denominated in the units of the Receiver, that the Receiver has received on this stream thus far. |
-| HMAC | UInt256 | HMAC-SHA256 using the 32 byte Receipt Secret, which is pre-shared between the Verifier and the Receiver. The HMAC message is the concatenation of all other Receipt fields, in the order listed above. |
+| Field          | Type    | Description                                                                                                                                                                                            |
+| -------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Version        | UInt8   | `1` for this version.                                                                                                                                                                                  |
+| Receipt Nonce  | UInt128 | A unique nonce pre-shared between the Verifier and the Receiver used to identify the STREAM connection.                                                                                                |
+| Stream ID      | UInt8   | Identifier of the stream this Receipt refers to.                                                                                                                                                       |
+| Total Received | UInt64  | Total amount, denominated in the units of the Receiver, that the Receiver has received on this stream thus far.                                                                                        |
+| HMAC           | UInt256 | HMAC-SHA256 using the 32 byte Receipt Secret, which is pre-shared between the Verifier and the Receiver. The HMAC message is the concatenation of all other Receipt fields, in the order listed above. |
