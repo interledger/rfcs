@@ -218,7 +218,7 @@ Data can be sent for a given stream by sending an ILP Prepare packet with a `Str
 
 #### 4.4.4. Stream-Level Flow Control
 
-Each endpoint can limit the amount of money and data they are willing to receive on a particular stream. STREAM uses a credit-based flow control scheme inspired by [QUIC](https://quicwg.github.io/base-drafts/draft-ietf-quic-transport.html#rfc.section.10). Each endpoint advertises the maximum amount of money they are willing to receive, using `StreamMaxMoney` frames, as well as the maximum number of bytes each stream can receive, using `StreamMaxData` frames.
+Each endpoint can limit the amount of money and data they are willing to receive on a particular stream. STREAM uses a credit-based flow control scheme inspired by [QUIC](https://datatracker.ietf.org/doc/html/rfc9000#section-2). Each endpoint advertises the maximum amount of money they are willing to receive, using `StreamMaxMoney` frames, as well as the maximum number of bytes each stream can receive, using `StreamMaxData` frames.
 
 Endpoints MAY advertise larger offsets at any point by sending new `StreamMaxMoney` or `StreamMaxData` frames. An endpoint MUST NOT renege on an advertisement. Once an endpoint advertises a given maximum receive amount or maximum byte offset, they MUST NOT advertise a smaller value later. The sending endpoint could receive the frames out of order and so they MUST ignore flow control offsets that do not increase the window.
 
