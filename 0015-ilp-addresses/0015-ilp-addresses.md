@@ -110,7 +110,7 @@ As an example, the sender may encode the identifier of a shared key in the addre
 
 A node can be addressed relative to another _"parent"_ connector. Smaller and lesser-known connectors may find it easier to advertise routes to themselves in this manner. That way, rather than needing to have their address known to every connector in the same large neighborhood, only the parent connector needs to know how to route to the smaller node.
 
-In most cases a child node will use [ILDCP](#) to get its address from its parent immediately after it has established a connection.
+In most cases a child node will use [ILDCP](../0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md) to get its address from its parent immediately after it has established a connection.
 
 ### Example Global Allocation Scheme Addresses
 
