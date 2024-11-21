@@ -39,6 +39,7 @@ Host: bob.example
 Accept: application/octet-stream
 Content-Type: application/octet-stream
 Authorization: Bearer zxcljvoizuu09wqqpowipoalksdflksjdgxclvkjl0s909asdf
+Prefer: respond-async
 Callback-Url: https://alice.example/incoming/ilp
 Request-Id: 42ee09c8-a6de-4ae3-8a47-4732b0cbb07b
 
@@ -49,8 +50,9 @@ Request-Id: 42ee09c8-a6de-4ae3-8a47-4732b0cbb07b
 - **Host Header** &mdash; The standard [HTTP Host Header](https://tools.ietf.org/html/rfc2616#section-14.23) indicating the domain of the HTTP server the request is sent to.
 - **Content-Type / Accept Headers** &mdash; MUST be set to `application/octet-stream`.
 - **Body** &mdash; ILP Prepare encoded using OER, as specified in [RFC 27: Interledger Protocol V4](../0027-interledger-protocol-4/0027-interledger-protocol-4.md).
-- **Request Id Header** &mdash; UUIDv4 to uniquely identify this ILP Prepare, and correlate the corresponding ILP Fulfill/Reject.
+- **Prefer** &mdash; SHOULD be set to `respond-async` for backwards compatibility with recipients supporting [synchronous ILP over HTTP](#deprecated-synchronous-mode).
 - **Callback URL Header** &mdash; Callback URL of the origin connector to send an HTTP request with the ILP Fulfill/Reject. Required unless peers exchange the callback URL out-of-band.
+- **Request Id Header** &mdash; UUIDv4 to uniquely identify this ILP Prepare, and correlate the corresponding ILP Fulfill/Reject.
 
 #### Response
 
@@ -59,6 +61,8 @@ If the request is semantically valid, the recipient MUST respond immediately tha
 ```http
 HTTP/x.x 202 Accepted
 ```
+
+If the recipient handling the ILP Prepare supports both [synchronous mode](#deprecated-synchronous-mode) and the standard asynchronous mode, they SHOULD handle the packet asynchronously if the request includes a `Prefer: respond-async` header.
 
 ### ILP Fulfill/Reject Reply
 
@@ -107,6 +111,8 @@ An ILP Fulfill packet corresponds to a commitment which affects financial accoun
 The sender of the ILP Prepare should only process the first ILP reply they receive corresponding to the original ILP Prepare packet.
 
 ### [Deprecated] Synchronous Mode
+
+Each ILP Prepare packet is sent as the body of an HTTP request to the peer's server endpoint. In synchronous ILP over HTTP, ILP Fulfill or Reject packets are returned as the body of the HTTP response.
 
 #### ILP Prepare Request
 
