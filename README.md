@@ -9,6 +9,34 @@ The process for submitting an RFC is documented in the [RFC Process](CONTRIBUTIN
 
 For the main reference implementation of the ILP stack, see [Interledger.js](https://github.com/interledgerjs).
 
+## Deprecation Notice
+
+**Warning: This feature is deprecated and will be removed in future versions.**
+
+Please avoid using this feature in new projects. Instead, consider using the recommended alternative:
+
+- 0002-crypto-conditions
+- 0003-interledger-protocol
+- 0004-ledger-plugin-interface
+- 0005-optimistic-transport-protocol
+- 0006-universal-transport-protocol
+- 0007-atomic-transport-protocol
+- 0008-interledger-quoting-protocol
+- 0008-interledger-quoting-protocol
+- 0010-connector-to-connector-protocol
+- 0011-interledger-payment-request
+- 0012-five-bells-ledger-api
+- 0014-paid-http-apis
+- 0016-pre-shared-key
+- 0017-ledger-requirements
+- 0020-explain-like-im-five
+- 0021-plugin-rpc-api
+- 0024-ledger-plugin-interface-2
+- 0025-pre-shared-key-2
+- 0028-web-monetization
+- 0036-spsp-pull-payments
+- 0037-spsp-invoices
+
 ## ASN.1 and OER
 
 A number of the protocols define data structures in ASN.1 notation. The collection of definitions is in [asn1](./asn1).
@@ -16,7 +44,7 @@ A number of the protocols define data structures in ASN.1 notation. The collecti
 Changes to these files are automatically checked and compiled during CI using online ASN.1 tools from OSS Nokalva. If you need ASN.1 tools for any work you're doing on Interledger please contact them for assistance.
 
 [![OSS Nokalva](https://raw.githubusercontent.com/interledger/rfcs/master/assets/osslogo.png)](http://asn1-playground.oss.com/)
- 
+
 You can also check your ASN.1 definitions online using OSS Nokalva's ASN.1 Playground available at http://asn1.io/
 
 The default encoding rules for Interledger protocols are the Canonical Octet Encoding Rules as described in [Notes on OER encoding](./0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md).
