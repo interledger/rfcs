@@ -7,6 +7,7 @@ draft: 3
 # Interledger Dynamic Configuration Protocol (ILDCP) v1
 
 ## Prerequisites
+
 This specification assumes the reader is familiar with the following documents:
 
 - [Interledger Architecture](../0001-interledger-architecture/0001-interledger-architecture.md)
@@ -14,13 +15,14 @@ This specification assumes the reader is familiar with the following documents:
 
 ## Terminology
 
-- A **node** is a participant in an Interledger network. It may be a [connector](../0001-interledger-architecture/0001-interledger-architecture.md#connectors), a sender or a receiver. 
+- A **node** is a participant in an Interledger network. It may be a [connector](../0001-interledger-architecture/0001-interledger-architecture.md#connectors), a sender or a receiver.
 - Nodes are connected to each other and the relationship between two nodes is either:
   - `parent` and `child` (one node is the `parent` of another node that is relatively its `child`), or,
   - `peer` and `peer` (two nodes are peered with one another).
 
 ## Overview
-Interledger is a protocol suite that consists of several protocols including the [Bilateral Transfer Protocol](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md), the Route Broadcasting Protocol and others necessary for establishment, operation and maintenance of the network. Interledger Dynamic Configuration Protocol (ILDCP) is one of these protocols.
+
+Interledger is a protocol suite that consists of several protocols such as the [Bilateral Transfer Protocol](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md), [ILP over HTTP](../0035-ilp-over-http/0035-ilp-over-http.md) and others necessary for establishment, operation and maintenance of the network. Interledger Dynamic Configuration Protocol (ILDCP) is one of these protocols.
 
 In order to participate in the network a node must have an [ILP address](../0015-ilp-addresses/0015-ilp-addresses.md). This address is part of a heirarchical address space where child nodes MAY be allocated addresses within the address space of their parent node. This makes routing on the network more efficient than if all nodes had top-level addresses.
 
@@ -40,6 +42,7 @@ Future versions of the protocol MAY exchange additional configuration informatio
 ## Protocol Detail
 
 ### Procedure
+
 An exchange of configuration information is done using the following procedure.
 
 1. A child node requests configuration information from the parent node
@@ -47,7 +50,8 @@ An exchange of configuration information is done using the following procedure.
 3. If the request cannot be processed, the parent node responds with an error
 
 ### Packet
-The request and the response above are transferred in [ILP packets](../0027-interledger-protocol-4/0027-interledger-protocol-4.md#specification). 
+
+Requests and responses are transferred in [ILP packets](../0027-interledger-protocol-4/0027-interledger-protocol-4.md#specification).
 
 The `fulfillment` of the response packet is always a zero-filled 32 byte octet string, therefore the condition is always the SHA-256 hash digest of that, i.e. the Base64 decoded value of `Zmh6rfhivXdsj8GLjp+OIAiXFIVu4jOzkCpZHQ1fKSU=`.
 
@@ -64,7 +68,6 @@ The packet exchange goes as follows:
   - The `executionCondition` of the ILP packet is `Zmh6rfhivXdsj8GLjp+OIAiXFIVu4jOzkCpZHQ1fKSU=` in Base64 format
   - The `destination` address of the ILP packet is `peer.config`
   - The `data` of the ILP packet is empty (size: 0)
-  
 - Response
   - The `type` of the ILP packet is `ILP Fulfill` (type id: 13)
   - The `fulfillment` of the ILP packet is a 32-byte octet string all filled with zeros
@@ -72,7 +75,6 @@ The packet exchange goes as follows:
     - `Variable-length octet string`: An ILP address that the child should use, encoded as an `ASCII` string
     - `Uint8`: An unsigned 8-bit integer indicating the asset scale that should be used for packets exchanged with the parent
     - `Variable-length octet string`: An asset code, encoded as a `UTF-8` string, indicating the settlement asset used between the peers
-    
 - Error
   - The `type` of the ILP packet is `ILP Reject` (type id: 14)
   - The `code` of the ILP packet is an appropriate error code
@@ -81,7 +83,9 @@ The packet exchange goes as follows:
   - The `data` of the ILP packet is empty (size: 0) or MAY contain further information for debugging the error.
 
 ### ASN.1 Definition
+
 The ASN.1 definition of ILP packets is described in [InterledgerProtocol.asn](../asn1/InterledgerProtocol.asn) and Dynamic Configuration Protocol data in [DynamicConfigurationProtocol.asn](../asn1/DynamicConfigurationProtocol.asn).
 
 ### Encoding
+
 All ASN.1 types are encoded using [Octet Encoding Rules](../0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md) as is the norm with all Interledger protocols.

@@ -7,11 +7,13 @@ draft: 2
 # Relationship between Protocols
 
 ## Prerequisites
+
 This document assumes the reader is familiar with the following document:
 
 - [Interledger Architecture](../0001-interledger-architecture/0001-interledger-architecture.md)
 
 ## Terminology
+
 - A **node** is a participant in an Interledger network. It may be a [connector](../0001-interledger-architecture/0001-interledger-architecture.md#connectors), a sender or a receiver.
 - A **payment** is sending value from one to another but it doesn't necessarily mean settled, as is explained below. In the Interledger network, a payment could mean a **node-to-node** payment or an **end-to-end** payment.
   - A **node-to-node** payment means the intention of transferring value of a node (a connector, an endpoint sender, or an endpoint receiver) to another node which is directly connected to the sender node.
@@ -23,12 +25,15 @@ This document assumes the reader is familiar with the following document:
   - Refer to [Interledger Architecture](../0001-interledger-architecture/0001-interledger-architecture.md) and [Perspective](#perspective).
 
 ## Motivation
+
 Because the Interledger Protocol suite consists of several protocols and some related specifications, it can be difficult to understand the relationship between each of the protocols. This document attempts to provide an overview and mental model of how the components fit together. It is primarily intended for implementers of parts of the Interledger stack but may also be useful for others who wish to understand how Interledger works as a whole. A mental model is what a reader assumes something to be, reading some explanation. The mental model helps the reader predicting the behavior of what is explained even if the details are not given at that time.
 
 ## Scope
+
 The scope of this document is the explication of the relationship between the Interledger protocols, and the details for it are out of scope. Some references are given for it though. i.e. This document draws a whole, big picture of ILP.
 
 ## Perspective
+
 There are two diagrams, one is for the macro view that shows the main elements and its IP layer connections, another is for the micro view that shows protocols, the interaction between programs, and the other details.
 
 The alphabets (A-C) and numbers (1-15), that are shown in the diagrams as **red characters**, are explained briefly in the [Elements and Brief Explanations](#elements-and-brief-explanations) section.
@@ -44,7 +49,9 @@ This is an enlarged diagram of the above diagram, that shows mainly `Node A`, `N
 ![Perspective of connections](images/perspective-protocols.svg)
 
 ### Elements and Brief Explanations
+
 #### Connections
+
 - (A) BTP over WebSocket
   - **Node** to **Node** connection
   - In order to exchange payments, configuration and routing information, a node MUST have secure communication channels with its peers. The current implementation uses WebSockets for it.
@@ -57,6 +64,7 @@ This is an enlarged diagram of the above diagram, that shows mainly `Node A`, `N
   - To determine end-to-end payment information such as a shared secret, a destination address and so forth, an application connects to SPSP server over HTTPS.
 
 #### Protocols
+
 - Link Layer Protocol
   - (1) BTP
     - [Bilateral Transfer Protocol 2.0 (BTP/2.0)](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md)
@@ -84,10 +92,12 @@ This is an enlarged diagram of the above diagram, that shows mainly `Node A`, `N
     - DCP is a protocol built on top of ILP, and is used in order to exchange node information such as an ILP address.
     - DCP data is put into the extensible data area of ILP packets.
   - (8) RBP
-    - RBP is a protocol built on top of ILP, and is used for transferring routing information to build routing tables.
-    - RBP data is put into the extensible data area of ILP packets.
+    - A Route Broadcasting Protocol is thought to be a protocol built on top of ILP, and would be used for transferring routing information to build routing tables.
+    - RBP data would be put into the extensible data area of ILP packets.
+    - RBP is an idea that does not exist yet.
 
 #### Data Structure and Encoding
+
 - (9) ASN.1
   - [ASN.1 Project](https://www.itu.int/en/ITU-T/asn1/)
   - ASN.1 is used in order to specify data structure (order, type, and length).
@@ -99,6 +109,7 @@ This is an enlarged diagram of the above diagram, that shows mainly `Node A`, `N
   - Canonical OER is one of the specifications that define the encoding rule.
 
 #### Functions
+
 The functions shown below are just concepts, so their exact form may differ between implementations.
 
 - (11) Account Module
