@@ -1,7 +1,7 @@
 ---
 title: Interledger Dynamic Configuration Protocol
 type: working-draft
-draft: 3
+draft: 4
 ---
 
 # Interledger Dynamic Configuration Protocol (ILDCP) v1

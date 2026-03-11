@@ -1,7 +1,7 @@
 ---
 title: Interledger Architecture
 type: working-draft
-draft: 7
+draft: 8
 ---
 
 # Interledger Architecture
