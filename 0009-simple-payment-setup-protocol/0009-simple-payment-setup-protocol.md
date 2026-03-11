@@ -1,7 +1,7 @@
 ---
 title: The Simple Payment Setup Protocol (SPSP)
 type: working-draft
-draft: 12
+draft: 13
 ---
 
 # Simple Payment Setup Protocol (SPSP)
@@ -77,17 +77,6 @@ SPSP servers SHOULD expose the CORS headers listed below on `GET <SPSP Endpoint>
 | `Access-Control-Allow-Origin`  | `*`                   |
 | `Access-Control-Allow-Headers` | `web-monetization-id` |
 
-##### Request Headers to Support STREAM Receipts
-
-The request MAY contain at least the following headers in order to pre-share [STREAM Receipt](../0039-stream-receipts/0039-stream-receipts.md) details between the SPSP Server and [receipt verifier](../0039-stream-receipts/0039-stream-receipts.md#conventions-and-definitions):
-
-| Header           | Description                      |
-| :--------------- | :------------------------------- |
-| `Receipt-Nonce`  | A base64-encoded Receipt Nonce.  |
-| `Receipt-Secret` | A base64-encoded Receipt Secret. |
-
-The SPSP Client MAY be provided with an SPSP Endpoint belonging to the receipt verifier, which would add the receipt headers and proxy the query to the SPSP Server.
-
 #### Response
 
 ```http
@@ -97,7 +86,6 @@ Content-Type: application/spsp4+json
 {
   "destination_account": "example.ilpdemo.red.bob",
   "shared_secret": "6jR5iNIVRvqeasJeCty6C+YB5X9FhSOUPCL/5nha5Vs=",
-  "receipts_enabled": true
 }
 ```
 
@@ -129,7 +117,6 @@ The response body is a JSON object that includes basic account details necessary
 | --------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `destination_account` | [ILP Address](../0015-ilp-addresses/0015-ilp-addresses.md)                                       | ILP Address of the SPSP Server. In case of push payments, this is the receiver. In case of pull payments, this is the sender.                                                                                                                                                                                                               |
 | `shared_secret`       | 32 bytes, [base64 (base64url) encoded](https://en.wikipedia.org/wiki/Base64) (including padding) | The shared secret to be used by this specific HTTP client in the [STREAM](../0029-stream/0029-stream.md). Should be shared only by the server and this specific HTTP client, and should therefore be different in each query response. Even though clients SHOULD accept base64url encoded secrets, base64 encoded secrets are recommended. |
-| `receipts_enabled`    | Boolean                                                                                          | _(OPTIONAL)_ If `true`, the SPSP server will issue STREAM Receipts in the STREAM connection. If `false` or omitted, the server will not issue STREAM Receipts.                                                                                                                                                                              |
 
 ##### Errors
 
