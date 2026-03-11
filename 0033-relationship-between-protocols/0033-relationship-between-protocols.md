@@ -91,10 +91,9 @@ This is an enlarged diagram of the above diagram, that shows mainly `Node A`, `N
     - [Interledger Dynamic Configuration Protocol (ILDCP) v1](../0031-dynamic-configuration-protocol/0031-dynamic-configuration-protocol.md)
     - DCP is a protocol built on top of ILP, and is used in order to exchange node information such as an ILP address.
     - DCP data is put into the extensible data area of ILP packets.
-  - (8) RBP
+  - (8) RBP [EXPERIMENTAL]
     - A Route Broadcasting Protocol is thought to be a protocol built on top of ILP, and would be used for transferring routing information to build routing tables.
     - RBP data would be put into the extensible data area of ILP packets.
-    - RBP is an idea that does not exist yet.
 
 #### Data Structure and Encoding
 
