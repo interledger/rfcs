@@ -162,7 +162,7 @@ The original Interledger whitepaper presented an _atomic mode_ with a stronger g
 
 Interledger uses the digest of the [SHA-256](https://en.wikipedia.org/wiki/SHA-2) hash function as the condition for prepare packets. (This choice was inspired by the design of the [Lightning Network](http://lightning.network).) The fulfill packet contains a valid 32-byte preimage for the hash specified in the prepare packet. Connectors are responsible for validating fulfillments in the Interledger Protocol layer.
 
-The sender and receiver for a payment define the condition and fulfillment for each packet using a [Transport Layer](#transport-layer) protocol.
+The sender and receiver for a payment define the condition and fulfillment for each packet using a [Transport Layer](#transport-protocols) protocol.
 
 ### Connector Risk and Mitigation
 
