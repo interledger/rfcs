@@ -239,7 +239,7 @@ Message ::= SEQUENCE {
 ```
 
 `Message` is used for sending information to the peer. It contains no
-packet-specific data, only protocol data. [ILP](../0003-interledger-protocol/0003-interledger-protocol.md#ilp-payment-packet-format) packets are attached under the
+packet-specific data, only protocol data. [ILP](../0027-interledger-protocol-4/0027-interledger-protocol-4.md#packet-format) packets are attached under the
 protocol name `ilp` with content-type `application/octet-stream`.
 
 - `Response` is returned if the peer acknowledges the `Message`. If the peer
@@ -269,8 +269,8 @@ Error ::= SEQUENCE {
 ```
 
 `Error` is a response-type message, returned when an error occurs on the BTP
-level. It has packet-specific data which resembles the [ILP Error
-format](../0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format),
+level. It has packet-specific data which resembles the [ILP Reject
+format](../0027-interledger-protocol-4/0027-interledger-protocol-4.md#ilp-reject),
 but irrelevant fields have been taken off and new error codes have been
 written:
 
