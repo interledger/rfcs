@@ -15,7 +15,7 @@ This specification assumes the reader is familiar with the following documents:
 
 ## Terminology
 
-- A **node** is a participant in an Interledger network. It may be a connector, a sender or a receiver. See [Sender, Receiver, Connectors](../0001-interledger-architecture/0001-interledger-architecture.md#sender-receiver-connectors).
+- A **node** is a participant in an Interledger network. It may be a [connector, a sender or a receiver](../0001-interledger-architecture/0001-interledger-architecture.md#sender-receiver-connectors).
 - Nodes are connected to each other and the relationship between two nodes is either:
   - `parent` and `child` (one node is the `parent` of another node that is relatively its `child`), or,
   - `peer` and `peer` (two nodes are peered with one another).
