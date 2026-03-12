@@ -1,7 +1,7 @@
 ---
 title: Bilateral Transfer Protocol 2.0 (BTP/2.0)
 type: working-draft
-draft: 8
+draft: 9
 ---
 
 # Bilateral Transfer Protocol 2.0 (BTP/2.0)
