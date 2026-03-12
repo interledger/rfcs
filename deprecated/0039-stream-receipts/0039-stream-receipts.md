@@ -1,7 +1,7 @@
 ---
 title: STREAM Receipts
-type: working-draft
-draft: 1
+draft: FINAL
+deprecated: true
 ---
 
 # STREAM Receipts
