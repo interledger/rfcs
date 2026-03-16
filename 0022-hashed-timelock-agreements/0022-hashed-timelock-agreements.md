@@ -80,7 +80,7 @@ The Interledger protocol flow (detailed below) ensures that each participant onl
 
 #### Interledger Protocol payment flow:
 
-1. `Alice` and `Bob` agree on the hashlock `H`. The preimage `P` is only known to `Bob` (and to `Alice` in the case of [PSK](../0016-pre-shared-key/0016-pre-shared-key.md)).
+1. `Alice` and `Bob` agree on the hashlock `H`. The preimage `P` is only known to `Bob` (and to `Alice` in the case of [STREAM](../0029-stream/0029-stream.md)).
 2. `Alice` prepares the transfer to `Connector 1` by creating and funding an HTLC on `Blockchain A` with hashlock `H` (see [On-Ledger Holds/Escrow](#on-ledger-holdsescrow-using-htlcs)).
 3. `Connector 1` prepares a transfer to `Connector 2` via their shared payment channel, also using hashlock `H` (see [Simple Payment Channels](#simple-payment-channels)).
 4. `Connector 2` prepares a transfer to `Bob` on their shared trustline using Hashlock `H` (see [Trustlines](#trustlines)).

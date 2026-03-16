@@ -27,9 +27,7 @@ request/response layer, between WebSockets and the request/response pairs exchan
 
 This document describes the flow and data format that BTP uses, but not
 sub-protocols. Sub-protocols include optional functionality like ledger
-metadata, balance, automated settlement, and dispute resolution. Some protocols
-are documented on [the wiki
-page](https://github.com/interledger/interledger/wiki/Interledger-over-CLP).
+metadata, balance, automated settlement, and dispute resolution.
 They are carried in the protocol data of BTP packets.
 
 The BTP packet format is described exactly in the [BTP ASN.1
