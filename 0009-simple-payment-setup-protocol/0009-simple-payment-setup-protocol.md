@@ -1,7 +1,7 @@
 ---
 title: The Simple Payment Setup Protocol (SPSP)
 type: working-draft
-draft: 13
+draft: 14
 ---
 
 # Simple Payment Setup Protocol (SPSP)

@@ -1,7 +1,7 @@
 ---
 title: Glossary
 type: working-draft
-draft: 3
+draft: 4
 ---
 
 # Glossary
