@@ -1,7 +1,7 @@
 ---
 title: STREAM - A Multiplexed Money and Data Transport for ILP
 type: working-draft
-draft: 12
+draft: 13
 ---
 
 # STREAM: A Multiplexed Money and Data Transport for ILP
@@ -81,7 +81,7 @@ STREAM is a multiplexed Interledger Transport Protocol that provides for sending
 - Generating and fulfilling ILP packet conditions
 - Connection migration
 
-STREAM is a successor to the [Pre-Shared Key V2 (PSK2)](../0025-pre-shared-key-2/0025-pre-shared-key-2.md) Transport Protocol and also takes significant inspiration from the [QUIC](https://datatracker.ietf.org/doc/html/rfc9000) Internet Transport Protocol. Like PSK2, STREAM uses a shared secret to authenticate and encrypt multiple packets, as well as to generate the conditions and fulfillments. In addition, STREAM enables sending money and data in both directions between the two endpoints and automatically determines how much money and data can be sent in each ILP packet. STREAM borrows heavily from QUIC's packet format, stream multiplexing, and approach to flow control (see [Appendix A](#appendix-a-similarities-and-differences-with-quic) for similarities and differences with QUIC).
+STREAM is a successor to the [Pre-Shared Key V2 (PSK2)](../deprecated/0025-pre-shared-key-2/0025-pre-shared-key-2.md) Transport Protocol and also takes significant inspiration from the [QUIC](https://datatracker.ietf.org/doc/html/rfc9000) Internet Transport Protocol. Like PSK2, STREAM uses a shared secret to authenticate and encrypt multiple packets, as well as to generate the conditions and fulfillments. In addition, STREAM enables sending money and data in both directions between the two endpoints and automatically determines how much money and data can be sent in each ILP packet. STREAM borrows heavily from QUIC's packet format, stream multiplexing, and approach to flow control (see [Appendix A](#appendix-a-similarities-and-differences-with-quic) for similarities and differences with QUIC).
 
 ## 2. Conventions and Definitions
 
@@ -141,7 +141,7 @@ Implementations SHOULD set the minimum acceptable amount in each packet sent to 
 
 ### 3.5. Packets and Frames
 
-STREAM packets are encoded, [encrypted](#encryption), and sent as the `data` field in [ILP Prepare, Fulfill, or Reject packets](../0027-interledger-protocol-4/0027-interledger-protocol-4.md#ilp-prepare).
+STREAM packets are encoded, [encrypted](#51-encryption), and sent as the `data` field in [ILP Prepare, Fulfill, or Reject packets](../0027-interledger-protocol-4/0027-interledger-protocol-4.md#ilp-prepare).
 
 Each STREAM packet consists of multiple [frames](#53-frames), which can be used to send money, data, or control-related information.
 

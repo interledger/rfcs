@@ -1,7 +1,9 @@
 ---
 title: The Javascript Ledger Plugin Interface Version 2
-draft: 3
+draft: FINAL
+deprecated: true
 ---
+
 # Javascript Ledger Plugin Interface Version 2
 
 The Interledger Protocol is a protocol suite for making payments across multiple different settlement systems.
@@ -13,38 +15,42 @@ To send ILP payments through a new ledger, one must implement a ledger plugin th
 ~This spec depends on the [ILP spec](../0003-interledger-protocol/).~
 
 ## Class: LedgerPlugin
+
 `class LedgerPlugin`
 
 ###### Methods
-| | Name |
-|:--|:--|
-| `new` | [**LedgerPlugin**](#new-ledgerplugin) ( opts, api ) |
-| | [**connect**](#ledgerpluginconnect) ( options ) `⇒ Promise.<undefined>` |
-| | [**disconnect**](#ledgerplugindisconnect) ( ) `⇒ Promise.<undefined>` |
-| | [**isConnected**](#ledgerpluginisconnected) ( ) `⇒ Boolean` |
-| | [**sendData**](#ledgerpluginsenddata) ( data ) <code>⇒ Promise.&lt;Buffer></code> |
-| | [**sendMoney**](#ledgerpluginsendmoney) ( amount ) <code>⇒ Promise.&lt;undefined></code> |
-| | [**registerDataHandler**](#ledgerpluginregisterdatahandler) ( dataHandler ) <code>⇒ undefined</code> |
-| | [**deregisterDataHandler**](#ledgerpluginderegisterdatahandler) ( ) <code>⇒ undefined</code> |
-| | [**registerMoneyHandler**](#ledgerpluginregistermoneyhandler) ( moneyHandler ) <code>⇒ undefined</code> |
-| | [**deregisterMoneyHandler**](#ledgerpluginderegistermoneyhandler) ( ) <code>⇒ undefined</code> |
+
+|       | Name                                                                                                    |
+| :---- | :------------------------------------------------------------------------------------------------------ |
+| `new` | [**LedgerPlugin**](#new-ledgerplugin) ( opts, api )                                                     |
+|       | [**connect**](#ledgerpluginconnect) ( options ) `⇒ Promise.<undefined>`                                 |
+|       | [**disconnect**](#ledgerplugindisconnect) ( ) `⇒ Promise.<undefined>`                                   |
+|       | [**isConnected**](#ledgerpluginisconnected) ( ) `⇒ Boolean`                                             |
+|       | [**sendData**](#ledgerpluginsenddata) ( data ) <code>⇒ Promise.&lt;Buffer></code>                       |
+|       | [**sendMoney**](#ledgerpluginsendmoney) ( amount ) <code>⇒ Promise.&lt;undefined></code>                |
+|       | [**registerDataHandler**](#ledgerpluginregisterdatahandler) ( dataHandler ) <code>⇒ undefined</code>    |
+|       | [**deregisterDataHandler**](#ledgerpluginderegisterdatahandler) ( ) <code>⇒ undefined</code>            |
+|       | [**registerMoneyHandler**](#ledgerpluginregistermoneyhandler) ( moneyHandler ) <code>⇒ undefined</code> |
+|       | [**deregisterMoneyHandler**](#ledgerpluginderegistermoneyhandler) ( ) <code>⇒ undefined</code>          |
 
 ###### Constants
 
-| | Name |
-|:--|:--|
+|          | Name                                    |
+| :------- | :-------------------------------------- |
 | `static` | [**version**](#ledgerpluginversion) = 2 |
 
 ###### Events
-| Name | Handler |
-|:--|:--|
-| [**connect**](#event-connect) | `( ) ⇒` |
+
+| Name                                | Handler |
+| :---------------------------------- | :------ |
+| [**connect**](#event-connect)       | `( ) ⇒` |
 | [**disconnect**](#event-disconnect) | `( ) ⇒` |
-| [**error**](#event-error) | `( ) ⇒` |
+| [**error**](#event-error)           | `( ) ⇒` |
 
 ### Instance Management
 
 #### new LedgerPlugin
+
 <code>new LedgerPlugin( **opts** : object, **api**? : [PluginServices](#class-pluginservices) )</code>
 
 Create a new instance of the plugin. Each instance typically corresponds to a different ledger. However, some plugins MAY deviate from a strict one-to-one relationship and MAY internally act as a virtual connector to more than one counterparty.
@@ -56,14 +62,15 @@ The second parameter `api` is optional and is used to pass additional environmen
 Throws `InvalidFieldsError` if the constructor is given incorrect arguments in `opts`. Throws `TypeError` if `opts` is not an object or `api` is defined and not an object. Throws `InvalidServicesError` if a service is required, but not provided via `api`.
 
 ###### Parameters
-| Name | Type | Description |
-|:--|:--|:--|
+
+| Name | Type                                               | Description                                                                    |
+| :--- | :------------------------------------------------- | :----------------------------------------------------------------------------- |
 | opts | <code>[PluginOptions](#class-pluginoptions)</code> | Object containing ledger-related settings. May contain plugin-specific fields. |
 
 ###### Example
+
 ```js
 const ledgerPlugin = new LedgerPlugin({
-
   // auth parameters are defined by the plugin
 
   _store: {
@@ -80,14 +87,15 @@ const ledgerPlugin = new LedgerPlugin({
     // Delete a value by key
     del: (key) => {
       // Returns Promise.<undefined>
-    }
-  }
-})
+    },
+  },
+});
 ```
 
 For a detailed description of these properties, please see [`PluginOptions`](#class-pluginoptions).
 
 #### LedgerPlugin.version
+
 <code>LedgerPlugin.**version**:Number</code>
 
 Always `2` for this version of the Ledger Plugin Interface.
@@ -95,7 +103,8 @@ Always `2` for this version of the Ledger Plugin Interface.
 ### Connection Management
 
 #### LedgerPlugin#connect
-<code>ledgerPlugin.connect( options:[ConnectOptions](#class-connectoptions ) ⇒ Promise.&lt;undefined></code>
+
+<code>ledgerPlugin.connect( options:[ConnectOptions](#class-connectoptions) ⇒ Promise.&lt;undefined></code>
 
 `options` is optional.
 
@@ -105,26 +114,31 @@ Rejects with `InvalidFieldsError` if credentials are missing, and `NotAcceptedEr
 Rejects with `TypeError` if `options.timeout` is passed but is not a `Number`.
 
 #### LedgerPlugin#disconnect
+
 <code>ledgerPlugin.disconnect() ⇒ Promise.&lt;undefined></code>
 
 Unsubscribe from ledger events.
 
 #### LedgerPlugin#isConnected
+
 <code>ledgerPlugin.isConnected() ⇒ Boolean</code>
 
 Query whether the plugin is currently connected.
 
 #### Event: `connect`
+
 <code>ledgerPlugin.on('connect', () ⇒ )</code>
 
 Emitted whenever a connection is successfully established.
 
 #### Event: `disconnect`
+
 <code>ledgerPlugin.on('disconnect', () ⇒ )</code>
 
 Emitted when the connection has been terminated or lost.
 
 #### Event: `error`
+
 <code>ledgerPlugin.on('error', ( **err**:Error ) ⇒ )</code>
 
 General event for fatal exceptions. Emitted when the plugin experienced an unexpected unrecoverable condition. Once triggered, this instance of the plugin MUST NOT be used anymore.
@@ -132,26 +146,31 @@ General event for fatal exceptions. Emitted when the plugin experienced an unexp
 ### Sending
 
 #### LedgerPlugin#sendData
+
 <code>ledgerPlugin.sendData( **data**:Buffer ) ⇒ Promise.&lt;Buffer></code>
 
 Sends data to the counterparty of the account and returns a response asynchronously. Request data is passed in as a `Buffer` and response data is returned as a `Buffer`.
 
 ###### Parameters
-| Name | Type | Description |
-|:--|:--|:--|
+
+| Name | Type                | Description         |
+| :--- | :------------------ | :------------------ |
 | data | <code>Buffer</code> | Binary request data |
 
 ###### Returns
+
 **`Promise.<Buffer>`** A promise which resolves when the response has been received.
 
 This method MAY reject with any arbitrary JavaScript error.
 
 ###### Example
+
 ```js
-const responseBuffer = await p.sendData(requestBuffer)
+const responseBuffer = await p.sendData(requestBuffer);
 ```
 
 #### LedgerPlugin#sendMoney
+
 <code>ledgerPlugin.sendMoney( **amount**:string ) ⇒ Promise.&lt;undefined></code>
 
 Transfer `amount` units of money from the caller to the counterparty of the account.
@@ -161,6 +180,7 @@ All plugins MUST support amounts in a range from one to some maximum.
 ### Receiving
 
 #### LedgerPlugin#registerDataHandler
+
 <code>ledgerPlugin.registerDataHandler( **dataHandler**: ( data: Buffer ) ⇒ Promise&lt;Buffer> ) ⇒ undefined</code>
 
 Set the callback which is used to handle incoming prepared data packets. The callback should expect one parameter (the data as a Buffer)) and return a promise for the resulting response data packet (as a Buffer.) If an error occurs, the callback MAY throw an exception. In general, the callback should behave as [`sendData`](#ledgerpluginsenddata) does.
@@ -170,6 +190,7 @@ If a data handler is already set, this method throws a `DataHandlerAlreadyRegist
 If an incoming packet is received by the plugin, but no handler is registered, the plugin SHOULD respond with an error.
 
 #### LedgerPlugin#deregisterDataHandler
+
 <code>ledgerPlugin.deregisterDataHandler( ) ⇒ undefined</code>
 
 Removes the currently used data handler. This has the same effect as if [`registerDataHandler`](#ledgerpluginregisterdatahandler) had never been called.
@@ -177,6 +198,7 @@ Removes the currently used data handler. This has the same effect as if [`regist
 If no data handler is currently set, this method does nothing.
 
 #### LedgerPlugin#registerMoneyHandler
+
 <code>ledgerPlugin.registerMoneyHandler( **moneyHandler**: ( amount: string ) ⇒ Promise&lt;undefined> ) ⇒ undefined</code>
 
 Set the callback which is used to handle incoming money. The callback should expect one parameter (the amount) and return a promise. If an error occurs, the callback MAY throw an exception. In general, the callback should behave as [`sendMoney`](#ledgerpluginsendmoney) does.
@@ -186,6 +208,7 @@ If a money handler is already set, this method throws a `MoneyHandlerAlreadyRegi
 If incoming money is received by the plugin, but no handler is registered, the plugin SHOULD return an error (and MAY return the money.)
 
 #### LedgerPlugin#deregisterMoneyHandler
+
 <code>ledgerPlugin.deregisterMoneyHandler( ) ⇒ undefined</code>
 
 Removes the currently used money handler. This has the same effect as if [`registerMoneyHandler`](#ledgerpluginregistermoneyhandler) had never been called.
@@ -193,6 +216,7 @@ Removes the currently used money handler. This has the same effect as if [`regis
 If no money handler is currently set, this method does nothing.
 
 ## Class: PluginServices
+
 <code>class PluginServices</code>
 
 Plugin services are optionally passed in to the [`LedgerPlugin`](#class-ledgerplugin)
@@ -200,14 +224,16 @@ constructor when a plugin is being instantiated. Which services are provided
 MAY vary based on the host environment or none MAY be available at all.
 
 ###### Special Fields
-| Type | Name | Description |
-|:--|:--|:--|
+
+| Type     | Name                           | Description                   |
+| :------- | :----------------------------- | :---------------------------- |
 | `Object` | [store](#pluginservices-store) | Simple key-value store object |
-| `Object` | [log](#pluginservices-log) | Simple logger object |
+| `Object` | [log](#pluginservices-log)     | Simple logger object          |
 
 ### Fields
 
 #### PluginServices#store
+
 <code>**store**:Object</code>
 
 Provides callback hooks to the host's persistence layer.
@@ -217,6 +243,7 @@ Most plugins SHOULD work (possibly with higher trust or degraded experience) wit
 Method names are based on the popular LevelUP/LevelDOWN packages.
 
 ###### Example
+
 ```js
 {
   // Store a value under a key
@@ -235,6 +262,7 @@ Method names are based on the popular LevelUP/LevelDOWN packages.
 ```
 
 #### PluginServices#log
+
 <code>**log**:Object</code>
 
 Provides logging hooks to the host. Hosts MAY use this feature to prefix log lines with the identifier of the plugin instance.
@@ -243,42 +271,46 @@ If this parameter is not provided, the plugin SHOULD use a suitable default logg
 
 The logging methods support [printf-style](https://wikipedia.org/wiki/Printf_format_string) formatting. The following formatters are available:
 
-| Formatter | Representation |
-|-----------|----------------|
-| `%O`      | Pretty-print an Object on multiple lines. |
-| `%o`      | Pretty-print an Object all on a single line. |
-| `%s`      | String. |
-| `%d`      | Number (both integer and float). |
+| Formatter | Representation                                                                            |
+| --------- | ----------------------------------------------------------------------------------------- |
+| `%O`      | Pretty-print an Object on multiple lines.                                                 |
+| `%o`      | Pretty-print an Object all on a single line.                                              |
+| `%s`      | String.                                                                                   |
+| `%d`      | Number (both integer and float).                                                          |
 | `%j`      | JSON. Replaced with the string '[Circular]' if the argument contains circular references. |
-| `%%`      | Single percent sign ('%'). This does not consume an argument. |
+| `%%`      | Single percent sign ('%'). This does not consume an argument.                             |
 
 Log messages MUST NOT contain private keys or other credentials.
 
 ###### Example
+
 ```js
 {
   // Extremely verbose debug information
-  debug: (message, ...params) => { }
+  debug: (message, ...params) => {};
   // Notable events that may happen during normal operation
-  info: (message, ...params) => { }
+  info: (message, ...params) => {};
   // Warnings indicate unusual events that call for the user's attention
-  warn: (message, ...params) => { }
+  warn: (message, ...params) => {};
   // Errors indicate something went wrong
-  error: (message, ...params) => { }
+  error: (message, ...params) => {};
 }
 ```
 
 ## Class: ConnectOptions
+
 <code>class ConnectOptions</code>
 
 ###### Fields
-| Type | Name | Description |
-|:--|:--|:--|
+
+| Type     | Name                               | Description                                                                         |
+| :------- | :--------------------------------- | :---------------------------------------------------------------------------------- |
 | `Number` | [timeout](#connectoptions-timeout) | Amount of time before the client SHOULD give up trying to connect (in milliseconds) |
 
 ### Fields
 
 #### ConnectOptions#timeout
+
 <code>**timeout**:Number</code>
 
 The number of milliseconds that the plugin should spend trying to connect before giving up.
@@ -292,8 +324,8 @@ Various methods defined in the LPI throw errors; others can reject the Promise t
 
 ```js
 function InvalidFieldsError(message) {
-    this.name = 'InvalidFieldsError'
-    this.message = (message || '')
+  this.name = "InvalidFieldsError";
+  this.message = message || "";
 }
-InvalidFieldsError.prototype = Error.prototype
+InvalidFieldsError.prototype = Error.prototype;
 ```

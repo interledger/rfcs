@@ -1,8 +1,9 @@
 ---
 title: Plugin RPC API
-draft: 3
+draft: FINAL
 deprecated: 0023-bilateral-transfer-protocol
 ---
+
 # Plugin RPC API
 
 **This has been superseded by the [IL-RFC 23: Bilateral Transfer Protocol (BTP)](../0023-bilateral-transfer-protocol/0023-bilateral-transfer-protocol.md).**

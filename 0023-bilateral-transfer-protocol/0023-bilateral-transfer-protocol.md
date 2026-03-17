@@ -1,7 +1,7 @@
 ---
 title: Bilateral Transfer Protocol 2.0 (BTP/2.0)
 type: working-draft
-draft: 8
+draft: 9
 ---
 
 # Bilateral Transfer Protocol 2.0 (BTP/2.0)
@@ -27,9 +27,7 @@ request/response layer, between WebSockets and the request/response pairs exchan
 
 This document describes the flow and data format that BTP uses, but not
 sub-protocols. Sub-protocols include optional functionality like ledger
-metadata, balance, automated settlement, and dispute resolution. Some protocols
-are documented on [the wiki
-page](https://github.com/interledger/interledger/wiki/Interledger-over-CLP).
+metadata, balance, automated settlement, and dispute resolution.
 They are carried in the protocol data of BTP packets.
 
 The BTP packet format is described exactly in the [BTP ASN.1
@@ -239,7 +237,7 @@ Message ::= SEQUENCE {
 ```
 
 `Message` is used for sending information to the peer. It contains no
-packet-specific data, only protocol data. [ILP](../0003-interledger-protocol/0003-interledger-protocol.md#ilp-payment-packet-format) packets are attached under the
+packet-specific data, only protocol data. [ILP](../0027-interledger-protocol-4/0027-interledger-protocol-4.md#packet-format) packets are attached under the
 protocol name `ilp` with content-type `application/octet-stream`.
 
 - `Response` is returned if the peer acknowledges the `Message`. If the peer
@@ -269,8 +267,8 @@ Error ::= SEQUENCE {
 ```
 
 `Error` is a response-type message, returned when an error occurs on the BTP
-level. It has packet-specific data which resembles the [ILP Error
-format](../0003-interledger-protocol/0003-interledger-protocol.md#ilp-error-format),
+level. It has packet-specific data which resembles the [ILP Reject
+format](../0027-interledger-protocol-4/0027-interledger-protocol-4.md#ilp-reject),
 but irrelevant fields have been taken off and new error codes have been
 written:
 

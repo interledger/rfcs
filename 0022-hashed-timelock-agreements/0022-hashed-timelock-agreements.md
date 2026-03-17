@@ -1,10 +1,11 @@
 ---
 title: Hashed-Timelock Agreements (HTLAs)
 type: working-draft
-draft: 2
+draft: 3
 ---
 
 # Hashed-Timelock Agreements (HTLAs)
+
 > Generalization of [Hashed-Timelock Contracts (HTLCs)](#background-on-hashed-timelock-contracts-htlcs) used to secure Interledger payments.
 
 _This document assumes some familiarity with HTLCs and Interledger. It briefly summarizes both but it may be best read after [IL-RFC 1: Interledger Architecture](../0001-interledger-architecture/0001-interledger-architecture.md)._
@@ -18,17 +19,17 @@ Hashed-Timelock Agreements (HTLAs) are a generalization of HTLCs that can be imp
 ## Table of Contents
 
 1. [Background on Hashed-Timelock Contracts (HTLCs)](#background-on-hashed-timelock-contracts-htlcs)
-2. [Hashed-Timelock Agreements (HTLAs)](#hashed-timelock-agreements)
-3. [HTLAs Without Ledger Support](#htlas-without-ledger-supoprt)
+2. [Hashed-Timelock Agreements (HTLAs)](#hashed-timelock-agreements-htlas-1)
+3. [HTLAs Without Ledger Support](#htlas-without-ledger-support)
 4. [Interledger Across Diverse HTLAs](#interledger-across-diverse-htlas)
 5. [Spectrum of HTLA Types](#spectrum-of-htla-types)
    1. [Conditional Payment Channels (with HTLCs)](#conditional-payment-channels-with-htlcs)
-   2. [On-Ledger Holds/Escrow (using HTLCs)](#on-ledger-holds-escrow-using-htlcs)
+   2. [On-Ledger Holds/Escrow (using HTLCs)](#on-ledger-holdsescrow-using-htlcs)
    3. [Simple Payment Channels](#simple-payment-channels)
    4. [Trustlines](#trustlines)
 6. [Appendix: Additional HTLA Types](#appendix-additional-htla-types)
 
-_____
+---
 
 ## Background on Hashed-Timelock Contracts (HTLCs)
 
@@ -79,8 +80,8 @@ The Interledger protocol flow (detailed below) ensures that each participant onl
 
 #### Interledger Protocol payment flow:
 
-1. `Alice` and `Bob` agree on the hashlock `H`. The preimage `P` is only known to `Bob` (and to `Alice` in the case of [PSK](../0016-pre-shared-key/0016-pre-shared-key.md)).
-2. `Alice` prepares the transfer to `Connector 1` by creating and funding an HTLC on `Blockchain A` with hashlock `H` (see [On-Ledger Holds/Escrow](#on-ledger-holds-escrow-using-htlcs)).
+1. `Alice` and `Bob` agree on the hashlock `H`. The preimage `P` is only known to `Bob` (and to `Alice` in the case of [STREAM](../0029-stream/0029-stream.md)).
+2. `Alice` prepares the transfer to `Connector 1` by creating and funding an HTLC on `Blockchain A` with hashlock `H` (see [On-Ledger Holds/Escrow](#on-ledger-holdsescrow-using-htlcs)).
 3. `Connector 1` prepares a transfer to `Connector 2` via their shared payment channel, also using hashlock `H` (see [Simple Payment Channels](#simple-payment-channels)).
 4. `Connector 2` prepares a transfer to `Bob` on their shared trustline using Hashlock `H` (see [Trustlines](#trustlines)).
 5. If `Bob` produces the preimage `P` before the transfer timeout, `Connector 2` will "pay" `Bob` by increasing his balance on their trustline.
@@ -97,31 +98,31 @@ _Internet "hat tip": the importance of being able to integrate **any** type of n
 
 The various types of HTLAs present a tradeoffs between complexity and risk. The more functionality a ledger provides, the less the users of that ledger need to trust one another.
 
-|  | Conditional Payment Channels (with HTLCs) | On-Ledger Holds/Escrow (using HTLCs) | Simple Payment Channels | Trustlines |
-|---|---|---|---|---|
-| **Ledger Support Required** | High | High | Medium | Low |
-| **Implementation Complexity** | High | Medium | Low | Low |
-| **Bilateral Risk** | Low | Low | Medium | High |
+|                               | Conditional Payment Channels (with HTLCs) | On-Ledger Holds/Escrow (using HTLCs) | Simple Payment Channels | Trustlines |
+| ----------------------------- | ----------------------------------------- | ------------------------------------ | ----------------------- | ---------- |
+| **Ledger Support Required**   | High                                      | High                                 | Medium                  | Low        |
+| **Implementation Complexity** | High                                      | Medium                               | Low                     | Low        |
+| **Bilateral Risk**            | Low                                       | Low                                  | Medium                  | High       |
 
 ### Conditional Payment Channels (with HTLCs)
 
-* **Ledger Features Required:** Payment Channels with HTLC Updates
-* **Non-Functional Ledger Requirements:** Fast*
-* **Money at Risk:** None
-* **Examples:** [Lightning-Style Channels](https://lightning.network)*
+- **Ledger Features Required:** Payment Channels with HTLC Updates
+- **Non-Functional Ledger Requirements:** Fast\*
+- **Money at Risk:** None
+- **Examples:** [Lightning-Style Channels](https://lightning.network)\*
 
 With conditional payment channels, participants set up the channel by depositing funds in a shared, temporary account on the ledger. When a conditional transfer is prepared, the sender sends the recipient a signed update to the channel that includes a hashlock and timeout. The recipient may redeem the transfer amount if and only if they can present the hash preimage before the timeout. If the sender and recipient agree that the preimage was delivered before the timeout, they can exchange signed statements with the newly agreed upon channel balance. If there is a dispute, the recipient can present the last claim and the hashlock preimage to the ledger and the ledger will determine whether the preimage is valid and was submitted before the timeout.
 
 Using conditional payment channels, the sender and recipient can transact without any funds being at risk, because all disputes will be mediated by the ledger. This can be used as a mechanism to enable a greater volume of payments "through" a ledger than the ledger can natively support.
 
-&ast; **Note on ledger speed:** Conditional payment channels may be most appropriate for fast ledgers, because the timeout of each transfer must account for the ledger's processing time. The recipient relies on the fact that they can redeem their funds even if there is a dispute with the sender by presenting their claims and the hashlock preimages to the ledger. However, there are numerous reasons for senders and connectors to want or require that Interledger payments execute or fail quickly (for example for retries and to reduce exchange rate risk). As a result, conditional payment channels may only work with Interledger if the ledger can process claims in a few seconds or less.
+\* **Note on ledger speed:** Conditional payment channels may be most appropriate for fast ledgers, because the timeout of each transfer must account for the ledger's processing time. The recipient relies on the fact that they can redeem their funds even if there is a dispute with the sender by presenting their claims and the hashlock preimages to the ledger. However, there are numerous reasons for senders and connectors to want or require that Interledger payments execute or fail quickly (for example for retries and to reduce exchange rate risk). As a result, conditional payment channels may only work with Interledger if the ledger can process claims in a few seconds or less.
 
 ### On-Ledger Holds/Escrow (using HTLCs)
 
-* **Ledger Features Required:** Transfers with HTLCs
-* **Non-Functional Ledger Requirements:** Fast, Low Fees, High Throughput
-* **Money at Risk:** None
-* **Examples:** [Ethereum Escrow Contract](https://github.com/interledgerjs/ilp-plugin-ethereum), [XRP Escrow](https://ripple.com/build/transactions/#escrowcreate)
+- **Ledger Features Required:** Transfers with HTLCs
+- **Non-Functional Ledger Requirements:** Fast, Low Fees, High Throughput
+- **Money at Risk:** None
+- **Examples:** [Ethereum Escrow Contract](https://github.com/interledgerjs/ilp-plugin-ethereum), [XRP Escrow](https://ripple.com/build/transactions/#escrowcreate)
 
 If a ledger provides support for HTLCs and is fast and inexpensive enough, participants can send all Interledger payments directly through the ledger. The sender prepares the conditional transfer by putting funds into a ledger-provided hold account pending a given hashlock and timeout. If the recipient presents the hash preimage before the timeout, the ledger executes the transfer and deposits the funds into the recipient's account automatically. If the timeout is reached, the ledger returns the funds to the sender.
 
@@ -129,10 +130,10 @@ Using ledger-provided conditional transfers enables parties to transact with no 
 
 ### Simple Payment Channels
 
-* **Ledger Features Required:** Unconditional, Unidirectional Payment Channels
-* **Non-Functional Ledger Requirements:** N/A
-* **Money at Risk:** Total Prepared/Fulfilled Without Claims
-* **Examples:** [Bitcoin CLTV Channels](https://github.com/bitcoin/bips/blob/master/bip-0065.mediawiki), [XRP PayChan](https://ripple.com/build/payment-channels-tutorial/)
+- **Ledger Features Required:** Unconditional, Unidirectional Payment Channels
+- **Non-Functional Ledger Requirements:** N/A
+- **Money at Risk:** Total Prepared/Fulfilled Without Claims
+- **Examples:** [Bitcoin CLTV Channels](https://github.com/bitcoin/bips/blob/master/bip-0065.mediawiki), [XRP PayChan](https://ripple.com/build/payment-channels-tutorial/)
 
 Simple payment channels allow parties to send a greater volume of payments than the ledger can process itself. To set up a simple, unidirectional payment channel the sender puts funds into a temporary account on the ledger shared with the recipient. Funds can only be withdrawn from the ledger by presenting a claim signed by both parties that specifies the portion of the funds that will be transferred to the recipient and amount that will be returned to the sender. The sender effectively pays the recipient by sending signed claims to the recipient (not the ledger) that entitle the recipient to withdraw a greater portion of the channel's funds.
 
@@ -146,10 +147,10 @@ The functionality necessary for simple payment channels is present in nearly all
 
 ### Trustlines
 
-* **Ledger Features Required:** Transfers Between Accounts
-* **Non-Functional Ledger Requirements:** N/A
-* **Money at Risk:** Total Trustline Balance
-* **Examples:** [`ilp-plugin-virtual`](https://github.com/interledgerjs/ilp-plugin-virtual)
+- **Ledger Features Required:** Transfers Between Accounts
+- **Non-Functional Ledger Requirements:** N/A
+- **Money at Risk:** Total Trustline Balance
+- **Examples:** [`ilp-plugin-virtual`](https://github.com/interledgerjs/ilp-plugin-virtual)
 
 When a ledger does not provide any support for Interledger, parties can still connect to the Interledger using trustlines. The sender prepares the transfer by sending the recipient a message including the hashlock and timeout. If the recipient produces the hash preimage before the timeout, the sender's debt is increased by the transfer amount. Like with simple payment channels, the participants must agree on how to solve disputes, including disagreements about whether a hash preimage was submitted in time. The sender can continue sending payments until they reach the maximum balance allowed by the recipient. At that point, the sender settles their balance by making a transfer on the ledger.
 
@@ -184,4 +185,3 @@ When the sender prepares a transfer, they send a message to the recipient includ
 In this model, the recipient does not need to trust the sender at all. The recipient instead trusts the third party to honestly enforce the timeouts and sign claims when preimages are submitted in time. This means that the recipient only needs to trust the third party for the transfers that have been executed but are not yet covered by claims.
 
 The sender has to trust the third party not to create a claim for more than they owe, which means they trust the third party for the payment channel's whole balance. However, unless the third party is colluding with the receiver, they have no incentive to pay out more than the sender owes.
-

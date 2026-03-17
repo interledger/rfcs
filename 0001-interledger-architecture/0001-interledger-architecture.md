@@ -1,7 +1,7 @@
 ---
 title: Interledger Architecture
 type: working-draft
-draft: 8
+draft: 9
 ---
 
 # Interledger Architecture
@@ -56,7 +56,7 @@ Thus, before doing business using Interledger, each pair of participants must ch
 
 If settlement of one account in the Interledger is contingent on the status of another account or relationship, this could create the threat of cascading risks and failures, similar to problems that occurred during the 2008 global financial crisis. Nodes can protect themselves from such risks by choosing to use settlement technologies such as collateralized payment channels where available. These types of arrangements can provide high-speed settlement without a risk that the other side may not pay. For more information on different ledger types and settlement strategies, see [IL-RFC-22: Hashed Timelock Agreements](../0022-hashed-timelock-agreements/0022-hashed-timelock-agreements.md).
 
-Nodes can also choose never to settle their obligations. This configuration may be useful when several nodes representing different pieces of software or devices are all owned by the same person or business, and all their traffic with the outside world goes through a single "home router" connector. This is the model of [moneyd](https://github.com/interledgerjs/moneyd), one of the current implementations of Interledger.
+Nodes can also choose never to settle their obligations. This configuration may be useful when several nodes representing different pieces of software or devices are all owned by the same person or business, and all their traffic with the outside world goes through a single "home router" connector.
 
 Implementations of Interledger are recommended to use settlement engines as defined in [IL-RFC-00: Settlement Engines](../0038-settlement-engines/0038-settlement-engines.md) to settle obligations automatically while abstracting the differences between different settlement systems and ledgers.
 
@@ -162,7 +162,7 @@ The original Interledger whitepaper presented an _atomic mode_ with a stronger g
 
 Interledger uses the digest of the [SHA-256](https://en.wikipedia.org/wiki/SHA-2) hash function as the condition for prepare packets. (This choice was inspired by the design of the [Lightning Network](http://lightning.network).) The fulfill packet contains a valid 32-byte preimage for the hash specified in the prepare packet. Connectors are responsible for validating fulfillments in the Interledger Protocol layer.
 
-The sender and receiver for a payment define the condition and fulfillment for each packet using a [Transport Layer](#transport-layer) protocol.
+The sender and receiver for a payment define the condition and fulfillment for each packet using a [Transport Layer](#transport-protocols) protocol.
 
 ### Connector Risk and Mitigation
 

@@ -1,7 +1,7 @@
 ---
 title: Interledger Dynamic Configuration Protocol
 type: working-draft
-draft: 4
+draft: 5
 ---
 
 # Interledger Dynamic Configuration Protocol (ILDCP) v1
@@ -15,7 +15,7 @@ This specification assumes the reader is familiar with the following documents:
 
 ## Terminology
 
-- A **node** is a participant in an Interledger network. It may be a [connector](../0001-interledger-architecture/0001-interledger-architecture.md#connectors), a sender or a receiver.
+- A **node** is a participant in an Interledger network. It may be a [connector, a sender or a receiver](../0001-interledger-architecture/0001-interledger-architecture.md#sender-receiver-connectors).
 - Nodes are connected to each other and the relationship between two nodes is either:
   - `parent` and `child` (one node is the `parent` of another node that is relatively its `child`), or,
   - `peer` and `peer` (two nodes are peered with one another).

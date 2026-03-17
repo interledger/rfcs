@@ -1,7 +1,7 @@
 ---
 title: Relationship between Protocols
 type: working-draft
-draft: 3
+draft: 4
 ---
 
 # Relationship between Protocols
@@ -14,7 +14,7 @@ This document assumes the reader is familiar with the following document:
 
 ## Terminology
 
-- A **node** is a participant in an Interledger network. It may be a [connector](../0001-interledger-architecture/0001-interledger-architecture.md#connectors), a sender or a receiver.
+- A **node** is a participant in an Interledger network. It may be a [connector, a sender or a receiver](../0001-interledger-architecture/0001-interledger-architecture.md#sender-receiver-connectors).
 - A **payment** is sending value from one to another but it doesn't necessarily mean settled, as is explained below. In the Interledger network, a payment could mean a **node-to-node** payment or an **end-to-end** payment.
   - A **node-to-node** payment means the intention of transferring value of a node (a connector, an endpoint sender, or an endpoint receiver) to another node which is directly connected to the sender node.
   - An **end-to-end** payment means the intention of transferring value of an endpoint sender to an endpoint receiver.

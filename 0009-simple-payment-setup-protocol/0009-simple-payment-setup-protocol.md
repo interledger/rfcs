@@ -1,7 +1,7 @@
 ---
 title: The Simple Payment Setup Protocol (SPSP)
 type: working-draft
-draft: 13
+draft: 14
 ---
 
 # Simple Payment Setup Protocol (SPSP)
@@ -66,7 +66,7 @@ Accept: application/spsp4+json, application/spsp+json
 
 ##### Request Headers to Support Web Monetization Polyfills
 
-[Web Monetization](../0028-web-monetization/0028-web-monetization.md) polyfills may query SPSP from a non-privileged context if they are implemented as a script rather than a browser extension. Sites may choose to use a script-based polyfill to enable Web Monetization for their visitors without requiring any browser extension or browser support.
+[Web Monetization](https://webmonetization.org) polyfills may query SPSP from a non-privileged context if they are implemented as a script rather than a browser extension. Sites may choose to use a script-based polyfill to enable Web Monetization for their visitors without requiring any browser extension or browser support.
 
 In this situation, [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) headers are necessary to make the SPSP server reachable. If CORS headers are not included, the SPSP query will be rejected and Web Monetization will fail to initialize.
 
@@ -144,8 +144,6 @@ We assume that the SPSP Client knows the SPSP Server's SPSP Endpoint (see [Payme
 
    - The `destination_account` MUST be used as the STREAM `destinationAccount`.
    - The `shared_secret` MUST be decoded from base64 and used as the STREAM `sharedSecret`.
-
-   It MAY respond with additional information if it is an invoice server or a pull payment server. For more information, see [SPSP Invoices](../0037-spsp-invoices/0037-spsp-invoices.md) and [SPSP Pull Payments](../0036-spsp-pull-payments/0036-spsp-pull-payments.md).
 
 3. The SPSP Client establishes a STREAM connection to the SPSP Server using the SPSP Server's ILP address and shared secret.
 
