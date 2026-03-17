@@ -131,7 +131,7 @@ The [Interledger protocol stack](#interledger-protocol-stack).
 
 ## interledger (in "An interledger network")
 
-A network of two or more ledgers, indicating that it uses the Interledger protocol stack. See also [Interledger (The)](#interledger-the)
+A network of two or more ledgers, indicating that it uses the Interledger protocol stack. See also [Interledger (The)](#interledger-in-the-interledger)
 The adjective 'interledger' is also sometimes used to simply refer to transactions that cross multiple ledgers, even if ILP is not used (similar to
 'international' meaning 'across multiple nations').
 
@@ -312,7 +312,7 @@ Also sometimes called 'ledger transfer'.
 ## Transport Layer
 
 The middle layer of the Interledger protocol stack, which determines the condition and encoding of the data in the
-ILP Packet, and what details the sender and receiver need to discuss beforehand. The current transport layer protocol is [STREAM](../0029-stream/0029-stream.md). Deprecated transport layer protocols include [Pre-Shared Key](#pre-shared-key-psk) or [Interledger Payment Request](#interledger-payment-request-ipr). It is called the transport layer because
+ILP Packet, and what details the sender and receiver need to discuss beforehand. The current transport layer protocol is [STREAM](../0029-stream/0029-stream.md). Deprecated transport layer protocols include [Pre-Shared Key](#pre-shared-key-psk) and [Interledger Payment Request](#interledger-payment-request-ipr). It is called the transport layer because
 it provides the end-to-end hashlock condition which ultimately connects the individual
 ledger transfers together, into one Interledger payment. In that sense, the transport layer "transports" the payment
 over one or more transfers.

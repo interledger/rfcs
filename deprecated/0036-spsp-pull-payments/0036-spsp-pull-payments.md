@@ -1,7 +1,6 @@
 ---
 title: SPSP Pull Payments
-type: working-draft
-draft: 1
+draft: FINAL
 deprecated: true
 ---
 
