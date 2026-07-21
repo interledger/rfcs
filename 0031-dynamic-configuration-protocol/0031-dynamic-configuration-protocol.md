@@ -61,26 +61,31 @@ All current implementations of ILDCP default to an amount of `0` in the ILP pack
 
 The packet exchange goes as follows:
 
-- Request
-  - The `type` of the ILP packet is `ILP Prepare` (type id: 12)
-  - The `amount` of the ILP packet defaults to `0`.
-  - The `expiresAt` of the ILP packet is arbitrary.
-  - The `executionCondition` of the ILP packet is `Zmh6rfhivXdsj8GLjp+OIAiXFIVu4jOzkCpZHQ1fKSU=` in Base64 format
-  - The `destination` address of the ILP packet is `peer.config`
-  - The `data` of the ILP packet is empty (size: 0)
-- Response
-  - The `type` of the ILP packet is `ILP Fulfill` (type id: 13)
-  - The `fulfillment` of the ILP packet is a 32-byte octet string all filled with zeros
-  - The `data` of the ILP packet takes a specific format and is described by `DynamicConfigurationResponseData` in the ILDCP [ASN.1 definition](#asn1-definition). It is an OER encoded SEQUENCE of
-    - `Variable-length octet string`: An ILP address that the child should use, encoded as an `ASCII` string
-    - `Uint8`: An unsigned 8-bit integer indicating the asset scale that should be used for packets exchanged with the parent
-    - `Variable-length octet string`: An asset code, encoded as a `UTF-8` string, indicating the settlement asset used between the peers
-- Error
-  - The `type` of the ILP packet is `ILP Reject` (type id: 14)
-  - The `code` of the ILP packet is an appropriate error code
-  - The `message` of the ILP packet is an appropriate human-readable message for debugging purposes
-  - The `triggeredBy` of the ILP packet is the ILP address of the parent node
-  - The `data` of the ILP packet is empty (size: 0) or MAY contain further information for debugging the error.
+#### Request
+
+- The `type` of the ILP packet is `ILP Prepare` (type id: 12)
+- The `amount` of the ILP packet defaults to `0`.
+- The `expiresAt` of the ILP packet is arbitrary.
+- The `executionCondition` of the ILP packet is `Zmh6rfhivXdsj8GLjp+OIAiXFIVu4jOzkCpZHQ1fKSU=` in Base64 format
+- The `destination` address of the ILP packet is `peer.config`
+- The `data` of the ILP packet is empty (size: 0)
+
+#### Response
+
+- The `type` of the ILP packet is `ILP Fulfill` (type id: 13)
+- The `fulfillment` of the ILP packet is a 32-byte octet string all filled with zeros
+- The `data` of the ILP packet takes a specific format and is described by `DynamicConfigurationResponseData` in the ILDCP [ASN.1 definition](#asn1-definition). It is an OER encoded SEQUENCE of
+  - `Variable-length octet string`: An ILP address that the child should use, encoded as an `ASCII` string
+  - `Uint8`: An unsigned 8-bit integer indicating the asset scale that should be used for packets exchanged with the parent
+  - `Variable-length octet string`: An asset code, encoded as a `UTF-8` string, indicating the settlement asset used between the peers
+
+#### Error
+
+- The `type` of the ILP packet is `ILP Reject` (type id: 14)
+- The `code` of the ILP packet is an appropriate error code
+- The `message` of the ILP packet is an appropriate human-readable message for debugging purposes
+- The `triggeredBy` of the ILP packet is the ILP address of the parent node
+- The `data` of the ILP packet is empty (size: 0) or MAY contain further information for debugging the error.
 
 ### ASN.1 Definition
 
