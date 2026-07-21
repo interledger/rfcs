@@ -69,7 +69,7 @@ spec](https://github.com/interledger/rfcs/blob/master/asn1/BilateralTransferProt
 
 ## Overview
 
-BTP is broken up into one different RPC requests, which can get two different
+BTP is broken up into two different RPC requests, which can get two different
 responses. The following is a common BTP packet structure, though some types
 don't have `Packet Specific Data` section:
 
