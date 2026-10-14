@@ -283,7 +283,7 @@ HTTP/2 is RECOMMENDED for performance reasons, although HTTP/1.1 MAY also be use
 
 ### Credit incoming settlement
 
-[Account for an incoming settlement](#account-for-incoming-settlements). The settlement engine sends this request as it receives incoming settlements in in order to ensure [settlement symmetry](#settlement-symmetry).
+[Account for an incoming settlement](#account-for-incoming-settlements). The settlement engine sends this request as it receives incoming settlements in order to ensure [settlement symmetry](#settlement-symmetry).
 
 #### Request
 
