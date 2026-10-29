@@ -7,7 +7,7 @@ This repository contains a collection of various specifications and documentatio
 
 The process for submitting an RFC is documented in the [RFC Process](CONTRIBUTING.md).
 
-For the main reference implementation of the ILP stack, see [Interledger.js](https://github.com/interledgerjs).
+For reference implementations of the ILP stack, see [Rafiki](https://github.com/interledger/rafiki) and [Interledger.js](https://github.com/interledgerjs).
 
 ## ASN.1 and OER
 
@@ -15,9 +15,9 @@ A number of the protocols define data structures in ASN.1 notation. The collecti
 
 Changes to these files are automatically checked and compiled during CI using online ASN.1 tools from OSS Nokalva. If you need ASN.1 tools for any work you're doing on Interledger please contact them for assistance.
 
-[![OSS Nokalva](https://raw.githubusercontent.com/interledger/rfcs/master/assets/osslogo.png)](http://asn1-playground.oss.com/)
+[![OSS Nokalva](https://raw.githubusercontent.com/interledger/rfcs/master/assets/osslogo.png)](https://asn1-playground.oss.com/)
  
-You can also check your ASN.1 definitions online using OSS Nokalva's ASN.1 Playground available at http://asn1.io/
+You can also check your ASN.1 definitions online using OSS Nokalva's ASN.1 Playground available at https://asn1.io/
 
 The default encoding rules for Interledger protocols are the Canonical Octet Encoding Rules as described in [Notes on OER encoding](./0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md).
 
@@ -30,6 +30,10 @@ The default encoding rules for Interledger protocols are the Canonical Octet Enc
 - **[19: Glossary](./0019-glossary/0019-glossary.md)**
 
   Definitions of Interledger terminology.
+
+- **[30: Notes on OER Encoding](./0030-notes-on-oer-encoding/0030-notes-on-oer-encoding.md)**
+
+  Details the Canonical Octet Encoding Rules (COER) used across Interledger protocol data structures.
 
 ## Core Interledger Protocol Specs
 
@@ -50,6 +54,10 @@ The default encoding rules for Interledger protocols are the Canonical Octet Enc
 - **[29: STREAM](0029-stream/0029-stream.md)**
 
   The recommended Transport Layer protocol for most use cases, which handles quoting, individual payments, chunked payments, and streaming payments using a shared secret between the sender and receiver.
+
+- **[35: ILP over HTTP](0035-ilp-over-http/0035-ilp-over-http.md)**
+
+  Specifies the bilateral protocol for transmitting ILP packets between peers and connectors using HTTP/2 and HTTPS.
 
 ## Ledger Layer
 
